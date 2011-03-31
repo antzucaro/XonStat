@@ -1,3 +1,4 @@
+import sqlahelper
 import transaction
 
 from sqlalchemy import Column
@@ -10,7 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
-
+Engine=sqlahelper.get_engine()
 DBSession = scoped_session(sessionmaker())
 Base = declarative_base()
 
