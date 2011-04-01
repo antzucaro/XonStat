@@ -1,7 +1,7 @@
+import pyramid_jinja2
 import sqlahelper
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
-
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -16,8 +16,18 @@ def main(global_config, **settings):
     from xonstat.models import initialize_sql
     initialize_sql(engine)
 
+    # import the views
+    # note: have to import here else we'll get` 
+    # "no engine 'default' was configured
+    from xonstat.views import * 
+
     config = Configurator(settings=settings)
+
+    config.add_renderer('.jinja2', pyramid_jinja2.renderer_factory)
+
     config.add_static_view('static', 'xonstat:static')
+
+    config.add_route(name="main_index", pattern="/", view=main_index, renderer='index.jinja2') 
     return config.make_wsgi_app()
 
 
