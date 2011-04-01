@@ -22,13 +22,13 @@ def main_index(request):
 ##########################################################################
 @view_config(renderer='player_index.mako')
 def player_index(request):
-    players = Session.query(Player)
+    players = DBSession.query(Player)
     log.debug("testing logging; entered PlayerHandler.index()")
     return {'players':players}
 
 @view_config(renderer='player_info.mako')
 def player_info(request):
-    player = Session.query(Player).filter_by(player_id=p_player_id)
+    player = DBSession.query(Player).filter_by(player_id=p_player_id)
     log.debug("testing logging; entered PlayerHandler.info()")
     return {'player':player}
 
@@ -116,10 +116,13 @@ def create_player_game_stat(session=None, player=None,
 
     # in here setup default values (e.g. if game type is CTF then
     # set kills=0, score=0, captures=0, pickups=0, fckills=0, etc
-    pgstat = PlayerGameStat()
+    pgstat = PlayerGameStat(create_dt=datetime.datetime.now())
 
     # set player id from player record
     pgstat.player_id = player.player_id
+
+    #set game id from game record
+    pgstat.game_id = game.game_id
 
     # all games have a score
     pgstat.score = 0
@@ -161,7 +164,7 @@ def create_player_game_stat(session=None, player=None,
 
 @view_config(renderer='stats_submit.mako')
 def stats_submit(request):
-    session = Session()
+    session = DBSession()
 
     # game meta information
     game_meta = {}
