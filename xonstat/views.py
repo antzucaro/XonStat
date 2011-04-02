@@ -171,6 +171,9 @@ def stats_submit(request):
     player_events = {}
     players = []
     
+    # for troubleshooting issues...
+    log.debug(request.body)
+
     # main loop over each line of the stats body
     for line in request.body.split('\n'):
         (key, value) = line.strip().split(' ', 1)
