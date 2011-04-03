@@ -23,3 +23,9 @@ To get a Xonotic server configured to use this server, change the CVAR "g_player
     set g_playerstats_uri http://localhost:6543/stats/submit
 
 If you have any questions or issues please open up a bug report here, or - better yet ! - fork it and send me a pull request. 
+
+TODO:
+
+- "e matches" and "e joins" seem to be mutually exclusive. Add a check for either (instead of just joins" before adding a player_game_stats record).
+
+- map names are being recorded multiple times in the maps table. They should be found when being played subsequent times. 
