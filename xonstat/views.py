@@ -57,7 +57,7 @@ def get_or_create_map(session=None, name=None):
     gmap = None
     try:
         # find one by the name, if it exists
-        gmap = session.query(Map).filter_by(name=name)
+        gmap = session.query(Map).filter_by(name=name).one()
         log.debug("Found map id {0} with name {1}.".format(gmap.map_id, 
             gmap.name))
     except:
@@ -102,12 +102,16 @@ def get_or_create_player(session=None, hashkey=None):
                     hashkey=hashkey).one()
             player = session.query(Player).filter_by(
                     player_id=hashkey.player_id).one()
+            log.debug("Found existing player {0} with hashkey {1}.".format(
+                player.player_id, hashkey.hashkey)
         except:
             player = Player()
             session.add(player)
             session.flush()
             hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
             session.add(hashkey)
+            log.debug("Created player {0} with hashkey {1}.".format(
+                player.player_id, hashkey.hashkey)
 
     return player
 
@@ -116,6 +120,7 @@ def create_player_game_stat(session=None, player=None,
 
     # in here setup default values (e.g. if game type is CTF then
     # set kills=0, score=0, captures=0, pickups=0, fckills=0, etc
+    # TODO: use game's create date here instead of now()
     pgstat = PlayerGameStat(create_dt=datetime.datetime.now())
 
     # set player id from player record
