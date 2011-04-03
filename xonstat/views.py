@@ -244,13 +244,15 @@ def stats_submit(request):
             has_real_players = True
         player = get_or_create_player(session=session, 
                 hashkey=player_events['P'])
-        if 'joins' in player_events:
+        if 'joins' in player_events or 'matches' in player_events:
             pgstat = create_player_game_stat(session=session, 
                     player=player, game=game, player_events=player_events)
     
     if has_real_players:
         session.commit()
+        log.debug('Success! Stats recorded.')
         return {'msg':'Success! Stats recorded.'}
     else:
         session.rollback()
+        log.debug('No real players found. Stats ignored.')
         return {'msg':'No real players found. Stats ignored.'}
