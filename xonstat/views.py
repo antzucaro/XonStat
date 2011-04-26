@@ -71,9 +71,9 @@ def get_or_create_map(session=None, name=None):
     return gmap
 
 def create_game(session=None, start_dt=None, game_type_cd=None, 
-        server_id=None, map_id=None):
+        server_id=None, map_id=None, winner=None):
     game = Game(start_dt=start_dt, game_type_cd=game_type_cd,
-                server_id=server_id, map_id=map_id)
+                server_id=server_id, map_id=map_id, winner=winner)
     session.add(game)
     session.flush()
     log.debug("Created game id {0} on server {1}, map {2} at time \
@@ -146,15 +146,16 @@ def create_player_game_stat(session=None, player=None,
 
     for (key,value) in player_events.items():
         if key == 'n': pgstat.nick = value
-        if key == 'total-drops': pgstat.drops = value
-        if key == 'total-returns': pgstat.returns = value
-        if key == 'total-fckills': pgstat.carrier_frags = value
-        if key == 'total-pickups': pgstat.pickups = value
-        if key == 'total-caps': pgstat.caps = value
-        if key == 'total-score': pgstat.score = value
-        if key == 'total-deaths': pgstat.deaths = value
-        if key == 'total-kills': pgstat.kills = value
-        if key == 'total-suicides': pgstat.suicides = value
+        if key == 't': pgstat.team = value
+        if key == 'scoreboard-drops': pgstat.drops = value
+        if key == 'scoreboard-returns': pgstat.returns = value
+        if key == 'scoreboard-fckills': pgstat.carrier_frags = value
+        if key == 'scoreboard-pickups': pgstat.pickups = value
+        if key == 'scoreboard-caps': pgstat.caps = value
+        if key == 'scoreboard-score': pgstat.score = value
+        if key == 'scoreboard-deaths': pgstat.deaths = value
+        if key == 'scoreboard-kills': pgstat.kills = value
+        if key == 'scoreboard-suicides': pgstat.suicides = value
         # TODO: alivetime
 
     # check to see if we had a name, and if 
@@ -167,73 +168,99 @@ def create_player_game_stat(session=None, player=None,
 
     return pgstat
 
+
+def create_player_weapon_stats(session=None, player=None, 
+        game=None, player_events=None):
+    pwstats = []
+
+    for (key,value) in player_events.items():
+        match = re.search("acc-(.*?)-cnt-fired", key)
+        if match:
+            abbr = match.group(1)
+            try:
+                pwstat = PlayerWeaponStat()
+                pwstat.player_id = player.player_id
+                pwstat.game_id = game.game_id
+                pwstat.weapon_cd = abbr
+                pwstat.max = player_events['acc-' + abbr + '-fired']
+                pwstat.actual = player_events['acc-' + abbr + '-hit']
+                pwstat.fired = player_events['acc-' + abbr + '-cnt-fired']
+                pwstat.hit = player_events['acc-' + abbr + '-cnt-hit']
+                pwstat.frags = player_events['acc-' + abbr + '-frags']
+                session.add(pwstat)
+                pwstats.append(pwstat)
+            except:
+                pass
+
+    return pwstats
+
+
+def parse_body(request):
+    # storage vars for the request body
+    game_meta = {}
+    player_events = {}
+    current_team = None
+    players = []
+    
+    log.debug(request.body)
+
+    for line in request.body.split('\n'):
+        try:
+            (key, value) = line.strip().split(' ', 1)
+    
+            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W':
+                game_meta[key] = value
+
+            if key == 't':
+                current_team = value
+    
+            if key == 'P':
+                # if we were working on a player record already, append
+                # it and work on a new one (only set team info)
+                if len(player_events) != 0:
+                    players.append(player_events)
+                    player_events = {'t':current_team}
+    
+                player_events[key] = value
+    
+            if key == 'e':
+                (subkey, subvalue) = value.split(' ', 1)
+                player_events[subkey] = subvalue
+
+            if key == 'n':
+                player_events[key] = value
+        except:
+            # no key/value pair - move on to the next line
+            pass
+    
+    # add the last player we were working on
+    players.append(player_events)
+
+    return (game_meta, players)
+
+
 @view_config(renderer='stats_submit.mako')
 def stats_submit(request):
     session = DBSession()
 
-    # game meta information
-    game_meta = {}
-    player_events = {}
-    players = []
-    
-    # for troubleshooting issues...
-    log.debug(request.body)
-
-    # main loop over each line of the stats body
-    for line in request.body.split('\n'):
-        (key, value) = line.strip().split(' ', 1)
-    
-        # these are important keys needed to establish
-        # basic game meta information
-        if key in 'V' 'T' 'G' 'M' 'S' 'C':
-            game_meta[key] = value
-    
-        # 'P' is a player record. After this key we will get a list
-        # of events for that player
-        if key == 'P':
-            # if we were working on a player record previously, append
-            # it and work on a new one
-            if len(player_events) != 0:
-                players.append(player_events)
-                player_events = {}
-    
-            player_events[key] = value
-    
-        # 'e' is an event associated with the current 'P' record
-        # being processed
-        if key == 'e':
-            (subkey, subvalue) = value.split(' ', 1)
-            player_events[subkey] = subvalue
-
-        # 'n' is a player's name. it is not an event per se, 
-        # but it belongs on the player record
-        if key == 'n':
-            player_events[key] = value
-    
-    # add the last player we were working on
-    players.append(player_events)
+    (game_meta, players) = parse_body(request)  
     
     # verify required metadata is present
     if 'T' not in game_meta or\
         'G' not in game_meta or\
         'M' not in game_meta or\
-        'S' not in game_meta:
-        log.debug("Required game meta fields (T, G, M, or S) missing. "\
+        'S' not in game_meta or\
+        'W' not in game_meta:
+        log.debug("Required game meta fields (T, G, M, S, or W) missing. "\
                 "Can't continue.")
         return {'msg':'Error processing the request.'}
     
-    # find or create a record for the server
     server = get_or_create_server(session=session, name=game_meta['S'])
-    
-    # find or create a record for the map
     gmap = get_or_create_map(session=session, name=game_meta['M'])
-    
-    # create the game
     # FIXME: don't use python now() here, convert from epoch T value
-    now = datetime.datetime.now()
-    game = create_game(session=session, start_dt=now, 
-            server_id=server.server_id,\
-            game_type_cd=game_meta['G'], map_id=gmap.map_id)
+    game = create_game(session=session, start_dt=datetime.datetime.now(), 
+            server_id=server.server_id, game_type_cd=game_meta['G'], 
+            map_id=gmap.map_id, winner=game_meta['W'])
     
     # find or create a record for each player
     # and add stats for each if they were present at the end
@@ -244,8 +271,10 @@ def stats_submit(request):
             has_real_players = True
         player = get_or_create_player(session=session, 
                 hashkey=player_events['P'])
-        if 'joins' in player_events or 'matches' in player_events:
+        if 'joins' in player_events and 'matches' in player_events:
             pgstat = create_player_game_stat(session=session, 
+                    player=player, game=game, player_events=player_events)
+            pwstats = create_player_weapon_stats(session=session, 
                     player=player, game=game, player_events=player_events)
     
     if has_real_players:
