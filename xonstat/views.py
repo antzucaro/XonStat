@@ -176,7 +176,7 @@ def create_player_weapon_stats(session=None, player=None,
     for (key,value) in player_events.items():
         matched = re.search("acc-(.*?)-cnt-fired", key)
         if matched:
-            weapon_cd = match.group(1)
+            weapon_cd = matched.group(1)
             try:
                 pwstat = PlayerWeaponStat()
                 pwstat.player_id = player.player_id
