@@ -174,19 +174,19 @@ def create_player_weapon_stats(session=None, player=None,
     pwstats = []
 
     for (key,value) in player_events.items():
-        match = re.search("acc-(.*?)-cnt-fired", key)
-        if match:
-            abbr = match.group(1)
+        matched = re.search("acc-(.*?)-cnt-fired", key)
+        if matched:
+            weapon_cd = match.group(1)
             try:
                 pwstat = PlayerWeaponStat()
                 pwstat.player_id = player.player_id
                 pwstat.game_id = game.game_id
-                pwstat.weapon_cd = abbr
-                pwstat.max = player_events['acc-' + abbr + '-fired']
-                pwstat.actual = player_events['acc-' + abbr + '-hit']
-                pwstat.fired = player_events['acc-' + abbr + '-cnt-fired']
-                pwstat.hit = player_events['acc-' + abbr + '-cnt-hit']
-                pwstat.frags = player_events['acc-' + abbr + '-frags']
+                pwstat.weapon_cd = weapon_cd
+                pwstat.max = player_events['acc-' + weapon_cd + '-fired']
+                pwstat.actual = player_events['acc-' + weapon_cd + '-hit']
+                pwstat.fired = player_events['acc-' + weapon_cd + '-cnt-fired']
+                pwstat.hit = player_events['acc-' + weapon_cd + '-cnt-hit']
+                pwstat.frags = player_events['acc-' + weapon_cd + '-frags']
                 session.add(pwstat)
                 pwstats.append(pwstat)
             except:
