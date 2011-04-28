@@ -171,31 +171,32 @@ def create_player_weapon_stats(session=None, player=None,
     pwstats = []
 
     for (key,value) in player_events.items():
-        matched = re.search("acc-(.*?)-.*(fired|hit)", key)
+        matched = re.search("acc-(.*?)-cnt-fired", key)
         if matched:
+            log.debug("Matched key: {0}".format(key))
             weapon_cd = matched.group(1)
             pwstat = PlayerWeaponStat()
             pwstat.player_id = player.player_id
             pwstat.game_id = game.game_id
             pwstat.weapon_cd = weapon_cd
             try:
-                pwstat.max = player_events['acc-' + weapon_cd + '-fired']
+                pwstat.max = int(player_events['acc-' + weapon_cd + '-fired'])
             except:
                 pwstat.max = 0
             try:
-                pwstat.actual = player_events['acc-' + weapon_cd + '-hit']
+                pwstat.actual = int(player_events['acc-' + weapon_cd + '-hit'])
             except:
                 pwstat.actual = 0
             try:
-                pwstat.fired = player_events['acc-' + weapon_cd + '-cnt-fired']
+                pwstat.fired = int(player_events['acc-' + weapon_cd + '-cnt-fired'])
             except:
                 pwstat.fired = 0
             try:
-                pwstat.hit = player_events['acc-' + weapon_cd + '-cnt-hit']
+                pwstat.hit = int(player_events['acc-' + weapon_cd + '-cnt-hit'])
             except:
                 pwstat.hit = 0
             try:
-                pwstat.frags = player_events['acc-' + weapon_cd + '-frags']
+                pwstat.frags = int(player_events['acc-' + weapon_cd + '-frags'])
             except:
                 pwstat.frags = 0
 
@@ -259,18 +260,23 @@ def stats_submit(request):
     if 'T' not in game_meta or\
         'G' not in game_meta or\
         'M' not in game_meta or\
-        'S' not in game_meta or\
-        'W' not in game_meta:
-        log.debug("Required game meta fields (T, G, M, S, or W) missing. "\
+        'S' not in game_meta:
+        log.debug("Required game meta fields (T, G, M, or S) missing. "\
                 "Can't continue.")
         return {'msg':'Error processing the request.'}
     
     server = get_or_create_server(session=session, name=game_meta['S'])
     gmap = get_or_create_map(session=session, name=game_meta['M'])
+
+    if 'W' in game_meta:
+        winner = game_meta['W']
+    else:
+        winner = None
+
     # FIXME: don't use python now() here, convert from epoch T value
     game = create_game(session=session, start_dt=datetime.datetime.now(), 
             server_id=server.server_id, game_type_cd=game_meta['G'], 
-            map_id=gmap.map_id, winner=game_meta['W'])
+            map_id=gmap.map_id, winner=winner)
     
     # find or create a record for each player
     # and add stats for each if they were present at the end
@@ -284,8 +290,8 @@ def stats_submit(request):
         if 'joins' in player_events and 'matches' in player_events:
             pgstat = create_player_game_stat(session=session, 
                     player=player, game=game, player_events=player_events)
-            pwstats = create_player_weapon_stats(session=session, 
-                    player=player, game=game, player_events=player_events)
+            #pwstats = create_player_weapon_stats(session=session, 
+                    #player=player, game=game, player_events=player_events)
     
     if has_real_players:
         session.commit()
