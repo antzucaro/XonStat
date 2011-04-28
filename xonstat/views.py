@@ -84,9 +84,6 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
 
 # search for a player and if found, create a new one (w/ hashkey)
 def get_or_create_player(session=None, hashkey=None):
-    # the player object we'll return
-    player = None
-
     # if we have a bot
     if re.search('^bot#\d+$', hashkey):
         player = session.query(Player).filter_by(player_id=1).one()
@@ -103,7 +100,7 @@ def get_or_create_player(session=None, hashkey=None):
             player = session.query(Player).filter_by(
                     player_id=hashkey.player_id).one()
             log.debug("Found existing player {0} with hashkey {1}.".format(
-                player.player_id, hashkey.hashkey)
+                player.player_id, hashkey.hashkey))
         except:
             player = Player()
             session.add(player)
@@ -111,7 +108,7 @@ def get_or_create_player(session=None, hashkey=None):
             hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
             session.add(hashkey)
             log.debug("Created player {0} with hashkey {1}.".format(
-                player.player_id, hashkey.hashkey)
+                player.player_id, hashkey.hashkey))
 
     return player
 
