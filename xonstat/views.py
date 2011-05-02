@@ -159,6 +159,9 @@ def create_player_game_stat(session=None, player=None,
     for (key,value) in player_events.items():
         if key == 'n': pgstat.nick = value
         if key == 't': pgstat.team = value
+        if key == 'rank': pgstat.rank = value
+        if key == 'alivetime': 
+            pgstat.alivetime = datetime.timedelta(seconds=int(round(float(value))))
         if key == 'scoreboard-drops': pgstat.drops = value
         if key == 'scoreboard-returns': pgstat.returns = value
         if key == 'scoreboard-fckills': pgstat.carrier_frags = value
@@ -168,7 +171,6 @@ def create_player_game_stat(session=None, player=None,
         if key == 'scoreboard-deaths': pgstat.deaths = value
         if key == 'scoreboard-kills': pgstat.kills = value
         if key == 'scoreboard-suicides': pgstat.suicides = value
-        # TODO: alivetime
 
     # check to see if we had a name, and if 
     # not use the name from the player id
@@ -303,7 +305,8 @@ def stats_submit(request):
             has_real_players = True
         player = get_or_create_player(session=session, 
                 hashkey=player_events['P'])
-        if 'joins' in player_events and 'matches' in player_events:
+        if 'joins' in player_events and 'matches' in player_events\
+                 and 'scoreboardvalid' in player_events:
             pgstat = create_player_game_stat(session=session, 
                     player=player, game=game, player_events=player_events)
             #pwstats = create_player_weapon_stats(session=session, 
