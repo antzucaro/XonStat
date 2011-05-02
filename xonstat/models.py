@@ -88,7 +88,7 @@ class Weapon(object):
 
 class Server(object):
     def __init__(self, server_id=None, name=None, location=None, ip_addr=None,
-            max_players=None, create_dt=datetime.datetime.now(), 
+            max_players=None, create_dt=None, 
             pure_ind='Y', active_ind='Y'):
         self.server_id = server_id
         self.name = name
@@ -124,9 +124,9 @@ class MapGameType(object):
         return "<MapGameType(%s, %s)>" % (self.map_id, self.game_type_cd)
 
 class Game(object):
-    def __init__(self, game_id=None, start_dt=datetime.datetime.now(),
+    def __init__(self, game_id=None, start_dt=None,
             game_type_cd=None, server_id=None, map_id=None, duration=None,
-            winner=None, create_dt=datetime.datetime.now()):
+            winner=None, create_dt=None):
         self.game_id = game_id
         self.start_dt = start_dt
         self.game_type_cd = game_type_cd
