@@ -4,6 +4,8 @@ from pyramid.response import Response
 from pyramid.view import view_config
 
 from xonstat.models import *
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -37,36 +39,49 @@ def player_info(request):
 # statistics and its related information goes here
 ##########################################################################
 def get_or_create_server(session=None, name=None):
-    server = None
     try:
         # find one by that name, if it exists
         server = session.query(Server).filter_by(name=name).one()
         log.debug("Found server id {0} with name {1}.".format(
             server.server_id, server.name))
-    except:
-        # otherwise create a new one
+    except NoResultFound, e:
         server = Server(name=name)
         session.add(server)
         session.flush()
         log.debug("Created server id {0} with name {1}".format(
             server.server_id, server.name))
+    except MultipleResultsFound, e:
+        # multiple found, so use the first one but warn
+        log.debug(e)
+        servers = session.query(Server).filter_by(name=name).order_by(
+                Server.server_id).all()
+        server = servers[0]
+        log.debug("Created server id {0} with name {1} but found \
+                multiple".format(
+            server.server_id, server.name))
 
     return server
 
 def get_or_create_map(session=None, name=None):
-    gmap = None
     try:
         # find one by the name, if it exists
         gmap = session.query(Map).filter_by(name=name).one()
         log.debug("Found map id {0} with name {1}.".format(gmap.map_id, 
             gmap.name))
-    except:
-        # otherwise create a new one
+    except NoResultFound, e:
         gmap = Map(name=name)
         session.add(gmap)
         session.flush()
         log.debug("Created map id {0} with name {1}.".format(gmap.map_id,
             gmap.name))
+    except MultipleResultsFound, e:
+        # multiple found, so use the first one but warn
+        log.debug(e)
+        gmaps = session.query(Map).filter_by(name=name).order_by(
+                Map.map_id).all()
+        gmap = gmaps[0]
+        log.debug("Found map id {0} with name {1} but found \
+                multiple.".format(gmap.map_id, gmap.name))
 
     return gmap
 
@@ -148,7 +163,7 @@ def create_player_game_stat(session=None, player=None,
         if key == 'scoreboard-returns': pgstat.returns = value
         if key == 'scoreboard-fckills': pgstat.carrier_frags = value
         if key == 'scoreboard-pickups': pgstat.pickups = value
-        if key == 'scoreboard-caps': pgstat.caps = value
+        if key == 'scoreboard-caps': pgstat.captures = value
         if key == 'scoreboard-score': pgstat.score = value
         if key == 'scoreboard-deaths': pgstat.deaths = value
         if key == 'scoreboard-kills': pgstat.kills = value
@@ -245,7 +260,8 @@ def parse_body(request):
             pass
     
     # add the last player we were working on
-    players.append(player_events)
+    if len(player_events) > 0:
+        players.append(player_events)
 
     return (game_meta, players)
 
