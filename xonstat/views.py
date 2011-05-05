@@ -65,6 +65,19 @@ def server_info(request):
 
 
 ##########################################################################
+# This is the map views area - only views pertaining to Xonotic
+# maps and their related information goes here
+##########################################################################
+def map_info(request):
+    map_id = request.matchdict['id']
+    try:
+        gmap = DBSession.query(Map).filter_by(map_id=map_id).one()
+    except:
+        gmap = None
+    return {'gmap':gmap}
+
+
+##########################################################################
 # This is the stats views area - only views pertaining to Xonotic
 # statistics and its related information goes here
 ##########################################################################
@@ -312,7 +325,7 @@ def stats_submit(request):
             'S' not in game_meta:
             log.debug("Required game meta fields (T, G, M, or S) missing. "\
                     "Can't continue.")
-            return {'msg':'Error processing the request.'}
+            raise Exception
     
         server = get_or_create_server(session=session, name=game_meta['S'])
         gmap = get_or_create_map(session=session, name=game_meta['M'])
