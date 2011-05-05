@@ -31,6 +31,9 @@ def main(global_config, **settings):
     config.add_route(name="game_info", pattern="/game/{id}", view=game_info, 
             renderer='game_info.mako') 
 
+    config.add_route(name="server_info", pattern="/server/{id}", view=server_info, 
+            renderer='server_info.mako') 
+
     config.add_route(name="stats_submit", pattern="stats/submit", 
             view=stats_submit, renderer='index.jinja2') 
 

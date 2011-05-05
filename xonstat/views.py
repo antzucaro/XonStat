@@ -35,7 +35,6 @@ def player_info(request):
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
     except:
         player = None
-    log.debug("entered player_info")
     return {'player':player}
 
 
@@ -49,8 +48,20 @@ def game_info(request):
         game = DBSession.query(Game).filter_by(game_id=game_id).one()
     except:
         game = None
-    log.debug("entered game_info")
     return {'game':game}
+
+
+##########################################################################
+# This is the server views area - only views pertaining to Xonotic
+# servers and their related information goes here
+##########################################################################
+def server_info(request):
+    server_id = request.matchdict['id']
+    try:
+        server = DBSession.query(Server).filter_by(server_id=server_id).one()
+    except:
+        server = None
+    return {'server':server}
 
 
 ##########################################################################
@@ -289,53 +300,57 @@ def parse_body(request):
 
 @view_config(renderer='stats_submit.mako')
 def stats_submit(request):
-    session = DBSession()
+    try:
+        session = DBSession()
 
-    (game_meta, players) = parse_body(request)  
+        (game_meta, players) = parse_body(request)  
     
-    # verify required metadata is present
-    if 'T' not in game_meta or\
-        'G' not in game_meta or\
-        'M' not in game_meta or\
-        'S' not in game_meta:
-        log.debug("Required game meta fields (T, G, M, or S) missing. "\
-                "Can't continue.")
-        return {'msg':'Error processing the request.'}
+        # verify required metadata is present
+        if 'T' not in game_meta or\
+            'G' not in game_meta or\
+            'M' not in game_meta or\
+            'S' not in game_meta:
+            log.debug("Required game meta fields (T, G, M, or S) missing. "\
+                    "Can't continue.")
+            return {'msg':'Error processing the request.'}
     
-    server = get_or_create_server(session=session, name=game_meta['S'])
-    gmap = get_or_create_map(session=session, name=game_meta['M'])
+        server = get_or_create_server(session=session, name=game_meta['S'])
+        gmap = get_or_create_map(session=session, name=game_meta['M'])
 
-    if 'W' in game_meta:
-        winner = game_meta['W']
-    else:
-        winner = None
+        if 'W' in game_meta:
+            winner = game_meta['W']
+        else:
+            winner = None
 
-    # FIXME: don't use python now() here, convert from epoch T value
-    game = create_game(session=session, start_dt=datetime.datetime.now(), 
-            server_id=server.server_id, game_type_cd=game_meta['G'], 
-            map_id=gmap.map_id, winner=winner)
+        # FIXME: don't use python now() here, convert from epoch T value
+        game = create_game(session=session, start_dt=datetime.datetime.now(), 
+                server_id=server.server_id, game_type_cd=game_meta['G'], 
+                map_id=gmap.map_id, winner=winner)
     
-    # find or create a record for each player
-    # and add stats for each if they were present at the end
-    # of the game
-    has_real_players = False
-    for player_events in players:
-        if not player_events['P'].startswith('bot'):
-            has_real_players = True
-        player = get_or_create_player(session=session, 
-                hashkey=player_events['P'])
-        if 'joins' in player_events and 'matches' in player_events\
-                 and 'scoreboardvalid' in player_events:
-            pgstat = create_player_game_stat(session=session, 
-                    player=player, game=game, player_events=player_events)
-            #pwstats = create_player_weapon_stats(session=session, 
-                    #player=player, game=game, player_events=player_events)
+        # find or create a record for each player
+        # and add stats for each if they were present at the end
+        # of the game
+        has_real_players = False
+        for player_events in players:
+            if not player_events['P'].startswith('bot'):
+                has_real_players = True
+            player = get_or_create_player(session=session, 
+                    hashkey=player_events['P'])
+            if 'joins' in player_events and 'matches' in player_events\
+                    and 'scoreboardvalid' in player_events:
+                pgstat = create_player_game_stat(session=session, 
+                        player=player, game=game, player_events=player_events)
+                #pwstats = create_player_weapon_stats(session=session, 
+                        #player=player, game=game, player_events=player_events)
     
-    if has_real_players:
-        session.commit()
-        log.debug('Success! Stats recorded.')
-        return {'msg':'Success! Stats recorded.'}
-    else:
+        if has_real_players:
+            session.commit()
+            log.debug('Success! Stats recorded.')
+            return Response('200 OK')
+        else:
+            session.rollback()
+            log.debug('No real players found. Stats ignored.')
+            return {'msg':'No real players found. Stats ignored.'}
+    except Exception as e:
         session.rollback()
-        log.debug('No real players found. Stats ignored.')
-        return {'msg':'No real players found. Stats ignored.'}
+        raise e
