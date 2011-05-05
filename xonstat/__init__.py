@@ -21,8 +21,16 @@ def main(global_config, **settings):
 
     config.add_static_view('static', 'xonstat:static')
 
+    # routes
     config.add_route(name="main_index", pattern="/", view=main_index, 
             renderer='index.jinja2') 
+
+    config.add_route(name="player_info", pattern="/player/{id}", view=player_info, 
+            renderer='player_info.mako') 
+
+    config.add_route(name="game_info", pattern="/game/{id}", view=game_info, 
+            renderer='game_info.mako') 
+
     config.add_route(name="stats_submit", pattern="stats/submit", 
             view=stats_submit, renderer='index.jinja2') 
 

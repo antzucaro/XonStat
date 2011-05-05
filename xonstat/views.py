@@ -30,9 +30,28 @@ def player_index(request):
 
 @view_config(renderer='player_info.mako')
 def player_info(request):
-    player = DBSession.query(Player).filter_by(player_id=p_player_id)
-    log.debug("testing logging; entered PlayerHandler.info()")
+    player_id = request.matchdict['id']
+    try:
+        player = DBSession.query(Player).filter_by(player_id=player_id).one()
+    except:
+        player = None
+    log.debug("entered player_info")
     return {'player':player}
+
+
+##########################################################################
+# This is the game views area - only views pertaining to Xonotic
+# games and their related information goes here
+##########################################################################
+def game_info(request):
+    game_id = request.matchdict['id']
+    try:
+        game = DBSession.query(Game).filter_by(game_id=game_id).one()
+    except:
+        game = None
+    log.debug("entered game_info")
+    return {'game':game}
+
 
 ##########################################################################
 # This is the stats views area - only views pertaining to Xonotic
