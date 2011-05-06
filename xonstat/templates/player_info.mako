@@ -21,3 +21,12 @@ ${parent.title()}
    <li>Joined: ${player.create_dt}</li>
 </ul>
 % endif
+
+% if recent_games:
+<h2>Recent Games</h2>
+<ul>
+% for (game_id, server_name, map_name) in recent_games:
+   <li>Game #${game_id} on ${server_name}: ${map_name}</li>
+% endfor
+</ul>
+% endif

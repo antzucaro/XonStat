@@ -33,9 +33,22 @@ def player_info(request):
     player_id = request.matchdict['id']
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
-    except:
+        recent_games = DBSession.query("game_id", "server_name", "map_name").\
+                from_statement("select g.game_id, s.name as server_name, m.name as map_name "
+                        "from player_game_stats gs, games g, servers s, maps m "
+                        "where gs.player_id=:player_id "
+                        "and gs.game_id = g.game_id "
+                        "and g.server_id = s.server_id "
+                        "and g.map_id = m.map_id "
+                        "order by g.start_dt desc "
+                        "limit 10 offset 1").\
+                        params(player_id=player_id).all()
+
+        log.debug(recent_games)
+    except Exception as e:
+        raise e
         player = None
-    return {'player':player}
+    return {'player':player, 'recent_games':recent_games}
 
 
 ##########################################################################
