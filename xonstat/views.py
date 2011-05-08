@@ -33,10 +33,22 @@ def player_info(request):
     player_id = request.matchdict['id']
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
-    except:
+        recent_games = DBSession.query("game_id", "server_name", "map_name").\
+                from_statement("select g.game_id, s.name as server_name, m.name as map_name "
+                        "from player_game_stats gs, games g, servers s, maps m "
+                        "where gs.player_id=:player_id "
+                        "and gs.game_id = g.game_id "
+                        "and g.server_id = s.server_id "
+                        "and g.map_id = m.map_id "
+                        "order by g.start_dt desc "
+                        "limit 10 offset 1").\
+                        params(player_id=player_id).all()
+
+        log.debug(recent_games)
+    except Exception as e:
+        raise e
         player = None
-    log.debug("entered player_info")
-    return {'player':player}
+    return {'player':player, 'recent_games':recent_games}
 
 
 ##########################################################################
@@ -49,8 +61,33 @@ def game_info(request):
         game = DBSession.query(Game).filter_by(game_id=game_id).one()
     except:
         game = None
-    log.debug("entered game_info")
     return {'game':game}
+
+
+##########################################################################
+# This is the server views area - only views pertaining to Xonotic
+# servers and their related information goes here
+##########################################################################
+def server_info(request):
+    server_id = request.matchdict['id']
+    try:
+        server = DBSession.query(Server).filter_by(server_id=server_id).one()
+    except:
+        server = None
+    return {'server':server}
+
+
+##########################################################################
+# This is the map views area - only views pertaining to Xonotic
+# maps and their related information goes here
+##########################################################################
+def map_info(request):
+    map_id = request.matchdict['id']
+    try:
+        gmap = DBSession.query(Map).filter_by(map_id=map_id).one()
+    except:
+        gmap = None
+    return {'gmap':gmap}
 
 
 ##########################################################################
@@ -289,53 +326,57 @@ def parse_body(request):
 
 @view_config(renderer='stats_submit.mako')
 def stats_submit(request):
-    session = DBSession()
+    try:
+        session = DBSession()
 
-    (game_meta, players) = parse_body(request)  
+        (game_meta, players) = parse_body(request)  
     
-    # verify required metadata is present
-    if 'T' not in game_meta or\
-        'G' not in game_meta or\
-        'M' not in game_meta or\
-        'S' not in game_meta:
-        log.debug("Required game meta fields (T, G, M, or S) missing. "\
-                "Can't continue.")
-        return {'msg':'Error processing the request.'}
+        # verify required metadata is present
+        if 'T' not in game_meta or\
+            'G' not in game_meta or\
+            'M' not in game_meta or\
+            'S' not in game_meta:
+            log.debug("Required game meta fields (T, G, M, or S) missing. "\
+                    "Can't continue.")
+            raise Exception
     
-    server = get_or_create_server(session=session, name=game_meta['S'])
-    gmap = get_or_create_map(session=session, name=game_meta['M'])
+        server = get_or_create_server(session=session, name=game_meta['S'])
+        gmap = get_or_create_map(session=session, name=game_meta['M'])
 
-    if 'W' in game_meta:
-        winner = game_meta['W']
-    else:
-        winner = None
+        if 'W' in game_meta:
+            winner = game_meta['W']
+        else:
+            winner = None
 
-    # FIXME: don't use python now() here, convert from epoch T value
-    game = create_game(session=session, start_dt=datetime.datetime.now(), 
-            server_id=server.server_id, game_type_cd=game_meta['G'], 
-            map_id=gmap.map_id, winner=winner)
+        # FIXME: don't use python now() here, convert from epoch T value
+        game = create_game(session=session, start_dt=datetime.datetime.now(), 
+                server_id=server.server_id, game_type_cd=game_meta['G'], 
+                map_id=gmap.map_id, winner=winner)
     
-    # find or create a record for each player
-    # and add stats for each if they were present at the end
-    # of the game
-    has_real_players = False
-    for player_events in players:
-        if not player_events['P'].startswith('bot'):
-            has_real_players = True
-        player = get_or_create_player(session=session, 
-                hashkey=player_events['P'])
-        if 'joins' in player_events and 'matches' in player_events\
-                 and 'scoreboardvalid' in player_events:
-            pgstat = create_player_game_stat(session=session, 
-                    player=player, game=game, player_events=player_events)
-            #pwstats = create_player_weapon_stats(session=session, 
-                    #player=player, game=game, player_events=player_events)
+        # find or create a record for each player
+        # and add stats for each if they were present at the end
+        # of the game
+        has_real_players = False
+        for player_events in players:
+            if not player_events['P'].startswith('bot'):
+                has_real_players = True
+            player = get_or_create_player(session=session, 
+                    hashkey=player_events['P'])
+            if 'joins' in player_events and 'matches' in player_events\
+                    and 'scoreboardvalid' in player_events:
+                pgstat = create_player_game_stat(session=session, 
+                        player=player, game=game, player_events=player_events)
+                #pwstats = create_player_weapon_stats(session=session, 
+                        #player=player, game=game, player_events=player_events)
     
-    if has_real_players:
-        session.commit()
-        log.debug('Success! Stats recorded.')
-        return {'msg':'Success! Stats recorded.'}
-    else:
+        if has_real_players:
+            session.commit()
+            log.debug('Success! Stats recorded.')
+            return Response('200 OK')
+        else:
+            session.rollback()
+            log.debug('No real players found. Stats ignored.')
+            return {'msg':'No real players found. Stats ignored.'}
+    except Exception as e:
         session.rollback()
-        log.debug('No real players found. Stats ignored.')
-        return {'msg':'No real players found. Stats ignored.'}
+        raise e
