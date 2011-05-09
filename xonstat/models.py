@@ -3,6 +3,7 @@ from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from xonstat.util import strip_colors, html_colors
 
 DBSession = scoped_session(sessionmaker())
 Base = declarative_base()
@@ -75,6 +76,12 @@ class PlayerGameStat(object):
     def __repr__(self):
         return "<PlayerGameStat(%s, %s, %s, %s)>" \
         % (self.player_id, self.game_id, self.create_dt, self.stat_type)
+
+    def nick_stripped(self):
+        return strip_colors(self.nick)
+
+    def nick_html_colors(self):
+        return html_colors(self.nick)
 
 
 class GameMutator(object):

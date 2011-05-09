@@ -58,10 +58,32 @@ def player_info(request):
 def game_info(request):
     game_id = request.matchdict['id']
     try:
-        game = DBSession.query(Game).filter_by(game_id=game_id).one()
-    except:
-        game = None
-    return {'game':game}
+        (start_dt, game_type_cd, server_id, server_name, map_id, map_name) = \
+        DBSession.query("start_dt", "game_type_cd", "server_id", 
+                "server_name", "map_id", "map_name").\
+                from_statement("select g.start_dt, g.game_type_cd, "
+                        "g.server_id, s.name as server_name, g.map_id, "
+                        "m.name as map_name "
+                        "from games g, servers s, maps m "
+                        "where g.game_id = :game_id "
+                        "and g.server_id = s.server_id "
+                        "and g.map_id = m.map_id").\
+                        params(game_id=game_id).one()
+
+        player_game_stats = DBSession.query(PlayerGameStat).\
+                from_statement("select * from player_game_stats "
+                        "where game_id = :game_id "
+                        "order by score desc").\
+                            params(game_id=game_id).all()
+    except Exception as inst:
+        player_game_stats = None
+    return {'start_dt':start_dt,
+            'game_type_cd':game_type_cd,
+            'server_id':server_id,
+            'server_name':server_name,
+            'map_id':map_id,
+            'map_name':map_name,
+            'player_game_stats':player_game_stats}
 
 
 ##########################################################################
