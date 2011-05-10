@@ -33,8 +33,9 @@ def player_info(request):
     player_id = request.matchdict['id']
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
-        recent_games = DBSession.query("game_id", "server_name", "map_name").\
-                from_statement("select g.game_id, s.name as server_name, m.name as map_name "
+        recent_games = DBSession.query("game_id", "server_id", "server_name", 
+                "map_id", "map_name").\
+                from_statement("select g.game_id, s.server_id, s.name as server_name, m.map_id, m.name as map_name "
                         "from player_game_stats gs, games g, servers s, maps m "
                         "where gs.player_id=:player_id "
                         "and gs.game_id = g.game_id "
@@ -46,8 +47,8 @@ def player_info(request):
 
         log.debug(recent_games)
     except Exception as e:
-        raise e
         player = None
+        recent_games = None
     return {'player':player, 'recent_games':recent_games}
 
 
@@ -58,6 +59,8 @@ def player_info(request):
 def game_info(request):
     game_id = request.matchdict['id']
     try:
+        notfound = False
+
         (start_dt, game_type_cd, server_id, server_name, map_id, map_name) = \
         DBSession.query("start_dt", "game_type_cd", "server_id", 
                 "server_name", "map_id", "map_name").\
@@ -76,8 +79,17 @@ def game_info(request):
                         "order by score desc").\
                             params(game_id=game_id).all()
     except Exception as inst:
+        notfound = True
+        start_dt = None
+        game_type_cd = None
+        server_id = None
+        server_name = None
+        map_id = None
+        map_name = None
         player_game_stats = None
-    return {'start_dt':start_dt,
+
+    return {'notfound':notfound,
+            'start_dt':start_dt,
             'game_type_cd':game_type_cd,
             'server_id':server_id,
             'server_name':server_name,

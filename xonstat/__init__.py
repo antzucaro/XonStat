@@ -25,16 +25,16 @@ def main(global_config, **settings):
     config.add_route(name="main_index", pattern="/", view=main_index, 
             renderer='index.jinja2') 
 
-    config.add_route(name="player_info", pattern="/player/{id}", view=player_info, 
+    config.add_route(name="player_info", pattern="/player/{id:\d+}", view=player_info, 
             renderer='player_info.mako') 
 
-    config.add_route(name="game_info", pattern="/game/{id}", view=game_info, 
+    config.add_route(name="game_info", pattern="/game/{id:\d+}", view=game_info, 
             renderer='game_info.mako') 
 
-    config.add_route(name="server_info", pattern="/server/{id}", view=server_info, 
+    config.add_route(name="server_info", pattern="/server/{id:\d+}", view=server_info, 
             renderer='server_info.mako') 
 
-    config.add_route(name="map_info", pattern="/map/{id}", view=map_info, 
+    config.add_route(name="map_info", pattern="/map/{id:\d+}", view=map_info, 
             renderer='map_info.mako') 
 
     config.add_route(name="stats_submit", pattern="stats/submit", 
