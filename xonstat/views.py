@@ -386,8 +386,16 @@ def stats_submit(request):
             'S' not in game_meta:
             log.debug("Required game meta fields (T, G, M, or S) missing. "\
                     "Can't continue.")
-            raise Exception
+            raise Exception("Required game meta fields (T, G, M, or S) missing.")
     
+        has_real_players = False
+        for player_events in players:
+            if not player_events['P'].startswith('bot'):
+                has_real_players = True
+
+        if not has_real_players:
+            raise Exception("No real players found. Stats ignored.")
+
         server = get_or_create_server(session=session, name=game_meta['S'])
         gmap = get_or_create_map(session=session, name=game_meta['M'])
 
@@ -404,10 +412,7 @@ def stats_submit(request):
         # find or create a record for each player
         # and add stats for each if they were present at the end
         # of the game
-        has_real_players = False
         for player_events in players:
-            if not player_events['P'].startswith('bot'):
-                has_real_players = True
             player = get_or_create_player(session=session, 
                     hashkey=player_events['P'])
             if 'joins' in player_events and 'matches' in player_events\
@@ -417,14 +422,9 @@ def stats_submit(request):
                 #pwstats = create_player_weapon_stats(session=session, 
                         #player=player, game=game, player_events=player_events)
     
-        if has_real_players:
-            session.commit()
-            log.debug('Success! Stats recorded.')
-            return Response('200 OK')
-        else:
-            session.rollback()
-            log.debug('No real players found. Stats ignored.')
-            return {'msg':'No real players found. Stats ignored.'}
+        session.commit()
+        log.debug('Success! Stats recorded.')
+        return Response('200 OK')
     except Exception as e:
         session.rollback()
         raise e
