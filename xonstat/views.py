@@ -1,4 +1,5 @@
 import datetime
+import time
 import re
 from pyramid.response import Response
 from pyramid.view import view_config
@@ -404,8 +405,9 @@ def stats_submit(request):
         else:
             winner = None
 
-        # FIXME: don't use python now() here, convert from epoch T value
-        game = create_game(session=session, start_dt=datetime.datetime.now(), 
+        game = create_game(session=session, 
+                start_dt=datetime.datetime(
+                    *time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
                 map_id=gmap.map_id, winner=winner)
     
