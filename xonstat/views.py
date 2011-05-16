@@ -3,6 +3,7 @@ import time
 import re
 from pyramid.response import Response
 from pyramid.view import view_config
+from webhelpers.paginate import Page, PageURL
 
 from xonstat.models import *
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -36,7 +37,8 @@ def player_info(request):
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
         recent_games = DBSession.query("game_id", "server_id", "server_name", 
                 "map_id", "map_name").\
-                from_statement("select g.game_id, s.server_id, s.name as server_name, m.map_id, m.name as map_name "
+                from_statement("select g.game_id, s.server_id, "
+                        "s.name as server_name, m.map_id, m.name as map_name "
                         "from player_game_stats gs, games g, servers s, maps m "
                         "where gs.player_id=:player_id "
                         "and gs.game_id = g.game_id "
@@ -57,6 +59,29 @@ def player_info(request):
 # This is the game views area - only views pertaining to Xonotic
 # games and their related information goes here
 ##########################################################################
+def page_url(page):
+    return current_route_url(request, page=page, _query=request.GET)
+
+def game_index(request):
+    if 'page_number' in request.matchdict:
+        current_page = request.matchdict['page_number']
+    else:
+        current_page = 1
+
+    games_q = DBSession.query("game_id", "server_id", "server_name", 
+                "map_id", "map_name").\
+                from_statement("select g.game_id, s.server_id, "
+                "s.name as server_name, m.map_id, m.name as map_name "
+                "from games g, servers s, maps m "
+                "where g.server_id = s.server_id "
+                "and g.map_id = m.map_id "
+                "order by g.start_dt desc")
+
+    games = Page(games_q, current_page, url=page_url)
+
+    return {'games':games}
+
+
 def game_info(request):
     game_id = request.matchdict['id']
     try:
