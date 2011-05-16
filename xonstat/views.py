@@ -301,26 +301,27 @@ def create_player_weapon_stats(session=None, player=None,
             pwstat.player_id = player.player_id
             pwstat.game_id = game.game_id
             pwstat.weapon_cd = weapon_cd
-            try:
-                pwstat.max = int(player_events['acc-' + weapon_cd + '-fired'])
-            except:
-                pwstat.max = 0
-            try:
-                pwstat.actual = int(player_events['acc-' + weapon_cd + '-hit'])
-            except:
-                pwstat.actual = 0
-            try:
-                pwstat.fired = int(player_events['acc-' + weapon_cd + '-cnt-fired'])
-            except:
-                pwstat.fired = 0
-            try:
-                pwstat.hit = int(player_events['acc-' + weapon_cd + '-cnt-hit'])
-            except:
-                pwstat.hit = 0
-            try:
-                pwstat.frags = int(player_events['acc-' + weapon_cd + '-frags'])
-            except:
-                pwstat.frags = 0
+
+            if 'n' in player_events:
+                pwstat.nick = player_events['n']
+            else:
+                pwstat.nick = player_events['P']
+
+            if 'acc-' + weapon_cd + '-cnt-fired' in player_events:
+                pwstat.fired = int(round(float(
+                        player_events['acc-' + weapon_cd + '-cnt-fired'])))
+            if 'acc-' + weapon_cd + '-fired' in player_events:
+                pwstat.max = int(round(float(
+                        player_events['acc-' + weapon_cd + '-fired'])))
+            if 'acc-' + weapon_cd + '-cnt-hit' in player_events:
+                pwstat.hit = int(round(float(
+                        player_events['acc-' + weapon_cd + '-cnt-hit'])))
+            if 'acc-' + weapon_cd + '-hit' in player_events:
+                pwstat.actual = int(round(float(
+                        player_events['acc-' + weapon_cd + '-hit'])))
+            if 'acc-' + weapon_cd + '-frags' in player_events:
+                pwstat.frags = int(round(float(
+                        player_events['acc-' + weapon_cd + '-frags'])))
 
             session.add(pwstat)
             pwstats.append(pwstat)
@@ -392,7 +393,9 @@ def stats_submit(request):
         has_real_players = False
         for player_events in players:
             if not player_events['P'].startswith('bot'):
-                has_real_players = True
+                if 'joins' in player_events and 'matches' in player_events\
+                    and 'scoreboardvalid' in player_events:
+                    has_real_players = True
 
         if not has_real_players:
             raise Exception("No real players found. Stats ignored.")
@@ -421,8 +424,9 @@ def stats_submit(request):
                     and 'scoreboardvalid' in player_events:
                 pgstat = create_player_game_stat(session=session, 
                         player=player, game=game, player_events=player_events)
-                #pwstats = create_player_weapon_stats(session=session, 
-                        #player=player, game=game, player_events=player_events)
+                if not player_events['P'].startswith('bot'):
+                    create_player_weapon_stats(session=session, 
+                            player=player, game=game, player_events=player_events)
     
         session.commit()
         log.debug('Success! Stats recorded.')
