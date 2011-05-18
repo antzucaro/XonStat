@@ -7,6 +7,7 @@ from webhelpers.paginate import Page, PageURL
 
 from xonstat.models import *
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy import desc
 
 
 import logging
@@ -63,21 +64,19 @@ def page_url(page):
     return current_route_url(request, page=page, _query=request.GET)
 
 def game_index(request):
-    if 'page_number' in request.matchdict:
-        current_page = request.matchdict['page_number']
+    if 'page' in request.matchdict:
+        current_page = request.matchdict['page']
     else:
         current_page = 1
 
-    games_q = DBSession.query("game_id", "server_id", "server_name", 
-                "map_id", "map_name").\
-                from_statement("select g.game_id, s.server_id, "
-                "s.name as server_name, m.map_id, m.name as map_name "
-                "from games g, servers s, maps m "
-                "where g.server_id = s.server_id "
-                "and g.map_id = m.map_id "
-                "order by g.start_dt desc")
+    games_q = DBSession.query(Game, Server, Map).\
+            filter(Game.server_id == Server.server_id).\
+            filter(Game.map_id == Map.map_id).\
+            order_by(Game.game_id.desc())
 
     games = Page(games_q, current_page, url=page_url)
+
+    log.debug(games)
 
     return {'games':games}
 

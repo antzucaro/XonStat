@@ -10,8 +10,15 @@ Game Index - ${parent.title()}
 % else:
 <h2>Recent Games</h2>
 <ul>
-% for (game_id, server_id, server_name, map_id, map_name) in games:
-   <li>game <a href="${request.route_url("game_info", id=game_id)}" name="Game info page for game #${game_id}">#${game_id}:</a> <a href="${request.route_url("map_info", id=map_id)}" name="Map info page for ${map_name}">${map_name}</a> on <a href="${request.route_url("server_info", id=server_id)}" name="Server info page for ${server_name}">${server_name}</a></li>
+% for (game, server, map) in games:
+   <li>game <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a></li>
 % endfor
 </ul>
+% endif
+
+% if games.last_page:
+<a href="${request.route_url("game_index_paged", page=games.previous_page)}" name="Previous Page">Previous</a>
+% endif
+% if games.next_page:
+<a href="${request.route_url("game_index_paged", page=games.next_page)}" name="Next Page">Next</a>
 % endif
