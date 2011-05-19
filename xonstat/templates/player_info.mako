@@ -10,7 +10,8 @@ ${parent.title()}
 
 
 % if player is None:
-<h2>Sorry, that player wasn't found!</h2>
+<h2>This player is so good we couldn't find him!</h2>
+<p>Seriously though, he probably doesn't exist...just a figment of your imagination. Carry on then!</p>
 
 % else:
 <h2>${player.nick}</h2>
