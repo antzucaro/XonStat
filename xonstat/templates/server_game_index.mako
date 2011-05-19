@@ -17,8 +17,8 @@ Server Game Index for ${server.name} - ${parent.title()}
 % endif
 
 % if games.previous_page:
-<a href="${request.route_url("game_index_paged", page=games.previous_page)}" name="Previous Page">Previous</a>
+<a href="${request.route_url("server_game_index", server_id=server.server_id, page=games.previous_page)}" name="Previous Page">Previous</a>
 % endif
 % if games.next_page:
-<a href="${request.route_url("game_index_paged", page=games.next_page)}" name="Next Page">Next</a>
+<a href="${request.route_url("server_game_index", server_id=server.server_id, page=games.next_page)}" name="Next Page">Next</a>
 % endif
