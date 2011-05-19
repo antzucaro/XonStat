@@ -6,6 +6,7 @@ from pyramid.view import view_config
 from webhelpers.paginate import Page, PageURL
 
 from xonstat.models import *
+from xonstat.util import page_url
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy import desc
 
@@ -28,6 +29,7 @@ def main_index(request):
 @view_config(renderer='player_index.mako')
 def player_index(request):
     players = DBSession.query(Player)
+
     log.debug("testing logging; entered PlayerHandler.index()")
     return {'players':players}
 
@@ -36,33 +38,25 @@ def player_info(request):
     player_id = request.matchdict['id']
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
-        recent_games = DBSession.query("game_id", "server_id", "server_name", 
-                "map_id", "map_name").\
-                from_statement("select g.game_id, s.server_id, "
-                        "s.name as server_name, m.map_id, m.name as map_name "
-                        "from player_game_stats gs, games g, servers s, maps m "
-                        "where gs.player_id=:player_id "
-                        "and gs.game_id = g.game_id "
-                        "and g.server_id = s.server_id "
-                        "and g.map_id = m.map_id "
-                        "order by g.start_dt desc "
-                        "limit 10 offset 1").\
-                        params(player_id=player_id).all()
+        recent_games = DBSession.query(PlayerGameStat, Game, Server, Map).\
+                filter(PlayerGameStat.player_id == player_id).\
+                filter(PlayerGameStat.game_id == Game.game_id).\
+                filter(Game.server_id == Server.server_id).\
+                filter(Game.map_id == Map.map_id).\
+                order_by(Game.game_id.desc())[0:10]
 
         log.debug(recent_games)
     except Exception as e:
         player = None
         recent_games = None
-    return {'player':player, 'recent_games':recent_games}
+    return {'player':player, 
+            'recent_games':recent_games}
 
 
 ##########################################################################
 # This is the game views area - only views pertaining to Xonotic
 # games and their related information goes here
 ##########################################################################
-def page_url(page):
-    return current_route_url(request, page=page, _query=request.GET)
-
 def game_index(request):
     if 'page' in request.matchdict:
         current_page = request.matchdict['page']

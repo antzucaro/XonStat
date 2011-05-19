@@ -16,7 +16,7 @@ Game Index - ${parent.title()}
 </ul>
 % endif
 
-% if games.last_page:
+% if games.previous_page:
 <a href="${request.route_url("game_index_paged", page=games.previous_page)}" name="Previous Page">Previous</a>
 % endif
 % if games.next_page:
