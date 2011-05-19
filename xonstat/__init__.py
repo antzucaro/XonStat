@@ -25,9 +25,15 @@ def main(global_config, **settings):
     config.add_route(name="main_index", pattern="/", view=main_index, 
             renderer='index.jinja2') 
 
+    # PLAYER ROUTES
+    config.add_route(name="player_game_index", 
+            pattern="/player/{player_id:\d+}/games/page/{page:\d+}", 
+            view=player_game_index, renderer='player_game_index.mako') 
+
     config.add_route(name="player_info", pattern="/player/{id:\d+}", view=player_info, 
             renderer='player_info.mako') 
 
+    # GAME ROUTES
     config.add_route(name="game_index", pattern="/games", view=game_index, 
             renderer='game_index.mako') 
 
@@ -37,6 +43,7 @@ def main(global_config, **settings):
     config.add_route(name="game_info", pattern="/game/{id:\d+}", view=game_info, 
             renderer='game_info.mako') 
 
+    # SERVER ROUTES
     config.add_route(name="server_game_index", 
             pattern="/server/{server_id:\d+}/games/page/{page:\d+}", 
             view=server_game_index, renderer='server_game_index.mako') 
@@ -44,6 +51,7 @@ def main(global_config, **settings):
     config.add_route(name="server_info", pattern="/server/{id:\d+}", view=server_info, 
             renderer='server_info.mako') 
 
+    # MAP ROUTES
     config.add_route(name="map_info", pattern="/map/{id:\d+}", view=map_info, 
             renderer='map_info.mako') 
 
