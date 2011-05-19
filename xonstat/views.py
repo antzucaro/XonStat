@@ -138,6 +138,34 @@ def server_info(request):
             'recent_games':recent_games}
 
 
+def server_game_index(request):
+    server_id = request.matchdict['server_id']
+    current_page = request.matchdict['page']
+
+    try:
+        server = DBSession.query(Server).filter_by(server_id=server_id).one()
+
+        games_q = DBSession.query(Game, Server, Map).\
+                filter(Game.server_id == server_id).\
+                filter(Game.server_id == Server.server_id).\
+                filter(Game.map_id == Map.map_id).\
+                order_by(Game.game_id.desc())
+
+        games = Page(games_q, current_page, url=page_url)
+        
+        log.debug("Server is:")
+        log.debug(server)
+        log.debug("Games is:")
+        log.debug(games)
+    except Exception as e:
+        server = None
+        games = None
+        raise e
+
+    return {'games':games,
+            'server':server}
+
+
 ##########################################################################
 # This is the map views area - only views pertaining to Xonotic
 # maps and their related information goes here

@@ -37,6 +37,10 @@ def main(global_config, **settings):
     config.add_route(name="game_info", pattern="/game/{id:\d+}", view=game_info, 
             renderer='game_info.mako') 
 
+    config.add_route(name="server_game_index", 
+            pattern="/server/{server_id:\d+}/games/page/{page:\d+}", 
+            view=server_game_index, renderer='server_game_index.mako') 
+
     config.add_route(name="server_info", pattern="/server/{id:\d+}", view=server_info, 
             renderer='server_info.mako') 
 
