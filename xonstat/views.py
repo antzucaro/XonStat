@@ -131,18 +131,6 @@ def server_info(request):
                 filter(Game.map_id == Map.map_id).\
                 order_by(Game.game_id.desc())[0:10]
 
-        #recent_games = DBSession.query("game_id", "server_id", "server_name", 
-                #"map_id", "map_name").\
-                #from_statement("select g.game_id, s.server_id, "
-                #"s.name as server_name, m.map_id, m.name as map_name "
-                #"from games g, servers s, maps m "
-                #"where g.server_id=:server_id "
-                #"and g.server_id = s.server_id "
-                #"and g.map_id = m.map_id "
-                #"order by g.start_dt desc "
-                #"limit 10 offset 1").\
-                 #params(server_id=server_id).all()
-
     except Exception as e:
         server = None
         recent_games = None
