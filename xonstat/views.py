@@ -385,9 +385,6 @@ def parse_body(request):
             if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W':
                 game_meta[key] = value
 
-            if key == 't':
-                current_team = value
-    
             if key == 'P':
                 # if we were working on a player record already, append
                 # it and work on a new one (only set team info)
@@ -396,12 +393,13 @@ def parse_body(request):
                     player_events = {'t':current_team}
     
                 player_events[key] = value
-    
+
             if key == 'e':
                 (subkey, subvalue) = value.split(' ', 1)
                 player_events[subkey] = subvalue
-
             if key == 'n':
+                player_events[key] = value
+            if key == 't':
                 player_events[key] = value
         except:
             # no key/value pair - move on to the next line
