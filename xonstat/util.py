@@ -24,3 +24,6 @@ def html_colors(str=None):
         str += "</span>"
 
     return str
+
+def page_url(page):
+    return current_route_url(request, page=page, _query=request.GET)
