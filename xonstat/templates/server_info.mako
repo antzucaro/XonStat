@@ -22,8 +22,8 @@ ${parent.title()}
 % if recent_games:
 <h2>Recent Games</h2>
 <ul>
-% for (game_id, server_id, server_name, map_id, map_name) in recent_games:
-   <li><a href="${request.route_url("map_info", id=map_id)}" name="Map info page for ${map_name}">${map_name}</a> (game <a href="${request.route_url("game_info", id=game_id)}" name="Game info page for game #${game_id}">#${game_id}</a>)</li>
+% for (game, theserver, map) in recent_games:
+   <li><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> (game <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}</a>)</li>
 % endfor
 </ul>
 More games played on ${server.name}...
