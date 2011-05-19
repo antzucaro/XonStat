@@ -390,7 +390,6 @@ def parse_body(request):
                 # it and work on a new one (only set team info)
                 if len(player_events) != 0:
                     players.append(player_events)
-                    player_events = {'t':current_team}
     
                 player_events[key] = value
 
