@@ -45,7 +45,6 @@ def player_info(request):
                 filter(Game.map_id == Map.map_id).\
                 order_by(Game.game_id.desc())[0:10]
 
-        log.debug(recent_games)
     except Exception as e:
         player = None
         recent_games = None
@@ -69,8 +68,6 @@ def player_game_index(request):
 
         games = Page(games_q, current_page, url=page_url)
 
-        log.debug(games)
-        log.debug(player)
         
     except Exception as e:
         player = None
@@ -97,8 +94,6 @@ def game_index(request):
             order_by(Game.game_id.desc())
 
     games = Page(games_q, current_page, url=page_url)
-
-    log.debug(games)
 
     return {'games':games}
 
@@ -180,11 +175,6 @@ def server_game_index(request):
                 order_by(Game.game_id.desc())
 
         games = Page(games_q, current_page, url=page_url)
-        
-        log.debug("Server is:")
-        log.debug(server)
-        log.debug("Games is:")
-        log.debug(games)
     except Exception as e:
         server = None
         games = None
@@ -357,7 +347,7 @@ def create_player_game_stat(session=None, player=None,
 
 
 def create_player_weapon_stats(session=None, player=None, 
-        game=None, player_events=None):
+        game=None, pgstat=None, player_events=None):
     pwstats = []
 
     for (key,value) in player_events.items():
@@ -368,6 +358,7 @@ def create_player_weapon_stats(session=None, player=None,
             pwstat = PlayerWeaponStat()
             pwstat.player_id = player.player_id
             pwstat.game_id = game.game_id
+            pwstat.player_game_stat_id = pgstat.player_game_stat_id
             pwstat.weapon_cd = weapon_cd
 
             if 'n' in player_events:
@@ -418,6 +409,7 @@ def parse_body(request):
                 # it and work on a new one (only set team info)
                 if len(player_events) != 0:
                     players.append(player_events)
+                    player_events = {}
     
                 player_events[key] = value
 
@@ -439,6 +431,18 @@ def parse_body(request):
     return (game_meta, players)
 
 
+def create_player_stats(session=None, player=None, game=None, 
+        player_events=None):
+    if 'joins' in player_events and 'matches' in player_events\
+            and 'scoreboardvalid' in player_events:
+                pgstat = create_player_game_stat(session=session, 
+                        player=player, game=game, player_events=player_events)
+                if not re.search('^bot#\d+$', player_events['P']):
+                        create_player_weapon_stats(session=session, 
+                            player=player, game=game, pgstat=pgstat,
+                            player_events=player_events)
+    
+
 @view_config(renderer='stats_submit.mako')
 def stats_submit(request):
     try:
@@ -457,6 +461,7 @@ def stats_submit(request):
     
         has_real_players = False
         for player_events in players:
+            log.debug(player_events['P'])
             if not player_events['P'].startswith('bot'):
                 if 'joins' in player_events and 'matches' in player_events\
                     and 'scoreboardvalid' in player_events:
@@ -485,13 +490,9 @@ def stats_submit(request):
         for player_events in players:
             player = get_or_create_player(session=session, 
                     hashkey=player_events['P'])
-            if 'joins' in player_events and 'matches' in player_events\
-                    and 'scoreboardvalid' in player_events:
-                pgstat = create_player_game_stat(session=session, 
-                        player=player, game=game, player_events=player_events)
-                if not player_events['P'].startswith('bot'):
-                    create_player_weapon_stats(session=session, 
-                            player=player, game=game, player_events=player_events)
+            log.debug('Creating stats for %s' % player_events['P'])
+            create_player_stats(session=session, player=player, game=game, 
+                    player_events=player_events)
     
         session.commit()
         log.debug('Success! Stats recorded.')
