@@ -78,6 +78,21 @@ def player_game_index(request):
             'games':games}
 
 
+def player_weapon_stats(request):
+    game_id = request.matchdict['game_id']
+    pgstat_id = request.matchdict['pgstat_id']
+    try:
+        pwstats = DBSession.query(PlayerWeaponStat).\
+                filter_by(game_id=game_id).\
+                filter_by(player_game_stat_id=pgstat_id).\
+                order_by(PlayerWeaponStat.weapon_cd).\
+                all()
+
+    except Exception as e:
+        pwstats = None
+    return {'pwstats':pwstats}
+
+
 ##########################################################################
 # This is the game views area - only views pertaining to Xonotic
 # games and their related information goes here
