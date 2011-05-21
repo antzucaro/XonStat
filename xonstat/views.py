@@ -353,7 +353,6 @@ def create_player_weapon_stats(session=None, player=None,
     for (key,value) in player_events.items():
         matched = re.search("acc-(.*?)-cnt-fired", key)
         if matched:
-            log.debug("Matched key: {0}".format(key))
             weapon_cd = matched.group(1)
             pwstat = PlayerWeaponStat()
             pwstat.player_id = player.player_id
@@ -461,7 +460,6 @@ def stats_submit(request):
     
         has_real_players = False
         for player_events in players:
-            log.debug(player_events['P'])
             if not player_events['P'].startswith('bot'):
                 if 'joins' in player_events and 'matches' in player_events\
                     and 'scoreboardvalid' in player_events:
