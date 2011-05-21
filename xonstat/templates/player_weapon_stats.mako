@@ -21,9 +21,9 @@ Accuracy Information - ${parent.title()}
         <td>Frags</td>
     </tr>
 
-% for pwstat in pwstats:
+% for (pwstat, weapon) in pwstats:
     <tr>
-        <td>${pwstat.weapon_cd}</td>
+        <td>${weapon.descr}</td>
         <td>${pwstat.fired}</td>
         <td>${pwstat.hit}</td>
         <td>${pwstat.max}</td>

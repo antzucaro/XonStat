@@ -82,10 +82,11 @@ def player_weapon_stats(request):
     game_id = request.matchdict['game_id']
     pgstat_id = request.matchdict['pgstat_id']
     try:
-        pwstats = DBSession.query(PlayerWeaponStat).\
+        pwstats = DBSession.query(PlayerWeaponStat, Weapon).\
+                filter(PlayerWeaponStat.weapon_cd==Weapon.weapon_cd).\
                 filter_by(game_id=game_id).\
                 filter_by(player_game_stat_id=pgstat_id).\
-                order_by(PlayerWeaponStat.weapon_cd).\
+                order_by(Weapon.descr).\
                 all()
 
     except Exception as e:
