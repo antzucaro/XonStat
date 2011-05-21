@@ -101,7 +101,7 @@ class PlayerAchievement(object):
 
 class PlayerWeaponStat(object):
     def __repr__(self):
-        return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stat_id,
+        return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stats_id,
                 self.player_id, self.game_id)
 
 
