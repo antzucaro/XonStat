@@ -54,7 +54,11 @@ def player_info(request):
 
 def player_game_index(request):
     player_id = request.matchdict['player_id']
-    current_page = request.matchdict['page']
+
+    if 'page' in request.matchdict:
+        current_page = request.matchdict['page']
+    else:
+        current_page = 1
 
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()

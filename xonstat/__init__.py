@@ -30,6 +30,10 @@ def main(global_config, **settings):
             pattern="/game/{game_id:\d+}/stats/{pgstat_id:\d+}", 
             view=player_weapon_stats, renderer='player_weapon_stats.mako') 
 
+    config.add_route(name="player_game_index_default", 
+            pattern="/player/{player_id:\d+}/games", 
+            view=player_game_index, renderer='player_game_index.mako') 
+
     config.add_route(name="player_game_index", 
             pattern="/player/{player_id:\d+}/games/page/{page:\d+}", 
             view=player_game_index, renderer='player_game_index.mako') 
