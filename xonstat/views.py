@@ -89,9 +89,21 @@ def player_weapon_stats(request):
                 order_by(Weapon.descr).\
                 all()
 
+        pgstat = DBSession.query(PlayerGameStat).\
+                filter_by(player_game_stat_id=pgstat_id).one()
+
+        game = DBSession.query(Game).filter_by(game_id=game_id).one()
+
+        log.debug(pwstats)
+        log.debug(pgstat)
+        log.debug(game)
+
     except Exception as e:
         pwstats = None
-    return {'pwstats':pwstats}
+        pgstat = None
+        game = None
+        raise e
+    return {'pwstats':pwstats, 'pgstat':pgstat, 'game':game}
 
 
 ##########################################################################
@@ -277,7 +289,7 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
     return game
 
 # search for a player and if found, create a new one (w/ hashkey)
-def get_or_create_player(session=None, hashkey=None):
+def get_or_create_player(session=None, hashkey=None, nick=None):
     # if we have a bot
     if re.search('^bot#\d+$', hashkey):
         player = session.query(Player).filter_by(player_id=1).one()
@@ -297,6 +309,10 @@ def get_or_create_player(session=None, hashkey=None):
                 player.player_id, hashkey.hashkey))
         except:
             player = Player()
+
+            if nick:
+                player.nick = nick
+
             session.add(player)
             session.flush()
             hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
@@ -502,8 +518,13 @@ def stats_submit(request):
         # and add stats for each if they were present at the end
         # of the game
         for player_events in players:
+            if 'n' in player_events:
+                nick = player_events['n']
+            else:
+                nick = None
+
             player = get_or_create_player(session=session, 
-                    hashkey=player_events['P'])
+                    hashkey=player_events['P'], nick=nick)
             log.debug('Creating stats for %s' % player_events['P'])
             create_player_stats(session=session, player=player, game=game, 
                     player_events=player_events)

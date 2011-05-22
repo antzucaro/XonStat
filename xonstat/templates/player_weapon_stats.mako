@@ -5,12 +5,12 @@ Accuracy Information - ${parent.title()}
 </%block>
 
 
-% if pwstats is None:
+% if pwstats is None or pgstat is None or game is None:
 <h2>Sorry, I can't find those weapon stats!</h2>
 <p>Assume the best, though. Really.</p>
 
 % else:
-<h2>Player Accuracy:</h2>
+<h2>Player Accuracy for ${pgstat.nick_html_colors()} in Game:</h2>
 <table border="1" cellpadding="3">
     <tr>
         <td>Weapon</td>

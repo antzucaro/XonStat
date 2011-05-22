@@ -39,6 +39,8 @@ Map: <a href="${request.route_url("map_info", id=map_id)}" name="Map info page f
            title="Go to the info page for this player">
           ${player_game_stat.nick_html_colors()}
           </a>
+        % else:
+          ${player_game_stat.nick_html_colors()}
         % endif
         </td>
         <td>${player_game_stat.kills}</td>
