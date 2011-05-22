@@ -23,7 +23,7 @@ ${parent.title()}
 <h2>Recent Games</h2>
 <ul>
 % for (game, theserver, map) in recent_games:
-   <li><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> (game <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}</a>)</li>
+   <li><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}</a>: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a></li>
 % endfor
 </ul>
 <a href="${request.route_url("server_game_index", server_id=server.server_id, page=1)}" name="Game index page for server #${server.name}">More games played on ${server.name}...</a>

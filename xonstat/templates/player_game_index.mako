@@ -11,7 +11,7 @@ Player Game Index for ${player.nick} - ${parent.title()}
 <h2>Recent Games by ${player.nick}</h2>
 <ul>
 % for (playergamestat, game, server, map) in games:
-   <li>game <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a></li>
+   <li><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a></li>
 % endfor
 </ul>
 % endif
