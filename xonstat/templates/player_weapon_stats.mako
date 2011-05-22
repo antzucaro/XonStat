@@ -10,7 +10,7 @@ Accuracy Information - ${parent.title()}
 <p>Assume the best, though. Really.</p>
 
 % else:
-<h2>Player Accuracy for ${pgstat.nick_html_colors()} in Game:</h2>
+<h2>Player Accuracy for <a href="${request.route_url("player_info", id=pgstat.player_id)}" title="Info page for this player">${pgstat.nick_html_colors()}</a> in Game <a href="" title="">${game.game_id}</a>:</h2>
 <table border="1" cellpadding="3">
     <tr>
         <td>Weapon</td>
