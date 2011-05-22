@@ -1,14 +1,14 @@
 <%inherit file="base.mako"/>
 
 <%block name="title">
-Player Game Index for ${player.nick} - ${parent.title()}
+Player Game Index for ${player.nick_html_colors()} - ${parent.title()}
 </%block>
 
 % if not games:
 <h2>Sorry, no games yet. Get playing, scrub!</h2>
 
 % else:
-<h2>Recent Games by ${player.nick}</h2>
+<h2>Recent Games by ${player.nick_html_colors()}</h2>
 <ul>
 % for (playergamestat, game, server, map) in games:
    <li><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a></li>
