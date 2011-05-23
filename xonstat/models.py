@@ -87,6 +87,16 @@ class PlayerGameStat(object):
     def nick_html_colors(self):
         return html_colors(self.nick)
 
+    def team_html_color(self):
+        if self.team == 5:
+            return "#0000FF"
+        if self.team == 14:
+            return "#FF0000"
+        if self.team == 13:
+            return "#FFFF00"
+        if self.team == 10:
+            return "#FF00FF"
+
 
 class GameMutator(object):
     def __repr__(self):

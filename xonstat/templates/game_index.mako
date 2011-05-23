@@ -13,7 +13,7 @@ Game Index - ${parent.title()}
 <p>
    <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a> (<a href="${request.route_url('game_info', id=game.game_id)}" name="Permalink for game #${game.game_id}">permalink</a> for this game)
 <table border="1" cellpadding="3">
-    % if game.game_type_cd == 'ctf':
+% if game.game_type_cd == 'ctf':
     <tr>
         <td>Nick</td>
         <td>Team</td>
@@ -38,7 +38,7 @@ Game Index - ${parent.title()}
           ${pgstat.nick_html_colors()}
         % endif
         </td>
-        <td>${pgstat.team}</td>
+        <td style="background-color:${pgstat.team_html_color()};"></td>
         <td>${pgstat.kills}</td>
         <td>${pgstat.captures}</td>
         <td>${pgstat.pickups}</td>
