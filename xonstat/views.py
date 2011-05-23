@@ -127,7 +127,15 @@ def game_index(request):
 
     games = Page(games_q, current_page, url=page_url)
 
-    return {'games':games}
+    pgstats = {}
+    for (game, server, map) in games:
+        pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
+                filter(PlayerGameStat.game_id == game.game_id).\
+                order_by(PlayerGameStat.rank).\
+                order_by(PlayerGameStat.score).all()
+
+    return {'games':games, 
+            'pgstats':pgstats}
 
 
 def game_info(request):
