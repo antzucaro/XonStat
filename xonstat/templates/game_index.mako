@@ -57,6 +57,7 @@ Game Index - ${parent.title()}
         </td>
     </tr>
 % endfor
+% endif
 
 
 ############################ DM Game ############################
@@ -96,6 +97,7 @@ Game Index - ${parent.title()}
         </td>
     </tr>
 % endfor
+% endif
 
 
 ############################ TDM Game ############################
@@ -137,10 +139,10 @@ Game Index - ${parent.title()}
         </td>
     </tr>
 % endfor
+% endif
 
 ############################ End gametype specific stuff ############################
-% </table>
-% endif
+</table>
 % endfor
 % endif
 
