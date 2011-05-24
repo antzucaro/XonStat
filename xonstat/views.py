@@ -38,6 +38,22 @@ def player_info(request):
     player_id = request.matchdict['id']
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
+
+        weapon_stats = DBSession.query("descr", "actual_total", 
+                "max_total", "hit_total", "fired_total", "frags_total").\
+                from_statement(
+                    "select cw.descr, sum(actual) actual_total, "
+                    "sum(max) max_total, sum(hit) hit_total, "
+                    "sum(fired) fired_total, sum(frags) frags_total "
+                    "from xonstat.player_weapon_stats ws, xonstat.cd_weapon cw "
+                    "where ws.weapon_cd = cw.weapon_cd "
+                    "and player_id = :player_id "
+                    "group by descr "
+                    "order by descr"
+                ).params(player_id=player_id).all()
+
+        log.debug(weapon_stats)
+
         recent_games = DBSession.query(PlayerGameStat, Game, Server, Map).\
                 filter(PlayerGameStat.player_id == player_id).\
                 filter(PlayerGameStat.game_id == Game.game_id).\
@@ -47,9 +63,11 @@ def player_info(request):
 
     except Exception as e:
         player = None
+        weapon_stats = None
         recent_games = None
     return {'player':player, 
-            'recent_games':recent_games}
+            'recent_games':recent_games,
+            'weapon_stats':weapon_stats}
 
 
 def player_game_index(request):

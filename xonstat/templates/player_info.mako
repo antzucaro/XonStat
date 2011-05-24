@@ -29,3 +29,43 @@ ${parent.title()}
 </ul>
 <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
 % endif
+
+
+% if weapon_stats:
+<h2>Accuracy</h2>
+<table border="1" cellpadding="3">
+<tr>
+    <td></td>
+    <td>Weapon</td>
+    <td>Hit</td>
+    <td>Fired</td>
+    <td>Hit %</td>
+    <td>Actual Damage</td>
+    <td>Potential Damage</td>
+    <td>Damage %</td>
+</tr>
+% for weapon_stat in weapon_stats:
+<%
+if weapon_stat[2] > 0: 
+    damage_pct = round(float(weapon_stat[1])/weapon_stat[2]*100, 2)
+else:
+    damage_pct = 0
+if weapon_stat[4] > 0: 
+    hit_pct = round(float(weapon_stat[3])/weapon_stat[4]*100, 2)
+else:
+    hit_pct = 0
+%>
+<tr>
+    <td>[IMAGE]</td>
+    <td>${weapon_stat[0]}</td>
+    <td>${weapon_stat[3]}</td>
+    <td>${weapon_stat[4]}</td>
+    <td>${hit_pct}%</td>
+    <td>${weapon_stat[1]}</td>
+    <td>${weapon_stat[2]}</td>
+    <td>${damage_pct}%</td>
+</tr>
+% endfor
+</table>
+
+% endif
