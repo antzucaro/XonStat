@@ -15,7 +15,7 @@
         <td>Accuracy</td>
     </tr>
 
-% for pgstat in pgstats[game.game_id]:
+% for pgstat in pgstats:
     <tr>
         <td>
         % if pgstat.player_id > 2:
@@ -57,7 +57,7 @@
         <td>Accuracy</td>
     </tr>
 
-% for pgstat in pgstats[game.game_id]:
+% for pgstat in pgstats:
     <tr>
         <td>
         % if pgstat.player_id > 2:
