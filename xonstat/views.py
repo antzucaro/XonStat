@@ -1,23 +1,19 @@
 import datetime
-import time
+import logging
 import re
+import time
 from pyramid.response import Response
-from pyramid.view import view_config
-from webhelpers.paginate import Page, PageURL
-
-from xonstat.models import *
-from xonstat.util import page_url
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy import desc
+from webhelpers.paginate import Page, PageURL
+from xonstat.models import *
+from xonstat.util import page_url
 
-
-import logging
 log = logging.getLogger(__name__)
 
 ##########################################################################
 # This is the main index - the entry point to the entire site
 ##########################################################################
-@view_config(renderer='index.jinja2')
 def main_index(request):
     log.debug("testing logging; entered MainHandler.index()")
     return {'project':'xonstat'}
@@ -26,14 +22,12 @@ def main_index(request):
 # This is the player views area - only views pertaining to Xonotic players
 # and their related information goes here
 ##########################################################################
-@view_config(renderer='player_index.mako')
 def player_index(request):
     players = DBSession.query(Player)
 
     log.debug("testing logging; entered PlayerHandler.index()")
     return {'players':players}
 
-@view_config(renderer='player_info.mako')
 def player_info(request):
     player_id = request.matchdict['id']
     try:
@@ -504,7 +498,6 @@ def create_player_stats(session=None, player=None, game=None,
                             player_events=player_events)
     
 
-@view_config(renderer='stats_submit.mako')
 def stats_submit(request):
     try:
         session = DBSession()
