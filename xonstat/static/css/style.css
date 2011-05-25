@@ -9,6 +9,16 @@
     font-style: normal;
 }
 
+body {
+    font-family: 'Xolonium', 'Arial', 'Helvetica';
+    font-size: 12px;
+}
+
+.scoreboard-header{
+    font-size: 14px;
+    font-weight: bold;
+}
+
 .nick {
     font-family: 'Xolonium', 'Arial', 'Helvetica';
     font-size: 14px;
