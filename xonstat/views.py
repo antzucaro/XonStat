@@ -12,23 +12,28 @@ from xonstat.util import page_url
 log = logging.getLogger(__name__)
 
 ##########################################################################
-# This is the main index - the entry point to the entire site
-##########################################################################
 def main_index(request):
+    """
+    This is the main entry point to the entire site. 
+    """
     log.debug("testing logging; entered MainHandler.index()")
     return {'project':'xonstat'}
 
-##########################################################################
-# This is the player views area - only views pertaining to Xonotic players
-# and their related information goes here
+
 ##########################################################################
 def player_index(request):
+    """
+    Provides a list of all the current players. 
+    """
     players = DBSession.query(Player)
 
     log.debug("testing logging; entered PlayerHandler.index()")
     return {'players':players}
 
 def player_info(request):
+    """
+    Provides detailed information on a specific player
+    """
     player_id = request.matchdict['id']
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
@@ -65,6 +70,11 @@ def player_info(request):
 
 
 def player_game_index(request):
+    """
+    Provides an index of the games in which a particular
+    player was involved. This is ordered by game_id, with
+    the most recent game_ids first. Paginated.
+    """
     player_id = request.matchdict['player_id']
 
     if 'page' in request.matchdict:
@@ -95,6 +105,10 @@ def player_game_index(request):
 
 
 def player_weapon_stats(request):
+    """
+    List the accuracy statistics for the given player_id in a particular
+    game.
+    """
     game_id = request.matchdict['game_id']
     pgstat_id = request.matchdict['pgstat_id']
     try:
@@ -123,10 +137,12 @@ def player_weapon_stats(request):
 
 
 ##########################################################################
-# This is the game views area - only views pertaining to Xonotic
-# games and their related information goes here
-##########################################################################
 def game_index(request):
+    """
+    Provides a list of current games, with the associated game stats.
+    These games are ordered by game_id, with the most current ones first.
+    Paginated.
+    """
     if 'page' in request.matchdict:
         current_page = request.matchdict['page']
     else:
@@ -151,6 +167,9 @@ def game_index(request):
 
 
 def game_info(request):
+    """
+    List the game stats (scoreboard) for a particular game. Paginated.
+    """
     game_id = request.matchdict['id']
     try:
         notfound = False
@@ -193,10 +212,10 @@ def game_info(request):
 
 
 ##########################################################################
-# This is the server views area - only views pertaining to Xonotic
-# servers and their related information goes here
-##########################################################################
 def server_info(request):
+    """
+    List the stored information about a given server.
+    """
     server_id = request.matchdict['id']
     try:
         server = DBSession.query(Server).filter_by(server_id=server_id).one()
@@ -214,6 +233,9 @@ def server_info(request):
 
 
 def server_game_index(request):
+    """
+    List the games played on a given server. Paginated.
+    """
     server_id = request.matchdict['server_id']
     current_page = request.matchdict['page']
 
@@ -237,10 +259,10 @@ def server_game_index(request):
 
 
 ##########################################################################
-# This is the map views area - only views pertaining to Xonotic
-# maps and their related information goes here
-##########################################################################
 def map_info(request):
+    """
+    List the information stored about a given map. 
+    """
     map_id = request.matchdict['id']
     try:
         gmap = DBSession.query(Map).filter_by(map_id=map_id).one()
@@ -250,10 +272,13 @@ def map_info(request):
 
 
 ##########################################################################
-# This is the stats views area - only views pertaining to Xonotic
-# statistics and its related information goes here
-##########################################################################
 def get_or_create_server(session=None, name=None):
+    """
+    Find a server by name or create one if not found. Parameters:
+
+    session - SQLAlchemy database session factory
+    name - server name of the server to be found or created
+    """
     try:
         # find one by that name, if it exists
         server = session.query(Server).filter_by(name=name).one()
@@ -278,6 +303,12 @@ def get_or_create_server(session=None, name=None):
     return server
 
 def get_or_create_map(session=None, name=None):
+    """
+    Find a map by name or create one if not found. Parameters:
+
+    session - SQLAlchemy database session factory
+    name - map name of the map to be found or created
+    """
     try:
         # find one by the name, if it exists
         gmap = session.query(Map).filter_by(name=name).one()
@@ -300,8 +331,20 @@ def get_or_create_map(session=None, name=None):
 
     return gmap
 
+
 def create_game(session=None, start_dt=None, game_type_cd=None, 
         server_id=None, map_id=None, winner=None):
+    """
+    Creates a game. Parameters:
+
+    session - SQLAlchemy database session factory
+    start_dt - when the game started (datetime object)
+    game_type_cd - the game type of the game being played
+    server_id - server identifier of the server hosting the game
+    map_id - map on which the game was played
+    winner - the team id of the team that won
+    """
+
     game = Game(start_dt=start_dt, game_type_cd=game_type_cd,
                 server_id=server_id, map_id=map_id, winner=winner)
     session.add(game)
@@ -312,8 +355,16 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
 
     return game
 
-# search for a player and if found, create a new one (w/ hashkey)
+
 def get_or_create_player(session=None, hashkey=None, nick=None):
+    """
+    Finds a player by hashkey or creates a new one (along with a
+    corresponding hashkey entry. Parameters:
+
+    session - SQLAlchemy database session factory
+    hashkey - hashkey of the player to be found or created
+    nick - nick of the player (in case of a first time create)
+    """
     # if we have a bot
     if re.search('^bot#\d+$', hashkey):
         player = session.query(Player).filter_by(player_id=1).one()
@@ -348,6 +399,14 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
 
 def create_player_game_stat(session=None, player=None, 
         game=None, player_events=None):
+    """
+    Creates game statistics for a given player in a given game. Parameters:
+
+    session - SQLAlchemy session factory
+    player - Player record of the player who owns the stats
+    game - Game record for the game to which the stats pertain
+    player_events - dictionary for the actual stats that need to be transformed
+    """
 
     # in here setup default values (e.g. if game type is CTF then
     # set kills=0, score=0, captures=0, pickups=0, fckills=0, etc
@@ -404,6 +463,17 @@ def create_player_game_stat(session=None, player=None,
 
 def create_player_weapon_stats(session=None, player=None, 
         game=None, pgstat=None, player_events=None):
+    """
+    Creates accuracy records for each weapon used by a given player in a
+    given game. Parameters:
+
+    session - SQLAlchemy session factory object
+    player - Player record who owns the weapon stats
+    game - Game record in which the stats were created
+    pgstat - Corresponding PlayerGameStat record for these weapon stats
+    player_events - dictionary containing the raw weapon values that need to be
+        transformed
+    """
     pwstats = []
 
     for (key,value) in player_events.items():
@@ -444,6 +514,9 @@ def create_player_weapon_stats(session=None, player=None,
 
 
 def parse_body(request):
+    """
+    Parses the POST request body for a stats submission
+    """
     # storage vars for the request body
     game_meta = {}
     player_events = {}
@@ -488,6 +561,9 @@ def parse_body(request):
 
 def create_player_stats(session=None, player=None, game=None, 
         player_events=None):
+    """
+    Creates player game and weapon stats according to what type of player
+    """
     if 'joins' in player_events and 'matches' in player_events\
             and 'scoreboardvalid' in player_events:
                 pgstat = create_player_game_stat(session=session, 
@@ -499,6 +575,9 @@ def create_player_stats(session=None, player=None, game=None,
     
 
 def stats_submit(request):
+    """
+    Entry handler for POST stats submissions.
+    """
     try:
         session = DBSession()
 
