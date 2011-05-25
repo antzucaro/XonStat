@@ -28,9 +28,10 @@ Accuracy Information - ${parent.title()}
         <td>${weapon.descr}</td>
         <td>${pwstat.fired}</td>
         <td>${pwstat.hit}</td>
-        <td>${pwstat.hit/pwstat.fired}</td>
+        <td>${round(float(pwstat.hit)/pwstat.fired*100, 2)}%</td>
         <td>${pwstat.max}</td>
         <td>${pwstat.actual}</td>
+        <td>${round(float(pwstat.actual)/pwstat.max*100, 2)}%</td>
         <td>${pwstat.frags}</td>
     </tr>
 % endfor

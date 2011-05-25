@@ -47,7 +47,7 @@
 % endif
 
 ##### DM #####
-% if game.game_type_cd == 'dm':
+% if game_type_cd == 'dm':
     <tr>
         <td>Nick</td>
         <td>Kills</td>
