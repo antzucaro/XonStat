@@ -16,8 +16,10 @@ Accuracy Information - ${parent.title()}
         <td>Weapon</td>
         <td>Fired</td>
         <td>Hit</td>
+        <td>Hit %</td>
         <td>Potential Damage</td>
         <td>Actual Damage</td>
+        <td>Damage %</td>
         <td>Frags</td>
     </tr>
 
@@ -26,6 +28,7 @@ Accuracy Information - ${parent.title()}
         <td>${weapon.descr}</td>
         <td>${pwstat.fired}</td>
         <td>${pwstat.hit}</td>
+        <td>${pwstat.hit/pwstat.fired}</td>
         <td>${pwstat.max}</td>
         <td>${pwstat.actual}</td>
         <td>${pwstat.frags}</td>
