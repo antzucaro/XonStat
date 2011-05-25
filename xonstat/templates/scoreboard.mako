@@ -21,10 +21,10 @@
         % if pgstat.player_id > 2:
           <a href="${request.route_url("player_info", id=pgstat.player_id)}"
            title="Go to the info page for this player">
-          ${pgstat.nick_html_colors()}
+          <span class="nick">${pgstat.nick_html_colors()}</span>
           </a>
         % else:
-          ${pgstat.nick_html_colors()}
+          <span class="nick">${pgstat.nick_html_colors()}</span>
         % endif
         </td>
         <td style="background-color:${pgstat.team_html_color()};"></td>

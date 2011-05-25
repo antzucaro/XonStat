@@ -1,7 +1,9 @@
 <html>
    <head>
       <title><%block name="title">XonStat - The Xonotic Statistics Database</%block></title>
-	  <%block name="css"/>
+	  <%block name="css">
+      <link rel="stylesheet" href="/static/css/style.css" type="text/css" media="screen" />
+      </%block>
 	  <%block name="js"/>
    </head>
    <body>

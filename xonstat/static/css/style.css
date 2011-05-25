@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'Xolonium';
+    src: url('/static/css/xolonium-webfont.eot');
+    src: url('/static/css/xolonium-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/static/css/xolonium-webfont.woff') format('woff'),
+         url('/static/css/xolonium-webfont.ttf') format('truetype'),
+         url('/static/css/xolonium-webfont.svg#Xolonium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.nick {
+    font-family: 'Xolonium', 'Arial', 'Helvetica';
+    font-size: 14px;
+}
