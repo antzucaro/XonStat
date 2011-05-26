@@ -17,7 +17,6 @@ def player_index(request):
     """
     players = DBSession.query(Player)
 
-    log.debug("testing logging; entered PlayerHandler.index()")
     return {'players':players}
 
 def player_info(request):
@@ -40,8 +39,6 @@ def player_info(request):
                     "group by descr, cw.weapon_cd "
                     "order by descr"
                 ).params(player_id=player_id).all()
-
-        log.debug(weapon_stats)
 
         recent_games = DBSession.query(PlayerGameStat, Game, Server, Map).\
                 filter(PlayerGameStat.player_id == player_id).\
@@ -88,7 +85,6 @@ def player_game_index(request):
     except Exception as e:
         player = None
         games = None
-        raise e
 
     return {'player':player,
             'games':games}
@@ -109,18 +105,19 @@ def player_weapon_stats(request):
                 order_by(Weapon.descr).\
                 all()
 
+        # turn this into something the accuracy template can use
+        weapon_stats = []
+        for (pwstat, weapon) in pwstats:
+            weapon_stats.append((weapon.descr, pwstat.weapon_cd, pwstat.fired,
+                pwstat.hit, pwstat.max, pwstat.actual))
+
         pgstat = DBSession.query(PlayerGameStat).\
                 filter_by(player_game_stat_id=pgstat_id).one()
 
         game = DBSession.query(Game).filter_by(game_id=game_id).one()
 
-        log.debug(pwstats)
-        log.debug(pgstat)
-        log.debug(game)
-
     except Exception as e:
-        pwstats = None
+        weapon_stats = None
         pgstat = None
         game = None
-        raise e
-    return {'pwstats':pwstats, 'pgstat':pgstat, 'game':game}
+    return {'weapon_stats':weapon_stats, 'pgstat':pgstat, 'game':game}
