@@ -106,10 +106,8 @@ def player_weapon_stats(request):
                 all()
 
         # turn this into something the accuracy template can use
-        weapon_stats = []
-        for (pwstat, weapon) in pwstats:
-            weapon_stats.append((weapon.descr, pwstat.weapon_cd, pwstat.fired,
-                pwstat.hit, pwstat.max, pwstat.actual))
+        weapon_stats = [(weapon.descr, pwstat.weapon_cd, pwstat.actual,
+                pwstat.max, pwstat.hit, pwstat.fired) for (pwstat, weapon) in pwstats]
 
         pgstat = DBSession.query(PlayerGameStat).\
                 filter_by(player_game_stat_id=pgstat_id).one()
