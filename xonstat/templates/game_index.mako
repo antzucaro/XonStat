@@ -5,6 +5,15 @@
 Game Index - ${parent.title()}
 </%block>
 
+<%block name="js">
+${parent.js()}
+<script type="text/javascript" src="${request.static_url('xonstat:static/js/jquery.js')}"></script>
+<script type="text/javascript" src="${request.static_url('xonstat:static/js/jquery.dataTables.min.js')}"></script>
+<script>
+$(document).ready(function() { $('.scoreboard').dataTable(); } );
+</script>
+</%block>
+
 % if not games:
 <h2>Sorry, no games yet. Get playing!</h2>
 
