@@ -20,20 +20,12 @@ ${parent.title()}
 </p>
 % endif
 
-% if recent_games:
-<h2>Recent Games</h2>
-% for (gamestat, game, server, map) in recent_games:
-   <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a>
-<br />
-% endfor
-<a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
-% endif
 
-
+##### ACCURACY #####
 % if weapon_stats:
 <h2>Accuracy</h2>
-<table border="1" cellpadding="3" align="center">
-<tr>
+<table class="accuracy-table" border="1" cellpadding="3" align="center">
+<tr class="accuracy-table-header">
     <td></td>
     <td>Weapon</td>
     <td>Hit</td>
@@ -46,25 +38,39 @@ ${parent.title()}
 % for weapon_stat in weapon_stats:
 <%
 if weapon_stat[2] > 0: 
-    damage_pct = round(float(weapon_stat[1])/weapon_stat[2]*100, 2)
+    damage_pct = round(float(weapon_stat[2])/weapon_stat[3]*100, 2)
 else:
     damage_pct = 0
 if weapon_stat[4] > 0: 
-    hit_pct = round(float(weapon_stat[3])/weapon_stat[4]*100, 2)
+    hit_pct = round(float(weapon_stat[4])/weapon_stat[5]*100, 2)
 else:
     hit_pct = 0
 %>
 <tr>
-    <td>[IMAGE]</td>
-    <td>${weapon_stat[0]}</td>
-    <td>${weapon_stat[3]}</td>
+    ## Note: the name of the image must match up with the weapon_cd 
+    ## entry of that weapon, else this won't work
+    <td><img src="${request.static_url("xonstat:static/images/%s.png" % weapon_stat[1])}" /></td>
+    <td style="text-align: left;">${weapon_stat[0]}</td>
     <td>${weapon_stat[4]}</td>
+    <td>${weapon_stat[5]}</td>
     <td>${hit_pct}%</td>
-    <td>${weapon_stat[1]}</td>
     <td>${weapon_stat[2]}</td>
+    <td>${weapon_stat[3]}</td>
     <td>${damage_pct}%</td>
 </tr>
 % endfor
 </table>
 
 % endif
+
+##### RECENT GAMES #####
+% if recent_games:
+<h2>Recent Games</h2>
+% for (gamestat, game, server, map) in recent_games:
+   <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a>
+<br />
+% endfor
+<a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
+% endif
+
+

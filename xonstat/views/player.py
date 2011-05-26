@@ -28,16 +28,16 @@ def player_info(request):
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
 
-        weapon_stats = DBSession.query("descr", "actual_total", 
+        weapon_stats = DBSession.query("descr", "weapon_cd", "actual_total", 
                 "max_total", "hit_total", "fired_total", "frags_total").\
                 from_statement(
-                    "select cw.descr, sum(actual) actual_total, "
+                    "select cw.descr, cw.weapon_cd, sum(actual) actual_total, "
                     "sum(max) max_total, sum(hit) hit_total, "
                     "sum(fired) fired_total, sum(frags) frags_total "
                     "from xonstat.player_weapon_stats ws, xonstat.cd_weapon cw "
                     "where ws.weapon_cd = cw.weapon_cd "
                     "and player_id = :player_id "
-                    "group by descr "
+                    "group by descr, cw.weapon_cd "
                     "order by descr"
                 ).params(player_id=player_id).all()
 

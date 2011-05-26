@@ -25,6 +25,14 @@ body {
     font-weight: bold;
 }
 
+.accuracy-table{
+    text-align: center;
+}
+
+.accuracy-table-header{
+    background-color: #E8E8E8;
+}
+
 .nick {
     font-family: 'Xolonium', 'Arial', 'Helvetica';
     font-size: 14px;
