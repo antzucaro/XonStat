@@ -48,38 +48,47 @@ def game_info(request):
     try:
         notfound = False
 
-        (start_dt, game_type_cd, server_id, server_name, map_id, map_name) = \
-        DBSession.query("start_dt", "game_type_cd", "server_id", 
-                "server_name", "map_id", "map_name").\
-                from_statement("select g.start_dt, g.game_type_cd, "
-                        "g.server_id, s.name as server_name, g.map_id, "
-                        "m.name as map_name "
-                        "from games g, servers s, maps m "
-                        "where g.game_id = :game_id "
-                        "and g.server_id = s.server_id "
-                        "and g.map_id = m.map_id").\
-                        params(game_id=game_id).one()
+        (game, server, map) = DBSession.query(Game, Server, Map).\
+                filter(Game.game_id == game_id).\
+                filter(Game.server_id == Server.server_id).\
+                filter(Game.map_id == Map.map_id).one()
 
-        player_game_stats = DBSession.query(PlayerGameStat).\
-                from_statement("select * from player_game_stats "
-                        "where game_id = :game_id "
-                        "order by score desc").\
-                            params(game_id=game_id).all()
+        pgstats = DBSession.query(PlayerGameStat).\
+                filter(PlayerGameStat.game_id == game_id).\
+                order_by(PlayerGameStat.rank).\
+                order_by(PlayerGameStat.score).\
+                all()
+
+        pwstats = {}
+        for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
+                filter(PlayerWeaponStat.game_id == game_id).\
+                filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd).\
+                filter(PlayerWeaponStat.player_game_stat_id == \
+                    PlayerGameStat.player_game_stat_id).\
+                order_by(PlayerGameStat.rank).\
+                order_by(PlayerGameStat.score).\
+                all():
+                    if pgstat.player_game_stat_id not in pwstats:
+                        pwstats[pgstat.player_game_stat_id] = []
+
+                    # NOTE adding pgstat to position 6 in order to display nick.
+                    # You have to use a slice [0:5] to pass to the accuracy 
+                    # template
+                    pwstats[pgstat.player_game_stat_id].append((weapon.descr, 
+                        weapon.weapon_cd, pwstat.actual, pwstat.max, 
+                        pwstat.hit, pwstat.fired, pgstat))
+
     except Exception as inst:
-        notfound = True
-        start_dt = None
-        game_type_cd = None
-        server_id = None
-        server_name = None
-        map_id = None
-        map_name = None
-        player_game_stats = None
+        game = None
+        server = None
+        map = None
+        pgstats = None
+        pwstats = None
+        raise inst
 
-    return {'notfound':notfound,
-            'start_dt':start_dt,
-            'game_type_cd':game_type_cd,
-            'server_id':server_id,
-            'server_name':server_name,
-            'map_id':map_id,
-            'map_name':map_name,
-            'player_game_stats':player_game_stats}
+    return {'game':game,
+            'server':server,
+            'map':map,
+            'pgstats':pgstats,
+            'pwstats':pwstats,
+            }
