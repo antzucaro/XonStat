@@ -8,7 +8,11 @@
    </head>
    <body>
       <div id="header">
-         <%block name="header"/>
+         <%block name="header">
+         <h1>XonStat</h1>
+         <h2>The Statistics Database for Xonotic</h2>
+         <br />
+         </%block>
 	  </div>
 
 	  ${self.body()}

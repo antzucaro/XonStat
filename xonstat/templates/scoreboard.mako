@@ -1,11 +1,10 @@
 <%def name="scoreboard(game_type_cd, pgstats)">
-<table border="1" cellpadding="3">
+<table class="scoreboard" border="1" cellpadding="3">
 
 ##### CTF #####
 % if game_type_cd == 'ctf':
-    <tr class="scoreboard-header">
+    <tr class="scoreboard-header" style="background-color:lightgray; color:${pgstats[0].team_html_color()}">
         <td>Nick</td>
-        <td>Team</td>
         <td>Kills</td>
         <td>Captures</td>
         <td>Pickups</td>
@@ -16,7 +15,7 @@
     </tr>
 
 % for pgstat in pgstats:
-    <tr>
+    <tr style="background-color:${pgstat.team_html_color()}">
         <td>
         % if pgstat.player_id > 2:
           <a href="${request.route_url("player_info", id=pgstat.player_id)}"
@@ -27,7 +26,6 @@
           <span class="nick">${pgstat.nick_html_colors()}</span>
         % endif
         </td>
-        <td style="background-color:${pgstat.team_html_color()};"></td>
         <td>${pgstat.kills}</td>
         <td>${pgstat.captures}</td>
         <td>${pgstat.pickups}</td>
@@ -48,7 +46,7 @@
 
 ##### DM #####
 % if game_type_cd == 'dm':
-    <tr class="scoreboard-header">
+    <tr class="scoreboard-header" style="background-color:lightgray; color:black;}">
         <td>Nick</td>
         <td>Kills</td>
         <td>Deaths</td>
@@ -58,7 +56,7 @@
     </tr>
 
 % for pgstat in pgstats:
-    <tr>
+    <tr style="background-color:${pgstat.team_html_color()}">
         <td>
         % if pgstat.player_id > 2:
           <a href="${request.route_url("player_info", id=pgstat.player_id)}"

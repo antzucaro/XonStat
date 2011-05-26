@@ -14,10 +14,8 @@ ${parent.title()}
 
 % else:
 <h2>Map Detail</h2>
-<ul>
-   <li>ID: ${gmap.map_id}</li>
-   <li>Name: ${gmap.name}</li>
-   <li>PK3 Name: ${gmap.pk3_name}</li>
-   <li>Curl URL: ${gmap.curl_url}</li>
-</ul>
+ID: ${gmap.map_id} <br />
+Name: ${gmap.name} <br />
+PK3 Name: ${gmap.pk3_name} <br />
+Curl URL: ${gmap.curl_url} <br />
 % endif

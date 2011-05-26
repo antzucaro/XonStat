@@ -12,6 +12,12 @@
 body {
     font-family: 'Xolonium', 'Arial', 'Helvetica';
     font-size: 12px;
+    text-align: center;
+}
+
+.scoreboard{
+    color: #FFFFFF;
+    text-align: center;
 }
 
 .scoreboard-header{

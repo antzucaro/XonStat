@@ -22,18 +22,17 @@ ${parent.title()}
 
 % if recent_games:
 <h2>Recent Games</h2>
-<ul>
 % for (gamestat, game, server, map) in recent_games:
-   <li><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a></li>
+   <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a>
+<br />
 % endfor
-</ul>
 <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
 % endif
 
 
 % if weapon_stats:
 <h2>Accuracy</h2>
-<table border="1" cellpadding="3">
+<table border="1" cellpadding="3" align="center">
 <tr>
     <td></td>
     <td>Weapon</td>

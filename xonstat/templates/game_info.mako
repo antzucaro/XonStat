@@ -19,5 +19,7 @@ Map: <a href="${request.route_url("map_info", id=map_id)}" name="Map info page f
 </p>
 
 <h2>Scoreboard</h2>
+<div align="center">
 ${scoreboard(game_type_cd, player_game_stats)}
+</div>
 % endif
