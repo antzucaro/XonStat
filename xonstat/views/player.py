@@ -88,34 +88,3 @@ def player_game_index(request):
 
     return {'player':player,
             'games':games}
-
-
-def player_weapon_stats(request):
-    """
-    List the accuracy statistics for the given player_id in a particular
-    game.
-    """
-    game_id = request.matchdict['game_id']
-    pgstat_id = request.matchdict['pgstat_id']
-    try:
-        pwstats = DBSession.query(PlayerWeaponStat, Weapon).\
-                filter(PlayerWeaponStat.weapon_cd==Weapon.weapon_cd).\
-                filter_by(game_id=game_id).\
-                filter_by(player_game_stat_id=pgstat_id).\
-                order_by(Weapon.descr).\
-                all()
-
-        # turn this into something the accuracy template can use
-        weapon_stats = [(weapon.descr, pwstat.weapon_cd, pwstat.actual,
-                pwstat.max, pwstat.hit, pwstat.fired) for (pwstat, weapon) in pwstats]
-
-        pgstat = DBSession.query(PlayerGameStat).\
-                filter_by(player_game_stat_id=pgstat_id).one()
-
-        game = DBSession.query(Game).filter_by(game_id=game_id).one()
-
-    except Exception as e:
-        weapon_stats = None
-        pgstat = None
-        game = None
-    return {'weapon_stats':weapon_stats, 'pgstat':pgstat, 'game':game}
