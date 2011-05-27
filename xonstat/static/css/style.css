@@ -21,6 +21,7 @@ body {
 }
 
 .scoreboard-header{
+    background-color: #E8E8E8;
     font-size: 14px;
     font-weight: bold;
 }
@@ -31,6 +32,8 @@ body {
 
 .accuracy-table-header{
     background-color: #E8E8E8;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .nick {

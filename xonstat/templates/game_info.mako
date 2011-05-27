@@ -20,13 +20,14 @@ Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info pa
 </p>
 
 ##### SCOREBOARD #####
-<h2>Accuracy</h2>
+<h2>Scoreboard</h2>
 ${scoreboard(game.game_type_cd, pgstats)}
 <br />
 <br />
 
 
 ##### ACCURACY #####
+<h2>Accuracy</h2>
 % for pgstat in pgstats:
 % if pgstat.player_game_stat_id in pwstats:
 <a name="accuracy-${pgstat.player_game_stat_id}" />Accuracy for ${pgstat.nick_html_colors()}:
