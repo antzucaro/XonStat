@@ -34,7 +34,7 @@
         <td><span style="color:#FFFF00;">${pgstat.score}</span></td>
         <td>
         % if pgstat.player_id > 1:
-          <a href="${request.route_url("player_weapon_stats", game_id=pgstat.game_id, pgstat_id=pgstat.player_game_stat_id)}"
+          <a href="${request.route_url("game_info", id=pgstat.game_id)}#accuracy-${pgstat.player_game_stat_id}"
            title="View weapon accuracy details for this player in this game">
           View
           </a>

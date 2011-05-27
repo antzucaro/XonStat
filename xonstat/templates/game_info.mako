@@ -29,7 +29,7 @@ ${scoreboard(game.game_type_cd, pgstats)}
 ##### ACCURACY #####
 % for pgstat in pgstats:
 % if pgstat.player_game_stat_id in pwstats:
-Accuracy for ${pgstat.nick_html_colors()}:
+<a name="accuracy-${pgstat.player_game_stat_id}" />Accuracy for ${pgstat.nick_html_colors()}:
 ${accuracy(pwstats[pgstat.player_game_stat_id][0:5])}
 <br />
 <br />
