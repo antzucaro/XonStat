@@ -3,7 +3,7 @@ from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from xonstat.util import strip_colors, html_colors
+from xonstat.util import strip_colors, html_colors, pretty_date
 
 DBSession = scoped_session(sessionmaker())
 Base = declarative_base()
@@ -71,6 +71,9 @@ class Game(object):
     def __repr__(self):
         return "<Game(%s, %s, %s, %s)>" % (self.game_id, self.start_dt, 
                 self.game_type_cd, self.server_id)
+
+    def fuzzy_date(self):
+        return pretty_date(self.start_dt)
 
 
 class PlayerGameStat(object):

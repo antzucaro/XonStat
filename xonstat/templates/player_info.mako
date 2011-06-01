@@ -68,23 +68,16 @@ ${accuracy(weapon_stats)}
 % endif
 
 
-##### RECENT GAMES #####
+##### RECENT GAMES (v2) ####
 % if recent_games:
 <h2>Recent Games</h2>
-% for (gamestat, game, server, map) in recent_games:
-   <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a>
-<br />
-% endfor
-<a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
-% endif
-
-##### RECENT GAMES (v2) ####
 <table class="accuracy-table" border="1" cellpadding="3" align="center">
-<tr>
+<tr class='accuracy-table-header'>
    <td>Game Type</td>
    <td>Map</td>
    <td>Result</td>
    <td>Played</td>
+   <td>Permalink</td>
 </tr>
 % for (gamestat, game, server, map) in recent_games:
 <tr>
@@ -97,6 +90,10 @@ ${accuracy(weapon_stats)}
    Loss
    % endif
    </td>
-   <td>${game.start_dt}</td>
+   <td>${game.fuzzy_date()}</td>
+   <td><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
 </tr>
 % endfor
+</table>
+<a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
+% endif
