@@ -47,13 +47,52 @@ def player_info(request):
                 filter(Game.map_id == Map.map_id).\
                 order_by(Game.game_id.desc())[0:10]
 
+        game_stats = {}
+        (game_stats['avg_rank'], game_stats['total_kills'], 
+                game_stats['total_deaths'], game_stats['total_suicides'], 
+                game_stats['total_score'], game_stats['total_time'], 
+                game_stats['total_held'], game_stats['total_captures'], 
+                game_stats['total_pickups'],game_stats['total_drops'], 
+                game_stats['total_returns'], game_stats['total_collects'], 
+                game_stats['total_destroys'], game_stats['total_dhk'], 
+                game_stats['total_pushes'], game_stats['total_pushed'], 
+                game_stats['total_carrier_frags'], 
+                game_stats['total_alivetime']) = DBSession.\
+                        query("avg_rank", "total_kills", "total_deaths", 
+                "total_suicides", "total_score", "total_time", "total_held",
+                "total_captures", "total_pickups", "total_drops", 
+                "total_returns", "total_collects", "total_destroys", 
+                "total_dhk", "total_pushes", "total_pushed", 
+                "total_carrier_frags", "total_alivetime").\
+                from_statement(
+                    "select round(avg(rank)) avg_rank, sum(kills) total_kills, "
+                    "sum(deaths) total_deaths, sum(suicides) total_suicides, "
+                    "sum(score) total_score, sum(time) total_time, "
+                    "sum(held) total_held, sum(captures) total_captures, "
+                    "sum(pickups) total_pickups, sum(drops) total_drops, "
+                    "sum(returns) total_returns, sum(collects) total_collects, "
+                    "sum(destroys) total_destroys, sum(destroys_holding_key) total_dhk, "
+                    "sum(pushes) total_pushes, sum(pushed) total_pushed, "
+                    "sum(carrier_frags) total_carrier_frags, "
+                    "sum(alivetime) total_alivetime "
+                    "from player_game_stats "
+                    "where player_id=:player_id"
+                ).params(player_id=player_id).one()
+
+        for (key,value) in game_stats.items():
+            if value == None:
+                game_stats[key] = '-'
+
     except Exception as e:
         player = None
         weapon_stats = None
+        game_stats = None
         recent_games = None
+        raise e
     return {'player':player, 
             'recent_games':recent_games,
-            'weapon_stats':weapon_stats}
+            'weapon_stats':weapon_stats,
+            'game_stats':game_stats}
 
 
 def player_game_index(request):

@@ -22,9 +22,48 @@ ${parent.title()}
 % endif
 
 
+##### STATS #####
+% if game_stats:
+<h2>Overall Game Stats</h2>
+<table class="accuracy-table" border="1" cellpadding="3" align="center">
+  <tr>
+    <td>Playing Time</td><td>${game_stats['total_alivetime']}</td>
+    <td>Drops</td><td>${game_stats['total_drops']}</td>
+  </tr>
+  <tr>
+    <td>Average Rank</td><td>${game_stats['avg_rank']}</td>
+    <td>Returns</td><td>${game_stats['total_returns']}</td>
+  </tr>
+  <tr>
+    <td>Score</td><td>${game_stats['total_score']}</td>
+    <td>Carrier Kills</td><td>${game_stats['total_carrier_frags']}</td>
+  </tr>
+  <tr>
+    <td>Kills</td><td>${game_stats['total_kills']}</td>
+    <td>Collects</td><td>${game_stats['total_collects']}</td>
+  </tr>
+  <tr>
+    <td>Deaths</td><td>${game_stats['total_deaths']}</td>
+    <td>Destroys</td><td>${game_stats['total_destroys']}</td>
+  </tr>
+  <tr>
+    <td>Suicides</td><td>${game_stats['total_suicides']}</td>
+    <td>Destroys (with key)</td><td>${game_stats['total_destroys']}</td>
+  </tr>
+  <tr>
+    <td>Captures</td><td>${game_stats['total_captures']}</td>
+    <td>Pushes</td><td>${game_stats['total_pushes']}</td>
+  </tr>
+  <tr>
+    <td>Pickups</td><td>${game_stats['total_pickups']}</td>
+    <td>Pushed</td><td>${game_stats['total_pushed']}</td>
+  </tr>
+</table>
+% endif
+
 ##### ACCURACY #####
 % if weapon_stats:
-<h2>Accuracy</h2>
+<h2>Overall Accuracy</h2>
 ${accuracy(weapon_stats)}
 % endif
 
@@ -39,4 +78,25 @@ ${accuracy(weapon_stats)}
 <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
 % endif
 
-
+##### RECENT GAMES (v2) ####
+<table class="accuracy-table" border="1" cellpadding="3" align="center">
+<tr>
+   <td>Game Type</td>
+   <td>Map</td>
+   <td>Result</td>
+   <td>Played</td>
+</tr>
+% for (gamestat, game, server, map) in recent_games:
+<tr>
+   <td>${game.game_type_cd}</td>
+   <td>${map.name}</td>
+   <td>
+   % if gamestat.team != None and gamestat.team == game.winner:
+   Win
+   % else:
+   Loss
+   % endif
+   </td>
+   <td>${game.start_dt}</td>
+</tr>
+% endfor
