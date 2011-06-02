@@ -43,36 +43,36 @@ ${parent.title()}
 <h2>Overall Game Stats</h2>
 <table class="accuracy-table" border="1" cellpadding="3" align="center">
   <tr>
-    <td>Playing Time</td><td>${game_stats['total_alivetime']}</td>
-    <td>Drops</td><td>${game_stats['total_drops']}</td>
+    <td class="header-cell">Playing Time</td><td>${game_stats['total_alivetime']}</td>
+    <td class="header-cell">Drops</td><td>${game_stats['total_drops']}</td>
   </tr>
   <tr>
-    <td>Average Rank</td><td>${game_stats['avg_rank']}</td>
-    <td>Returns</td><td>${game_stats['total_returns']}</td>
+    <td class="header-cell">Average Rank</td><td>${game_stats['avg_rank']}</td>
+    <td class="header-cell">Returns</td><td>${game_stats['total_returns']}</td>
   </tr>
   <tr>
-    <td>Score</td><td>${game_stats['total_score']}</td>
-    <td>Carrier Kills</td><td>${game_stats['total_carrier_frags']}</td>
+    <td class="header-cell">Score</td><td>${game_stats['total_score']}</td>
+    <td class="header-cell">Carrier Kills</td><td>${game_stats['total_carrier_frags']}</td>
   </tr>
   <tr>
-    <td>Kills</td><td>${game_stats['total_kills']}</td>
-    <td>Collects</td><td>${game_stats['total_collects']}</td>
+    <td class="header-cell">Kills</td><td>${game_stats['total_kills']}</td>
+    <td class="header-cell">Collects</td><td>${game_stats['total_collects']}</td>
   </tr>
   <tr>
-    <td>Deaths</td><td>${game_stats['total_deaths']}</td>
-    <td>Destroys</td><td>${game_stats['total_destroys']}</td>
+    <td class="header-cell">Deaths</td><td>${game_stats['total_deaths']}</td>
+    <td class="header-cell">Destroys</td><td>${game_stats['total_destroys']}</td>
   </tr>
   <tr>
-    <td>Suicides</td><td>${game_stats['total_suicides']}</td>
-    <td>Destroys (with key)</td><td>${game_stats['total_destroys']}</td>
+    <td class="header-cell">Suicides</td><td>${game_stats['total_suicides']}</td>
+    <td class="header-cell">Destroys (with key)</td><td>${game_stats['total_destroys']}</td>
   </tr>
   <tr>
-    <td>Captures</td><td>${game_stats['total_captures']}</td>
-    <td>Pushes</td><td>${game_stats['total_pushes']}</td>
+    <td class="header-cell">Captures</td><td>${game_stats['total_captures']}</td>
+    <td class="header-cell">Pushes</td><td>${game_stats['total_pushes']}</td>
   </tr>
   <tr>
-    <td>Pickups</td><td>${game_stats['total_pickups']}</td>
-    <td>Pushed</td><td>${game_stats['total_pushed']}</td>
+    <td class="header-cell">Pickups</td><td>${game_stats['total_pickups']}</td>
+    <td class="header-cell">Pushed</td><td>${game_stats['total_pushed']}</td>
   </tr>
 </table>
 % endif
@@ -88,7 +88,7 @@ ${accuracy(weapon_stats)}
 % if recent_games:
 <h2>Recent Games</h2>
 <table class="accuracy-table" border="1" cellpadding="3" align="center">
-<tr class='accuracy-table-header'>
+<tr class='table-header'>
    <td>Game Type</td>
    <td>Map</td>
    <td>Result</td>

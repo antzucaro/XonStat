@@ -20,20 +20,15 @@ body {
     text-align: center;
 }
 
-.scoreboard-header{
+.table-header, .header-cell{
     background-color: #E8E8E8;
     font-size: 14px;
     font-weight: bold;
 }
+
 
 .accuracy-table{
     text-align: center;
-}
-
-.accuracy-table-header{
-    background-color: #E8E8E8;
-    font-size: 14px;
-    font-weight: bold;
 }
 
 .nick {

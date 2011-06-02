@@ -12,7 +12,7 @@
 ## [5] = Fired
 
 <table class="accuracy-table" border="1" cellpadding="3" align="center">
-<tr class="accuracy-table-header">
+<tr class="table-header">
     <td></td>
     <td>Weapon</td>
     <td>Hit</td>

@@ -3,7 +3,7 @@
 
 ##### CTF #####
 % if game_type_cd == 'ctf':
-    <tr class="scoreboard-header" style="color:${pgstats[0].team_html_color()}">
+    <tr class="table-header" style="color:${pgstats[0].team_html_color()}">
         <td>Nick</td>
         <td>Kills</td>
         <td>Captures</td>
@@ -46,7 +46,7 @@
 
 ##### DM #####
 % if game_type_cd == 'dm':
-    <tr class="scoreboard-header" style="color:black;}">
+    <tr class="table-header" style="color:black;}">
         <td>Nick</td>
         <td>Kills</td>
         <td>Deaths</td>
