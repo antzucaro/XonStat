@@ -1,6 +1,22 @@
 <%inherit file="base.mako"/>
 <%namespace file="accuracy.mako" import="accuracy" />
 
+<%block name="css">
+${parent.css()}
+<link rel="stylesheet" href="/static/css/colorbox.css" type="text/css" media="screen" />
+</%block>
+
+<%block name="js">
+${parent.js()}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+<script src="/static/js/jquery.colorbox-min.js"></script>
+<script>
+$(document).ready(function(){
+    $(".recent_game_box").colorbox({width:"80%", height:"80%", iframe:true});
+});
+</script>
+</%block>
+
 <%block name="title">
 % if player:
 Player Information for ${player.nick_html_colors()} - 
@@ -91,7 +107,7 @@ ${accuracy(weapon_stats)}
    % endif
    </td>
    <td>${game.fuzzy_date()}</td>
-   <td><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
+   <td><a class="recent_game_box" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
 </tr>
 % endfor
 </table>
