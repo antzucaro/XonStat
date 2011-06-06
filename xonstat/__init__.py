@@ -22,8 +22,8 @@ def main(global_config, **settings):
     config.add_static_view('static', 'xonstat:static')
 
     # ROOT ROUTE
-    config.add_route(name="main_index", pattern="/", view=game_index,
-            renderer='game_index.mako') 
+    config.add_route(name="main_index", pattern="/", view=main_index,
+            renderer='main_index.mako') 
 
     # PLAYER ROUTES
     config.add_route(name="player_game_index_default", 
