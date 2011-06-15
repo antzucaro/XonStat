@@ -23,3 +23,23 @@ Main Page - ${parent.title()}
 </tr>
 % endfor
 </table>
+
+<table>
+<tr>
+<th>Server</th>
+<th>Games</th>
+</tr>
+% for (server_id, name, count) in top_servers:
+<tr>
+<td>${name}</td>
+<td>${count}</td>
+</tr>
+% endfor
+
+% for i in range(10 - len(top_servers)):
+<tr>
+<td>-</td>
+<td>-</td>
+</tr>
+% endfor
+</table>
