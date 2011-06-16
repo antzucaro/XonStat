@@ -43,3 +43,23 @@ Main Page - ${parent.title()}
 </tr>
 % endfor
 </table>
+
+<table>
+<tr>
+<th>Map</th>
+<th>Times Played</th>
+</tr>
+% for (map_id, name, count) in top_maps:
+<tr>
+<td>${name}</td>
+<td>${count}</td>
+</tr>
+% endfor
+
+% for i in range(10 - len(top_maps)):
+<tr>
+<td>-</td>
+<td>-</td>
+</tr>
+% endfor
+</table>

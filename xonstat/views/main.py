@@ -17,12 +17,21 @@ def main_index(request):
 
     # top servers by number of total players played
     top_servers = DBSession.query(Server.server_id, Server.name, 
-            func.count(Game.game_id)).\
+            func.count()).\
             filter(Game.server_id==Server.server_id).\
             order_by(func.count(Game.game_id)).\
             group_by(Server.server_id).\
             group_by(Server.name).all()[0:10]
 
+    # top maps by total times played
+    top_maps = DBSession.query(Map.map_id, Map.name, 
+            func.count(Game.game_id)).\
+            filter(Map.map_id==Game.game_id).\
+            order_by(func.count(Game.game_id)).\
+            group_by(Map.map_id).\
+            group_by(Map.name).all()[0:10]
+
     return {'top_players':top_players,
             'top_servers':top_servers,
+            'top_maps':top_maps,
             }
