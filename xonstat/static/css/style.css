@@ -1,37 +1,67 @@
-@font-face {
-    font-family: 'Xolonium';
-    src: url('/static/css/xolonium-webfont.eot');
-    src: url('/static/css/xolonium-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/static/css/xolonium-webfont.woff') format('woff'),
-         url('/static/css/xolonium-webfont.ttf') format('truetype'),
-         url('/static/css/xolonium-webfont.svg#Xolonium') format('svg');
-    font-weight: normal;
-    font-style: normal;
+body{
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 10px 10px 10px;
+    width: 960px;
 }
 
-body {
-    font-family: 'Xolonium', 'Arial', 'Helvetica';
-    font-size: 12px;
+#header{
+    height: 100px;
+    position: relative;
+}
+
+#header h1{
+    position: absolute;
+}
+
+#header h3{
+    position: absolute;
+    top: 45px;
+}
+
+#nav{
+    position: absolute;
+    right: 0;
+    top: 50px;
+}
+
+#nav ul{
+    list-style: none outside none;
+}
+
+#nav li{
+    background-color: #bbbbbb;
+    border-radius: 3px 3px 3px 3px;
+    display: inline;
+    padding: 3px 6px;
+}
+
+#nav li:hover{
+    background-color: #999999;
+}
+
+#top-players, #top-servers, #top-maps{
+    float: left;
+    margin-bottom: 10px;
+    width: 320px;
+}
+
+#leaderboard{
+    display: inline;
+    float: left;
+    width: 320px;
+}
+
+#recent-games{
+    float: right;
+    width: 610px;
+}
+
+#recent-games-table{
+    width: 610px;
+}
+
+#footer{
+    clear: both;
     text-align: center;
-}
-
-.scoreboard{
-    color: #FFFFFF;
-    text-align: center;
-}
-
-.table-header, .header-cell{
-    background-color: #E8E8E8;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-
-.accuracy-table{
-    text-align: center;
-}
-
-.nick {
-    font-family: 'Xolonium', 'Arial', 'Helvetica';
-    font-size: 14px;
 }
