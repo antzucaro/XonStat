@@ -1,5 +1,5 @@
 <%def name="scoreboard(game_type_cd, pgstats)">
-<table class="scoreboard" border="1" cellpadding="3" align="center">
+<table class="scoreboard" border="1" cellpadding="3">
 
 ##### CTF #####
 % if game_type_cd == 'ctf':

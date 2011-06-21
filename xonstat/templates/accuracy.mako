@@ -11,7 +11,7 @@
 ## [4] = Hit
 ## [5] = Fired
 
-<table class="accuracy-table" border="1" cellpadding="3" align="center">
+<table class="accuracy-table" border="1" cellpadding="3">
 <tr class="table-header">
     <td></td>
     <td>Weapon</td>

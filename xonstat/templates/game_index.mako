@@ -23,10 +23,8 @@ $(document).ready(function() { $('.scoreboard').dataTable(); } );
 <p>
    <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a> (<a href="${request.route_url('game_info', id=game.game_id)}" name="Permalink for game #${game.game_id}">permalink</a> for this game)
 
-<div align="center">
 ## show scoreboard using a def from another file
 ${scoreboard(game.game_type_cd, pgstats[game.game_id])}
-</div>
 
 % endfor
 % endif

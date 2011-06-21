@@ -41,7 +41,7 @@ ${parent.title()}
 ##### STATS #####
 % if game_stats:
 <h2>Overall Game Stats</h2>
-<table class="accuracy-table" border="1" cellpadding="3" align="center">
+<table class="accuracy-table" border="1" cellpadding="3">
   <tr>
     <td class="header-cell">Playing Time</td><td>${game_stats['total_alivetime']}</td>
     <td class="header-cell">Drops</td><td>${game_stats['total_drops']}</td>
@@ -87,7 +87,7 @@ ${accuracy(weapon_stats)}
 ##### RECENT GAMES (v2) ####
 % if recent_games:
 <h2>Recent Games</h2>
-<table class="accuracy-table" border="1" cellpadding="3" align="center">
+<table border="1" cellpadding="3">
 <tr class='table-header'>
    <td>Game Type</td>
    <td>Map</td>
