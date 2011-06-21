@@ -109,4 +109,5 @@ Main Page - ${parent.title()}
     </tr>
     % endif
     % endfor
+</table>
 </div> <!-- END RECENT GAMES -->
