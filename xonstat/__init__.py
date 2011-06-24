@@ -34,6 +34,13 @@ def main(global_config, **settings):
             pattern="/player/{player_id:\d+}/games/page/{page:\d+}", 
             view=player_game_index, renderer='player_game_index.mako') 
 
+    config.add_route(name="player_index_paged", 
+            pattern="/players/page/{page:\d+}", view=player_index, 
+            renderer='player_index.mako') 
+
+    config.add_route(name="player_index", pattern="/players", view=player_index, 
+            renderer='player_index.mako') 
+
     config.add_route(name="player_info", pattern="/player/{id:\d+}", view=player_info, 
             renderer='player_info.mako') 
 

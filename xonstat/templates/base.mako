@@ -16,6 +16,7 @@
             <h3>Player Statistics for Xonotic</h3>
             </%block>
             <ul id="nav">
+                <li><a href="/players" title="Player Index">players</a></li>
                 <li><a href="/games" title="Game Index">games</a></li>
                 <li><a href="" title="Map Index">maps</a></li>
                 <li><a href="" title="Server Index">servers</a></li>

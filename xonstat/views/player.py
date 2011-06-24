@@ -15,9 +15,24 @@ def player_index(request):
     """
     Provides a list of all the current players. 
     """
-    players = DBSession.query(Player)
+    if 'page' in request.matchdict:
+        current_page = request.matchdict['page']
+    else:
+        current_page = 1
 
-    return {'players':players}
+    try:
+        player_q = DBSession.query(Player).\
+                filter(Player.player_id > 2).\
+                order_by(Player.player_id)
+
+        players = Page(player_q, current_page, url=page_url)
+
+        
+    except Exception as e:
+        players = None
+
+    return {'players':players, }
+
 
 def player_info(request):
     """
