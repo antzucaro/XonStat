@@ -63,6 +63,13 @@ def main(global_config, **settings):
             renderer='server_info.mako') 
 
     # MAP ROUTES
+    config.add_route(name="map_index_paged", 
+            pattern="/maps/page/{page:\d+}", view=map_index, 
+            renderer='map_index.mako') 
+
+    config.add_route(name="map_index", pattern="/maps", view=map_index, 
+            renderer='map_index.mako') 
+
     config.add_route(name="map_info", pattern="/map/{id:\d+}", view=map_info, 
             renderer='map_info.mako') 
 

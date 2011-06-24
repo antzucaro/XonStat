@@ -18,7 +18,7 @@
             <ul id="nav">
                 <li><a href="/players" title="Player Index">players</a></li>
                 <li><a href="/games" title="Game Index">games</a></li>
-                <li><a href="" title="Map Index">maps</a></li>
+                <li><a href="/maps" title="Map Index">maps</a></li>
                 <li><a href="" title="Server Index">servers</a></li>
             </ul>
         </div> <!-- END HEADER -->

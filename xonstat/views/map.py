@@ -6,6 +6,27 @@ from xonstat.util import page_url
 
 log = logging.getLogger(__name__)
 
+def map_index(request):
+    """
+    Provides a list of all the current maps. 
+    """
+    if 'page' in request.matchdict:
+        current_page = request.matchdict['page']
+    else:
+        current_page = 1
+
+    try:
+        map_q = DBSession.query(Map).\
+                order_by(Map.name)
+
+        maps = Page(map_q, current_page, url=page_url)
+
+        
+    except Exception as e:
+        maps = None
+
+    return {'maps':maps, }
+
 
 def map_info(request):
     """
