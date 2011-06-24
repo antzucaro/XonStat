@@ -14,6 +14,9 @@ class Player(object):
     def nick_html_colors(self):
         return html_colors(self.nick)
 
+    def nick_strip_colors(self):
+        return strip_colors(self.nick)
+
     def __repr__(self):
         return "<Player(%s, %s, %s, %s)>" % (self.player_id, self.nick, 
                 self.create_dt, self.location)
