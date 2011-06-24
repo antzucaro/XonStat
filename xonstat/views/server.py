@@ -9,6 +9,27 @@ from xonstat.util import page_url
 
 log = logging.getLogger(__name__)
 
+def server_index(request):
+    """
+    Provides a list of all the current servers. 
+    """
+    if 'page' in request.matchdict:
+        current_page = request.matchdict['page']
+    else:
+        current_page = 1
+
+    try:
+        server_q = DBSession.query(Server).\
+                order_by(Server.name)
+
+        servers = Page(server_q, current_page, url=page_url)
+
+        
+    except Exception as e:
+        servers = None
+
+    return {'servers':servers, }
+
 
 def server_info(request):
     """

@@ -105,7 +105,7 @@ def player_info(request):
         weapon_stats = None
         game_stats = None
         recent_games = None
-        raise e
+
     return {'player':player, 
             'recent_games':recent_games,
             'weapon_stats':weapon_stats,

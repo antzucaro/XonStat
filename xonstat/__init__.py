@@ -55,6 +55,13 @@ def main(global_config, **settings):
             renderer='game_info.mako') 
 
     # SERVER ROUTES
+    config.add_route(name="server_index_paged", 
+            pattern="/servers/page/{page:\d+}", view=server_index, 
+            renderer='server_index.mako') 
+
+    config.add_route(name="server_index", pattern="/servers", view=server_index, 
+            renderer='server_index.mako') 
+
     config.add_route(name="server_game_index", 
             pattern="/server/{server_id:\d+}/games/page/{page:\d+}", 
             view=server_game_index, renderer='server_game_index.mako') 
