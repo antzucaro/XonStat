@@ -57,13 +57,15 @@ def player_info(request):
                 game_stats['total_destroys'], game_stats['total_dhk'], 
                 game_stats['total_pushes'], game_stats['total_pushed'], 
                 game_stats['total_carrier_frags'], 
-                game_stats['total_alivetime']) = DBSession.\
+                game_stats['total_alivetime'],
+                game_stats['total_games_played']) = DBSession.\
                         query("avg_rank", "total_kills", "total_deaths", 
                 "total_suicides", "total_score", "total_time", "total_held",
                 "total_captures", "total_pickups", "total_drops", 
                 "total_returns", "total_collects", "total_destroys", 
                 "total_dhk", "total_pushes", "total_pushed", 
-                "total_carrier_frags", "total_alivetime").\
+                "total_carrier_frags", "total_alivetime", 
+                "total_games_played").\
                 from_statement(
                     "select round(avg(rank)) avg_rank, sum(kills) total_kills, "
                     "sum(deaths) total_deaths, sum(suicides) total_suicides, "
@@ -74,7 +76,7 @@ def player_info(request):
                     "sum(destroys) total_destroys, sum(destroys_holding_key) total_dhk, "
                     "sum(pushes) total_pushes, sum(pushed) total_pushed, "
                     "sum(carrier_frags) total_carrier_frags, "
-                    "sum(alivetime) total_alivetime "
+                    "sum(alivetime) total_alivetime, count(*) total_games_played "
                     "from player_game_stats "
                     "where player_id=:player_id"
                 ).params(player_id=player_id).one()

@@ -19,7 +19,7 @@ $(document).ready(function(){
 
 <%block name="title">
 % if player:
-Player Information for ${player.nick_html_colors()} - 
+Player Information for ${player.nick_strip_colors()} - 
 % endif
 
 ${parent.title()}
@@ -33,7 +33,11 @@ ${parent.title()}
 % else:
 <h2>${player.nick_html_colors()}</h2>
 <p>
-   Joined: ${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
+   Member Since: ${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
+   Last Seen: ${recent_games[0][1].fuzzy_date()} <br />
+   Playing Time: ${game_stats['total_alivetime']} <br />
+   Games Played: ${game_stats['total_games_played']} <br />
+   Average Rank: ${game_stats['avg_rank']} <br />
 </p>
 % endif
 
@@ -41,38 +45,35 @@ ${parent.title()}
 ##### STATS #####
 % if game_stats:
 <h2>Overall Game Stats</h2>
-<table class="accuracy-table" border="1" cellpadding="3">
+<table border="1" cellpadding="3">
+  
   <tr>
-    <td class="header-cell">Playing Time</td><td>${game_stats['total_alivetime']}</td>
-    <td class="header-cell">Drops</td><td>${game_stats['total_drops']}</td>
+    <th>Score</td><td>${game_stats['total_score']}</td>
+    <th>Carrier Kills</td><td>${game_stats['total_carrier_frags']}</td>
   </tr>
   <tr>
-    <td class="header-cell">Average Rank</td><td>${game_stats['avg_rank']}</td>
-    <td class="header-cell">Returns</td><td>${game_stats['total_returns']}</td>
+    <th>Kills</td><td>${game_stats['total_kills']}</td>
+    <th>Collects</td><td>${game_stats['total_collects']}</td>
   </tr>
   <tr>
-    <td class="header-cell">Score</td><td>${game_stats['total_score']}</td>
-    <td class="header-cell">Carrier Kills</td><td>${game_stats['total_carrier_frags']}</td>
+    <th>Deaths</td><td>${game_stats['total_deaths']}</td>
+    <th>Destroys</td><td>${game_stats['total_destroys']}</td>
   </tr>
   <tr>
-    <td class="header-cell">Kills</td><td>${game_stats['total_kills']}</td>
-    <td class="header-cell">Collects</td><td>${game_stats['total_collects']}</td>
+    <th>Suicides</td><td>${game_stats['total_suicides']}</td>
+    <th>Destroys (with key)</td><td>${game_stats['total_destroys']}</td>
   </tr>
   <tr>
-    <td class="header-cell">Deaths</td><td>${game_stats['total_deaths']}</td>
-    <td class="header-cell">Destroys</td><td>${game_stats['total_destroys']}</td>
+    <th>Captures</td><td>${game_stats['total_captures']}</td>
+    <th>Pushes</td><td>${game_stats['total_pushes']}</td>
   </tr>
   <tr>
-    <td class="header-cell">Suicides</td><td>${game_stats['total_suicides']}</td>
-    <td class="header-cell">Destroys (with key)</td><td>${game_stats['total_destroys']}</td>
+    <th>Pickups</td><td>${game_stats['total_pickups']}</td>
+    <th>Pushed</td><td>${game_stats['total_pushed']}</td>
   </tr>
   <tr>
-    <td class="header-cell">Captures</td><td>${game_stats['total_captures']}</td>
-    <td class="header-cell">Pushes</td><td>${game_stats['total_pushes']}</td>
-  </tr>
-  <tr>
-    <td class="header-cell">Pickups</td><td>${game_stats['total_pickups']}</td>
-    <td class="header-cell">Pushed</td><td>${game_stats['total_pushed']}</td>
+    <th>Drops</td><td>${game_stats['total_drops']}</td>
+    <th>Returns</td><td>${game_stats['total_returns']}</td>
   </tr>
 </table>
 % endif

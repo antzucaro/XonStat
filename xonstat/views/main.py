@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 def main_index(request):
     leaderboard_count = 10
-    recent_games_count = 30
+    recent_games_count = 32
 
     # top players by score
     top_players = DBSession.query(Player.player_id, Player.nick, 
