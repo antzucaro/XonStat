@@ -21,7 +21,7 @@ Main Page - ${parent.title()}
     <tr>
         <td>${i}</td>
         % if player_id != '-':
-        <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick}</a></td>
+        <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
         % else:
         <td>${nick}</td>
         % endif

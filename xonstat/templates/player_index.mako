@@ -18,7 +18,7 @@ Player Index - ${parent.title()}
 % for player in players:
   <tr>
     <td>${player.player_id}</th>
-    <td><a href="${request.route_url("player_info", id=player.player_id)}" title="Go to this player's info page">${player.nick_html_colors()}</a></th>
+    <td><a href="${request.route_url("player_info", id=player.player_id)}" title="Go to this player's info page">${player.nick_html_colors()|n}</a></th>
     <td>${player.create_dt.strftime('%m/%d/%Y at %H:%M')}</th>
   </tr>
 % endfor

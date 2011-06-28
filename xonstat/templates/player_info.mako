@@ -31,7 +31,7 @@ ${parent.title()}
 <p>Seriously though, he probably doesn't exist...just a figment of your imagination. Carry on then!</p>
 
 % else:
-<h2>${player.nick_html_colors()}</h2>
+<h2>${player.nick_html_colors()|n}</h2>
 <p>
    Member Since: ${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
    Last Seen: ${recent_games[0][1].fuzzy_date()} <br />
@@ -112,5 +112,5 @@ ${accuracy(weapon_stats)}
 </tr>
 % endfor
 </table>
-<a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()}...
+<a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()|n}...
 % endif

@@ -28,7 +28,7 @@ ${scoreboard(game.game_type_cd, pgstats)}
 <h2>Accuracy</h2>
 % for pgstat in pgstats:
 % if pgstat.player_game_stat_id in pwstats:
-Accuracy for <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player detail page for this player">${pgstat.nick_html_colors()}</a>:
+Accuracy for <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player detail page for this player">${pgstat.nick_html_colors()|n}</a>:
 ${accuracy(pwstats[pgstat.player_game_stat_id][0:5])}
 <br />
 <br />
