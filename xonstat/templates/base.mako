@@ -16,11 +16,11 @@
             <h3>Player Statistics for Xonotic</h3>
             </%block>
             <ul id="nav">
-                <li><a href="/" title="Leaderboard">leaderboard</a></li>
-                <li><a href="/players" title="Player Index">players</a></li>
-                <li><a href="/games" title="Game Index">games</a></li>
-                <li><a href="/maps" title="Map Index">maps</a></li>
-                <li><a href="/servers" title="Server Index">servers</a></li>
+                <li><a href="${request.route_url('main_index')}" title="Leaderboard">leaderboard</a></li>
+                <li><a href="${request.route_url('player_index')}" title="Player Index">players</a></li>
+                <li><a href="${request.route_url('game_index')}" title="Game Index">games</a></li>
+                <li><a href="${request.route_url('map_index')}" title="Map Index">maps</a></li>
+                <li><a href="${request.route_url('server_index')}" title="Server Index">servers</a></li>
             </ul>
         </div> <!-- END HEADER -->
         <div id="main">
