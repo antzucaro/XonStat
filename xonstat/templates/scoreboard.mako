@@ -1,8 +1,6 @@
 <%def name="scoreboard(game_type_cd, pgstats)">
 <table class="scoreboard" border="1" cellpadding="3">
-
-${scoreboard_header(game_type_cd)}
-
+${scoreboard_header(game_type_cd, pgstats[0])}
 % for pgstat in pgstats:
     <tr style="background-color:${pgstat.team_html_color()}">
         <td>
@@ -31,7 +29,7 @@ ${scoreboard_header(game_type_cd)}
 </%def>
 
 ##### SCOREBOARD HEADER #####
-<%def name="scoreboard_header(game_type_cd)">
+<%def name="scoreboard_header(game_type_cd, pgstat)">
 % if game_type_cd == 'dm' or game_type_cd == 'tdm':
     <tr class="table-header" style="color:black;}">
         <th>Nick</th>
@@ -44,7 +42,7 @@ ${scoreboard_header(game_type_cd)}
 % endif
 
 % if game_type_cd == 'ctf':
-    <tr class="table-header" style="color:${pgstats[0].team_html_color()}">
+    <tr class="table-header" style="color:${pgstat.team_html_color()}">
         <th>Nick</th>
         <th>Kills</th>
         <th>Captures</th>
@@ -57,7 +55,7 @@ ${scoreboard_header(game_type_cd)}
 % endif
 
 % if game_type_cd == 'ca':
-    <tr class="table-header" style="color:${pgstats[0].team_html_color()}">
+    <tr class="table-header" style="color:${pgstat.team_html_color()}">
         <th>Nick</th>
         <th>Kills</th>
         <th>Score</th>
@@ -66,7 +64,7 @@ ${scoreboard_header(game_type_cd)}
 % endif
 
 % if game_type_cd == 'freezetag':
-    <tr style="color:${pgstats[0].team_html_color()}">
+    <tr style="color:${pgstat.team_html_color()}">
         <th>Nick</th>
         <th>Kills</th>
         <th>Deaths</th>
