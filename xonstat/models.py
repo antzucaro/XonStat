@@ -96,14 +96,14 @@ class PlayerGameStat(object):
     def team_html_color(self):
         # blue
         if self.team == 5:
-            return "#312AB1"
+            return "blue"
         # red
         if self.team == 14:
-            return "#FF0033"
+            return "red"
         if self.team == 13:
-            return "#FFFF00"
+            return "yellow"
         if self.team == 10:
-            return "#FF00FF"
+            return "pink"
 
 
 class GameMutator(object):

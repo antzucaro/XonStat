@@ -11,17 +11,17 @@
 ## [4] = Hit
 ## [5] = Fired
 
-<table class="accuracy-table" border="1" cellpadding="3">
-<tr class="table-header">
-    <td></td>
-    <td>Weapon</td>
-    <td>Hit</td>
-    <td>Fired</td>
-    <td>Hit %</td>
-    <td>Actual Damage</td>
-    <td>Potential Damage</td>
-    <td>Damage %</td>
-</tr>
+<table class="accuracy" border="1" cellpadding="3">
+<thead>
+    <th></th>
+    <th>Weapon</th>
+    <th>Hit</th>
+    <th>Fired</th>
+    <th>Hit %</th>
+    <th>Actual Damage</th>
+    <th>Potential Damage</th>
+    <th>Damage %</th>
+</thead>
 % for weapon_stat in weapon_stats:
 <%
 if weapon_stat[3] > 0: 
@@ -37,7 +37,7 @@ else:
     ## Note: the name of the image must match up with the weapon_cd 
     ## entry of that weapon, else this won't work
     <td><img src="${request.static_url("xonstat:static/images/%s.png" % weapon_stat[1])}" /></td>
-    <td style="text-align: left;">${weapon_stat[0]}</td>
+    <td>${weapon_stat[0]}</td>
     <td>${weapon_stat[4]}</td>
     <td>${weapon_stat[5]}</td>
     <td>${hit_pct}%</td>

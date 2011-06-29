@@ -8,13 +8,7 @@ ${parent.css()}
 
 <%block name="js">
 ${parent.js()}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 <script src="/static/js/jquery.colorbox-min.js"></script>
-<script>
-$(document).ready(function(){
-    $(".recent_game_box").colorbox({width:"80%", height:"80%", iframe:true});
-});
-</script>
 </%block>
 
 <%block name="title">
@@ -45,36 +39,43 @@ ${parent.title()}
 ##### STATS #####
 % if game_stats:
 <h2>Overall Game Stats</h2>
-<table border="1" cellpadding="3">
-  
-  <tr>
-    <th>Score</td><td>${game_stats['total_score']}</td>
-    <th>Carrier Kills</td><td>${game_stats['total_carrier_frags']}</td>
-  </tr>
-  <tr>
-    <th>Kills</td><td>${game_stats['total_kills']}</td>
-    <th>Collects</td><td>${game_stats['total_collects']}</td>
-  </tr>
-  <tr>
-    <th>Deaths</td><td>${game_stats['total_deaths']}</td>
-    <th>Destroys</td><td>${game_stats['total_destroys']}</td>
-  </tr>
-  <tr>
-    <th>Suicides</td><td>${game_stats['total_suicides']}</td>
-    <th>Destroys (with key)</td><td>${game_stats['total_destroys']}</td>
-  </tr>
-  <tr>
-    <th>Captures</td><td>${game_stats['total_captures']}</td>
-    <th>Pushes</td><td>${game_stats['total_pushes']}</td>
-  </tr>
-  <tr>
-    <th>Pickups</td><td>${game_stats['total_pickups']}</td>
-    <th>Pushed</td><td>${game_stats['total_pushed']}</td>
-  </tr>
-  <tr>
-    <th>Drops</td><td>${game_stats['total_drops']}</td>
-    <th>Returns</td><td>${game_stats['total_returns']}</td>
-  </tr>
+<table id="player-game-stats">
+	<thead>
+		<tr>
+			<th>Score</th>
+			<th>Carrier Kills</th>
+			<th>Kills</th>
+			<th>Collects</th>
+			<th>Deaths</th>
+			<th>Destroys</th>
+			<th>Suicides</th>
+			<th>Destroys (with key)</th>
+			<th>Captures</th>
+			<th>Pushes</th>
+			<th>Pickups</th>
+			<th>Pushed</th>
+			<th>Drops</th>
+			<th>Returns</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>${game_stats['total_score']}</td>
+			<td>${game_stats['total_carrier_frags']}</td>
+			<td>${game_stats['total_kills']}</td>
+			<td>${game_stats['total_collects']}</td>
+			<td>${game_stats['total_deaths']}</td>
+			<td>${game_stats['total_destroys']}</td>
+			<td>${game_stats['total_suicides']}</td>
+			<td>${game_stats['total_destroys']}</td>
+			<td>${game_stats['total_captures']}</td>
+			<td>${game_stats['total_pushes']}</td>
+			<td>${game_stats['total_pickups']}</td>
+			<td>${game_stats['total_pushed']}</td>
+			<td>${game_stats['total_drops']}</td>
+			<td>${game_stats['total_returns']}</td>
+		</tr>
+	</tbody>
 </table>
 % endif
 
@@ -88,29 +89,33 @@ ${accuracy(weapon_stats)}
 ##### RECENT GAMES (v2) ####
 % if recent_games:
 <h2>Recent Games</h2>
-<table border="1" cellpadding="3">
-<tr class='table-header'>
-   <td>Game Type</td>
-   <td>Map</td>
-   <td>Result</td>
-   <td>Played</td>
-   <td>Permalink</td>
-</tr>
-% for (gamestat, game, server, map) in recent_games:
-<tr>
-   <td>${game.game_type_cd}</td>
-   <td>${map.name}</td>
-   <td>
-   % if gamestat.team != None and gamestat.team == game.winner:
-   Win
-   % else:
-   Loss
-   % endif
-   </td>
-   <td>${game.fuzzy_date()}</td>
-   <td><a class="recent_game_box" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
-</tr>
-% endfor
+<table>
+	<thead>
+		<tr>
+		   <th>Game Type</th>
+		   <th>Map</th>
+		   <th>Result</th>
+		   <th>Played</th>
+		   <th>Permalink</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for (gamestat, game, server, map) in recent_games:
+		<tr>
+		   <td>${game.game_type_cd}</td>
+		   <td>${map.name}</td>
+		   <td>
+		   % if gamestat.team != None and gamestat.team == game.winner:
+		   Win
+		   % else:
+		   Loss
+		   % endif
+		   </td>
+		   <td>${game.fuzzy_date()}</td>
+		   <td><a class="recent_game_box" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
+		</tr>
+	% endfor
+	</tbody>
 </table>
 <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()|n}...
 % endif
