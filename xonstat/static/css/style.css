@@ -247,7 +247,7 @@ input { font-family: 'Xolonium', 'Arial', 'Helvetica'; }
 /* UI widgets */
 .button {
 	display:inline-block;
-	background: url(img/temp/button_sprite.png) no-repeat -128px 0;
+	background: url(img/web_button_sprite.png) no-repeat -128px 0;
 	height:32px;
 	width:190px;
 	line-height:24px;
