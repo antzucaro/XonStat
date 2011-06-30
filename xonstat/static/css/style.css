@@ -161,8 +161,8 @@ input { font-family: 'Xolonium', 'Arial', 'Helvetica'; }
 
 /* Main Menu */
 #menu {
-	top: -33px;
 	top: -40px;
+	left:-18px;
     width: 976px;
 	list-style:none;
 	border:1px solid #AED5FE;

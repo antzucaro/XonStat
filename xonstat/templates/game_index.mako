@@ -17,7 +17,7 @@ Game Index - ${parent.title()}
 	<input id="game-ca" type="checkbox" class="checkbox" /><label for="game-ca" class="checkbox-label">CA</label><br />
 	<input id="game-ctf" type="checkbox" class="checkbox" /><label for="game-ctf" class="checkbox-label">CTF</label><br />
 	<input id="game-dm" type="checkbox" class="checkbox" /><label for="game-dm" class="checkbox-label">DM</label><br />
-	<input id="game-freezetag" type="checkbox" class="checkbox" /><label for="game-freeztag" class="checkbox-label">Freezetag</label><br />
+	<input id="game-freezetag" type="checkbox" class="checkbox" /><label for="game-freezetag" class="checkbox-label">Freezetag</label><br />
 	<h3>Sort By</h3>
 	<select id="sort-by">
 		<option>Kills</option>
