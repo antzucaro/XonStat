@@ -35,12 +35,12 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % if game_type_cd == 'dm' or game_type_cd == 'tdm':
     <thead>
 		<tr>
-			<th>Nick</th>
-			<th>Kills</th>
-			<th>Deaths</th>
-			<th>Suicides</th>
-			<th>Score</th>
-			<th>Accuracy</th>
+			<th class="nick">Nick</th>
+			<th class="kills">Kills</th>
+			<th class="deaths">Deaths</th>
+			<th class="suicides">Suicides</th>
+			<th class="score">Score</th>
+			<th class="accuracy">Accuracy</th>
 		</tr>
     </thead>
 % endif
@@ -63,10 +63,10 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % if game_type_cd == 'ca':
     <thead class="ca ${pgstat.team_html_color()}">
 		<tr>
-			<th>Nick</th>
-			<th>Kills</th>
-			<th>Score</th>
-			<th>Accuracy</th>
+			<th class="nick">Nick</th>
+			<th class="kills">Kills</th>
+			<th class="score">Score</th>
+			<th class="accuracy">Accuracy</th>
 		</tr>
     </thead>
 % endif
@@ -74,12 +74,12 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % if game_type_cd == 'freezetag':
     <thead class="freezetag ${pgstat.team_html_color()}">
 		<tr>
-			<th>Nick</th>
-			<th>Kills</th>
-			<th>Deaths</th>
-			<th>Suicides</th>
-			<th>Score</th>
-			<th>Accuracy</th>
+			<th class="nick">Nick</th>
+			<th class="kills">Kills</th>
+			<th class="deaths">Deaths</th>
+			<th class="suicides">Suicides</th>
+			<th class="score">Score</th>
+			<th class="accuracy">Accuracy</th>
 		</tr>
     </thead>
 % endif

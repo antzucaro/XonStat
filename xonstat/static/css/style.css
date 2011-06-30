@@ -1,4 +1,10 @@
-/*  html5doctor.com Reset Stylesheet v1.6.1 Last Updated: 2010-09-17 Author: Richard Clark - http://richclarkdesign.com  Twitter: @rich_clark */  html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure,  footer, header, hgroup, menu, nav, section, summary, time, mark, audio, video { margin:0; padding:0; border:0; outline:0; font-size:100%; vertical-align:baseline; background:transparent; }  body { line-height:1; }  article,aside,details,figcaption,figure, footer,header,hgroup,menu,nav,section {  display:block; }  nav ul { list-style:none; }  blockquote, q { quotes:none; }  blockquote:before, blockquote:after, q:before, q:after { content:''; content:none; }  a { margin:0; padding:0; font-size:100%; vertical-align:baseline; background:transparent; }  /* change colours to suit your needs */ ins { background-color:#ff9; color:#000; text-decoration:none; }  /* change colours to suit your needs */ mark { background-color:#ff9; color:#000;  font-style:italic; font-weight:bold; }  del { text-decoration: line-through; }  abbr[title], dfn[title] { border-bottom:1px dotted; cursor:help; }  table { border-collapse:collapse; border-spacing:0; }  /* change border colour to suit your needs */ hr { display:block; height:1px; border:0;  border-top:1px solid #888; margin:1em 0; padding:0; }  input, select { vertical-align:middle; }
+/* Author: Tyler "-z-" Mulligan
+ * Notes: Graphics paritially generated from a Xonotic game theme with
+ * the idea of future support for other game skins to be generated and
+ * supported by this framework.
+ * Reset by Richard Clark @ html5doctor.com, v1.6.1
+ * Last Updated: 2011-06-29
+ */  html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure,  footer, header, hgroup, menu, nav, section, summary, time, mark, audio, video { margin:0; padding:0; border:0; outline:0; font-size:100%; vertical-align:baseline; background:transparent; }  body { line-height:1; }  article,aside,details,figcaption,figure, footer,header,hgroup,menu,nav,section {  display:block; }  nav ul { list-style:none; }  blockquote, q { quotes:none; }  blockquote:before, blockquote:after, q:before, q:after { content:''; content:none; }  a { margin:0; padding:0; font-size:100%; vertical-align:baseline; background:transparent; }  /* change colours to suit your needs */ ins { background-color:#C59240; color:#000; text-decoration:none; }  /* change colours to suit your needs */ mark { background-color:#B58224; color:#000;  font-style:italic; font-weight:bold; }  del { text-decoration: line-through; }  abbr[title], dfn[title] { border-bottom:1px dotted; cursor:help; }  table { border-collapse:collapse; border-spacing:0; }  /* change border colour to suit your needs */ hr { display:block; height:1px; border:0;  border-top:1px solid #888; margin:1em 0; padding:0; }  input, select { vertical-align:middle; }
 
 @font-face {
     font-family: 'Xolonium';
@@ -417,7 +423,7 @@ tr.even.blue {
     margin-bottom: 20px;
     padding: 10px 7px;
 	box-shadow: 0 0 3px 1px;
-	min-width:600px;
+	min-width:700px;
 }
 .game h3 {
 	color:#93B1CF;
@@ -434,10 +440,19 @@ tr.even.blue {
 .game th {
 	font-size:10px;
 	padding:2px 5px;
-	min-width:40px;
+	min-width:50px;
 }
 .game th.nick {
-	min-width:160px;
+	text-align:right;
+	width:160px;
+	max-width:260px;
+}
+.game tr {
+	font-size:14px;
+}
+.game td:first-child {
+	text-align:right;
+	padding-right:8px;
 }
 .permalink {
 	float:right;
