@@ -9,6 +9,10 @@
     </head>
     <body>
 		<div id="container"> 
+			<header>
+				<a href="/"><h1>Xonotic Game Statistics</h1></a>
+				<h2>Xonotic is a fast-paced open-source GPL first person shooter</h2>
+			</header>
 			<div id="home" class="window"> 
 				<h1 id="title">Player Statistics for Xonotic</h1> 
 				<ul id="menu" class="nav clearfix">
