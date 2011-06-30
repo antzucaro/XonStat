@@ -46,22 +46,22 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % endif
 
 % if game_type_cd == 'ctf':
-    <thead class="${pgstat.team_html_color()}">
+    <thead class="ctf ${pgstat.team_html_color()}">
 		<tr>
-			<th>Nick</th>
-			<th>Kills</th>
-			<th>Captures</th>
-			<th>Pickups</th>
-			<th>Flag Carrier Kills</th>
-			<th>Returns</th>
-			<th>Score</th>
-			<th>Accuracy</th>
+			<th class="nick">Nick</th>
+			<th class="kills">Kills</th>
+			<th class="captures">Captures</th>
+			<th class="pickups">Pickups</th>
+			<th class="fck" title="Flag Carrier Kill">FCK</th>
+			<th class="returns">Returns</th>
+			<th class="score">Score</th>
+			<th class="accuracy">Accuracy</th>
 		</tr>
     </thead>
 % endif
 
 % if game_type_cd == 'ca':
-    <thead class="${pgstat.team_html_color()}">
+    <thead class="ca ${pgstat.team_html_color()}">
 		<tr>
 			<th>Nick</th>
 			<th>Kills</th>
@@ -72,7 +72,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % endif
 
 % if game_type_cd == 'freezetag':
-    <thead class="${pgstat.team_html_color()}">
+    <thead class="freezetag ${pgstat.team_html_color()}">
 		<tr>
 			<th>Nick</th>
 			<th>Kills</th>

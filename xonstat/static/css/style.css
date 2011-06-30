@@ -29,11 +29,13 @@ h1 {
 h2 {
 	font-size:18px;
 	color:#D0E8FF;
+	text-shadow:1px 1px 4px #013;
 	margin:15px 0 12px;
 }
 h3 {
 	font-size:16px;
-	color:#FF7000;
+	/*color:#FF7000;*/
+	color:#ADC0D2;
 	margin:18px 0 4px;
 }
 h4 {
@@ -122,7 +124,7 @@ input { font-family: 'Xolonium', 'Arial', 'Helvetica'; }
 	text-align:center;
 	height:25px;
 	line-height:25px;
-	top:-44px;
+	top:-48px;
 	color:#DCE9F5;
 }
 .window {
@@ -154,8 +156,8 @@ input { font-family: 'Xolonium', 'Arial', 'Helvetica'; }
 /* Main Menu */
 #menu {
 	top: -33px;
-	left: -19px;
-	width:986px;
+	top: -40px;
+    width: 976px;
 	list-style:none;
 	border:1px solid #AED5FE;
 	border-top:0;
@@ -345,6 +347,8 @@ input[type=text]:hover, .textbox:hover { background-position:-128px -32px; }
 }
 
 /* Content Specific */
+
+/*Tables */
 #top-players, #top-servers, #top-maps {
     float: left;
     margin-bottom: 10px;
@@ -359,10 +363,15 @@ input[type=text]:hover, .textbox:hover { background-position:-128px -32px; }
 	top: -38px;
 	right: 0;
 }
-
+#search { margin-bottom:10px; }
+table { text-shadow:1px 1px 4px #013; }
+thead {
+	background-color:#020F1C;
+}
 thead.red {
-	color:#D31D12;
+	color:#EEAFAB;
 	background-color:#170403;
+	text-shadow:1px 1px 4px #722;
 }
 tr.odd.red {
 	background-color:#571612;
@@ -371,9 +380,9 @@ tr.even.red {
 	background-color:#571612;
 }
 thead.blue {
-	color:#2F53F7;
+	color:#ABBBEE;
 	background-color:#04081A;
-	border-color:#101940 !important;
+	text-shadow:1px 1px 4px #227;
 }
 tr.odd.blue {
 	background-color:#000F4C;
@@ -381,26 +390,38 @@ tr.odd.blue {
 tr.even.blue {
 	background-color:#571612;
 }
+
+/* Containers */
+#filter {
+	float:left;
+	width:200px;
+}
+#recent-games-list {
+	float:right;
+	width:735px;
+}
 .game {
-	background-color:#0a0a0a;
+	float:left;
+    background-image: -moz-linear-gradient(center bottom , #062C52, #041B33);
 	background-image: -webkit-gradient(
 		linear,
 		left bottom,
 		left top,
-		color-stop(0.67, #101114),
-		color-stop(0.51, #000A15)
+		color-stop(0.51, #062C52),
+		color-stop(0.51, #041B33)
 	);
-	background-image: -moz-linear-gradient(
-		center bottom,
-		#111 67%,
-		#000A15 51%
-	);
-	border:1px solid #373B45;
-	margin-bottom:10px;
-	padding:3px;
+    border: 1px solid #A4B7CA;
+    border-radius: 7px;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    margin-bottom: 20px;
+    padding: 10px 7px;
+	box-shadow: 0 0 3px 1px;
+	min-width:600px;
 }
 .game h3 {
 	color:#93B1CF;
+	text-shadow:1px 1px 2px #000;
 	padding:4px 4px 8px;
 	margin:0;
 }
@@ -410,14 +431,22 @@ tr.even.blue {
 .game h3 a:hover {
 	color:#fff;
 }
+.game th {
+	font-size:10px;
+	padding:2px 5px;
+	min-width:40px;
+}
+.game th.nick {
+	min-width:160px;
+}
 .permalink {
 	float:right;
 	font-size:12px;
 }
 .permalink a {
-	color:#666 !important;
+	color:#6F8194 !important;
 }
 .permalink a:hover {
-	color:#999 !important;
+	color:#A4B7CA !important;
 	text-decoration:underline;
 }
