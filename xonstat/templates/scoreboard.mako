@@ -1,77 +1,87 @@
 <%def name="scoreboard(game_type_cd, pgstats)">
-<table class="scoreboard" border="1" cellpadding="3">
+<table class="scoreboard">
 ${scoreboard_header(game_type_cd, pgstats[0])}
-% for pgstat in pgstats:
-    <tr style="background-color:${pgstat.team_html_color()}">
-        <td>
-        % if pgstat.player_id > 2:
-          <a href="${request.route_url("player_info", id=pgstat.player_id)}"
-           title="Go to the info page for this player">
-          <span class="nick">${pgstat.nick_html_colors()|n}</span>
-          </a>
-        % else:
-          <span class="nick">${pgstat.nick_html_colors()|n}</span>
-        % endif
-        </td>
-	${scoreboard_row(game_type_cd, pgstat)}
-        <td><span style="color:#FFFF00;">${pgstat.score}</span></td>
-        <td>
-        % if pgstat.player_id > 1:
-          <a href="${request.route_url("game_info", id=pgstat.game_id)}#accuracy-${pgstat.player_game_stat_id}"
-           title="View weapon accuracy details for this player in this game">
-          View
-          </a>
-        % endif
-        </td>
-    </tr>
-% endfor
+	<tbody>
+	% for pgstat in pgstats:
+		<tr class="${pgstat.team_html_color()}">
+			<td>
+			% if pgstat.player_id > 2:
+			  <a href="${request.route_url("player_info", id=pgstat.player_id)}"
+			   title="Go to the info page for this player">
+			  <span class="nick">${pgstat.nick_html_colors()|n}</span>
+			  </a>
+			% else:
+			  <span class="nick">${pgstat.nick_html_colors()|n}</span>
+			% endif
+			</td>
+		${scoreboard_row(game_type_cd, pgstat)}
+			<td>${pgstat.score}</td>
+			<td>
+			% if pgstat.player_id > 1:
+			  <a href="${request.route_url("game_info", id=pgstat.game_id)}#accuracy-${pgstat.player_game_stat_id}"
+			   title="View weapon accuracy details for this player in this game">
+			  View
+			  </a>
+			% endif
+			</td>
+		</tr>
+	% endfor
+	</tbody>
 </table>
 </%def>
 
 ##### SCOREBOARD HEADER #####
 <%def name="scoreboard_header(game_type_cd, pgstat)">
 % if game_type_cd == 'dm' or game_type_cd == 'tdm':
-    <tr class="table-header" style="color:black;}">
-        <th>Nick</th>
-        <th>Kills</th>
-        <th>Deaths</th>
-        <th>Suicides</th>
-        <th>Score</th>
-        <th>Accuracy</th>
-    </tr>
+    <thead>
+		<tr>
+			<th>Nick</th>
+			<th>Kills</th>
+			<th>Deaths</th>
+			<th>Suicides</th>
+			<th>Score</th>
+			<th>Accuracy</th>
+		</tr>
+    </thead>
 % endif
 
 % if game_type_cd == 'ctf':
-    <tr class="table-header" style="color:${pgstat.team_html_color()}">
-        <th>Nick</th>
-        <th>Kills</th>
-        <th>Captures</th>
-        <th>Pickups</th>
-        <th>Flag Carrier Kills</th>
-        <th>Returns</th>
-        <th>Score</th>
-        <th>Accuracy</th>
-    </tr>
+    <thead class="${pgstat.team_html_color()}">
+		<tr>
+			<th>Nick</th>
+			<th>Kills</th>
+			<th>Captures</th>
+			<th>Pickups</th>
+			<th>Flag Carrier Kills</th>
+			<th>Returns</th>
+			<th>Score</th>
+			<th>Accuracy</th>
+		</tr>
+    </thead>
 % endif
 
 % if game_type_cd == 'ca':
-    <tr class="table-header" style="color:${pgstat.team_html_color()}">
-        <th>Nick</th>
-        <th>Kills</th>
-        <th>Score</th>
-        <th>Accuracy</th>
-    </tr>
+    <thead class="${pgstat.team_html_color()}">
+		<tr>
+			<th>Nick</th>
+			<th>Kills</th>
+			<th>Score</th>
+			<th>Accuracy</th>
+		</tr>
+    </thead>
 % endif
 
 % if game_type_cd == 'freezetag':
-    <tr style="color:${pgstat.team_html_color()}">
-        <th>Nick</th>
-        <th>Kills</th>
-        <th>Deaths</th>
-        <th>Suicides</th>
-        <th>Score</th>
-        <th>Accuracy</th>
-    </tr>
+    <thead class="${pgstat.team_html_color()}">
+		<tr>
+			<th>Nick</th>
+			<th>Kills</th>
+			<th>Deaths</th>
+			<th>Suicides</th>
+			<th>Score</th>
+			<th>Accuracy</th>
+		</tr>
+    </thead>
 % endif
 </%def>
 
