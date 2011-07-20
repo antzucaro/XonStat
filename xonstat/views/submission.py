@@ -305,6 +305,8 @@ def create_player_stats(session=None, player=None, game=None,
             and 'scoreboardvalid' in player_events:
                 pgstat = create_player_game_stat(session=session, 
                         player=player, game=game, player_events=player_events)
+
+                #TODO: put this into a config setting in the ini file?
                 if not re.search('^bot#\d+$', player_events['P']):
                         create_player_weapon_stats(session=session, 
                             player=player, game=game, pgstat=pgstat,
@@ -329,15 +331,18 @@ def stats_submit(request):
                     "Can't continue.")
             raise Exception("Required game meta fields (T, G, M, or S) missing.")
     
-        has_real_players = False
+        real_players = 0
         for player_events in players:
             if not player_events['P'].startswith('bot'):
-                if 'joins' in player_events and 'matches' in player_events\
+                # removing 'joins' here due to bug, but it should be here
+                if 'matches' in player_events\
                     and 'scoreboardvalid' in player_events:
-                    has_real_players = True
+                    real_players += 1
 
-        if not has_real_players:
-            raise Exception("No real players found. Stats ignored.")
+        #TODO: put this into a config setting in the ini file?
+        if real_players < 2:
+            raise Exception("The number of real players is below the minimum. "\
+                    "Stats will be ignored.")
 
         server = get_or_create_server(session=session, name=game_meta['S'])
         gmap = get_or_create_map(session=session, name=game_meta['M'])
