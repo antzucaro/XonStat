@@ -301,8 +301,8 @@ def create_player_stats(session=None, player=None, game=None,
     """
     Creates player game and weapon stats according to what type of player
     """
-    if 'joins' in player_events and 'matches' in player_events\
-            and 'scoreboardvalid' in player_events:
+    # remove 'joins' from here even though it should be required
+    if 'matches' in player_events and 'scoreboardvalid' in player_events:
                 pgstat = create_player_game_stat(session=session, 
                         player=player, game=game, player_events=player_events)
 
