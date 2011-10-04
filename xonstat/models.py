@@ -94,10 +94,16 @@ class PlayerGameStat(object):
         % (self.player_id, self.game_id, self.create_dt, self.stat_type)
 
     def nick_stripped(self):
-        return strip_colors(self.nick)
+        if self.nick is None:
+            return "Anonymous Player"
+        else:
+            return strip_colors(self.nick)
 
     def nick_html_colors(self):
-        return html_colors(self.nick)
+        if self.nick is None:
+            return "Anonymous Player"
+        else:
+            return html_colors(self.nick)
 
     def team_html_color(self):
         # blue

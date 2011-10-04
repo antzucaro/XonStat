@@ -301,16 +301,14 @@ def create_player_stats(session=None, player=None, game=None,
     """
     Creates player game and weapon stats according to what type of player
     """
-    # remove 'joins' from here even though it should be required
-    if 'matches' in player_events and 'scoreboardvalid' in player_events:
-                pgstat = create_player_game_stat(session=session, 
-                        player=player, game=game, player_events=player_events)
+    pgstat = create_player_game_stat(session=session, 
+        player=player, game=game, player_events=player_events)
 
-                #TODO: put this into a config setting in the ini file?
-                if not re.search('^bot#\d+$', player_events['P']):
-                        create_player_weapon_stats(session=session, 
-                            player=player, game=game, pgstat=pgstat,
-                            player_events=player_events)
+    #TODO: put this into a config setting in the ini file?
+    if not re.search('^bot#\d+$', player_events['P']):
+        create_player_weapon_stats(session=session, 
+            player=player, game=game, pgstat=pgstat,
+            player_events=player_events)
     
 
 def stats_submit(request):
@@ -367,11 +365,13 @@ def stats_submit(request):
             else:
                 nick = None
 
-            player = get_or_create_player(session=session, 
+            if 'matches' in player_events and 'scoreboardvalid' \
+                    in player_events:
+                player = get_or_create_player(session=session, 
                     hashkey=player_events['P'], nick=nick)
-            log.debug('Creating stats for %s' % player_events['P'])
-            create_player_stats(session=session, player=player, game=game, 
-                    player_events=player_events)
+                log.debug('Creating stats for %s' % player_events['P'])
+                create_player_stats(session=session, player=player, game=game, 
+                        player_events=player_events)
     
         session.commit()
         log.debug('Success! Stats recorded.')
