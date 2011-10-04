@@ -12,10 +12,16 @@ Base = declarative_base()
 class Player(object):
 
     def nick_html_colors(self):
-        return html_colors(self.nick)
+        if self.nick is None:
+            return "Anonymous Player"
+        else:
+            return html_colors(self.nick)
 
     def nick_strip_colors(self):
-        return strip_colors(self.nick)
+        if self.nick is None:
+            return "Anonymous Player"
+        else:
+            return strip_colors(self.nick)
 
     def __repr__(self):
         return "<Player(%s, %s, %s, %s)>" % (self.player_id, self.nick, 

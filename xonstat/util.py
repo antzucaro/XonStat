@@ -1,13 +1,19 @@
 import re
 from datetime import datetime
 
-def strip_colors(str=None):
+def strip_colors(str=''):
+    if str is None:
+        str = ''
+
     str = re.sub(r'\^x\w\w\w', '', str)
     str = re.sub(r'\^\d', '', str)
     return str
 
 
-def html_colors(str=None):
+def html_colors(str=''):
+    if str is None:
+        str = ''
+
     orig = str
     str = re.sub(r'\^x(\w)(\w)(\w)', 
             "<span style='color:#\g<1>\g<1>\g<2>\g<2>\g<3>\g<3>'>", str)
