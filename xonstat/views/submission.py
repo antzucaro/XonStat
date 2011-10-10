@@ -5,8 +5,40 @@ import time
 from pyramid.response import Response
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.models import *
+from xonstat.util import strip_colors
 
 log = logging.getLogger(__name__)
+
+
+def register_new_nick(session, player, new_nick):
+    """
+    Change the player record's nick to the newly found nick. Store the old
+    nick in the player_nicks table for that player.
+
+    session - SQLAlchemy database session factory
+    player - player record whose nick is changing
+    new_nick - the new nickname
+    """
+    # see if that nick already exists
+    stripped_nick = strip_colors(player.nick)
+    try:
+    	player_nick = session.query(PlayerNick).filter_by(
+        	player_id=player.player_id, stripped_nick=stripped_nick).one()
+    except NoResultFound, e:
+	# player_id/stripped_nick not found, create one
+        # but we don't store "Anonymous Player #N"
+        if not re.search('^Anonymous Player #\d+$', player.nick):
+	    player_nick = PlayerNick()
+            player_nick.player_id = player.player_id
+            player_nick.stripped_nick = stripped_nick
+            player_nick.nick = player.nick
+            session.add(player_nick)
+
+    # We change to the new nick regardless
+    log.debug('Changing nick from {0} to {1} for player {2}'.format(
+        player.nick, new_nick, player.player_id))
+    player.nick = new_nick
+    session.add(player)
 
 
 def get_or_create_server(session=None, name=None):
@@ -198,9 +230,10 @@ def create_player_game_stat(session=None, player=None,
 
     # if the nick we end up with is different from the one in the
     # player record, change the nick to reflect the new value
-    if pgstat.nick != player.nick:
-        player.nick = pgstat.nick
-        session.add(player)
+    if pgstat.nick != player.nick and player.player_id > 1:
+	log.debug('Registering new nick for {0}: {1}'.format(player.nick, 
+            pgstat.nick))
+        register_new_nick(session, player, pgstat.nick)
 
     session.add(pgstat)
     session.flush()
@@ -348,7 +381,7 @@ def stats_submit(request):
                     real_players += 1
 
         #TODO: put this into a config setting in the ini file?
-        if real_players < 2:
+        if real_players < 1:
             raise Exception("The number of real players is below the minimum. "\
                     "Stats will be ignored.")
 
