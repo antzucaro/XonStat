@@ -121,12 +121,16 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
                 player.player_id, hashkey.hashkey))
         except:
             player = Player()
-
-            if nick:
-                player.nick = nick
-
             session.add(player)
             session.flush()
+
+	    # if nick is given to us, use it. If not, use "Anonymous Player"
+            # with a suffix added for uniqueness.
+            if nick:
+                player.nick = nick
+	    else:
+                player.nick = "Anonymous Player #{0}".format(player.player_id)
+
             hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
             session.add(hashkey)
             log.debug("Created player {0} with hashkey {1}.".format(
@@ -191,6 +195,12 @@ def create_player_game_stat(session=None, player=None,
     # not use the name from the player id
     if pgstat.nick == None:
         pgstat.nick = player.nick
+
+    # if the nick we end up with is different from the one in the
+    # player record, change the nick to reflect the new value
+    if pgstat.nick != player.nick:
+        player.nick = pgstat.nick
+        session.add(player)
 
     session.add(pgstat)
     session.flush()
