@@ -235,6 +235,14 @@ def create_player_game_stat(session=None, player=None,
             pgstat.nick))
         register_new_nick(session, player, pgstat.nick)
 
+    # if the player is ranked #1 and it is a team game, set the game's winner
+    # to be the team of that player
+    # FIXME: this is a hack, should be using the 'W' field (not present)
+    if pgstat.rank == '1' and pgstat.team:
+        log.debug('Found rank 1. Logging.')
+        game.winner = pgstat.team
+        session.add(game)
+
     session.add(pgstat)
     session.flush()
 
