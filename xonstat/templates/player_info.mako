@@ -117,5 +117,7 @@ ${accuracy(weapon_stats)}
 	% endfor
 	</tbody>
 </table>
+% if game_stats['total_games_played'] > 10:
 <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games</a> played by ${player.nick_html_colors()|n}...
+% endif
 % endif
