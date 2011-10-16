@@ -45,8 +45,6 @@ def main_index(request):
             group_by(Game.map_id).\
             group_by(Map.name).all()[0:10]
 
-    log.debug(top_maps)
-
     for i in range(leaderboard_count-len(top_maps)):
         top_maps.append(('-', '-', '-'))
 
