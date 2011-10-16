@@ -38,12 +38,14 @@ def main_index(request):
         top_servers.append(('-', '-', '-'))
 
     # top maps by total times played
-    top_maps = DBSession.query(Map.map_id, Map.name, 
-            func.count(Game.game_id)).\
-            filter(Map.map_id==Game.game_id).\
-            order_by(expr.desc(func.count(Game.game_id))).\
-            group_by(Map.map_id).\
+    top_maps = DBSession.query(Game.map_id, Map.name, 
+            func.count()).\
+            filter(Map.map_id==Game.map_id).\
+            order_by(expr.desc(func.count())).\
+            group_by(Game.map_id).\
             group_by(Map.name).all()[0:10]
+
+    log.debug(top_maps)
 
     for i in range(leaderboard_count-len(top_maps)):
         top_maps.append(('-', '-', '-'))
