@@ -13,7 +13,7 @@ ${parent.js()}
 
 <%block name="title">
 % if player:
-Player Information for ${player.nick_strip_colors()} - 
+Player Information for ${player.nick_strip_colors()} -
 % endif
 
 ${parent.title()}
@@ -102,7 +102,7 @@ ${accuracy(weapon_stats)}
 	<tbody>
 	% for (gamestat, game, server, map) in recent_games:
 		<tr>
-		   <td>${game.game_type_cd}</td>
+		   <td><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
 		   <td>${map.name}</td>
 		   <td>
 		   % if gamestat.team != None and gamestat.team == game.winner:

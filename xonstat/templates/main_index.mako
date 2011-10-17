@@ -108,7 +108,7 @@ Main Page - ${parent.title()}
 		% if game != '-':
 		<tr>
 			<td><a href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">${game.game_id}</a></td>
-			<td>${game.game_type_cd}</td>
+			<td><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
 			<td><a href="${request.route_url('server_info', id=server.server_id)}" title="Go to the detail page for this server">${server.name}</a></td>
 			<td><a href="${request.route_url('map_info', id=map.map_id)}" title="Go to the map detail page for this map">${map.name}</a></td>
 			<td>${game.start_dt.strftime('%m/%d/%Y %H:%M')}</td>
