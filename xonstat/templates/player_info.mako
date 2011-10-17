@@ -106,9 +106,11 @@ ${accuracy(weapon_stats)}
 		   <td>${map.name}</td>
 		   <td>
 		   % if gamestat.team != None and gamestat.team == game.winner:
-		   Win
-		   % else:
-		   Loss
+		   Won (#${gamestat.rank})
+		   % elif gamestat.team != None and gamestat.team != game.winner:
+		   Lost (#${gamestat.rank})
+           % else:
+           #${gamestat.rank}
 		   % endif
 		   </td>
 		   <td>${game.fuzzy_date()}</td>
