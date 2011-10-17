@@ -8,9 +8,9 @@
         </%block>
     </head>
     <body>
-		<div id="container"> 
-			<div id="home" class="window"> 
-				<h1 id="title">Player Statistics for Xonotic</h1> 
+		<div id="container">
+			<div id="home" class="window">
+				<h1 id="title">Player Statistics for Xonotic</h1>
 				<ul id="menu" class="nav clearfix">
 					<li><a href="${request.route_url('main_index')}" title="Leaderboard">leaderboard</a></li>
 					<li><a href="${request.route_url('player_index')}" title="Player Index">players</a></li>
@@ -33,6 +33,7 @@
 		<script>window.jQuery || document.write( '<script src="/static/js/scripts/jquery-1.6.1.min.js"><\/script>' )</script>-->
 		<script src="/static/js/jquery-1.6.1.min.js"></script>
 		<script src="/static/js/jquery.dataTables.min.js"></script>
+		<script src="/static/js/jquery.dataTables.numHtml.js"></script>
 		<script src="/static/js/default.js"></script>
         </%block>
     </body>

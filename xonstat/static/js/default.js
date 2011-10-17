@@ -1,15 +1,15 @@
 $(function(){
-	
+
 	init_menus();
 	init_checkboxes();
 	init_radiobuttons();
 	init_datatables();
 
 });
- 
+
 $.fn.hoverClass = function(c) {
     return this.each(function(){
-        $(this).hover( 
+        $(this).hover(
             function() { $(this).addClass(c);  },
             function() { $(this).removeClass(c); }
         );
@@ -18,8 +18,8 @@ $.fn.hoverClass = function(c) {
 
 function init_menus() {
 	$("#menu li").hover(
-        function(){ $("ul", this).fadeIn("fast"); }, 
-        function() { } 
+        function(){ $("ul", this).fadeIn("fast"); },
+        function() { }
     );
     if (document.all) {
         $("#menu li").hoverClass("sfHover");
@@ -40,7 +40,7 @@ function init_radiobuttons() {
 			$(".radio-selected:not(:checked)").removeClass("radio-selected");
 			$(this).next("label").addClass("radio-selected");
 		}
-	});	
+	});
 }
 function init_datatables() {
 	/* lazy test to see if exists,
@@ -65,7 +65,8 @@ function init_datatables() {
 			"bAutoWidth": false,
 			"oLanguage": {
 				"sSearch": "_INPUT_"
-			}
+			},
+			"aaSorting": [[ 0, "desc" ]]
 		});
 	}
 	if ($("table.scoreboard").length) {
