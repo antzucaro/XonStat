@@ -159,7 +159,7 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
 	    # if nick is given to us, use it. If not, use "Anonymous Player"
             # with a suffix added for uniqueness.
             if nick:
-                player.nick = nick
+                player.nick = nick[:128]
 	    else:
                 player.nick = "Anonymous Player #{0}".format(player.player_id)
 
@@ -208,7 +208,7 @@ def create_player_game_stat(session=None, player=None,
         pgstat.carrier_frags = 0
 
     for (key,value) in player_events.items():
-        if key == 'n': pgstat.nick = value
+        if key == 'n': pgstat.nick = value[:128]
         if key == 't': pgstat.team = value
         if key == 'rank': pgstat.rank = value
         if key == 'alivetime': 
