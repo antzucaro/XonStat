@@ -9,6 +9,16 @@ from xonstat.util import strip_colors
 
 log = logging.getLogger(__name__)
 
+def is_real_player(events):
+    flg_is_real = False
+
+    if not events['P'].startswith('bot'):
+        # removing 'joins' here due to bug, but it should be here
+        if 'matches' in events and 'scoreboardvalid' in events:
+            flg_is_real = True
+
+    return flg_is_real
+
 
 def register_new_nick(session, player, new_nick):
     """
@@ -381,12 +391,9 @@ def stats_submit(request):
             raise Exception("Required game meta fields (T, G, M, or S) missing.")
     
         real_players = 0
-        for player_events in players:
-            if not player_events['P'].startswith('bot'):
-                # removing 'joins' here due to bug, but it should be here
-                if 'matches' in player_events\
-                    and 'scoreboardvalid' in player_events:
-                    real_players += 1
+        for events in players:
+            if is_real_player(events):
+                real_players += 1
 
         #TODO: put this into a config setting in the ini file?
         if real_players < 1:
