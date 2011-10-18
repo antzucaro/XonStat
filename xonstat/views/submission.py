@@ -10,6 +10,15 @@ from xonstat.util import strip_colors
 log = logging.getLogger(__name__)
 
 def is_real_player(events):
+    """
+    Determines if a given set of player events correspond with a player who
+    
+    1) is not a bot (P event does not look like a bot)
+    2) played in the game (matches 1)
+    3) was present at the end of the game (scoreboardvalid 1)
+
+    Returns True if the player meets the above conditions, and false otherwise.
+    """
     flg_is_real = False
 
     if not events['P'].startswith('bot'):
