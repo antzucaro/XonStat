@@ -9,6 +9,22 @@ from xonstat.util import strip_colors
 
 log = logging.getLogger(__name__)
 
+def has_required_metadata(metadata):
+    """
+    Determines if a give set of metadata has enough data to create a game,
+    server, and map with.
+    """
+    flg_has_req_metadata = True
+
+    if 'T' not in game_meta or\
+        'G' not in game_meta or\
+        'M' not in game_meta or\
+        'S' not in game_meta:
+            flg_has_req_metadata = False
+
+    return flg_has_req_metadata
+
+    
 def is_real_player(events):
     """
     Determines if a given set of player events correspond with a player who
@@ -390,11 +406,7 @@ def stats_submit(request):
 
         (game_meta, players) = parse_body(request)  
     
-        # verify required metadata is present
-        if 'T' not in game_meta or\
-            'G' not in game_meta or\
-            'M' not in game_meta or\
-            'S' not in game_meta:
+        if not has_required_metadata(game_meta):
             log.debug("Required game meta fields (T, G, M, or S) missing. "\
                     "Can't continue.")
             raise Exception("Required game meta fields (T, G, M, or S) missing.")
@@ -411,11 +423,6 @@ def stats_submit(request):
 
         server = get_or_create_server(session=session, name=game_meta['S'])
         gmap = get_or_create_map(session=session, name=game_meta['M'])
-
-        if 'W' in game_meta:
-            winner = game_meta['W']
-        else:
-            winner = None
 
         game = create_game(session=session, 
                 start_dt=datetime.datetime(
