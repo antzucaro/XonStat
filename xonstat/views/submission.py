@@ -9,6 +9,27 @@ from xonstat.util import strip_colors
 
 log = logging.getLogger(__name__)
 
+
+def has_minimum_real_players(player_events):
+    """
+    Determines if the collection of player events has enough "real" players
+    to store in the database. The minimum setting comes from the config file
+    under the setting xonstat.minimum_real_players.
+    """
+    flg_has_min_real_players = True
+
+    real_players = 0
+    for events in player_events:
+        if is_real_player(events):
+            real_players += 1
+
+    #TODO: put this into a config setting in the ini file?
+    if real_players < 1:
+        flg_has_min_real_players = False
+
+    return flg_has_min_real_players
+
+
 def has_required_metadata(metadata):
     """
     Determines if a give set of metadata has enough data to create a game,
@@ -411,13 +432,7 @@ def stats_submit(request):
                     "Can't continue.")
             raise Exception("Required game meta fields (T, G, M, or S) missing.")
     
-        real_players = 0
-        for events in players:
-            if is_real_player(events):
-                real_players += 1
-
-        #TODO: put this into a config setting in the ini file?
-        if real_players < 1:
+        if not has_minimum_real_players(players):
             raise Exception("The number of real players is below the minimum. "\
                     "Stats will be ignored.")
 
