@@ -49,23 +49,23 @@ def get_or_create_server(session=None, name=None):
     try:
         # find one by that name, if it exists
         server = session.query(Server).filter_by(name=name).one()
-        log.debug("Found server id {0} with name {1}.".format(
-            server.server_id, server.name))
+        log.debug("Found server id {0}: {1}".format(
+            server.server_id, server.name.encode('utf-8')))
     except NoResultFound, e:
         server = Server(name=name)
         session.add(server)
         session.flush()
-        log.debug("Created server id {0} with name {1}".format(
-            server.server_id, server.name))
+        log.debug("Created server id {0}: {1}".format(
+            server.server_id, server.name.encode('utf-8')))
     except MultipleResultsFound, e:
         # multiple found, so use the first one but warn
         log.debug(e)
         servers = session.query(Server).filter_by(name=name).order_by(
                 Server.server_id).all()
         server = servers[0]
-        log.debug("Created server id {0} with name {1} but found \
+        log.debug("Created server id {0}: {1} but found \
                 multiple".format(
-            server.server_id, server.name))
+            server.server_id, server.name.encode('utf-8')))
 
     return server
 
@@ -79,13 +79,13 @@ def get_or_create_map(session=None, name=None):
     try:
         # find one by the name, if it exists
         gmap = session.query(Map).filter_by(name=name).one()
-        log.debug("Found map id {0} with name {1}.".format(gmap.map_id, 
+        log.debug("Found map id {0}: {1}".format(gmap.map_id, 
             gmap.name))
     except NoResultFound, e:
         gmap = Map(name=name)
         session.add(gmap)
         session.flush()
-        log.debug("Created map id {0} with name {1}.".format(gmap.map_id,
+        log.debug("Created map id {0}: {1}".format(gmap.map_id,
             gmap.name))
     except MultipleResultsFound, e:
         # multiple found, so use the first one but warn
@@ -93,8 +93,8 @@ def get_or_create_map(session=None, name=None):
         gmaps = session.query(Map).filter_by(name=name).order_by(
                 Map.map_id).all()
         gmap = gmaps[0]
-        log.debug("Found map id {0} with name {1} but found \
-                multiple.".format(gmap.map_id, gmap.name))
+        log.debug("Found map id {0}: {1} but found \
+                multiple".format(gmap.map_id, gmap.name))
 
     return gmap
 
@@ -116,9 +116,9 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
                 server_id=server_id, map_id=map_id, winner=winner)
     session.add(game)
     session.flush()
-    log.debug("Created game id {0} on server {1}, map {2} at time \
-            {3} and on map {4}".format(game.game_id, 
-                server_id, map_id, start_dt, map_id))
+    log.debug("Created game id {0} on server {1}, map {2} at \
+            {3}".format(game.game_id, 
+                server_id, map_id, start_dt))
 
     return game
 
@@ -147,7 +147,7 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
                     hashkey=hashkey).one()
             player = session.query(Player).filter_by(
                     player_id=hashkey.player_id).one()
-            log.debug("Found existing player {0} with hashkey {1}.".format(
+            log.debug("Found existing player {0} with hashkey {1}".format(
                 player.player_id, hashkey.hashkey))
         except:
             player = Player()
@@ -163,8 +163,8 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
 
             hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
             session.add(hashkey)
-            log.debug("Created player {0} with hashkey {1}.".format(
-                player.player_id, hashkey.hashkey))
+            log.debug("Created player {0} ({2}) with hashkey {1}".format(
+                player.player_id, hashkey.hashkey, player.nick.encode('utf-8')))
 
     return player
 
@@ -229,15 +229,12 @@ def create_player_game_stat(session=None, player=None,
     # if the nick we end up with is different from the one in the
     # player record, change the nick to reflect the new value
     if pgstat.nick != player.nick and player.player_id > 1:
-	log.debug('Registering new nick for {0}: {1}'.format(player.nick, 
-            pgstat.nick))
         register_new_nick(session, player, pgstat.nick)
 
     # if the player is ranked #1 and it is a team game, set the game's winner
     # to be the team of that player
     # FIXME: this is a hack, should be using the 'W' field (not present)
     if pgstat.rank == '1' and pgstat.team:
-        log.debug('Found rank 1. Logging.')
         game.winner = pgstat.team
         session.add(game)
 
