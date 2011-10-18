@@ -25,7 +25,7 @@ def register_new_nick(session, player, new_nick):
     	player_nick = session.query(PlayerNick).filter_by(
         	player_id=player.player_id, stripped_nick=stripped_nick).one()
     except NoResultFound, e:
-	# player_id/stripped_nick not found, create one
+	    # player_id/stripped_nick not found, create one
         # but we don't store "Anonymous Player #N"
         if not re.search('^Anonymous Player #\d+$', player.nick):
 	    player_nick = PlayerNick()
@@ -35,8 +35,6 @@ def register_new_nick(session, player, new_nick):
             session.add(player_nick)
 
     # We change to the new nick regardless
-    log.debug('Changing nick from {0} to {1} for player {2}'.format(
-        player.nick, new_nick, player.player_id))
     player.nick = new_nick
     session.add(player)
 
@@ -316,6 +314,11 @@ def parse_body(request):
     for line in request.body.split('\n'):
         try:
             (key, value) = line.strip().split(' ', 1)
+
+            # Server (S) and Nick (n) fields can have international characters.
+            # We encode these as UTF-8.
+            if key in 'S' 'n':
+                value = unicode(value, 'utf-8')
     
             if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W':
                 game_meta[key] = value

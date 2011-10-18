@@ -24,8 +24,8 @@ class Player(object):
             return strip_colors(self.nick)
 
     def __repr__(self):
-        return "<Player(%s, %s, %s, %s)>" % (self.player_id, self.nick, 
-                self.create_dt, self.location)
+        return "<Player(%s, %s)>" % (self.player_id, 
+                self.nick.encode('utf-8'))
 
 
 class Mutator(object):
@@ -51,8 +51,7 @@ class Server(object):
         self.name = name
 
     def __repr__(self):
-        return "<Server(%s, %s, %s)>" % (self.server_id, self.name, 
-                self.ip_addr)
+        return "<Server(%s, %s)>" % (self.server_id, self.name.encode('utf-8'))
 
 
 class Map(object):
