@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 import time
+from pyramid.config import get_current_registry
 from pyramid.response import Response
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.models import *
@@ -18,13 +19,20 @@ def has_minimum_real_players(player_events):
     """
     flg_has_min_real_players = True
 
+    settings = get_current_registry().settings
+    try: 
+        minimum_required_players = int(
+                settings['xonstat.minimum_required_players'])
+    except:
+        minimum_required_players = 2
+
     real_players = 0
     for events in player_events:
         if is_real_player(events):
             real_players += 1
 
     #TODO: put this into a config setting in the ini file?
-    if real_players < 1:
+    if real_players < minimum_required_players:
         flg_has_min_real_players = False
 
     return flg_has_min_real_players
@@ -37,10 +45,10 @@ def has_required_metadata(metadata):
     """
     flg_has_req_metadata = True
 
-    if 'T' not in game_meta or\
-        'G' not in game_meta or\
-        'M' not in game_meta or\
-        'S' not in game_meta:
+    if 'T' not in metadata or\
+        'G' not in metadata or\
+        'M' not in metadata or\
+        'S' not in metadata:
             flg_has_req_metadata = False
 
     return flg_has_req_metadata
@@ -443,7 +451,7 @@ def stats_submit(request):
                 start_dt=datetime.datetime(
                     *time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
-                map_id=gmap.map_id, winner=winner)
+                map_id=gmap.map_id)
     
         # find or create a record for each player
         # and add stats for each if they were present at the end
