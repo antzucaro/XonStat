@@ -5,10 +5,25 @@ import time
 from pyramid.config import get_current_registry
 from pyramid.response import Response
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from xonstat.d0_blind_id import d0_blind_id_verify
 from xonstat.models import *
 from xonstat.util import strip_colors
 
 log = logging.getLogger(__name__)
+
+
+def is_verified_request(request):
+    (idfp, status) = d0_blind_id_verify(
+            sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
+            querystring='',
+            postdata=request.body)
+
+    log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
+
+    if idfp != None:
+        return True
+    else:
+        return False
 
 
 def has_minimum_real_players(player_events):
@@ -431,6 +446,9 @@ def stats_submit(request):
     Entry handler for POST stats submissions.
     """
     try:
+        if not is_verified_request(request):
+            raise Exception("Request is not verified.")
+
         session = DBSession()
 
         (game_meta, players) = parse_body(request)  
