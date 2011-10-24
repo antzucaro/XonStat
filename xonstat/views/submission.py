@@ -394,7 +394,9 @@ def parse_body(request):
     current_team = None
     players = []
     
+    log.debug("----- BEGIN REQUEST BODY -----")
     log.debug(request.body)
+    log.debug("----- END REQUEST BODY -----")
 
     for line in request.body.split('\n'):
         try:
