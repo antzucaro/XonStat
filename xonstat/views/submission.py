@@ -11,6 +11,15 @@ from xonstat.util import strip_colors
 
 log = logging.getLogger(__name__)
 
+def is_supported_gametype(gametype):
+    """Whether a gametype is supported or not"""
+    flg_supported = True
+
+    if gametype == 'cts' or gametype == 'ca' or gametype == 'lms':
+        flg_supported = False
+
+    return flg_supported
+
 
 def is_verified_request(request):
     (idfp, status) = d0_blind_id_verify(
@@ -457,7 +466,10 @@ def stats_submit(request):
             log.debug("Required game meta fields (T, G, M, or S) missing. "\
                     "Can't continue.")
             raise Exception("Required game meta fields (T, G, M, or S) missing.")
-    
+   
+        if not is_supported_gametype(game_meta['G']):
+            raise Exception("Gametype not supported.")
+     
         if not has_minimum_real_players(players):
             raise Exception("The number of real players is below the minimum. "\
                     "Stats will be ignored.")
