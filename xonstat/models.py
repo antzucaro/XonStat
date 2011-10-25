@@ -10,7 +10,6 @@ Base = declarative_base()
 
 # define objects for all tables
 class Player(object):
-
     def nick_html_colors(self):
         if self.nick is None:
             return "Anonymous Player"
@@ -26,12 +25,6 @@ class Player(object):
     def __repr__(self):
         return "<Player(%s, %s)>" % (self.player_id, 
                 self.nick.encode('utf-8'))
-
-
-class Mutator(object):
-    def __repr__(self):
-        return "<Mutator(%s, %s, %s, %s)>" % (self.mutator_cd, self.name, 
-                self.descr, self.active_ind)
 
 
 class GameType(object):
@@ -60,11 +53,6 @@ class Map(object):
 
     def __repr__(self):
         return "<Map(%s, %s, %s)>" % (self.map_id, self.name, self.version)
-
-
-class MapGameType(object):
-    def __repr__(self):
-        return "<MapGameType(%s, %s)>" % (self.map_id, self.game_type_cd)
 
 
 class Game(object):
@@ -117,10 +105,6 @@ class PlayerGameStat(object):
             return "pink"
 
 
-class GameMutator(object):
-    def __repr__(self):
-        return "<GameMutator(%s, %s)>" % (self.game_id, self.mutator_cd)
-
 class Achievement(object):
     def __repr__(self):
         return "<Achievement(%s, %s, %s)>" % (self.achievement_cd, self.descr,
@@ -152,6 +136,11 @@ class PlayerNick(object):
         return "<PlayerNick(%s, %s)>" % (self.player_id, self.stripped_nick)
 
 
+class ServerHashkey(object):
+    def __repr__(self):
+        return "<ServerHashkey(%s, %s)>" % (self.server_id, self.hashkey)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -162,33 +151,29 @@ def initialize_db(engine=None):
     achievements_table = MetaData.tables['achievements']
     cd_achievement_table = MetaData.tables['cd_achievement']
     cd_game_type_table = MetaData.tables['cd_game_type']
-    cd_mutator_table = MetaData.tables['cd_mutator']
     cd_weapon_table = MetaData.tables['cd_weapon']
     db_version_table = MetaData.tables['db_version']
-    game_mutators_table = MetaData.tables['game_mutators']
     games_table = MetaData.tables['games']
     hashkeys_table = MetaData.tables['hashkeys']
-    map_game_types_table = MetaData.tables['map_game_types']
     maps_table = MetaData.tables['maps']
     player_game_stats_table = MetaData.tables['player_game_stats']
     players_table = MetaData.tables['players']
     player_weapon_stats_table = MetaData.tables['player_weapon_stats']
     servers_table = MetaData.tables['servers']
     player_nicks_table = MetaData.tables['player_nicks']
+    server_hashkeys_table = MetaData.tables['server_hashkeys']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
     mapper(Achievement, cd_achievement_table)
     mapper(GameType, cd_game_type_table)
-    mapper(Mutator, cd_mutator_table)
     mapper(Weapon, cd_weapon_table)
-    mapper(GameMutator, game_mutators_table)
     mapper(Game, games_table)
     mapper(Hashkey, hashkeys_table)
-    mapper(MapGameType, map_game_types_table)
     mapper(Map, maps_table)
     mapper(PlayerGameStat, player_game_stats_table)
     mapper(Player, players_table)
     mapper(PlayerWeaponStat, player_weapon_stats_table)
     mapper(Server, servers_table)
     mapper(PlayerNick, player_nicks_table)
+    mapper(ServerHashkey, server_hashkeys_table)
