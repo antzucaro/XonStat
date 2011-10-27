@@ -1,6 +1,8 @@
 import logging
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
+from datetime import datetime, timedelta
+from pyramid.config import get_current_registry
 from pyramid.response import Response
 from xonstat.models import *
 from xonstat.util import *
@@ -8,6 +10,13 @@ from xonstat.util import *
 log = logging.getLogger(__name__)
 
 def main_index(request):
+    settings = get_current_registry().settings
+    try: 
+        leaderboard_lifetime = int(
+                settings['xonstat.leaderboard_lifetime'])
+    except:
+        leaderboard_lifetime = 30
+
     leaderboard_count = 10
     recent_games_count = 32
 
@@ -16,6 +25,8 @@ def main_index(request):
             func.sum(PlayerGameStat.score)).\
             filter(Player.player_id == PlayerGameStat.player_id).\
             filter(Player.player_id > 2).\
+            filter(PlayerGameStat.create_dt > 
+                    (datetime.now() - timedelta(days=leaderboard_lifetime))).\
             order_by(expr.desc(func.sum(PlayerGameStat.score))).\
             group_by(Player.nick).\
             group_by(Player.player_id).all()[0:10]
@@ -30,6 +41,8 @@ def main_index(request):
     top_servers = DBSession.query(Server.server_id, Server.name, 
             func.count()).\
             filter(Game.server_id==Server.server_id).\
+            filter(Game.create_dt > 
+                (datetime.now() - timedelta(days=leaderboard_lifetime))).\
             order_by(expr.desc(func.count(Game.game_id))).\
             group_by(Server.server_id).\
             group_by(Server.name).all()[0:10]
@@ -41,6 +54,8 @@ def main_index(request):
     top_maps = DBSession.query(Game.map_id, Map.name, 
             func.count()).\
             filter(Map.map_id==Game.map_id).\
+            filter(Game.create_dt > 
+                (datetime.now() - timedelta(days=leaderboard_lifetime))).\
             order_by(expr.desc(func.count())).\
             group_by(Game.map_id).\
             group_by(Map.name).all()[0:10]
