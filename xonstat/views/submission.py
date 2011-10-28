@@ -21,7 +21,7 @@ def is_supported_gametype(gametype):
     return flg_supported
 
 
-def is_verified_request(request):
+def verify_request(request):
     (idfp, status) = d0_blind_id_verify(
             sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
             querystring='',
@@ -29,10 +29,7 @@ def is_verified_request(request):
 
     log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
 
-    if idfp != None:
-        return True
-    else:
-        return False
+    return (idfp, status)
 
 
 def has_minimum_real_players(player_events):
@@ -127,35 +124,37 @@ def register_new_nick(session, player, new_nick):
     session.add(player)
 
 
-def get_or_create_server(session=None, name=None):
+def get_or_create_server(session=None, name=None, hashkey=None):
     """
     Find a server by name or create one if not found. Parameters:
 
     session - SQLAlchemy database session factory
     name - server name of the server to be found or created
+    hashkey - server hashkey
     """
+    # see if the server is already in the database
+    # if not, create one and the hashkey along with it
     try:
-        # find one by that name, if it exists
-        server = session.query(Server).filter_by(name=name).one()
-        log.debug("Found server id {0}: {1}".format(
-            server.server_id, server.name.encode('utf-8')))
-    except NoResultFound, e:
-        server = Server(name=name)
+        hashkey = session.query(ServerHashkey).filter_by(
+                hashkey=hashkey).one()
+        server = session.query(Server).filter_by(
+                server_id=hashkey.server_id).one()
+        log.debug("Found existing server {0} with hashkey {1}".format(
+            server.server_id, hashkey.hashkey))
+    except:
+        server = Server()
+        server.name = name
         session.add(server)
         session.flush()
-        log.debug("Created server id {0}: {1}".format(
-            server.server_id, server.name.encode('utf-8')))
-    except MultipleResultsFound, e:
-        # multiple found, so use the first one but warn
-        log.debug(e)
-        servers = session.query(Server).filter_by(name=name).order_by(
-                Server.server_id).all()
-        server = servers[0]
-        log.debug("Created server id {0}: {1} but found \
-                multiple".format(
-            server.server_id, server.name.encode('utf-8')))
+
+        hashkey = ServerHashkey(server_id=server.server_id, 
+                hashkey=hashkey)
+        session.add(hashkey)
+        log.debug("Created server {0} with hashkey {1}".format(
+            server.server_id, hashkey.hashkey))
 
     return server
+
 
 def get_or_create_map(session=None, name=None):
     """
@@ -457,7 +456,8 @@ def stats_submit(request):
     Entry handler for POST stats submissions.
     """
     try:
-        if not is_verified_request(request):
+        (idfp, status) = verify_request(request)
+        if not idfp:
             raise Exception("Request is not verified.")
 
         session = DBSession()
@@ -476,7 +476,9 @@ def stats_submit(request):
             raise Exception("The number of real players is below the minimum. "\
                     "Stats will be ignored.")
 
-        server = get_or_create_server(session=session, name=game_meta['S'])
+        server = get_or_create_server(session=session, hashkey=idfp, 
+                name=game_meta['S'])
+
         gmap = get_or_create_map(session=session, name=game_meta['M'])
 
         game = create_game(session=session, 

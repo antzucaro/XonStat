@@ -137,6 +137,10 @@ class PlayerNick(object):
 
 
 class ServerHashkey(object):
+    def __init__(self, server_id=None, hashkey=None):
+        self.server_id = server_id
+        self.hashkey = hashkey
+
     def __repr__(self):
         return "<ServerHashkey(%s, %s)>" % (self.server_id, self.hashkey)
 
