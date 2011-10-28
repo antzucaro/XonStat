@@ -456,11 +456,11 @@ def stats_submit(request):
     Entry handler for POST stats submissions.
     """
     try:
+        session = DBSession()
+
         (idfp, status) = verify_request(request)
         if not idfp:
             raise Exception("Request is not verified.")
-
-        session = DBSession()
 
         (game_meta, players) = parse_body(request)  
     
