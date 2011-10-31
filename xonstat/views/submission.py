@@ -319,7 +319,7 @@ def create_player_game_stat(session=None, player=None,
 
     # if the nick we end up with is different from the one in the
     # player record, change the nick to reflect the new value
-    if pgstat.nick != player.nick and player.player_id > 1:
+    if pgstat.nick != player.nick and player.player_id > 2:
         register_new_nick(session, player, pgstat.nick)
 
     # if the player is ranked #1 and it is a team game, set the game's winner
