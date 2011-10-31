@@ -135,6 +135,12 @@ def get_or_create_server(session=None, name=None, hashkey=None):
     try:
         # find one by that name, if it exists
         server = session.query(Server).filter_by(name=name).one()
+
+        # store new hashkey
+        if server.hashkey != hashkey:
+            server.hashkey = hashkey
+            session.add(server)
+
         log.debug("Found existing server {0}".format(server.server_id))
 
     except MultipleResultsFound, e:
