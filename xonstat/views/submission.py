@@ -132,26 +132,24 @@ def get_or_create_server(session=None, name=None, hashkey=None):
     name - server name of the server to be found or created
     hashkey - server hashkey
     """
-    # see if the server is already in the database
-    # if not, create one and the hashkey along with it
     try:
-        hashkey = session.query(ServerHashkey).filter_by(
-                hashkey=hashkey).one()
-        server = session.query(Server).filter_by(
-                server_id=hashkey.server_id).one()
-        log.debug("Found existing server {0} with hashkey {1}".format(
-            server.server_id, hashkey.hashkey))
-    except:
-        server = Server()
-        server.name = name
+        # find one by that name, if it exists
+        server = session.query(Server).filter_by(name=name).one()
+        log.debug("Found existing server {0}".format(server.server_id))
+
+    except MultipleResultsFound, e:
+        # multiple found, so also filter by hashkey
+        server = session.query(Server).filter_by(name=name).\
+                filter_by(hashkey=hashkey).one()
+        log.debug("Found existing server {0}".format(server.server_id))
+
+    except NoResultFound, e:
+        # not found, create one
+        server = Server(name=name, hashkey=hashkey)
         session.add(server)
         session.flush()
-
-        hashkey = ServerHashkey(server_id=server.server_id, 
-                hashkey=hashkey)
-        session.add(hashkey)
         log.debug("Created server {0} with hashkey {1}".format(
-            server.server_id, hashkey.hashkey))
+            server.server_id, server.hashkey))
 
     return server
 

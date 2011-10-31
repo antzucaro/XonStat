@@ -40,8 +40,10 @@ class Weapon(object):
 
 
 class Server(object):
-    def __init__(self, name=None):
+    def __init__(self, name=None, hashkey=None, ip_addr=None):
         self.name = name
+        self.hashkey = hashkey
+        self.ip_addr = ip_addr
 
     def __repr__(self):
         return "<Server(%s, %s)>" % (self.server_id, self.name.encode('utf-8'))
@@ -136,15 +138,6 @@ class PlayerNick(object):
         return "<PlayerNick(%s, %s)>" % (self.player_id, self.stripped_nick)
 
 
-class ServerHashkey(object):
-    def __init__(self, server_id=None, hashkey=None):
-        self.server_id = server_id
-        self.hashkey = hashkey
-
-    def __repr__(self):
-        return "<ServerHashkey(%s, %s)>" % (self.server_id, self.hashkey)
-
-
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -165,7 +158,6 @@ def initialize_db(engine=None):
     player_weapon_stats_table = MetaData.tables['player_weapon_stats']
     servers_table = MetaData.tables['servers']
     player_nicks_table = MetaData.tables['player_nicks']
-    server_hashkeys_table = MetaData.tables['server_hashkeys']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -180,4 +172,3 @@ def initialize_db(engine=None):
     mapper(PlayerWeaponStat, player_weapon_stats_table)
     mapper(Server, servers_table)
     mapper(PlayerNick, player_nicks_table)
-    mapper(ServerHashkey, server_hashkeys_table)
