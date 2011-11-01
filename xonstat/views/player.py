@@ -38,7 +38,10 @@ def player_info(request):
     """
     Provides detailed information on a specific player
     """
-    player_id = request.matchdict['id']
+    player_id = int(request.matchdict['id'])
+    if player_id <= 2:
+        player_id = -1;
+        
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
 
