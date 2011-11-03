@@ -68,6 +68,25 @@ def server_info(request):
         for i in range(leaderboard_count-len(top_maps)):
             top_maps.append(('-', '-', '-'))
 
+        # top players by score
+        top_scorers = DBSession.query(Player.player_id, Player.nick, 
+                func.sum(PlayerGameStat.score)).\
+                filter(Player.player_id == PlayerGameStat.player_id).\
+                filter(Game.game_id == PlayerGameStat.game_id).\
+                filter(Game.server_id == server.server_id).\
+                filter(Player.player_id > 2).\
+                filter(PlayerGameStat.create_dt > 
+                        (datetime.now() - timedelta(days=leaderboard_lifetime))).\
+                order_by(expr.desc(func.sum(PlayerGameStat.score))).\
+                group_by(Player.nick).\
+                group_by(Player.player_id).all()[0:10]
+
+        top_scorers = [(player_id, html_colors(nick), score) \
+                for (player_id, nick, score) in top_scorers]
+
+        for i in range(leaderboard_count-len(top_scorers)):
+            top_scorers.append(('-', '-', '-'))
+
         # top players by playing time
         top_players = DBSession.query(Player.player_id, Player.nick, 
                 func.sum(PlayerGameStat.alivetime)).\
@@ -107,6 +126,7 @@ def server_info(request):
     return {'server':server,
             'recent_games':recent_games,
             'top_players': top_players,
+            'top_scorers': top_scorers,
             'top_maps': top_maps,
             }
 

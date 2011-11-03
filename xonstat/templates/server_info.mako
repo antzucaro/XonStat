@@ -67,6 +67,35 @@ Created: ${server.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
     </tbody>
 </table>
 
+##### TOP SCORERS #####
+<div class="table_block">
+<h2>Top Scoring Players</h2>
+<table>
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Nick</th>
+			<th>Score</th>
+		</tr>
+	</thead>
+	<tbody>
+	<% i = 1 %>
+	% for (score_player_id, score_nick, score_value) in top_scorers:
+		<tr>
+			<td>${i}</td>
+			% if score_player_id != '-':
+			<td><a href="${request.route_url('player_info', id=score_player_id)}" title="Go to the player info page for this player">${score_nick|n}</a></td>
+			% else:
+			<td>${score_nick}</td>
+			% endif
+			<td>${score_value}</td>
+		</tr>
+		<% i = i+1 %>
+	% endfor
+	</tbody>
+</table>
+</div>
+
 
 ##### TOP PLAYERS #####
 <div class="table_block">
