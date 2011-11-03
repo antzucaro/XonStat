@@ -1,5 +1,6 @@
 import datetime
 import logging
+import pyramid.httpexceptions
 import re
 import time
 from pyramid.config import get_current_registry
@@ -22,12 +23,16 @@ def is_supported_gametype(gametype):
 
 
 def verify_request(request):
-    (idfp, status) = d0_blind_id_verify(
-            sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
-            querystring='',
-            postdata=request.body)
+    try:
+        (idfp, status) = d0_blind_id_verify(
+                sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
+                querystring='',
+                postdata=request.body)
 
-    log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
+        log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
+    except: 
+        idfp = None
+        status = None
 
     return (idfp, status)
 
@@ -319,7 +324,7 @@ def create_player_game_stat(session=None, player=None,
 
     # if the nick we end up with is different from the one in the
     # player record, change the nick to reflect the new value
-    if pgstat.nick != player.nick and player.player_id > 1:
+    if pgstat.nick != player.nick and player.player_id > 2:
         register_new_nick(session, player, pgstat.nick)
 
     # if the player is ranked #1 and it is a team game, set the game's winner
@@ -464,21 +469,22 @@ def stats_submit(request):
 
         (idfp, status) = verify_request(request)
         if not idfp:
-            raise Exception("Request is not verified.")
+            raise pyramid.httpexceptions.HTTPUnauthorized
 
         (game_meta, players) = parse_body(request)  
     
         if not has_required_metadata(game_meta):
-            log.debug("Required game meta fields (T, G, M, or S) missing. "\
+            log.debug("Required game meta fields missing. "\
                     "Can't continue.")
-            raise Exception("Required game meta fields (T, G, M, or S) missing.")
+            raise pyramid.exceptions.HTTPUnprocessableEntity
    
         if not is_supported_gametype(game_meta['G']):
-            raise Exception("Gametype not supported.")
+            raise pyramid.httpexceptions.HTTPOk
      
         if not has_minimum_real_players(players):
-            raise Exception("The number of real players is below the minimum. "\
-                    "Stats will be ignored.")
+            log.debug("The number of real players is below the minimum. " + 
+                "Stats will be ignored.")
+            raise pyramid.httpexceptions.HTTPOk
 
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'])
