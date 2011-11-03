@@ -79,8 +79,8 @@ class PlayerGameStat(object):
         self.create_dt = create_dt
 
     def __repr__(self):
-        return "<PlayerGameStat(%s, %s, %s, %s)>" \
-        % (self.player_id, self.game_id, self.create_dt, self.stat_type)
+        return "<PlayerGameStat(%s, %s, %s)>" \
+        % (self.player_id, self.game_id, self.create_dt)
 
     def nick_stripped(self):
         if self.nick is None:
