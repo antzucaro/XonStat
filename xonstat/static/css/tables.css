@@ -214,7 +214,6 @@ table.display tr.even.gradeU {
 	background-color: #eee;
 }
 
-
 tr.odd {
 	background-color: #000;
 }
@@ -223,6 +222,13 @@ tr.odd:hover {
 	background-color: #222;
 }
 
+td.blue:hover {
+    background-color: #000F4C;
+}
+
+td.red:hover {
+    background-color: #571612;
+}
 
 tr.even {
 	background-color: #111;

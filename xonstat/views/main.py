@@ -18,7 +18,7 @@ def main_index(request):
         leaderboard_lifetime = 30
 
     leaderboard_count = 10
-    recent_games_count = 32
+    recent_games_count = 20
 
     # top players by score
     top_players = DBSession.query(Player.player_id, Player.nick, 
@@ -63,13 +63,16 @@ def main_index(request):
     for i in range(leaderboard_count-len(top_maps)):
         top_maps.append(('-', '-', '-'))
 
-    recent_games = DBSession.query(Game, Server, Map).\
+    # recent games played in descending order
+    recent_games = DBSession.query(Game, Server, Map, PlayerGameStat).\
             filter(Game.server_id==Server.server_id).\
             filter(Game.map_id==Map.map_id).\
+            filter(PlayerGameStat.game_id==Game.game_id).\
+            filter(PlayerGameStat.rank==1).\
             order_by(expr.desc(Game.start_dt)).all()[0:recent_games_count]
 
     for i in range(recent_games_count-len(recent_games)):
-        recent_games.append(('-', '-', '-'))
+        recent_games.append(('-', '-', '-', '-'))
 
     return {'top_players':top_players,
             'top_servers':top_servers,

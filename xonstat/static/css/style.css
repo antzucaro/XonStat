@@ -81,6 +81,9 @@ td {
 	padding:4px;
 	vertical-align: middle;
 }
+td.gt_icon {
+    text-align: center;
+}
 blockquote {
 	font-size:14px;
 	color:#fff;
@@ -133,6 +136,10 @@ input { font-family: 'Xolonium', 'Arial', 'Helvetica'; }
 	line-height:25px;
 	top:-48px;
 	color:#DCE9F5;
+}
+.table_block {
+    float: left;
+    padding-right: 25px;
 }
 .window {
 	border-width: 56px 56px 56px;
@@ -363,7 +370,7 @@ input[type=text]:hover, .textbox:hover { background-position:-128px -32px; }
 }
 
 #recent-games {
-    width: 610px;
+    width: 950px;
 }
 #recent-games_filter {
 	position: absolute;

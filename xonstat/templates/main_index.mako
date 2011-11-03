@@ -4,9 +4,60 @@
 Main Page - ${parent.title()}
 </%block>
 
-<div id="sidebar" class="leaderboard left">
+
+##### RECENT GAMES #####
+<h2>Recent Games</h2>
+<table id="recent-games">
+	<thead>
+		<tr>
+			<th>Game #</th>
+			<th>Type</th>
+			<th>Server</th>
+			<th>Map</th>
+			<th>Time</th>
+			<th>Winner</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for (game, server, map, pgstat) in recent_games:
+		% if game != '-':
+		<tr>
+			<td><a href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">${game.game_id}</a></td>
+			<td class="gt_icon"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
+			<td><a href="${request.route_url('server_info', id=server.server_id)}" title="Go to the detail page for this server">${server.name}</a></td>
+			<td><a href="${request.route_url('map_info', id=map.map_id)}" title="Go to the map detail page for this map">${map.name}</a></td>
+			<td>${game.start_dt.strftime('%m/%d/%Y %H:%M')}</td>
+			<td class=
+            % if pgstat.team == 5:
+            "blue"
+            % elif pgstat.team == 14:
+            "red"
+            % elif pgstat.team == 13:
+            "yellow"
+            % endif
+            >
+            % if pgstat.player_id > 2:
+            <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player info page for this player">${pgstat.nick_html_colors()}</a></td>
+            % else:
+            ${pgstat.nick_html_colors()}</td>
+            % endif
+		</tr>
+		% else:
+		<tr>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+		</tr>
+		% endif
+    % endfor
+    </tbody>
+</table>
 
 ##### TOP PLAYERS #####
+<div class="table_block">
 <h2>Top Players</h2>
 <table id="top-players">
 	<thead>
@@ -32,8 +83,10 @@ Main Page - ${parent.title()}
 	% endfor
 	</tbody>
 </table>
+</div>
 
 ##### TOP SERVERS #####
+<div class="table_block">
 <h2>Top Servers</h2>
 <table id="top-servers">
 	<thead>
@@ -59,8 +112,10 @@ Main Page - ${parent.title()}
 	% endfor
 	</tbody>
 </table>
+</div>
 
 ##### TOP MAPS #####
+<div class="table_block">
 <h2>Top Maps</h2>
 <table id="top-maps">
 	<thead>
@@ -86,45 +141,4 @@ Main Page - ${parent.title()}
 	% endfor
 	</tbody>
 </table>
-</div> <!-- END LEADERBOARD -->
-
-<div id="main" class="right">
-
-##### RECENT GAMES #####
-<h2>Recent Games</h2>
-<table id="recent-games">
-	<thead>
-		<tr>
-			<th>Game #</th>
-			<th>Type</th>
-			<th>Server</th>
-			<th>Map</th>
-			<th>Time</th>
-			<th>Winner</th>
-		</tr>
-	</thead>
-	<tbody>
-	% for (game, server, map) in recent_games:
-		% if game != '-':
-		<tr>
-			<td><a href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">${game.game_id}</a></td>
-			<td><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
-			<td><a href="${request.route_url('server_info', id=server.server_id)}" title="Go to the detail page for this server">${server.name}</a></td>
-			<td><a href="${request.route_url('map_info', id=map.map_id)}" title="Go to the map detail page for this map">${map.name}</a></td>
-			<td>${game.start_dt.strftime('%m/%d/%Y %H:%M')}</td>
-			<td>${game.winner}</td>
-		</tr>
-		% else:
-		<tr>
-			<td>-</td>
-			<td>-</td>
-			<td>-</td>
-			<td>-</td>
-			<td>-</td>
-			<td>-</td>
-		</tr>
-		% endif
-    % endfor
-    </tbody>
-</table>
-</div> <!-- END RECENT GAMES -->
+</div>
