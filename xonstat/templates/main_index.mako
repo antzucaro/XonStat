@@ -58,18 +58,18 @@ Main Page - ${parent.title()}
 
 ##### TOP PLAYERS #####
 <div class="table_block">
-<h2>Top Players</h2>
+<h2>Most Active Players</h2>
 <table id="top-players">
 	<thead>
 		<tr>
 			<th>#</th>
 			<th>Nick</th>
-			<th>Score</th>
+			<th>Playing Time</th>
 		</tr>
 	</thead>
 	<tbody>
 	<% i = 1 %>
-	% for (player_id, nick, score) in top_players:
+	% for (player_id, nick, alivetime) in top_players:
 		<tr>
 			<td>${i}</td>
 			% if player_id != '-':
@@ -77,7 +77,7 @@ Main Page - ${parent.title()}
 			% else:
 			<td>${nick}</td>
 			% endif
-			<td>${score}</td>
+			<td>${alivetime}</td>
 		</tr>
 		<% i = i+1 %>
 	% endfor
@@ -87,13 +87,13 @@ Main Page - ${parent.title()}
 
 ##### TOP SERVERS #####
 <div class="table_block">
-<h2>Top Servers</h2>
+<h2>Most Active Servers</h2>
 <table id="top-servers">
 	<thead>
 		<tr>
 			<th>#</th>
 			<th>Server</th>
-			<th>Games</th>
+			<th># Games</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -116,13 +116,13 @@ Main Page - ${parent.title()}
 
 ##### TOP MAPS #####
 <div class="table_block">
-<h2>Top Maps</h2>
+<h2>Most Active Maps</h2>
 <table id="top-maps">
 	<thead>
 		<tr>
 			<th>#</th>
 			<th>Map</th>
-			<th>Times Played</th>
+			<th># Games</th>
 		</tr>
 	</thead>
 	<tbody>

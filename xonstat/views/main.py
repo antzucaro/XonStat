@@ -20,14 +20,14 @@ def main_index(request):
     leaderboard_count = 10
     recent_games_count = 20
 
-    # top players by score
+    # top players by playing time
     top_players = DBSession.query(Player.player_id, Player.nick, 
-            func.sum(PlayerGameStat.score)).\
+            func.sum(PlayerGameStat.alivetime)).\
             filter(Player.player_id == PlayerGameStat.player_id).\
             filter(Player.player_id > 2).\
             filter(PlayerGameStat.create_dt > 
                     (datetime.now() - timedelta(days=leaderboard_lifetime))).\
-            order_by(expr.desc(func.sum(PlayerGameStat.score))).\
+            order_by(expr.desc(func.sum(PlayerGameStat.alivetime))).\
             group_by(Player.nick).\
             group_by(Player.player_id).all()[0:10]
 
