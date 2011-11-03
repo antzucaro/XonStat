@@ -18,12 +18,113 @@ IP Address: ${server.ip_addr} <br />
 Revision: ${server.revision} <br />
 Created: ${server.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
 
-% if recent_games:
+
+##### RECENT GAMES #####
 <h2>Recent Games</h2>
-% for (game, theserver, map) in recent_games:
-   <a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}</a>: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a>
-<br />
-% endfor
-<a href="${request.route_url("server_game_index", server_id=server.server_id, page=1)}" name="Game index page for server #${server.name}">More games played on ${server.name}...</a>
-% endif
+<table id="recent-games">
+	<thead>
+		<tr>
+			<th>Game #</th>
+			<th>Type</th>
+			<th>Map</th>
+			<th>Time</th>
+			<th>Winner</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for (game, srv, map, pgstat) in recent_games:
+		% if game != '-':
+		<tr>
+			<td><a href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">${game.game_id}</a></td>
+			<td class="gt_icon"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
+			<td><a href="${request.route_url('map_info', id=map.map_id)}" title="Go to the map detail page for this map">${map.name}</a></td>
+			<td>${game.start_dt.strftime('%m/%d/%Y %H:%M')}</td>
+			<td class=
+            % if pgstat.team == 5:
+            "blue"
+            % elif pgstat.team == 14:
+            "red"
+            % elif pgstat.team == 13:
+            "yellow"
+            % endif
+            >
+            % if pgstat.player_id > 2:
+            <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player info page for this player">${pgstat.nick_html_colors()}</a></td>
+            % else:
+            ${pgstat.nick_html_colors()}</td>
+            % endif
+		</tr>
+		% else:
+		<tr>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+		</tr>
+		% endif
+    % endfor
+    </tbody>
+</table>
+
+
+##### TOP PLAYERS #####
+<div class="table_block">
+<h2>Most Active Players</h2>
+<table id="top-players">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Nick</th>
+			<th>Playing Time</th>
+		</tr>
+	</thead>
+	<tbody>
+	<% i = 1 %>
+	% for (player_id, nick, alivetime) in top_players:
+		<tr>
+			<td>${i}</td>
+			% if player_id != '-':
+			<td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
+			% else:
+			<td>${nick}</td>
+			% endif
+			<td>${alivetime}</td>
+		</tr>
+		<% i = i+1 %>
+	% endfor
+	</tbody>
+</table>
+</div>
+
+
+##### TOP MAPS #####
+<div class="table_block">
+<h2>Most Active Maps</h2>
+<table id="top-maps">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Map</th>
+			<th># Games</th>
+		</tr>
+	</thead>
+	<tbody>
+	<% i = 1 %>
+	% for (map_id, name, count) in top_maps:
+		<tr>
+			<td>${i}</td>
+			% if map_id != '-':
+			<td><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
+			% else:
+			<td>${name}</td>
+			% endif
+			<td>${count}</td>
+		</tr>
+		<% i = i+1 %>
+	% endfor
+	</tbody>
+</table>
+</div>
+
 % endif
