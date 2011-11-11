@@ -58,8 +58,9 @@ class Map(object):
 
 
 class Game(object):
-    def __init__(self, start_dt=None, game_type_cd=None, 
+    def __init__(self, game_id=None, start_dt=None, game_type_cd=None, 
             server_id=None, map_id=None, winner=None):
+        self.game_id = game_id
         self.start_dt = start_dt
         self.game_type_cd = game_type_cd
         self.server_id = server_id
@@ -75,7 +76,8 @@ class Game(object):
 
 
 class PlayerGameStat(object):
-    def __init__(self, create_dt=None):
+    def __init__(self, player_game_stat_id=None, create_dt=None):
+        self.player_game_stat_id = player_game_stat_id
         self.create_dt = create_dt
 
     def __repr__(self):

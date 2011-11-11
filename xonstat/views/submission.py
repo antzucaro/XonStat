@@ -5,6 +5,7 @@ import re
 import time
 from pyramid.config import get_current_registry
 from pyramid.response import Response
+from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.d0_blind_id import d0_blind_id_verify
 from xonstat.models import *
@@ -207,11 +208,11 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
     map_id - map on which the game was played
     winner - the team id of the team that won
     """
-
-    game = Game(start_dt=start_dt, game_type_cd=game_type_cd,
+    seq = Sequence('games_game_id_seq')
+    game_id = session.execute(seq)
+    game = Game(game_id=game_id, start_dt=start_dt, game_type_cd=game_type_cd,
                 server_id=server_id, map_id=map_id, winner=winner)
     session.add(game)
-    session.flush()
     log.debug("Created game id {0} on server {1}, map {2} at \
             {3}".format(game.game_id, 
                 server_id, map_id, start_dt))
@@ -278,7 +279,10 @@ def create_player_game_stat(session=None, player=None,
     # in here setup default values (e.g. if game type is CTF then
     # set kills=0, score=0, captures=0, pickups=0, fckills=0, etc
     # TODO: use game's create date here instead of now()
-    pgstat = PlayerGameStat(create_dt=datetime.datetime.now())
+    seq = Sequence('player_game_stats_player_game_stat_id_seq')
+    pgstat_id = session.execute(seq)
+    pgstat = PlayerGameStat(player_game_stat_id=pgstat_id, 
+            create_dt=datetime.datetime.now())
 
     # set player id from player record
     pgstat.player_id = player.player_id
@@ -335,7 +339,6 @@ def create_player_game_stat(session=None, player=None,
         session.add(game)
 
     session.add(pgstat)
-    session.flush()
 
     return pgstat
 
