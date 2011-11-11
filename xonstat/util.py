@@ -1,9 +1,10 @@
 import re
 from datetime import datetime
 
+# Map of special chars to ascii from Quake's console.c.
 qfont_table = [
  '\0', '#',  '#',  '#',  '#',  '.',  '#',  '#',
- '#',  9,    10,   '#',  ' ',  13,   '.',  '.',
+ '#',  '\t', '\n', '#',  ' ',  '\r', '.',  '.',
  '[',  ']',  '0',  '1',  '2',  '3',  '4',  '5',
  '6',  '7',  '8',  '9',  '.',  '<',  '=',  '>',
  ' ',  '!',  '"',  '#',  '$',  '%',  '&',  '\'',
@@ -40,11 +41,14 @@ qfont_table = [
 
 def qfont_decode(qstr=''):
     """
-    Convert a name from qfont to ascii.
-    'qstr' must be a unicode string.
+    Convert the qfont characters in a string to ascii.
     """
-    by = bytearray(qstr, 'latin_1')
-    return ''.join([qfont_table[b & 0xff] for b in by])
+    chars = []
+    for c in qstr:
+        if c >= u'\ue000' and c <= u'\ue0ff':
+            c = qfont_table[ord(c) - 0xe000]
+        chars.append(c)
+    return ''.join(chars)
 
 
 def strip_colors(str=''):
