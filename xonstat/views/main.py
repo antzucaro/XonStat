@@ -2,7 +2,6 @@ import logging
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
 from datetime import datetime, timedelta
-from pyramid.config import get_current_registry
 from pyramid.response import Response
 from xonstat.models import *
 from xonstat.util import *
@@ -10,10 +9,9 @@ from xonstat.util import *
 log = logging.getLogger(__name__)
 
 def main_index(request):
-    settings = get_current_registry().settings
     try: 
         leaderboard_lifetime = int(
-                settings['xonstat.leaderboard_lifetime'])
+                request.registry.settings['xonstat.leaderboard_lifetime'])
     except:
         leaderboard_lifetime = 30
 

@@ -3,7 +3,6 @@ import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
 import time
 from datetime import datetime, timedelta
-from pyramid.config import get_current_registry
 from pyramid.response import Response
 from sqlalchemy import desc
 from webhelpers.paginate import Page, PageURL
@@ -40,11 +39,9 @@ def server_info(request):
     """
     server_id = request.matchdict['id']
 
-    # get settings specific to this view
-    settings = get_current_registry().settings
     try: 
         leaderboard_lifetime = int(
-                settings['xonstat.leaderboard_lifetime'])
+                request.registry.settings['xonstat.leaderboard_lifetime'])
     except:
         leaderboard_lifetime = 30
 

@@ -3,7 +3,6 @@ import logging
 import pyramid.httpexceptions
 import re
 import time
-from pyramid.config import get_current_registry
 from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -38,7 +37,7 @@ def verify_request(request):
     return (idfp, status)
 
 
-def has_minimum_real_players(player_events):
+def has_minimum_real_players(settings, player_events):
     """
     Determines if the collection of player events has enough "real" players
     to store in the database. The minimum setting comes from the config file
@@ -46,7 +45,6 @@ def has_minimum_real_players(player_events):
     """
     flg_has_min_real_players = True
 
-    settings = get_current_registry().settings
     try: 
         minimum_required_players = int(
                 settings['xonstat.minimum_required_players'])
@@ -362,7 +360,10 @@ def create_player_weapon_stats(session=None, player=None,
         matched = re.search("acc-(.*?)-cnt-fired", key)
         if matched:
             weapon_cd = matched.group(1)
+            seq = Sequence('player_weapon_stats_player_weapon_stats_id_seq')
+            pwstat_id = session.execute(seq)
             pwstat = PlayerWeaponStat()
+            pwstat.player_weapon_stats_id = pwstat_id
             pwstat.player_id = player.player_id
             pwstat.game_id = game.game_id
             pwstat.player_game_stat_id = pgstat.player_game_stat_id
@@ -389,7 +390,9 @@ def create_player_weapon_stats(session=None, player=None,
                 pwstat.frags = int(round(float(
                         player_events['acc-' + weapon_cd + '-frags'])))
 
+            log.debug(pwstat)
             session.add(pwstat)
+            log.debug(pwstat)
             pwstats.append(pwstat)
 
     return pwstats
@@ -473,33 +476,35 @@ def stats_submit(request):
         (idfp, status) = verify_request(request)
         if not idfp:
             raise pyramid.httpexceptions.HTTPUnauthorized
-
+     
         (game_meta, players) = parse_body(request)  
-    
+     
         if not has_required_metadata(game_meta):
             log.debug("Required game meta fields missing. "\
                     "Can't continue.")
             raise pyramid.exceptions.HTTPUnprocessableEntity
-   
+     
         if not is_supported_gametype(game_meta['G']):
             raise pyramid.httpexceptions.HTTPOk
      
-        if not has_minimum_real_players(players):
+        if not has_minimum_real_players(request.registry.settings, players):
             log.debug("The number of real players is below the minimum. " + 
                 "Stats will be ignored.")
             raise pyramid.httpexceptions.HTTPOk
-
+     
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'])
-
+     
         gmap = get_or_create_map(session=session, name=game_meta['M'])
-
+        log.debug(gmap)
+     
         game = create_game(session=session, 
                 start_dt=datetime.datetime(
                     *time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
-                map_id=gmap.map_id)
-    
+                   map_id=gmap.map_id)
+        log.debug(gmap)
+     
         # find or create a record for each player
         # and add stats for each if they were present at the end
         # of the game
@@ -508,15 +513,15 @@ def stats_submit(request):
                 nick = player_events['n']
             else:
                 nick = None
-
+ 
             if 'matches' in player_events and 'scoreboardvalid' \
-                    in player_events:
+                in player_events:
                 player = get_or_create_player(session=session, 
                     hashkey=player_events['P'], nick=nick)
                 log.debug('Creating stats for %s' % player_events['P'])
                 create_player_stats(session=session, player=player, game=game, 
                         player_events=player_events)
-    
+     
         session.commit()
         log.debug('Success! Stats recorded.')
         return Response('200 OK')
