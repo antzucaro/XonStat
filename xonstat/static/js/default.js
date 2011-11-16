@@ -52,7 +52,8 @@ function init_datatables() {
 			"bFilter": false,
 			"bSort": true,
 			"bInfo": false,
-			"bAutoWidth": false
+			"bAutoWidth": false,
+			"aaSorting": []
 		});
 	}
 	if ($("#recent-games").length) {
@@ -66,7 +67,7 @@ function init_datatables() {
 			"oLanguage": {
 				"sSearch": "_INPUT_"
 			},
-			"aaSorting": [[ 0, "desc" ]]
+			"aaSorting": []
 		});
 	}
 	if ($("table.scoreboard").length) {
@@ -76,7 +77,8 @@ function init_datatables() {
 			"bFilter": false,
 			"bSort": true,
 			"bInfo": false,
-			"bAutoWidth": false
+			"bAutoWidth": false,
+			"aaSorting": []
 		});
 	}
 	if ($("table.accuracy").length) {
@@ -86,7 +88,8 @@ function init_datatables() {
 			"bFilter": false,
 			"bSort": true,
 			"bInfo": false,
-			"bAutoWidth": false
+			"bAutoWidth": false,
+			"aaSorting": []
 		});
 	}
 	if ($(".recent_game_box").length) {
