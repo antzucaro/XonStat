@@ -368,7 +368,7 @@ input[type=text]:hover, .textbox:hover { background-position:-128px -32px; }
     margin-bottom: 10px;
     width:100%;
 }
-#player-index-table {
+#player-index-table, #server-index-table{
     width: 600px;
 }
 #map-index-table {

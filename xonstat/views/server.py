@@ -22,7 +22,7 @@ def server_index(request):
 
     try:
         server_q = DBSession.query(Server).\
-                order_by(Server.name)
+                order_by(Server.server_id.desc())
 
         servers = Page(server_q, current_page, url=page_url)
 
