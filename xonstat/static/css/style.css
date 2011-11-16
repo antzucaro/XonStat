@@ -368,7 +368,9 @@ input[type=text]:hover, .textbox:hover { background-position:-128px -32px; }
     margin-bottom: 10px;
     width:100%;
 }
-
+#player-index-table{
+    width: 600px;
+}
 #recent-games {
     width: 950px;
 }
@@ -403,6 +405,11 @@ tr.odd.blue {
 }
 tr.even.blue {
 	background-color:#000F4C;
+}
+
+/* column-specific table widths */
+.create-dt{
+    width: 150px;
 }
 
 /* Containers */

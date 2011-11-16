@@ -23,7 +23,7 @@ def player_index(request):
     try:
         player_q = DBSession.query(Player).\
                 filter(Player.player_id > 2).\
-                order_by(Player.player_id)
+                order_by(Player.player_id.desc())
 
         players = Page(player_q, current_page, url=page_url)
 
