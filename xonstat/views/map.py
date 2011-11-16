@@ -1,5 +1,6 @@
 import logging
 from pyramid.response import Response
+from sqlalchemy import desc
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url
@@ -17,7 +18,7 @@ def map_index(request):
 
     try:
         map_q = DBSession.query(Map).\
-                order_by(Map.name)
+                order_by(Map.map_id.desc())
 
         maps = Page(map_q, current_page, url=page_url)
 

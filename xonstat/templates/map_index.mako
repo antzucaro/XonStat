@@ -9,14 +9,12 @@ Map Index - ${parent.title()}
 
 % else:
 <h2>Map Index</h2>
-<table border="1">
+<table id="map-index-table" border="1">
   <tr>
-    <th>#</th>
     <th>Name</th>
   </tr>
 % for map in maps:
   <tr>
-    <td>${map.map_id}</th>
     <td><a href="${request.route_url("map_info", id=map.map_id)}" title="Go to this map's info page">${map.name}</a></th>
   </tr>
 % endfor
