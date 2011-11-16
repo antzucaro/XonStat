@@ -280,7 +280,7 @@ def create_player_game_stat(session=None, player=None,
     seq = Sequence('player_game_stats_player_game_stat_id_seq')
     pgstat_id = session.execute(seq)
     pgstat = PlayerGameStat(player_game_stat_id=pgstat_id, 
-            create_dt=datetime.datetime.now())
+            create_dt=datetime.datetime.utcnow())
 
     # set player id from player record
     pgstat.player_id = player.player_id
