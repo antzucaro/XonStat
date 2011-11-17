@@ -117,14 +117,15 @@ def register_new_nick(session, player, new_nick):
 	    # player_id/stripped_nick not found, create one
         # but we don't store "Anonymous Player #N"
         if not re.search('^Anonymous Player #\d+$', player.nick):
-	    player_nick = PlayerNick()
+            player_nick = PlayerNick()
             player_nick.player_id = player.player_id
-            player_nick.stripped_nick = stripped_nick
+            player_nick.stripped_nick = player.stripped_nick
             player_nick.nick = player.nick
             session.add(player_nick)
 
     # We change to the new nick regardless
     player.nick = new_nick
+    player.stripped_nick = strip_colors(new_nick)
     session.add(player)
 
 
@@ -249,12 +250,14 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
             session.add(player)
             session.flush()
 
-	    # if nick is given to us, use it. If not, use "Anonymous Player"
-            # with a suffix added for uniqueness.
-            if nick:
-                player.nick = nick[:128]
-	    else:
-                player.nick = "Anonymous Player #{0}".format(player.player_id)
+        # if nick is given to us, use it. If not, use "Anonymous Player"
+        # with a suffix added for uniqueness.
+        if nick:
+            player.nick = nick[:128]
+            player.stripped_nick = strip_colors(nick[:128])
+        else:
+            player.nick = "Anonymous Player #{0}".format(player.player_id)
+            player.stripped_nick = player.nick
 
             hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
             session.add(hashkey)
