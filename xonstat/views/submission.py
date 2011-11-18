@@ -259,10 +259,10 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
             player.nick = "Anonymous Player #{0}".format(player.player_id)
             player.stripped_nick = player.nick
 
-            hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
-            session.add(hashkey)
-            log.debug("Created player {0} ({2}) with hashkey {1}".format(
-                player.player_id, hashkey.hashkey, player.nick.encode('utf-8')))
+        hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
+        session.add(hashkey)
+        log.debug("Created player {0} ({2}) with hashkey {1}".format(
+            player.player_id, hashkey.hashkey, player.nick.encode('utf-8')))
 
     return player
 
