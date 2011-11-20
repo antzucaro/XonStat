@@ -67,6 +67,7 @@ def game_info(request):
                     PlayerGameStat.player_game_stat_id).\
                 order_by(PlayerGameStat.rank).\
                 order_by(PlayerGameStat.score).\
+                order_by(Weapon.descr).\
                 all():
                     if pgstat.player_game_stat_id not in pwstats:
                         pwstats[pgstat.player_game_stat_id] = []
