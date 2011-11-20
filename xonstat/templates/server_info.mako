@@ -49,9 +49,9 @@ Created: ${server.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
             % endif
             >
             % if pgstat.player_id > 2:
-            <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player info page for this player">${pgstat.nick_html_colors()}</a></td>
+            <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player info page for this player">${pgstat.nick_html_colors()|n}</a></td>
             % else:
-            ${pgstat.nick_html_colors()}</td>
+            ${pgstat.nick_html_colors()|n}</td>
             % endif
 		</tr>
 		% else:
