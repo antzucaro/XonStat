@@ -420,11 +420,9 @@ def parse_body(request):
             (key, value) = line.strip().split(' ', 1)
 
             # Server (S) and Nick (n) fields can have international characters.
-            # We first convert to UTF-8, then to ASCII. Characters will be lost
-            # in this conversion for the sake of presenting what otherwise 
-            # would have to use CSS sprites.
+            # We convert to UTF-8.
             if key in 'S' 'n':
-                value = qfont_decode(unicode(value, 'utf-8'))
+                value = unicode(value, 'utf-8')
     
             if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W':
                 game_meta[key] = value

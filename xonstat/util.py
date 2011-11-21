@@ -68,6 +68,10 @@ def html_colors(str=''):
         str = ''
 
     orig = str
+
+    # "downsample" the given UTF-8 characters to ASCII
+    str = qfont_decode(str)
+
     str = re.sub(r'\^x(\w)(\w)(\w)', 
             "<span style='color:#\g<1>\g<1>\g<2>\g<2>\g<3>\g<3>'>", str)
     str = re.sub(r'\^1', "<span style='color:#FF9900'>", str)
