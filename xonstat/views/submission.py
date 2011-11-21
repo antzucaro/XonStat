@@ -8,7 +8,7 @@ from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.d0_blind_id import d0_blind_id_verify
 from xonstat.models import *
-from xonstat.util import strip_colors
+from xonstat.util import strip_colors, qfont_decode
 
 log = logging.getLogger(__name__)
 
@@ -420,9 +420,9 @@ def parse_body(request):
             (key, value) = line.strip().split(' ', 1)
 
             # Server (S) and Nick (n) fields can have international characters.
-            # We encode these as UTF-8.
+            # We first convert to normal ASCII, then encode them as UTF-8.
             if key in 'S' 'n':
-                value = unicode(value, 'utf-8')
+                value = qfont_decode(unicode(value, 'utf-8'))
     
             if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W':
                 game_meta[key] = value

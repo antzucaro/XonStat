@@ -43,6 +43,9 @@ def qfont_decode(qstr=''):
     """
     Convert the qfont characters in a string to ascii.
     """
+    if qstr is None:
+        qstr = ''
+
     chars = []
     for c in qstr:
         if c >= u'\ue000' and c <= u'\ue0ff':
