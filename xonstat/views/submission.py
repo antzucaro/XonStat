@@ -45,7 +45,7 @@ def has_minimum_real_players(settings, player_events):
     """
     flg_has_min_real_players = True
 
-    try: 
+    try:
         minimum_required_players = int(
                 settings['xonstat.minimum_required_players'])
     except:
@@ -78,11 +78,11 @@ def has_required_metadata(metadata):
 
     return flg_has_req_metadata
 
-    
+
 def is_real_player(events):
     """
     Determines if a given set of player events correspond with a player who
-    
+
     1) is not a bot (P event does not look like a bot)
     2) played in the game (matches 1)
     3) was present at the end of the game (scoreboardvalid 1)
@@ -111,10 +111,10 @@ def register_new_nick(session, player, new_nick):
     # see if that nick already exists
     stripped_nick = strip_colors(player.nick)
     try:
-    	player_nick = session.query(PlayerNick).filter_by(
-        	player_id=player.player_id, stripped_nick=stripped_nick).one()
+        player_nick = session.query(PlayerNick).filter_by(
+            player_id=player.player_id, stripped_nick=stripped_nick).one()
     except NoResultFound, e:
-	    # player_id/stripped_nick not found, create one
+        # player_id/stripped_nick not found, create one
         # but we don't store "Anonymous Player #N"
         if not re.search('^Anonymous Player #\d+$', player.nick):
             player_nick = PlayerNick()
@@ -239,30 +239,30 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
         # see if the player is already in the database
         # if not, create one and the hashkey along with it
         try:
-            hashkey = session.query(Hashkey).filter_by(
+            hk = session.query(Hashkey).filter_by(
                     hashkey=hashkey).one()
             player = session.query(Player).filter_by(
-                    player_id=hashkey.player_id).one()
+                    player_id=hk.player_id).one()
             log.debug("Found existing player {0} with hashkey {1}".format(
-                player.player_id, hashkey.hashkey))
+                player.player_id, hashkey))
         except:
             player = Player()
             session.add(player)
             session.flush()
 
-        # if nick is given to us, use it. If not, use "Anonymous Player"
-        # with a suffix added for uniqueness.
-        if nick:
-            player.nick = nick[:128]
-            player.stripped_nick = strip_colors(nick[:128])
-        else:
-            player.nick = "Anonymous Player #{0}".format(player.player_id)
-            player.stripped_nick = player.nick
+            # if nick is given to us, use it. If not, use "Anonymous Player"
+            # with a suffix added for uniqueness.
+            if nick:
+                player.nick = nick[:128]
+                player.stripped_nick = strip_colors(nick[:128])
+            else:
+                player.nick = "Anonymous Player #{0}".format(player.player_id)
+                player.stripped_nick = player.nick
 
-        hashkey = Hashkey(player_id=player.player_id, hashkey=hashkey)
-        session.add(hashkey)
-        log.debug("Created player {0} ({2}) with hashkey {1}".format(
-            player.player_id, hashkey.hashkey, player.nick.encode('utf-8')))
+            hk = Hashkey(player_id=player.player_id, hashkey=hashkey)
+            session.add(hk)
+            log.debug("Created player {0} ({2}) with hashkey {1}".format(
+                player.player_id, hashkey, player.nick.encode('utf-8')))
 
     return player
 
@@ -393,9 +393,7 @@ def create_player_weapon_stats(session=None, player=None,
                 pwstat.frags = int(round(float(
                         player_events['acc-' + weapon_cd + '-frags'])))
 
-            log.debug(pwstat)
             session.add(pwstat)
-            log.debug(pwstat)
             pwstats.append(pwstat)
 
     return pwstats
@@ -410,10 +408,6 @@ def parse_body(request):
     player_events = {}
     current_team = None
     players = []
-    
-    log.debug("----- BEGIN REQUEST BODY -----")
-    log.debug(request.body)
-    log.debug("----- END REQUEST BODY -----")
 
     for line in request.body.split('\n'):
         try:
@@ -423,7 +417,7 @@ def parse_body(request):
             # We convert to UTF-8.
             if key in 'S' 'n':
                 value = unicode(value, 'utf-8')
-    
+
             if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W':
                 game_meta[key] = value
 
@@ -433,7 +427,7 @@ def parse_body(request):
                 if len(player_events) != 0:
                     players.append(player_events)
                     player_events = {}
-    
+
                 player_events[key] = value
 
             if key == 'e':
@@ -446,7 +440,7 @@ def parse_body(request):
         except:
             # no key/value pair - move on to the next line
             pass
-    
+
     # add the last player we were working on
     if len(player_events) > 0:
         players.append(player_events)
@@ -467,7 +461,7 @@ def create_player_stats(session=None, player=None, game=None,
         create_player_weapon_stats(session=session, 
             player=player, game=game, pgstat=pgstat,
             player_events=player_events)
-    
+
 
 def stats_submit(request):
     """
@@ -476,38 +470,41 @@ def stats_submit(request):
     try:
         session = DBSession()
 
+        log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
+                "----- END REQUEST BODY -----\n\n")
+
         (idfp, status) = verify_request(request)
         if not idfp:
             raise pyramid.httpexceptions.HTTPUnauthorized
-     
+
         (game_meta, players) = parse_body(request)  
-     
+
         if not has_required_metadata(game_meta):
             log.debug("Required game meta fields missing. "\
                     "Can't continue.")
             raise pyramid.exceptions.HTTPUnprocessableEntity
-     
+
         if not is_supported_gametype(game_meta['G']):
             raise pyramid.httpexceptions.HTTPOk
-     
+
         if not has_minimum_real_players(request.registry.settings, players):
             log.debug("The number of real players is below the minimum. " + 
                 "Stats will be ignored.")
             raise pyramid.httpexceptions.HTTPOk
-     
+
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'])
-     
+
         gmap = get_or_create_map(session=session, name=game_meta['M'])
         log.debug(gmap)
-     
+
         game = create_game(session=session, 
                 start_dt=datetime.datetime(
                     *time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
                    map_id=gmap.map_id)
         log.debug(gmap)
-     
+
         # find or create a record for each player
         # and add stats for each if they were present at the end
         # of the game
@@ -516,7 +513,7 @@ def stats_submit(request):
                 nick = player_events['n']
             else:
                 nick = None
- 
+
             if 'matches' in player_events and 'scoreboardvalid' \
                 in player_events:
                 player = get_or_create_player(session=session, 
@@ -524,7 +521,7 @@ def stats_submit(request):
                 log.debug('Creating stats for %s' % player_events['P'])
                 create_player_stats(session=session, player=player, game=game, 
                         player_events=player_events)
-     
+
         session.commit()
         log.debug('Success! Stats recorded.')
         return Response('200 OK')
