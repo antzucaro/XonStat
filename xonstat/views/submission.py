@@ -12,6 +12,14 @@ from xonstat.util import strip_colors, qfont_decode
 
 log = logging.getLogger(__name__)
 
+def get_remote_addr(request):
+    """Get the Xonotic server's IP address"""
+    if 'X-Server-IP' in request.headers:
+        return request.headers['X-Server-IP']
+    else:
+        return request.remote_addr
+
+
 def is_supported_gametype(gametype):
     """Whether a gametype is supported or not"""
     flg_supported = True
@@ -129,7 +137,8 @@ def register_new_nick(session, player, new_nick):
     session.add(player)
 
 
-def get_or_create_server(session=None, name=None, hashkey=None):
+def get_or_create_server(session=None, name=None, hashkey=None, ip_addr=None,
+        revision=None):
     """
     Find a server by name or create one if not found. Parameters:
 
@@ -144,6 +153,16 @@ def get_or_create_server(session=None, name=None, hashkey=None):
         # store new hashkey
         if server.hashkey != hashkey:
             server.hashkey = hashkey
+            session.add(server)
+
+        # store new IP address
+        if server.ip_addr != ip_addr:
+            server.ip_addr = ip_addr
+            session.add(server)
+
+        # store new revision
+        if server.revision != revision:
+            server.revision = revision
             session.add(server)
 
         log.debug("Found existing server {0}".format(server.server_id))
@@ -477,6 +496,9 @@ def stats_submit(request):
         if not idfp:
             raise pyramid.httpexceptions.HTTPUnauthorized
 
+        log.debug('Remote address:')
+        log.debug(get_remote_addr(request))
+
         (game_meta, players) = parse_body(request)  
 
         if not has_required_metadata(game_meta):
@@ -493,7 +515,8 @@ def stats_submit(request):
             raise pyramid.httpexceptions.HTTPOk
 
         server = get_or_create_server(session=session, hashkey=idfp, 
-                name=game_meta['S'])
+                name=game_meta['S'], revision=game_meta['R'],
+                ip_addr=get_remote_addr(request))
 
         gmap = get_or_create_map(session=session, name=game_meta['M'])
         log.debug(gmap)
