@@ -81,6 +81,7 @@ def has_required_metadata(metadata):
     if 'T' not in metadata or\
         'G' not in metadata or\
         'M' not in metadata or\
+        'I' not in metadata or\
         'S' not in metadata:
             flg_has_req_metadata = False
 
@@ -215,7 +216,7 @@ def get_or_create_map(session=None, name=None):
 
 
 def create_game(session=None, start_dt=None, game_type_cd=None, 
-        server_id=None, map_id=None, winner=None):
+        server_id=None, map_id=None, winner=None, match_id=None):
     """
     Creates a game. Parameters:
 
@@ -230,10 +231,20 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
     game_id = session.execute(seq)
     game = Game(game_id=game_id, start_dt=start_dt, game_type_cd=game_type_cd,
                 server_id=server_id, map_id=map_id, winner=winner)
-    session.add(game)
-    log.debug("Created game id {0} on server {1}, map {2} at \
-            {3}".format(game.game_id, 
-                server_id, map_id, start_dt))
+    game.match_id = match_id
+
+    try:
+        session.query(Game).filter(Game.server_id==server_id).\
+                filter(Game.match_id==match_id).one()
+        # if a game under the same server and match_id found, 
+        # this is a duplicate game and can be ignored
+        raise pyramid.httpexceptions.HTTPOk
+    except NoResultFound, e:
+        # server_id/match_id combination not found. game is ok to insert
+        session.add(game)
+        log.debug("Created game id {0} on server {1}, map {2} at \
+                {3}".format(game.game_id, 
+                    server_id, map_id, start_dt))
 
     return game
 
@@ -437,7 +448,7 @@ def parse_body(request):
             if key in 'S' 'n':
                 value = unicode(value, 'utf-8')
 
-            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W':
+            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I':
                 game_meta[key] = value
 
             if key == 'P':
@@ -525,7 +536,7 @@ def stats_submit(request):
                 start_dt=datetime.datetime(
                     *time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
-                   map_id=gmap.map_id)
+                   map_id=gmap.map_id, match_id=game_meta['I'])
         log.debug(gmap)
 
         # find or create a record for each player
