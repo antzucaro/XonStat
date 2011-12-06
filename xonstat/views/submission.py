@@ -449,10 +449,6 @@ def parse_body(request):
                 value = unicode(value, 'utf-8')
 
             if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I':
-                # FIXME: hotfix for malformed numbers in the match_id
-                if key == 'I' and value.startswith('0.'):
-                    value = value[2:]
-
                 game_meta[key] = value
 
             if key == 'P':
