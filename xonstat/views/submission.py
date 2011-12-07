@@ -505,39 +505,34 @@ def stats_submit(request):
 
         (idfp, status) = verify_request(request)
         if not idfp:
-            raise pyramid.httpexceptions.HTTPUnauthorized
-
-        log.debug('Remote address:')
-        log.debug(get_remote_addr(request))
+            log.debug("ERROR: Unverified request")
+            raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
 
         (game_meta, players) = parse_body(request)  
 
         if not has_required_metadata(game_meta):
-            log.debug("Required game meta fields missing. "\
-                    "Can't continue.")
-            raise pyramid.exceptions.HTTPUnprocessableEntity
+            log.debug("ERROR: Required game meta missing")
+            raise pyramid.exceptions.HTTPUnprocessableEntity("Missing game meta")
 
         if not is_supported_gametype(game_meta['G']):
-            raise pyramid.httpexceptions.HTTPOk
+            log.debug("ERROR: Unsupported gametype")
+            raise pyramid.httpexceptions.HTTPOk("OK")
 
         if not has_minimum_real_players(request.registry.settings, players):
-            log.debug("The number of real players is below the minimum. " + 
-                "Stats will be ignored.")
-            raise pyramid.httpexceptions.HTTPOk
+            log.debug("ERROR: Not enough real players")
+            raise pyramid.httpexceptions.HTTPOk("OK")
 
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'], revision=game_meta['R'],
                 ip_addr=get_remote_addr(request))
 
         gmap = get_or_create_map(session=session, name=game_meta['M'])
-        log.debug(gmap)
 
         game = create_game(session=session, 
                 start_dt=datetime.datetime(
                     *time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
                    map_id=gmap.map_id, match_id=game_meta['I'])
-        log.debug(gmap)
 
         # find or create a record for each player
         # and add stats for each if they were present at the end
@@ -561,4 +556,4 @@ def stats_submit(request):
         return Response('200 OK')
     except Exception as e:
         session.rollback()
-        raise e
+        return e
