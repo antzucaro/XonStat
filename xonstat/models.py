@@ -22,6 +22,9 @@ class Player(object):
         else:
             return strip_colors(self.nick)
 
+    def joined_pretty_date(self):
+        return pretty_date(self.create_dt)
+
     def __repr__(self):
         return "<Player(%s, %s)>" % (self.player_id, 
                 self.nick.encode('utf-8'))

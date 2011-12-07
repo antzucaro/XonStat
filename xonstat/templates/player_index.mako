@@ -17,15 +17,27 @@ Player Index - ${parent.title()}
 % for player in players:
   <tr>
     <td><a href="${request.route_url("player_info", id=player.player_id)}" title="Go to this player's info page">${player.nick_html_colors()|n}</a></th>
-    <td>${player.create_dt.strftime('%m/%d/%Y at %H:%M')}</th>
+    <td>${player.joined_pretty_date()}</th>
   </tr>
 % endfor
 </table>
 % endif
 
+<!-- pagination -->
+<a class="pagination" href="${request.route_url("player_index_paged", page=1)}" name="First Page"><<</a>
+
 % if players.previous_page:
-<a href="${request.route_url("player_index_paged", page=players.previous_page)}" name="Previous Page">Previous</a>
+<a class="pagination" href="${request.route_url("player_index_paged", page=players.previous_page)}" name="Previous Page"><</a>
 % endif
+
+% for page in pages_to_link:
+<a class="pagination" href="${request.route_url("player_index_paged", page=page)}" name="Go to page ${page}">${page}</a>
+% endfor
+
 % if players.next_page:
-<a href="${request.route_url("player_index_paged", page=players.next_page)}" name="Next Page">Next</a>
+<a class="pagination" href="${request.route_url("player_index_paged", page=players.next_page)}" name="Next Page">></a>
 % endif
+
+<a class="pagination" href="${request.route_url("player_index_paged", page=players.last_page)}" name="Last Page">>></a>
+
+(Page <a href="${request.route_url("player_index_paged", page=players.page)}" name="Go to page ${players.page}">${players.page}</a> of <a href="${request.route_url("player_index_paged", page=players.last_page)}" name="Last Page">${players.last_page}</a>)

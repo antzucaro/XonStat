@@ -191,6 +191,12 @@ input { font-family: 'Xolonium', 'Arial', 'Helvetica'; }
 	text-align:center;
 }
 
+/* pagination */
+.pagination {
+    padding-right: 8px;
+}
+
+
 /* drop-down navigation */
 .nav, .nav ul {
 	list-style: none;

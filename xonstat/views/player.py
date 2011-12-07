@@ -1,8 +1,10 @@
 import datetime
 import logging
 import re
+import sqlalchemy as sa
 import time
 from pyramid.response import Response
+from pyramid.url import current_route_url
 from sqlalchemy import desc
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
@@ -16,22 +18,31 @@ def player_index(request):
     Provides a list of all the current players. 
     """
     if 'page' in request.matchdict:
-        current_page = request.matchdict['page']
+        current_page = int(request.matchdict['page'])
     else:
         current_page = 1
 
     try:
         player_q = DBSession.query(Player).\
                 filter(Player.player_id > 2).\
+                filter(sa.not_(Player.nick.like('Anonymous Player%'))).\
                 order_by(Player.player_id.desc())
 
         players = Page(player_q, current_page, url=page_url)
 
-        
+        last_linked_page = current_page + 4
+        if last_linked_page > players.last_page:
+            last_linked_page = players.last_page
+
+        pages_to_link = range(current_page+1, last_linked_page+1)
+
     except Exception as e:
         players = None
+        raise e
 
-    return {'players':players, }
+    return {'players':players,
+            'pages_to_link':pages_to_link,
+            }
 
 
 def player_info(request):
