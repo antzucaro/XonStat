@@ -1,4 +1,5 @@
 <%inherit file="base.mako"/>
+<%namespace file="navlinks.mako" import="navlinks" />
 
 <%block name="title">
 Player Index - ${parent.title()}
@@ -23,21 +24,5 @@ Player Index - ${parent.title()}
 </table>
 % endif
 
-<!-- pagination -->
-<a class="pagination" href="${request.route_url("player_index_paged", page=1)}" name="First Page"><<</a>
-
-% if players.previous_page:
-<a class="pagination" href="${request.route_url("player_index_paged", page=players.previous_page)}" name="Previous Page"><</a>
-% endif
-
-% for page in pages_to_link:
-<a class="pagination" href="${request.route_url("player_index_paged", page=page)}" name="Go to page ${page}">${page}</a>
-% endfor
-
-% if players.next_page:
-<a class="pagination" href="${request.route_url("player_index_paged", page=players.next_page)}" name="Next Page">></a>
-% endif
-
-<a class="pagination" href="${request.route_url("player_index_paged", page=players.last_page)}" name="Last Page">>></a>
-
-(Page <a href="${request.route_url("player_index_paged", page=players.page)}" name="Go to page ${players.page}">${players.page}</a> of <a href="${request.route_url("player_index_paged", page=players.last_page)}" name="Last Page">${players.last_page}</a>)
+<!-- navigation links -->
+${navlinks("player_index_paged", players.page, players.last_page)}
