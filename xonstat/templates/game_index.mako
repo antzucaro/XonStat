@@ -1,5 +1,6 @@
 <%inherit file="base.mako"/>
 <%namespace file="scoreboard.mako" import="scoreboard" />
+<%namespace file="navlinks.mako" import="navlinks" />
 
 <%block name="title">
 Game Index - ${parent.title()}
@@ -36,12 +37,10 @@ Game Index - ${parent.title()}
 	${scoreboard(game.game_type_cd, pgstats[game.game_id])}
 	</div>
 % endfor
+
+<!-- navigation links -->
+${navlinks("game_index_paged", games.page, games.last_page)}
+
 </div><!-- #recent-games-list -->
 % endif
 
-% if games.previous_page:
-<a href="${request.route_url("game_index_paged", page=games.previous_page)}" name="Previous Page">Previous</a>
-% endif
-% if games.next_page:
-<a href="${request.route_url("game_index_paged", page=games.next_page)}" name="Next Page">Next</a>
-% endif

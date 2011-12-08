@@ -1,4 +1,5 @@
 <%inherit file="base.mako"/>
+<%namespace file="navlinks.mako" import="navlinks" />
 
 <%block name="title">
 Map Index - ${parent.title()}
@@ -21,9 +22,5 @@ Map Index - ${parent.title()}
 </table>
 % endif
 
-% if maps.previous_page:
-<a href="${request.route_url("map_index_paged", page=maps.previous_page)}" name="Previous Page">Previous</a>
-% endif
-% if maps.next_page:
-<a href="${request.route_url("map_index_paged", page=maps.next_page)}" name="Next Page">Next</a>
-% endif
+<!-- navigation links -->
+${navlinks("map_index_paged", maps.page, maps.last_page)}
