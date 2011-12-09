@@ -83,4 +83,9 @@ def main(global_config, **settings):
     config.add_route(name="stats_submit", pattern="stats/submit", 
             view=stats_submit, renderer='index.jinja2') 
 
+    # SEARCH ROUTES
+    config.add_route(name="search", pattern="search",
+            view=search, renderer='search.mako')
+
+
     return config.make_wsgi_app()
