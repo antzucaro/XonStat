@@ -101,7 +101,7 @@ code {
 	margin:12px 15px;
 	white-space: pre;
 }
-table { width:100%; }
+/*table { width:100%; }*/
 input { font-family: 'Xolonium', 'Arial', 'Helvetica'; }
 /* helpers */
 .clearfix:after {
@@ -414,6 +414,9 @@ tr.odd.blue {
 }
 tr.even.blue {
 	background-color:#000F4C;
+}
+#search_form td {
+    border: none;
 }
 
 /* column-specific table widths */
