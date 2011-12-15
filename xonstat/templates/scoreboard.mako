@@ -32,7 +32,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 
 ##### SCOREBOARD HEADER #####
 <%def name="scoreboard_header(game_type_cd, pgstat)">
-% if game_type_cd == 'dm' or game_type_cd == 'tdm':
+% if game_type_cd == 'dm' or game_type_cd == 'tdm' or game_type_cd == 'duel':
     <thead>
 		<tr>
 			<th class="nick">Nick</th>
@@ -87,7 +87,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 
 ##### SCOREBOARD ROWS #####
 <%def name="scoreboard_row(game_type_cd, pgstat)">
-% if game_type_cd == 'dm' or game_type_cd == 'tdm':
+% if game_type_cd == 'dm' or game_type_cd == 'tdm' or game_type_cd == 'duel':
         <td>${pgstat.kills}</td>
         <td>${pgstat.deaths}</td>
         <td>${pgstat.suicides}</td>

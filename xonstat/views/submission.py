@@ -324,7 +324,7 @@ def create_player_game_stat(session=None, player=None,
     # all games have a score
     pgstat.score = 0
 
-    if game.game_type_cd == 'dm':
+    if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' or game.game_type_cd == 'duel':
         pgstat.kills = 0
         pgstat.deaths = 0
         pgstat.suicides = 0
@@ -356,6 +356,9 @@ def create_player_game_stat(session=None, player=None,
     # not use the name from the player id
     if pgstat.nick == None:
         pgstat.nick = player.nick
+
+    # whichever nick we ended up with, strip it and store as the stripped_nick
+    pgstat.stripped_nick = qfont_decode(pgstat.nick)
 
     # if the nick we end up with is different from the one in the
     # player record, change the nick to reflect the new value
@@ -521,6 +524,12 @@ def stats_submit(request):
         if not has_minimum_real_players(request.registry.settings, players):
             log.debug("ERROR: Not enough real players")
             raise pyramid.httpexceptions.HTTPOk("OK")
+
+        # FIXME: if we have two players and game type is 'dm',
+        # change this into a 'duel' gametype. This should be
+        # removed when the stats actually send 'duel' instead of 'dm'
+        if len(players) == 2 and game_meta['G'] == 'dm':
+            game_meta['G'] = 'duel'
 
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'], revision=game_meta['R'],
