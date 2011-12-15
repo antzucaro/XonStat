@@ -76,6 +76,7 @@ def strip_colors(qstr=''):
 def html_colors(qstr=''):
     def dec_repl(match):
         return _dec_spans[int(match.group(1))]
+    qstr = qstr.replace('^^', '^')
     html = _dec_colors.sub(dec_repl, qstr)
     html = _hex_colors.sub(r"<span style='color:#\1\1\2\2\3\3'>", html)
     return html + "</span>" * len(_all_colors.findall(qstr))
