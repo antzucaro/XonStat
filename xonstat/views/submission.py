@@ -45,6 +45,20 @@ def verify_request(request):
     return (idfp, status)
 
 
+def num_real_players(player_events):
+    """
+    Returns the number of real players (those who played 
+    and are on the scoreboard).
+    """
+    real_players = 0
+
+    for events in player_events:
+        if is_real_player(events):
+            real_players += 1
+
+    return real_players
+
+
 def has_minimum_real_players(settings, player_events):
     """
     Determines if the collection of player events has enough "real" players
@@ -59,10 +73,7 @@ def has_minimum_real_players(settings, player_events):
     except:
         minimum_required_players = 2
 
-    real_players = 0
-    for events in player_events:
-        if is_real_player(events):
-            real_players += 1
+    real_players = num_real_players(player_events)
 
     #TODO: put this into a config setting in the ini file?
     if real_players < minimum_required_players:
@@ -528,7 +539,7 @@ def stats_submit(request):
         # FIXME: if we have two players and game type is 'dm',
         # change this into a 'duel' gametype. This should be
         # removed when the stats actually send 'duel' instead of 'dm'
-        if len(players) == 2 and game_meta['G'] == 'dm':
+        if num_real_players(players) == 2 and game_meta['G'] == 'dm':
             game_meta['G'] = 'duel'
 
         server = get_or_create_server(session=session, hashkey=idfp, 
