@@ -525,6 +525,12 @@ def stats_submit(request):
             log.debug("ERROR: Not enough real players")
             raise pyramid.httpexceptions.HTTPOk("OK")
 
+        # FIXME: if we have two players and game type is 'dm',
+        # change this into a 'duel' gametype. This should be
+        # removed when the stats actually send 'duel' instead of 'dm'
+        if len(players) == 2 and game_meta['G'] == 'dm':
+            game_meta['G'] = 'duel'
+
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'], revision=game_meta['R'],
                 ip_addr=get_remote_addr(request))
