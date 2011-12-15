@@ -324,8 +324,7 @@ def create_player_game_stat(session=None, player=None,
     # all games have a score
     pgstat.score = 0
 
-    if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' 
-        or game.game_type_cd == 'duel':
+    if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' or game.game_type_cd == 'duel':
         pgstat.kills = 0
         pgstat.deaths = 0
         pgstat.suicides = 0
