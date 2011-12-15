@@ -357,6 +357,9 @@ def create_player_game_stat(session=None, player=None,
     if pgstat.nick == None:
         pgstat.nick = player.nick
 
+    # whichever nick we ended up with, strip it and store as the stripped_nick
+    pgstat.stripped_nick = qfont_decode(pgstat.nick)
+
     # if the nick we end up with is different from the one in the
     # player record, change the nick to reflect the new value
     if pgstat.nick != player.nick and player.player_id > 2:
