@@ -1,8 +1,8 @@
 import re
 from datetime import datetime
 
-# Map of special chars to ascii from Quake's console.c.
-qfont_table = [
+# Map of special chars to ascii from Darkplace's console.c.
+_qfont_table = [
  '\0', '#',  '#',  '#',  '#',  '.',  '#',  '#',
  '#',  '\t', '\n', '#',  ' ',  '\r', '.',  '.',
  '[',  ']',  '0',  '1',  '2',  '3',  '4',  '5',
@@ -38,57 +38,47 @@ qfont_table = [
  'x',  'y',  'z',  '{',  '|',  '}',  '~',  '<'
 ]
 
+# Hex-colored spans for decimal color codes ^0 - ^9
+_dec_spans = [
+ "<span style='color:#333333'>",
+ "<span style='color:#FF9900'>",
+ "<span style='color:#33FF00'>",
+ "<span style='color:#FFFF00'>",
+ "<span style='color:#3366FF'>",
+ "<span style='color:#33FFFF'>",
+ "<span style='color:#FF3366'>",
+ "<span style='color:#FFFFFF'>",
+ "<span style='color:#999999'>",
+ "<span style='color:#666666'>"
+]
+
+# Color code patterns
+_all_colors = re.compile(r'\^(\d|x[\dA-Fa-f]{3})')
+_dec_colors = re.compile(r'\^(\d)')
+_hex_colors = re.compile(r'\^x([\dA-Fa-f])([\dA-Fa-f])([\dA-Fa-f])')
+
 
 def qfont_decode(qstr=''):
+    """ Convert the qfont characters in a string to ascii.
     """
-    Convert the qfont characters in a string to ascii.
-    """
-    if qstr is None:
-        qstr = ''
-
     chars = []
     for c in qstr:
         if c >= u'\ue000' and c <= u'\ue0ff':
-            c = qfont_table[ord(c) - 0xe000]
+            c = _qfont_table[ord(c) - 0xe000]
         chars.append(c)
     return ''.join(chars)
 
 
-def strip_colors(str=''):
-    if str is None:
-        str = ''
-
-    str = re.sub(r'\^x\w\w\w', '', str)
-    str = re.sub(r'\^\d', '', str)
-    return str
+def strip_colors(qstr=''):
+    return _all_colors.sub('', qstr)
 
 
-def html_colors(str=''):
-    if str is None:
-        str = ''
-
-    orig = str
-
-    # "downsample" the given UTF-8 characters to ASCII
-    str = qfont_decode(str)
-
-    str = re.sub(r'\^x(\w)(\w)(\w)', 
-            "<span style='color:#\g<1>\g<1>\g<2>\g<2>\g<3>\g<3>'>", str)
-    str = re.sub(r'\^1', "<span style='color:#FF9900'>", str)
-    str = re.sub(r'\^2', "<span style='color:#33FF00'>", str)
-    str = re.sub(r'\^3', "<span style='color:#FFFF00'>", str)
-    str = re.sub(r'\^4', "<span style='color:#3366FF'>", str)
-    str = re.sub(r'\^5', "<span style='color:#33FFFF'>", str)
-    str = re.sub(r'\^6', "<span style='color:#FF3366'>", str)
-    str = re.sub(r'\^7', "<span style='color:#FFFFFF'>", str)
-    str = re.sub(r'\^8', "<span style='color:#999999'>", str)
-    str = re.sub(r'\^9', "<span style='color:#666666'>", str)
-    str = re.sub(r'\^0', "<span style='color:#333333'>", str)
-
-    for span in range(len(re.findall(r'\^x\w\w\w|\^\d', orig))):
-        str += "</span>"
-
-    return str
+def html_colors(qstr=''):
+    def dec_repl(match):
+        return _dec_spans[int(match.group(1))]
+    html = _dec_colors.sub(dec_repl, qstr)
+    html = _hex_colors.sub(r"<span style='color:#\1\1\2\2\3\3'>", html)
+    return html + "</span>" * len(_all_colors.findall(qstr))
 
 
 def page_url(page):
