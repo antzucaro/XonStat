@@ -102,10 +102,10 @@ class PlayerGameStat(object):
     def team_html_color(self):
         # blue
         if self.team == 5:
-            return "blue"
+            return "red"
         # red
         if self.team == 14:
-            return "red"
+            return "blue"
         if self.team == 13:
             return "yellow"
         if self.team == 10:
