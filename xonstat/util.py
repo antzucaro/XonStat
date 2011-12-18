@@ -41,7 +41,7 @@ _qfont_table = [
 # Hex-colored spans for decimal color codes ^0 - ^9
 _dec_spans = [
  "<span style='color:#333333'>",
- "<span style='color:#FF9900'>",
+ "<span style='color:#FF0000'>",
  "<span style='color:#33FF00'>",
  "<span style='color:#FFFF00'>",
  "<span style='color:#3366FF'>",
