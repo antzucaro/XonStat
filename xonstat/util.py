@@ -72,6 +72,8 @@ def qfont_decode(qstr=''):
 
 
 def strip_colors(qstr=''):
+    if qstr == None:
+        qstr = ''
     return _all_colors.sub('', qstr)
 
 
