@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import pyramid.httpexceptions
 import re
 import time
@@ -17,7 +18,7 @@ def get_remote_addr(request):
     if 'X-Server-IP' in request.headers:
         return request.headers['X-Server-IP']
     else:
-        return request.remote_addr
+        return os.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
 
 
 def is_supported_gametype(gametype):
@@ -548,9 +549,12 @@ def stats_submit(request):
 
         gmap = get_or_create_map(session=session, name=game_meta['M'])
 
+        # FIXME: use the gmtime instead of utcnow() when the timezone bug is
+        # fixed
         game = create_game(session=session, 
-                start_dt=datetime.datetime(
-                    *time.gmtime(float(game_meta['T']))[:6]), 
+                start_dt=datetime.datetime.utcnow(),
+                #start_dt=datetime.datetime(
+                    #*time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
                    map_id=gmap.map_id, match_id=game_meta['I'])
 
