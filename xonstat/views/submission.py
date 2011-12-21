@@ -17,8 +17,10 @@ def get_remote_addr(request):
     """Get the Xonotic server's IP address"""
     if 'X-Server-IP' in request.headers:
         return request.headers['X-Server-IP']
+    elif 'X-Forwarded-For' in request.headers:
+        return request.headers['X-Forwarded-For']
     else:
-        return os.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+        return request.remote_addr
 
 
 def is_supported_gametype(gametype):
