@@ -15,9 +15,7 @@ log = logging.getLogger(__name__)
 
 def get_remote_addr(request):
     """Get the Xonotic server's IP address"""
-    if 'X-Server-IP' in request.headers:
-        return request.headers['X-Server-IP']
-    elif 'X-Forwarded-For' in request.headers:
+    if 'X-Forwarded-For' in request.headers:
         return request.headers['X-Forwarded-For']
     else:
         return request.remote_addr
