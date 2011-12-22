@@ -1,8 +1,9 @@
 <%inherit file="base.mako"/>
+<%namespace file="navlinks.mako" import="navlinks" />
 
 % if results == None:
 <form action="${request.route_url("search")}" method="get">
-    <input type="hidden" name="form_submitted" />
+    <input type="hidden" name="fs" />
     <table id="search_form" border="0">
         <tr>
             <td style="text-align:right;">Nick:</td>
@@ -22,7 +23,9 @@
         </tr>
     </table>
     </form>
-% endif
+% elif len(results) == 0:
+    <h1>Sorry, nothing found!</h1>
+% else:
 
 ##### player-only results #####
 % if result_type == "player":
@@ -90,4 +93,9 @@
     </tr>
     % endfor
 </table>
+% endif
+
+<!-- navigation links -->
+<p>Work in progress (these won't work :P):</p>
+${navlinks("search", results.page, results.last_page)}
 % endif

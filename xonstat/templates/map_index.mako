@@ -10,6 +10,11 @@ Map Index - ${parent.title()}
 
 % else:
 <h2>Map Index</h2>
+<form method="get" action="${request.route_url('search')}">
+    <input type="hidden" name="fs" />
+    <input type="text" name="map_name" />
+    <input type="submit" value="search" />
+</form>
 <table id="map-index-table" border="1">
   <tr>
     <th>Name</th>

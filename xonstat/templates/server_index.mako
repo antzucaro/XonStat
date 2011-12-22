@@ -10,6 +10,11 @@ Map Index - ${parent.title()}
 
 % else:
 <h2>Server Index</h2>
+<form method="get" action="${request.route_url('search')}">
+    <input type="hidden" name="fs" />
+    <input type="text" name="server_name" />
+    <input type="submit" value="search" />
+</form>
 <table id="server-index-table" border="1">
   <tr>
     <th>Name</th>

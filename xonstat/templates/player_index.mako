@@ -10,6 +10,11 @@ Player Index - ${parent.title()}
 
 % else:
 <h2>Player Index</h2>
+<form method="get" action="${request.route_url('search')}">
+    <input type="hidden" name="fs" />
+    <input type="text" name="nick" />
+    <input type="submit" value="search" />
+</form>
 <table id="player-index-table" border="1">
   <tr>
     <th>Nick</th>

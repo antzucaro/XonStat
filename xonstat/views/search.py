@@ -64,24 +64,30 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
     return (result_type, q)
 
 def search(request):
-    form_submitted = None
+    fs = None
     nick = None
     server_name = None
     map_name = None
     result_type = None
     results = None
 
-    if request.params.has_key('form_submitted'):
-        nick = request.params['nick']
-        server_name = request.params['server_name']
-        map_name = request.params['map_name']
+    current_page = 1
+
+    if request.params.has_key('fs'):
+        if request.params.has_key('nick'):
+            nick = request.params['nick']
+        if request.params.has_key('server_name'):
+            server_name = request.params['server_name']
+        if request.params.has_key('map_name'):
+            map_name = request.params['map_name']
         (result_type, q) = search_q(nick=nick, server_name=server_name,
                 map_name=map_name)
         log.debug(q)
 
         try:
             if q != None:
-                results = q.all()
+                results = Page(q, current_page, url=page_url)
+                log.debug(len(results))
         except Exception as e:
             raise e
             result_type = None
