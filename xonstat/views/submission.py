@@ -13,6 +13,29 @@ from xonstat.util import strip_colors, qfont_decode
 
 log = logging.getLogger(__name__)
 
+
+def is_blank_game(players):
+    """Determine if this is a blank game or not. A blank game is either:
+
+    1) a match that ended in the warmup stage, where accuracy events are not
+    present
+
+    2) a match in which no player made a positive or negative score AND was
+    on the scoreboard
+    """
+    flg_nonzero_score = False
+    flg_acc_events = False
+
+    for events in players:
+        if is_real_player(events):
+            for (key,value) in events.items():
+                if key == 'scoreboard-score' and value != '0':
+                    flg_nonzero_score = True
+                if key.startswith('acc-'):
+                    flg_acc_events = True
+
+    return flg_nonzero_score and flg_acc_events
+
 def get_remote_addr(request):
     """Get the Xonotic server's IP address"""
     if 'X-Forwarded-For' in request.headers:
@@ -535,6 +558,10 @@ def stats_submit(request):
 
         if not has_minimum_real_players(request.registry.settings, players):
             log.debug("ERROR: Not enough real players")
+            raise pyramid.httpexceptions.HTTPOk("OK")
+
+        if is_blank_game(players):
+            log.debug("ERROR: Blank game")
             raise pyramid.httpexceptions.HTTPOk("OK")
 
         # FIXME: if we have two players and game type is 'dm',
