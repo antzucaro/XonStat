@@ -34,7 +34,7 @@ def is_blank_game(players):
                 if key.startswith('acc-'):
                     flg_acc_events = True
 
-    return flg_nonzero_score and flg_acc_events
+    return not (flg_nonzero_score and flg_acc_events)
 
 def get_remote_addr(request):
     """Get the Xonotic server's IP address"""
