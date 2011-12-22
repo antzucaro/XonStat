@@ -23,6 +23,7 @@ def is_blank_game(players):
     2) a match in which no player made a positive or negative score AND was
     on the scoreboard
     """
+    r = re.compile(r'acc-.*-cnt-fired')
     flg_nonzero_score = False
     flg_acc_events = False
 
@@ -31,7 +32,7 @@ def is_blank_game(players):
             for (key,value) in events.items():
                 if key == 'scoreboard-score' and value != '0':
                     flg_nonzero_score = True
-                if key.startswith('acc-'):
+                if r.search(key):
                     flg_acc_events = True
 
     return not (flg_nonzero_score and flg_acc_events)
