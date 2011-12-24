@@ -78,6 +78,7 @@ def strip_colors(qstr=''):
 
 
 def html_colors(qstr=''):
+    qstr = qfont_decode(qstr)
     def dec_repl(match):
         return _dec_spans[int(match.group(1))]
     qstr = qstr.replace('^^', '^')
