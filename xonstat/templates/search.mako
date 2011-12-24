@@ -64,7 +64,7 @@
 <table>
     <tr>
         <th>Map</th>
-        <th>Created</th>
+        <th>Added</th>
     </tr>
     % for map in results:
     <tr>
