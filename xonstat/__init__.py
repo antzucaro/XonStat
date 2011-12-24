@@ -87,5 +87,8 @@ def main(global_config, **settings):
     config.add_route(name="search", pattern="search",
             view=search, renderer='search.mako')
 
+    config.add_route(name="search_paged", pattern="search/page/{page:\d+}",
+            view=search, renderer='search.mako')
+
 
     return config.make_wsgi_app()

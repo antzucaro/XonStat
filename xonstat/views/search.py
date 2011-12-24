@@ -25,7 +25,9 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
         q = session.query(Player)
         if nick:
             q = q.filter(
-                    func.upper(Player.stripped_nick).like('%'+nick.upper()+'%'))
+                    func.upper(Player.stripped_nick).like('%'+nick.upper()+'%')).\
+                    filter(Player.player_id > 2).\
+                    order_by(Player.player_id)
 
     # server-only searches
     elif server_name and not nick and not map_name and not create_dt:
@@ -33,7 +35,8 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
         q = session.query(Server)
         if server_name:
             q = q.filter(func.upper(Server.name).\
-                    like('%'+server_name.upper()+'%'))
+                    like('%'+server_name.upper()+'%')).\
+                    order_by(Server.server_id)
 
     # map-only searches
     elif map_name and not nick and not server_name and not create_dt:
@@ -41,7 +44,8 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
         q = session.query(Map)
         if map_name:
             q = q.filter(func.upper(Map.name).\
-                    like('%'+map_name.upper()+'%'))
+                    like('%'+map_name.upper()+'%')).\
+                    order_by(Map.map_id)
 
     # game searches (all else)
     else:
@@ -70,16 +74,27 @@ def search(request):
     map_name = None
     result_type = None
     results = None
+    query = None
 
-    current_page = 1
+    if 'page' in request.matchdict:
+        current_page = request.matchdict['page']
+    else:
+        current_page = 1
 
     if request.params.has_key('fs'):
+        query = {'fs':''}
         if request.params.has_key('nick'):
-            nick = request.params['nick']
+            if request.params['nick'] != '':
+                nick = request.params['nick']
+                query['nick'] = nick
         if request.params.has_key('server_name'):
-            server_name = request.params['server_name']
+            if request.params['server_name'] != '':
+                server_name = request.params['server_name']
+                query['server_name'] = server_name
         if request.params.has_key('map_name'):
-            map_name = request.params['map_name']
+            if request.params['map_name'] != '':
+                map_name = request.params['map_name']
+                query['map_name'] = map_name
         (result_type, q) = search_q(nick=nick, server_name=server_name,
                 map_name=map_name)
         log.debug(q)
@@ -87,7 +102,6 @@ def search(request):
         try:
             if q != None:
                 results = Page(q, current_page, url=page_url)
-                log.debug(len(results))
         except Exception as e:
             raise e
             result_type = None
@@ -95,4 +109,5 @@ def search(request):
 
     return {'result_type':result_type,
             'results':results,
+            'query':query,
             }

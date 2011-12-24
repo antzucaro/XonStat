@@ -96,6 +96,5 @@
 % endif
 
 <!-- navigation links -->
-<p>Work in progress (these won't work :P):</p>
-${navlinks("search", results.page, results.last_page)}
+${navlinks("search_paged", results.page, results.last_page, query)}
 % endif
