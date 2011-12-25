@@ -22,73 +22,88 @@ def main(global_config, **settings):
     config.add_static_view('static', 'xonstat:static')
 
     # ROOT ROUTE
-    config.add_route(name="main_index", pattern="/", view=main_index,
-            renderer='main_index.mako') 
+    config.add_route("main_index", "/")
+    config.add_view(main_index, route_name="main_index",
+        renderer="main_index.mako")
 
     # PLAYER ROUTES
-    config.add_route(name="player_game_index_default", 
-            pattern="/player/{player_id:\d+}/games", 
-            view=player_game_index, renderer='player_game_index.mako') 
+    config.add_route("player_game_index_default",
+            "/player/{player_id:\d+}/games")
+    config.add_view(player_game_index, route_name="player_game_index_default",
+        renderer="player_game_index.mako")
 
-    config.add_route(name="player_game_index", 
-            pattern="/player/{player_id:\d+}/games/page/{page:\d+}", 
-            view=player_game_index, renderer='player_game_index.mako') 
+    config.add_route("player_game_index",
+            "/player/{player_id:\d+}/games/page/{page:\d+}")
+    config.add_view(player_game_index, renderer="player_game_index.mako")
 
-    config.add_route(name="player_index_paged", 
-            pattern="/players/page/{page:\d+}", view=player_index, 
-            renderer='player_index.mako') 
+    config.add_route("player_index_paged", "/players/page/{page:\d+}")
+    config.add_view(player_index, route_name="player_index_paged",
+        renderer="player_index.mako")
 
-    config.add_route(name="player_index", pattern="/players", view=player_index, 
-            renderer='player_index.mako') 
+    config.add_route("player_index", "/players")
+    config.add_view(player_index, route_name="player_index",
+        renderer="player_index.mako")
 
-    config.add_route(name="player_info", pattern="/player/{id:\d+}", view=player_info, 
-            renderer='player_info.mako') 
+    config.add_route("player_info", "/player/{id:\d+}")
+    config.add_view(player_info, route_name="player_info",
+        renderer="player_info.mako")
 
     # GAME ROUTES
-    config.add_route(name="game_index", pattern="/games", view=game_index, 
-            renderer='game_index.mako') 
+    config.add_route("game_index", "/games")
+    config.add_view(game_index, route_name="game_index",
+        renderer="game_index.mako")
 
-    config.add_route(name="game_index_paged", pattern="/games/page/{page:\d+}", 
-            view=game_index, renderer='game_index.mako') 
+    config.add_route("game_index_paged", "/games/page/{page:\d+}")
+    config.add_view(game_index, route_name="game_index_paged",
+        renderer="game_index.mako")
 
-    config.add_route(name="game_info", pattern="/game/{id:\d+}", view=game_info, 
-            renderer='game_info.mako') 
+    config.add_route("game_info", "/game/{id:\d+}")
+    config.add_view(game_info, route_name="game_info",
+        renderer="game_info.mako")
 
     # SERVER ROUTES
-    config.add_route(name="server_index_paged", 
-            pattern="/servers/page/{page:\d+}", view=server_index, 
-            renderer='server_index.mako') 
+    config.add_route("server_index_paged", "/servers/page/{page:\d+}")
+    config.add_view(server_index, route_name="server_index_paged",
+        renderer="server_index.mako")
 
-    config.add_route(name="server_index", pattern="/servers", view=server_index, 
-            renderer='server_index.mako') 
+    config.add_route("server_index", "/servers")
+    config.add_view(server_index, route_name="server_index",
+        renderer="server_index.mako")
 
-    config.add_route(name="server_game_index", 
-            pattern="/server/{server_id:\d+}/games/page/{page:\d+}", 
-            view=server_game_index, renderer='server_game_index.mako') 
+    config.add_route("server_game_index",
+        "/server/{server_id:\d+}/games/page/{page:\d+}")
+    config.add_view(server_game_index, route_name="server_game_index",
+        renderer="server_game_index.mako")
 
-    config.add_route(name="server_info", pattern="/server/{id:\d+}", view=server_info, 
-            renderer='server_info.mako') 
+    config.add_route("server_info", "/server/{id:\d+}")
+    config.add_view(server_info, route_name="server_info",
+        renderer="server_info.mako")
 
     # MAP ROUTES
-    config.add_route(name="map_index_paged", 
-            pattern="/maps/page/{page:\d+}", view=map_index, 
-            renderer='map_index.mako') 
+    config.add_route("map_index_paged", "/maps/page/{page:\d+}")
+    config.add_view(map_index, route_name="map_index_paged",
+        renderer="map_index.mako")
 
-    config.add_route(name="map_index", pattern="/maps", view=map_index, 
-            renderer='map_index.mako') 
+    config.add_route("map_index", "/maps")
+    config.add_view(map_index, route_name="map_index",
+        renderer="map_index.mako")
 
-    config.add_route(name="map_info", pattern="/map/{id:\d+}", view=map_info, 
-            renderer='map_info.mako') 
+    config.add_route("map_info", "/map/{id:\d+}")
+    config.add_view(map_info, route_name="map_info",
+        renderer="map_info.mako")
 
-    config.add_route(name="stats_submit", pattern="stats/submit", 
-            view=stats_submit, renderer='index.jinja2') 
+    config.add_route("stats_submit", "stats/submit")
+    config.add_view(stats_submit, route_name="stats_submit",
+        renderer="index.jinja2")
 
     # SEARCH ROUTES
-    config.add_route(name="search", pattern="search",
-            view=search, renderer='search.mako')
+    config.add_route("search", "search")
+    config.add_view(search, route_name="search",
+        renderer="search.mako")
 
-    config.add_route(name="search_paged", pattern="search/page/{page:\d+}",
-            view=search, renderer='search.mako')
+    config.add_route("search_paged", "search/page/{page:\d+}")
+    config.add_view(search, route_name="search_paged",
+        renderer="search.mako")
 
 
     return config.make_wsgi_app()
