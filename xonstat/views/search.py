@@ -14,13 +14,15 @@ from webhelpers.paginate import Page, PageURL
 
 log = logging.getLogger(__name__)
 
-def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
+def search_q(nick=None, server_name=None, map_name=None, create_dt=None,
+        gametypes=[]):
     session     = DBSession()
     result_type = None
     q           = None
 
     # player-only searches
-    if nick and not server_name and not map_name and not create_dt:
+    if nick and not server_name and not map_name and not create_dt \
+        and len(gametypes) < 1:
         result_type = "player"
         q = session.query(Player)
         if nick:
@@ -30,7 +32,8 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
                     order_by(Player.player_id)
 
     # server-only searches
-    elif server_name and not nick and not map_name and not create_dt:
+    elif server_name and not nick and not map_name and not create_dt \
+        and len(gametypes) < 1:
         result_type = "server"
         q = session.query(Server)
         if server_name:
@@ -39,7 +42,8 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
                     order_by(Server.server_id)
 
     # map-only searches
-    elif map_name and not nick and not server_name and not create_dt:
+    elif map_name and not nick and not server_name and not create_dt \
+        and len(gametypes) < 1:
         result_type = "map"
         q = session.query(Map)
         if map_name:
@@ -54,6 +58,8 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None):
                 filter(Game.server_id == Server.server_id).\
                 filter(Game.map_id == Map.map_id).\
                 order_by(Game.game_id.desc())
+        if len(gametypes) > 0:
+            q = q.filter(Game.game_type_cd.in_(gametypes))
         if nick:
             q = q.filter(func.upper(PlayerGameStat.stripped_nick).\
                     like('%'+nick.upper()+'%')).\
@@ -72,6 +78,7 @@ def search(request):
     nick = None
     server_name = None
     map_name = None
+    gametypes = []
     result_type = None
     results = None
     query = None
@@ -95,9 +102,21 @@ def search(request):
             if request.params['map_name'] != '':
                 map_name = request.params['map_name']
                 query['map_name'] = map_name
+        if request.params.has_key('dm'):
+                gametypes.append('dm')
+                query['dm'] = ''
+        if request.params.has_key('duel'):
+                gametypes.append('duel')
+                query['duel'] = ''
+        if request.params.has_key('ctf'):
+                gametypes.append('ctf')
+                query['ctf'] = ''
+        if request.params.has_key('tdm'):
+                gametypes.append('tdm')
+                query['tdm'] = ''
+
         (result_type, q) = search_q(nick=nick, server_name=server_name,
-                map_name=map_name)
-        log.debug(q)
+                map_name=map_name, gametypes=gametypes)
 
         try:
             if q != None:

@@ -18,8 +18,17 @@
             <td><input type="text" name="map_name" /></td>
         </tr>
         <tr>
+            <td style="text-align:right;">Game Type:</td>
+            <td>
+                <input type="checkbox" name="dm" />Deathmatch<br/>
+                <input type="checkbox" name="duel" />Duel<br/>
+                <input type="checkbox" name="ctf" />Capture The Flag<br/>
+                <input type="checkbox" name="tdm" />Team Deathmatch<br/>
+            </td>
+        </tr>
+        <tr>
             <td style="text-align:right;"></td>
-            <td><input type="submit" /></td>
+            <td><input type="submit" value="search" /></td>
         </tr>
     </table>
     </form>
@@ -98,3 +107,9 @@
 <!-- navigation links -->
 ${navlinks("search_paged", results.page, results.last_page, query)}
 % endif
+
+<%block name="js">
+${parent.js()}
+</%block>
+
+
