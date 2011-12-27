@@ -70,7 +70,7 @@ def verify_request(request):
     return (idfp, status)
 
 
-def num_real_players(player_events):
+def num_real_players(player_events, count_bots=False):
     """
     Returns the number of real players (those who played 
     and are on the scoreboard).
@@ -78,7 +78,7 @@ def num_real_players(player_events):
     real_players = 0
 
     for events in player_events:
-        if is_real_player(events):
+        if is_real_player(events, count_bots):
             real_players += 1
 
     return real_players
@@ -124,7 +124,7 @@ def has_required_metadata(metadata):
     return flg_has_req_metadata
 
 
-def is_real_player(events):
+def is_real_player(events, count_bots=False):
     """
     Determines if a given set of player events correspond with a player who
 
@@ -136,9 +136,10 @@ def is_real_player(events):
     """
     flg_is_real = False
 
-    if not events['P'].startswith('bot'):
-        # removing 'joins' here due to bug, but it should be here
-        if 'matches' in events and 'scoreboardvalid' in events:
+    # removing 'joins' here due to bug, but it should be here
+    if 'matches' in events and 'scoreboardvalid' in events:
+        if (events['P'].startswith('bot') and count_bots) or \
+            not events['P'].startswith('bot'):
             flg_is_real = True
 
     return flg_is_real
@@ -568,7 +569,8 @@ def stats_submit(request):
         # FIXME: if we have two players and game type is 'dm',
         # change this into a 'duel' gametype. This should be
         # removed when the stats actually send 'duel' instead of 'dm'
-        if num_real_players(players) == 2 and game_meta['G'] == 'dm':
+        if num_real_players(players, count_bots=True) == 2 and \
+                game_meta['G'] == 'dm':
             game_meta['G'] = 'duel'
 
         server = get_or_create_server(session=session, hashkey=idfp, 
