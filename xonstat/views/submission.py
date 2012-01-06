@@ -544,9 +544,9 @@ def stats_submit(request):
                 "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
-        if not idfp:
-            log.debug("ERROR: Unverified request")
-            raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
+        #if not idfp:
+            #log.debug("ERROR: Unverified request")
+            #raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
 
         (game_meta, players) = parse_body(request)  
 
@@ -562,9 +562,9 @@ def stats_submit(request):
             log.debug("ERROR: Not enough real players")
             raise pyramid.httpexceptions.HTTPOk("OK")
 
-        if is_blank_game(players):
-            log.debug("ERROR: Blank game")
-            raise pyramid.httpexceptions.HTTPOk("OK")
+        #if is_blank_game(players):
+            #log.debug("ERROR: Blank game")
+            #raise pyramid.httpexceptions.HTTPOk("OK")
 
         # FIXME: if we have two players and game type is 'dm',
         # change this into a 'duel' gametype. This should be
@@ -605,9 +605,12 @@ def stats_submit(request):
                 create_player_stats(session=session, player=player, game=game, 
                         player_events=player_events)
 
+        # update elos
+        game.process_elos(session)
+
         session.commit()
         log.debug('Success! Stats recorded.')
         return Response('200 OK')
     except Exception as e:
         session.rollback()
-        return e
+        raise e
