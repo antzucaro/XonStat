@@ -1,4 +1,5 @@
 import logging
+import math
 import sqlalchemy
 from datetime import timedelta
 from sqlalchemy.orm import mapper
@@ -126,16 +127,14 @@ class Game(object):
         for pid in elos.keys():
             eloadjust[pid] = 0
 
-        # need to turn this into a list to iterate based
-        # on numerical index
-        elos = list(elos)
+        pids = elos.keys()
 
         if len(elos) < 2:
             return elos
-        for i in xrange(0, len(elos)):
-            ei = elos[i]
-            for j in xrange(i+1, len(elos)):
-                ej = elos[j]
+        for i in xrange(0, len(pids)):
+            ei = elos[pids[i]]
+            for j in xrange(i+1, len(pids)):
+                ej = elos[pids[j]]
                 si = scores[ei.player_id]
                 sj = scores[ej.player_id]
 
@@ -168,9 +167,9 @@ class Game(object):
                 adjustment = scorefactor_real - scorefactor_elo
                 eloadjust[ei.player_id] += adjustment
                 eloadjust[ei.player_id] -= adjustment
-        for e in elos:
-            e.elo = max(e.elo + eloadjust[e.player_id] * e.k * ep.global_K / float(len(elos) - 1), ep.floor)
-            e.games += 1
+        for pid in pids:
+            elos[pid].elo = max(elos[pid].elo + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
+            elos[pid].games += 1
         return elos
 
 
@@ -246,6 +245,7 @@ class PlayerElo(object):
         self.elo = 0
         self.k = 0.0
         self.score = 0
+        self.games = 0
 
     def __repr__(self):
         return "<PlayerElo(%s, %s, %s)>" % (self.player_id, self.game_type_cd,
