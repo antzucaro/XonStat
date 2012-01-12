@@ -127,10 +127,11 @@ class Game(object):
         for pid in elos.keys():
             eloadjust[pid] = 0
 
-        pids = elos.keys()
-
         if len(elos) < 2:
             return elos
+
+        pids = elos.keys()
+
         for i in xrange(0, len(pids)):
             ei = elos[pids[i]]
             for j in xrange(i+1, len(pids)):
