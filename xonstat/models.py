@@ -95,7 +95,8 @@ class Game(object):
                 filter(PlayerGameStat.alivetime > timedelta(seconds=0)).\
                 filter(PlayerGameStat.player_id > 2).\
                 all():
-                    scores[p] = s
+                    # scores are per second
+                    scores[p] = s/float(a.seconds)
                     alivetimes[p] = a.seconds
 
         player_ids = scores.keys()
@@ -120,7 +121,8 @@ class Game(object):
         for e in elos:
             session.add(elos[e])
 
-        # TODO: duels are also logged as DM for elo purposes
+        if game_type_cd == 'duel':
+            self.process_elos(session, "dm")
 
     def update_elos(self, elos, scores, ep):
         eloadjust = {}
@@ -150,7 +152,8 @@ class Game(object):
                 scorefactor_real = si / float(si + sj)
 
                 # estimated score factor by elo
-                elodiff = min(ep.maxlogdistance, max(-ep.maxlogdistance, (ei.elo - ej.elo) * ep.logdistancefactor))
+                elodiff = min(ep.maxlogdistance, max(-ep.maxlogdistance,
+                    (float(ei.elo) - float(ej.elo)) * ep.logdistancefactor))
                 scorefactor_elo = 1 / (1 + math.exp(-elodiff))
 
                 # how much adjustment is good?
@@ -167,9 +170,11 @@ class Game(object):
 
                 adjustment = scorefactor_real - scorefactor_elo
                 eloadjust[ei.player_id] += adjustment
-                eloadjust[ei.player_id] -= adjustment
+                eloadjust[ej.player_id] -= adjustment
+                log.debug("elo adjustment values:")
+                log.debug(eloadjust)
         for pid in pids:
-            elos[pid].elo = max(elos[pid].elo + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
+            elos[pid].elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
             elos[pid].games += 1
         return elos
 
@@ -241,16 +246,16 @@ class PlayerNick(object):
 
 class PlayerElo(object):
     def __init__(self, player_id=None, game_type_cd=None):
+
         self.player_id = player_id
         self.game_type_cd = game_type_cd
-        self.elo = 0
-        self.k = 0.0
         self.score = 0
         self.games = 0
+        self.elo = ELOPARMS.initial
 
     def __repr__(self):
-        return "<PlayerElo(%s, %s, %s)>" % (self.player_id, self.game_type_cd,
-                self.elo)
+        return "<PlayerElo(pid=%s, gametype=%s, elo=%s)>" % \
+                (self.player_id, self.game_type_cd, self.elo)
 
 
 def initialize_db(engine=None):
