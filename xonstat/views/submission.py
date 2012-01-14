@@ -275,7 +275,7 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
                 filter(Game.match_id==match_id).one()
         # if a game under the same server and match_id found, 
         # this is a duplicate game and can be ignored
-        raise pyramid.httpexceptions.HTTPOk
+        raise pyramid.httpexceptions.HTTPOk('OK')
     except NoResultFound, e:
         # server_id/match_id combination not found. game is ok to insert
         session.add(game)
@@ -604,6 +604,12 @@ def stats_submit(request):
                 log.debug('Creating stats for %s' % player_events['P'])
                 create_player_stats(session=session, player=player, game=game, 
                         player_events=player_events)
+
+        # update elos
+        try:
+            game.process_elos(session)
+        except Exception as e:
+            log.debug('Error (non-fatal): elo processing failed.')
 
         session.commit()
         log.debug('Success! Stats recorded.')

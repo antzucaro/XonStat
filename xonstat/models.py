@@ -1,9 +1,15 @@
+import logging
+import math
 import sqlalchemy
+from datetime import timedelta
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from xonstat.elo import KREDUCTION, ELOPARMS
 from xonstat.util import strip_colors, html_colors, pretty_date
+
+log = logging.getLogger(__name__)
 
 DBSession = scoped_session(sessionmaker())
 Base = declarative_base()
@@ -77,6 +83,99 @@ class Game(object):
     def fuzzy_date(self):
         return pretty_date(self.start_dt)
 
+    def process_elos(self, session, game_type_cd=None):
+        if game_type_cd is None:
+            game_type_cd = self.game_type_cd
+
+        scores = {}
+        alivetimes = {}
+        for (p,s,a) in session.query(PlayerGameStat.player_id, 
+                PlayerGameStat.score, PlayerGameStat.alivetime).\
+                filter(PlayerGameStat.game_id==self.game_id).\
+                filter(PlayerGameStat.alivetime > timedelta(seconds=0)).\
+                filter(PlayerGameStat.player_id > 2).\
+                all():
+                    # scores are per second
+                    scores[p] = s/float(a.seconds)
+                    alivetimes[p] = a.seconds
+
+        player_ids = scores.keys()
+
+        elos = {}
+        for e in session.query(PlayerElo).\
+                filter(PlayerElo.player_id.in_(player_ids)).\
+                filter(PlayerElo.game_type_cd==game_type_cd).all():
+                    elos[e.player_id] = e
+
+        # ensure that all player_ids have an elo record
+        for pid in player_ids:
+            if pid not in elos.keys():
+                elos[pid] = PlayerElo(pid, game_type_cd)
+
+        for pid in player_ids:
+            elos[pid].k = KREDUCTION.eval(elos[pid].games, alivetimes[pid], 0)
+
+        elos = self.update_elos(elos, scores, ELOPARMS)
+
+        # add the elos to the session for committing
+        for e in elos:
+            session.add(elos[e])
+
+        if game_type_cd == 'duel':
+            self.process_elos(session, "dm")
+
+    def update_elos(self, elos, scores, ep):
+        eloadjust = {}
+        for pid in elos.keys():
+            eloadjust[pid] = 0
+
+        if len(elos) < 2:
+            return elos
+
+        pids = elos.keys()
+
+        for i in xrange(0, len(pids)):
+            ei = elos[pids[i]]
+            for j in xrange(i+1, len(pids)):
+                ej = elos[pids[j]]
+                si = scores[ei.player_id]
+                sj = scores[ej.player_id]
+
+                # normalize scores
+                ofs = min(0, si, sj)
+                si -= ofs
+                sj -= ofs
+                if si + sj == 0:
+                    si, sj = 1, 1 # a draw
+
+                # real score factor
+                scorefactor_real = si / float(si + sj)
+
+                # estimated score factor by elo
+                elodiff = min(ep.maxlogdistance, max(-ep.maxlogdistance,
+                    (float(ei.elo) - float(ej.elo)) * ep.logdistancefactor))
+                scorefactor_elo = 1 / (1 + math.exp(-elodiff))
+
+                # how much adjustment is good?
+                # scorefactor(elodiff) = 1 / (1 + e^(-elodiff * logdistancefactor))
+                # elodiff(scorefactor) = -ln(1/scorefactor - 1) / logdistancefactor
+                # elodiff'(scorefactor) = 1 / ((scorefactor) (1 - scorefactor) logdistancefactor)
+                # elodiff'(scorefactor) >= 4 / logdistancefactor
+
+                # adjust'(scorefactor) = K1 + K2
+
+                # so we want:
+                # K1 + K2 <= 4 / logdistancefactor <= elodiff'(scorefactor)
+                # as we then don't overcompensate
+
+                adjustment = scorefactor_real - scorefactor_elo
+                eloadjust[ei.player_id] += adjustment
+                eloadjust[ej.player_id] -= adjustment
+        for pid in pids:
+            elos[pid].elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
+            elos[pid].games += 1
+        return elos
+
 
 class PlayerGameStat(object):
     def __init__(self, player_game_stat_id=None, create_dt=None):
@@ -143,6 +242,20 @@ class PlayerNick(object):
         return "<PlayerNick(%s, %s)>" % (self.player_id, self.stripped_nick)
 
 
+class PlayerElo(object):
+    def __init__(self, player_id=None, game_type_cd=None):
+
+        self.player_id = player_id
+        self.game_type_cd = game_type_cd
+        self.score = 0
+        self.games = 0
+        self.elo = ELOPARMS.initial
+
+    def __repr__(self):
+        return "<PlayerElo(pid=%s, gametype=%s, elo=%s)>" % \
+                (self.player_id, self.game_type_cd, self.elo)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -163,6 +276,7 @@ def initialize_db(engine=None):
     player_weapon_stats_table = MetaData.tables['player_weapon_stats']
     servers_table = MetaData.tables['servers']
     player_nicks_table = MetaData.tables['player_nicks']
+    player_elos_table = MetaData.tables['player_elos']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -177,3 +291,4 @@ def initialize_db(engine=None):
     mapper(PlayerWeaponStat, player_weapon_stats_table)
     mapper(Server, servers_table)
     mapper(PlayerNick, player_nicks_table)
+    mapper(PlayerElo, player_elos_table)
