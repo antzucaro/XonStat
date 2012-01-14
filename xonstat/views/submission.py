@@ -275,7 +275,7 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
                 filter(Game.match_id==match_id).one()
         # if a game under the same server and match_id found, 
         # this is a duplicate game and can be ignored
-        raise pyramid.httpexceptions.HTTPOk
+        raise pyramid.httpexceptions.HTTPOk('OK')
     except NoResultFound, e:
         # server_id/match_id combination not found. game is ok to insert
         session.add(game)
@@ -544,9 +544,9 @@ def stats_submit(request):
                 "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
-        #if not idfp:
-            #log.debug("ERROR: Unverified request")
-            #raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
+        if not idfp:
+            log.debug("ERROR: Unverified request")
+            raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
 
         (game_meta, players) = parse_body(request)  
 
@@ -562,9 +562,9 @@ def stats_submit(request):
             log.debug("ERROR: Not enough real players")
             raise pyramid.httpexceptions.HTTPOk("OK")
 
-        #if is_blank_game(players):
-            #log.debug("ERROR: Blank game")
-            #raise pyramid.httpexceptions.HTTPOk("OK")
+        if is_blank_game(players):
+            log.debug("ERROR: Blank game")
+            raise pyramid.httpexceptions.HTTPOk("OK")
 
         # FIXME: if we have two players and game type is 'dm',
         # change this into a 'duel' gametype. This should be
@@ -606,11 +606,14 @@ def stats_submit(request):
                         player_events=player_events)
 
         # update elos
-        game.process_elos(session)
+        try:
+            game.process_elos(session)
+        except Exception as e:
+            log.debug('Error (non-fatal): elo processing failed.')
 
         session.commit()
         log.debug('Success! Stats recorded.')
         return Response('200 OK')
     except Exception as e:
         session.rollback()
-        raise e
+        return e

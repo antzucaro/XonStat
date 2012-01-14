@@ -171,8 +171,6 @@ class Game(object):
                 adjustment = scorefactor_real - scorefactor_elo
                 eloadjust[ei.player_id] += adjustment
                 eloadjust[ej.player_id] -= adjustment
-                log.debug("elo adjustment values:")
-                log.debug(eloadjust)
         for pid in pids:
             elos[pid].elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
             elos[pid].games += 1
