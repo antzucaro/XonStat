@@ -88,9 +88,13 @@ class Game(object):
         if game_type_cd is None:
             game_type_cd = self.game_type_cd
 
-        duration = session.query(func.max(PlayerGameStat.alivetime)).\
-                filter(PlayerGameStat.game_id==self.game_id).\
-                one()
+        # we do not have the actual duration of the game, so use the 
+        # maximum alivetime of the players instead
+        duration = 0
+        for d in session.query(func.max(PlayerGameStat.alivetime)).\
+                    filter(PlayerGameStat.game_id==self.game_id).\
+                    one():
+            duration = d.seconds
 
         scores = {}
         alivetimes = {}
@@ -119,7 +123,11 @@ class Game(object):
 
         for pid in player_ids:
             elos[pid].k = KREDUCTION.eval(elos[pid].games, alivetimes[pid],
-                    duration.seconds)
+                    duration)
+            if elos[pid].k == 0:
+                del(elos[pid])
+                del(scores[pid])
+                del(alivetimes[pid])
 
         elos = self.update_elos(elos, scores, ELOPARMS)
 
