@@ -1,6 +1,7 @@
 import logging
 import math
 import sqlalchemy
+import sqlalchemy.sql.functions as func
 from datetime import timedelta
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
@@ -87,6 +88,10 @@ class Game(object):
         if game_type_cd is None:
             game_type_cd = self.game_type_cd
 
+        duration = session.query(func.max(PlayerGameStat.alivetime)).\
+                filter(PlayerGameStat.game_id==self.game_id).\
+                one()
+
         scores = {}
         alivetimes = {}
         for (p,s,a) in session.query(PlayerGameStat.player_id, 
@@ -113,7 +118,8 @@ class Game(object):
                 elos[pid] = PlayerElo(pid, game_type_cd)
 
         for pid in player_ids:
-            elos[pid].k = KREDUCTION.eval(elos[pid].games, alivetimes[pid], 0)
+            elos[pid].k = KREDUCTION.eval(elos[pid].games, alivetimes[pid],
+                    duration.seconds)
 
         elos = self.update_elos(elos, scores, ELOPARMS)
 
