@@ -1,7 +1,7 @@
 import logging
 import math
 import sqlalchemy
-import sqlalchemy.sql.functions as func
+import sqlalchemy.sql.functions as sfunc
 from datetime import timedelta
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
@@ -91,7 +91,7 @@ class Game(object):
         # we do not have the actual duration of the game, so use the 
         # maximum alivetime of the players instead
         duration = 0
-        for d in session.query(func.max(PlayerGameStat.alivetime)).\
+        for d in session.query(sfunc.max(PlayerGameStat.alivetime)).\
                     filter(PlayerGameStat.game_id==self.game_id).\
                     one():
             duration = d.seconds
