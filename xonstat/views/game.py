@@ -93,3 +93,30 @@ def game_info(request):
             'pgstats':pgstats,
             'pwstats':pwstats,
             }
+
+
+def rank_index(request):
+    """
+    Provide a list of gametype ranks, paginated.
+    """
+    if 'page' in request.matchdict:
+        current_page = request.matchdict['page']
+    else:
+        current_page = 1
+
+    game_type_cd = request.matchdict['game_type_cd']
+
+    ranks_q = DBSession.query(PlayerElo, Player).\
+            filter(PlayerElo.game_type_cd==game_type_cd).\
+            filter(PlayerElo.player_id==Player.player_id).\
+            order_by(PlayerElo.elo.desc())
+
+    ranks = Page(ranks_q, current_page, url=page_url)
+
+    if len(ranks) == 0:
+        ranks = None
+
+    return {
+            'ranks':ranks,
+            'game_type_cd':game_type_cd,
+           }

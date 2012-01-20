@@ -61,6 +61,14 @@ def main(global_config, **settings):
     config.add_view(game_info, route_name="game_info",
         renderer="game_info.mako")
 
+    config.add_route("rank_index", "/ranks/{game_type_cd:ctf|dm|tdm|duel}")
+    config.add_view(rank_index, route_name="rank_index",
+        renderer="rank_index.mako")
+
+    config.add_route("rank_index_paged", "/ranks/{game_type_cd:ctf|dm|tdm|duel}/page/{page:\d+}")
+    config.add_view(rank_index, route_name="rank_index_paged",
+        renderer="rank_index.mako")
+
     # SERVER ROUTES
     config.add_route("server_index_paged", "/servers/page/{page:\d+}")
     config.add_view(server_index, route_name="server_index_paged",
