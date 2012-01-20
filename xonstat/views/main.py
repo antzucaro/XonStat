@@ -18,6 +18,42 @@ def main_index(request):
     leaderboard_count = 10
     recent_games_count = 20
 
+    # top ranked duelers
+    duel_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
+            filter(Player.player_id==PlayerElo.player_id).\
+            filter(PlayerElo.game_type_cd=='duel').\
+            order_by(expr.desc(PlayerElo.elo)).all()[0:10]
+
+    duel_ranks = [(player_id, html_colors(nick), elo) \
+            for (player_id, nick, elo) in duel_ranks]
+
+    for i in range(leaderboard_count-len(duel_ranks)):
+        duel_ranks.append(('-', '-', '-'))
+
+    # top ranked CTF-ers
+    ctf_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
+            filter(Player.player_id==PlayerElo.player_id).\
+            filter(PlayerElo.game_type_cd=='ctf').\
+            order_by(expr.desc(PlayerElo.elo)).all()[0:10]
+
+    ctf_ranks = [(player_id, html_colors(nick), elo) \
+            for (player_id, nick, elo) in ctf_ranks]
+
+    for i in range(leaderboard_count-len(ctf_ranks)):
+        ctf_ranks.append(('-', '-', '-'))
+
+    # top ranked DM-ers
+    dm_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
+            filter(Player.player_id==PlayerElo.player_id).\
+            filter(PlayerElo.game_type_cd=='dm').\
+            order_by(expr.desc(PlayerElo.elo)).all()[0:10]
+
+    dm_ranks = [(player_id, html_colors(nick), elo) \
+            for (player_id, nick, elo) in dm_ranks]
+
+    for i in range(leaderboard_count-len(dm_ranks)):
+        dm_ranks.append(('-', '-', '-'))
+
     # top players by playing time
     top_players = DBSession.query(Player.player_id, Player.nick, 
             func.sum(PlayerGameStat.alivetime)).\
@@ -76,4 +112,7 @@ def main_index(request):
             'top_servers':top_servers,
             'top_maps':top_maps,
             'recent_games':recent_games,
+            'duel_ranks':duel_ranks,
+            'ctf_ranks':ctf_ranks,
+            'dm_ranks':dm_ranks,
             }

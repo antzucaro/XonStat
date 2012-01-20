@@ -369,10 +369,10 @@ input[type=text]:hover, .textbox:hover { background-position:-128px -32px; }
 /* Content Specific */
 
 /*Tables */
-#top-players, #top-servers, #top-maps {
+#top-players, #top-servers, #top-maps, .rank-table{
     float: left;
     margin-bottom: 10px;
-    width:100%;
+    width: 290px;
 }
 #player-index-table, #server-index-table{
     width: 600px;
@@ -422,6 +422,10 @@ tr.even.blue {
 /* column-specific table widths */
 .create-dt{
     width: 150px;
+}
+
+.play-time{
+    width: 70px;
 }
 
 /* Containers */
@@ -495,4 +499,8 @@ tr.even.blue {
 .permalink a:hover {
 	color:#A4B7CA !important;
 	text-decoration:underline;
+}
+.note {
+    font-size: 10px;
+	color:#6D8399;
 }

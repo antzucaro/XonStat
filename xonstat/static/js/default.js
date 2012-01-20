@@ -60,7 +60,7 @@ function init_datatables() {
 		$("#recent-games").dataTable({
 			"bPaginate": false,
 			"bLengthChange": false,
-			"bFilter": true,
+			"bFilter": false,
 			"bSort": true,
 			"bInfo": false,
 			"bAutoWidth": false,
