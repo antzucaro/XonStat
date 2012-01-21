@@ -22,6 +22,7 @@ def main_index(request):
     duel_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
             filter(Player.player_id==PlayerElo.player_id).\
             filter(PlayerElo.game_type_cd=='duel').\
+            filter(PlayerElo.games >= 32).\
             order_by(expr.desc(PlayerElo.elo)).all()[0:10]
 
     duel_ranks = [(player_id, html_colors(nick), elo) \
@@ -34,6 +35,7 @@ def main_index(request):
     ctf_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
             filter(Player.player_id==PlayerElo.player_id).\
             filter(PlayerElo.game_type_cd=='ctf').\
+            filter(PlayerElo.games >= 32).\
             order_by(expr.desc(PlayerElo.elo)).all()[0:10]
 
     ctf_ranks = [(player_id, html_colors(nick), elo) \
@@ -46,6 +48,7 @@ def main_index(request):
     dm_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
             filter(Player.player_id==PlayerElo.player_id).\
             filter(PlayerElo.game_type_cd=='dm').\
+            filter(PlayerElo.games >= 32).\
             order_by(expr.desc(PlayerElo.elo)).all()[0:10]
 
     dm_ranks = [(player_id, html_colors(nick), elo) \
