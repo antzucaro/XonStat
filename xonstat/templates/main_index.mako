@@ -35,7 +35,7 @@ Main Page - ${parent.title()}
 	% endfor
 	</tbody>
 </table>
-#####<p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='duel')}" title="See more duel rankings">More...</a></p>
+<p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='duel')}" title="See more duel rankings">More...</a></p>
 </div>
 
 
@@ -71,7 +71,7 @@ Main Page - ${parent.title()}
 	% endfor
 	</tbody>
 </table>
-#####<p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='ctf')}" title="See more CTF rankings">More...</a></p>
+<p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='ctf')}" title="See more CTF rankings">More...</a></p>
 </div>
 
 
@@ -107,7 +107,7 @@ Main Page - ${parent.title()}
 	% endfor
 	</tbody>
 </table>
-#####<p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='dm')}" title="See more deathmatch rankings">More...</a></p>
+<p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='dm')}" title="See more deathmatch rankings">More...</a></p>
 </div>
 
 
