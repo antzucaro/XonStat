@@ -28,10 +28,10 @@ Rank Index</h2>
     <th>Elo</th>
   </tr>
 <% i = 1 %>
-% for (rank, player) in ranks:
+% for rank in ranks:
   <tr>
-    <td>${i}</td>
-    <td><a href="${request.route_url("player_info", id=rank.player_id)}" title="Go to this player's info page">${player.nick_html_colors()|n}</a></th>
+    <td>${rank.rank}</td>
+    <td><a href="${request.route_url("player_info", id=rank.player_id)}" title="Go to this player's info page">${rank.nick_html_colors()|n}</a></th>
     <td>${round(rank.elo, 3)}</th>
   </tr>
 <% i += 1 %>
@@ -39,5 +39,5 @@ Rank Index</h2>
 </table>
 
 <!-- navigation links -->
-${navlinks("rank_index_paged", ranks.page, ranks.last_page)}
+${navlinks("rank_index_paged", ranks.page, ranks.last_page, game_type_cd=game_type_cd)}
 % endif

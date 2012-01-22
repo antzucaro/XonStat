@@ -270,6 +270,20 @@ class PlayerElo(object):
                 (self.player_id, self.game_type_cd, self.elo)
 
 
+class PlayerRank(object):
+
+    def nick_html_colors(self):
+        if self.nick is None:
+            return "Anonymous Player"
+        else:
+            return html_colors(self.nick)
+
+
+    def __repr__(self):
+        return "<PlayerRank(pid=%s, gametype=%s, rank=%s)>" % \
+                (self.player_id, self.game_type_cd, self.rank)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -291,6 +305,7 @@ def initialize_db(engine=None):
     servers_table = MetaData.tables['servers']
     player_nicks_table = MetaData.tables['player_nicks']
     player_elos_table = MetaData.tables['player_elos']
+    player_ranks_table = MetaData.tables['player_ranks']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -306,3 +321,4 @@ def initialize_db(engine=None):
     mapper(Server, servers_table)
     mapper(PlayerNick, player_nicks_table)
     mapper(PlayerElo, player_elos_table)
+    mapper(PlayerRank, player_ranks_table)

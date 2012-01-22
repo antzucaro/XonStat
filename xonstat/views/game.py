@@ -3,7 +3,7 @@ import logging
 import re
 import time
 from pyramid.response import Response
-from sqlalchemy import desc
+from sqlalchemy import desc, func, over
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url
@@ -106,10 +106,9 @@ def rank_index(request):
 
     game_type_cd = request.matchdict['game_type_cd']
 
-    ranks_q = DBSession.query(PlayerElo, Player).\
-            filter(PlayerElo.game_type_cd==game_type_cd).\
-            filter(PlayerElo.player_id==Player.player_id).\
-            order_by(PlayerElo.elo.desc())
+    ranks_q = DBSession.query(PlayerRank).\
+            filter(PlayerRank.game_type_cd==game_type_cd).\
+            order_by(PlayerRank.rank)
 
     ranks = Page(ranks_q, current_page, url=page_url)
 
