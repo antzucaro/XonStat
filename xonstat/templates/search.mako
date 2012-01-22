@@ -105,7 +105,7 @@
 % endif
 
 <!-- navigation links -->
-${navlinks("search_paged", results.page, results.last_page, query)}
+${navlinks("search_paged", results.page, results.last_page, _query=query)}
 % endif
 
 <%block name="js">
