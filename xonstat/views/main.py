@@ -19,24 +19,22 @@ def main_index(request):
     recent_games_count = 20
 
     # top ranked duelers
-    duel_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
-            filter(Player.player_id==PlayerElo.player_id).\
-            filter(PlayerElo.game_type_cd=='duel').\
-            filter(PlayerElo.games >= 32).\
-            order_by(expr.desc(PlayerElo.elo)).all()[0:10]
+    duel_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
+            PlayerRank.elo).\
+            filter(PlayerRank.game_type_cd=='duel').\
+            order_by(PlayerRank.rank).all()[0:10]
 
     duel_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in duel_ranks]
 
     for i in range(leaderboard_count-len(duel_ranks)):
-        duel_ranks.append(('-', '-', '-'))
+        duel_ranks.append(('-', '-', '-', '-'))
 
     # top ranked CTF-ers
-    ctf_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
-            filter(Player.player_id==PlayerElo.player_id).\
-            filter(PlayerElo.game_type_cd=='ctf').\
-            filter(PlayerElo.games >= 32).\
-            order_by(expr.desc(PlayerElo.elo)).all()[0:10]
+    ctf_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
+            PlayerRank.elo).\
+            filter(PlayerRank.game_type_cd=='ctf').\
+            order_by(PlayerRank.rank).all()[0:10]
 
     ctf_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in ctf_ranks]
@@ -45,11 +43,10 @@ def main_index(request):
         ctf_ranks.append(('-', '-', '-'))
 
     # top ranked DM-ers
-    dm_ranks = DBSession.query(Player.player_id, Player.nick, PlayerElo.elo).\
-            filter(Player.player_id==PlayerElo.player_id).\
-            filter(PlayerElo.game_type_cd=='dm').\
-            filter(PlayerElo.games >= 32).\
-            order_by(expr.desc(PlayerElo.elo)).all()[0:10]
+    dm_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
+            PlayerRank.elo).\
+            filter(PlayerRank.game_type_cd=='dm').\
+            order_by(PlayerRank.rank).all()[0:10]
 
     dm_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in dm_ranks]
