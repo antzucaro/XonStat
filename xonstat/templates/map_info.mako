@@ -1,8 +1,14 @@
 <%inherit file="base.mako"/>
+<%namespace name="nav" file="nav.mako" />
+<%namespace file="navlinks.mako" import="navlinks" />
+
+<%block name="navigation">
+${nav.nav('maps')}
+</%block>
 
 <%block name="title">
 % if gmap:
-Map Information for ${gmap.name} - 
+Map Information for ${gmap.name}
 % endif
 
 ${parent.title()}

@@ -1,8 +1,13 @@
 <%inherit file="base.mako"/>
+<%namespace name="nav" file="nav.mako" />
 <%namespace file="navlinks.mako" import="navlinks" />
 
+<%block name="navigation">
+${nav.nav('maps')}
+</%block>
+
 <%block name="title">
-Map Index - ${parent.title()}
+Map Index
 </%block>
 
 % if not maps:

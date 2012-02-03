@@ -1,5 +1,10 @@
 <%inherit file="base.mako"/>
+<%namespace name="nav" file="nav.mako" />
 <%namespace file="accuracy.mako" import="accuracy" />
+
+<%block name="navigation">
+${nav.nav('players')}
+</%block>
 
 <%block name="css">
 ${parent.css()}
@@ -13,7 +18,7 @@ ${parent.js()}
 
 <%block name="title">
 % if player:
-Player Information for ${player.nick_strip_colors()} -
+Player Information for ${player.nick_strip_colors()}
 % endif
 
 ${parent.title()}

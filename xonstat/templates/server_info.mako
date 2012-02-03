@@ -1,8 +1,13 @@
 <%inherit file="base.mako"/>
+<%namespace name="nav" file="nav.mako" />
+
+<%block name="navigation">
+${nav.nav('servers')}
+</%block>
 
 <%block name="title">
 % if server:
-Server Information for ${server.name} - 
+Server Information for ${server.name}
 % endif
 
 ${parent.title()}
