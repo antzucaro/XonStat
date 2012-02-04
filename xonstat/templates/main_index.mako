@@ -201,7 +201,7 @@ Leaderboard
     <table class="table table-bordered table-condensed">
       <thead>
         <tr>
-          <th>Game #</th>
+          <th></th>
           <th>Type</th>
           <th>Server</th>
           <th>Map</th>
