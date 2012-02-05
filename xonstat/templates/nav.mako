@@ -36,9 +36,10 @@
                 % endif
                 ><a href="${request.route_url('map_index')}" title="Map Index">Maps</a></li>
             </ul>
-            <form id="navsearch" action="#" method="get">
-              <input type="text" class="input-small" placeholder="search" />
-              <select id="sselect">
+            <form id="navsearch" action="${request.route_url('search')}" method="get">
+              <input type="hidden" name="fs" />
+              <input type="search" class="input-small" placeholder="search" name="sval"/>
+              <select name="stype">
                 <option>players</option>
                 <option>servers</option>
                 <option>maps</option>
