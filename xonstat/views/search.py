@@ -114,6 +114,15 @@ def search(request):
         if request.params.has_key('tdm'):
                 gametypes.append('tdm')
                 query['tdm'] = ''
+        if request.params.has_key('stype') and request.params.has_key('sval'):
+            stype = request.params['stype']
+            sval = request.params['sval']
+            if stype == "players":
+                nick = sval
+            if stype == "servers":
+                server_name = sval
+            if stype == "maps":
+                map_name = sval
 
         (result_type, q) = search_q(nick=nick, server_name=server_name,
                 map_name=map_name, gametypes=gametypes)

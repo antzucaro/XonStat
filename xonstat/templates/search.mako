@@ -4,7 +4,7 @@
 % if results == None:
 <form action="${request.route_url("search")}" method="get">
     <input type="hidden" name="fs" />
-    <table id="search_form" border="0">
+    <table id="search_form" class="table table-bordered table-condensed" border="0">
         <tr>
             <td style="text-align:right;">Nick:</td>
             <td><input type="text" name="nick" /></td>
