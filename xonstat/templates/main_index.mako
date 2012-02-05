@@ -4,6 +4,15 @@
 Leaderboard
 </%block>
 
+<%block name="hero_unit">
+      <div class="hero-unit">
+        <img src="/static/css/img/web_background_l2.png" />
+        #####<p id="statline">Tracking <a href="#">12345</a> players, <a href="#">12345</a> games (<a href="#">123</a> duels, <a href="#">123</a> ctfs, <a href="#">123</a> dms), <a href="#">12345</a> servers, and <a href="#">12345</a> maps since November 2011.</p>
+        <p id="statline">Tracking Xonotic statistics since October 2011.</p>
+        <p><a class="btn btn-primary btn-large">Get the game &raquo;</a></p>
+      </div>
+</%block>
+
 <div class="row">
   <div class="span4">
     ##### DUEL RANKS #####
