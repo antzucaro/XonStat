@@ -41,8 +41,9 @@
       </div> <!-- /main row -->
 
       <%block name="footer">
-        <p>XonStat is an open source (GPLv2) project created by Antibody. Fork it <a href="https://github.com/antzucaro/XonStat" title="Go to the project page">on Github!</a></p>
+      <p class="pagination-centered">XonStat is an open source (GPLv2) project created by Antibody. Fork it <a href="https://github.com/antzucaro/XonStat" title="Go to the project page">on Github!</a></p>
       </%block>
+
       <%block name="js">
       </%block>
     </body>
