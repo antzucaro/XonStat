@@ -3424,3 +3424,33 @@ a.thumbnail:hover {
 #navsearch select {
   width: 80px;
 }
+/* Game scoreboard */
+.game {
+  background-image: -moz-linear-gradient(center bottom , #062C52, #041B33);
+  border: 1px solid #A4B7CA;
+  border-radius: 7px 7px 7px 7px;
+  box-shadow: 0 0 3px 1px;
+  float: left;
+  margin-bottom: 30px;
+  min-width: 700px;
+  padding: 10px 7px;
+}
+.game a {
+    color: #CCC;
+}
+.game a:hover {
+    color: #d95f00;
+    text-decoration: none;
+}
+.game tr {
+    background-color: #000;
+}
+.game tr.red {
+  background-color: #571612;
+}
+.game tr.blue {
+  background-color: #000F4C;
+}
+.game tr:hover {
+    background-color: #222;
+}

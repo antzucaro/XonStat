@@ -1,32 +1,32 @@
 <%def name="scoreboard(game_type_cd, pgstats)">
-<table class="scoreboard">
+<table  class="table table-bordered table-condensed">
 ${scoreboard_header(game_type_cd, pgstats[0])}
-	<tbody>
-	% for pgstat in pgstats:
-		<tr class="${pgstat.team_html_color()}">
-			<td>
-			% if pgstat.player_id > 2:
-			  <a href="${request.route_url("player_info", id=pgstat.player_id)}"
-			   title="Go to the info page for this player">
-			  <span class="nick">${pgstat.nick_html_colors()|n}</span>
-			  </a>
-			% else:
-			  <span class="nick">${pgstat.nick_html_colors()|n}</span>
-			% endif
-			</td>
-		${scoreboard_row(game_type_cd, pgstat)}
-			<td>${pgstat.score}</td>
-			<td>
-			% if pgstat.player_id > 1:
-			  <a href="${request.route_url("game_info", id=pgstat.game_id)}#accuracy-${pgstat.player_game_stat_id}"
-			   title="View weapon accuracy details for this player in this game">
-			  View
-			  </a>
-			% endif
-			</td>
-		</tr>
-	% endfor
-	</tbody>
+  <tbody>
+  % for pgstat in pgstats:
+    <tr class="${pgstat.team_html_color()}">
+      <td>
+      % if pgstat.player_id > 2:
+        <a href="${request.route_url("player_info", id=pgstat.player_id)}"
+         title="Go to the info page for this player">
+        <span class="nick">${pgstat.nick_html_colors()|n}</span>
+        </a>
+      % else:
+        <span class="nick">${pgstat.nick_html_colors()|n}</span>
+      % endif
+      </td>
+    ${scoreboard_row(game_type_cd, pgstat)}
+      <td>${pgstat.score}</td>
+      <td>
+      % if pgstat.player_id > 1:
+        <a href="${request.route_url("game_info", id=pgstat.game_id)}#accuracy-${pgstat.player_game_stat_id}"
+         title="View weapon accuracy details for this player in this game">
+        View
+        </a>
+      % endif
+      </td>
+    </tr>
+  % endfor
+  </tbody>
 </table>
 </%def>
 
@@ -34,53 +34,53 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 <%def name="scoreboard_header(game_type_cd, pgstat)">
 % if game_type_cd == 'dm' or game_type_cd == 'tdm' or game_type_cd == 'duel':
     <thead>
-		<tr>
-			<th class="nick">Nick</th>
-			<th class="kills">Kills</th>
-			<th class="deaths">Deaths</th>
-			<th class="suicides">Suicides</th>
-			<th class="score">Score</th>
-			<th class="accuracy">Accuracy</th>
-		</tr>
+    <tr>
+      <th class="nick">Nick</th>
+      <th class="kills">Kills</th>
+      <th class="deaths">Deaths</th>
+      <th class="suicides">Suicides</th>
+      <th class="score">Score</th>
+      <th class="accuracy">Accuracy</th>
+    </tr>
     </thead>
 % endif
 
 % if game_type_cd == 'ctf':
     <thead class="ctf ${pgstat.team_html_color()}">
-		<tr>
-			<th class="nick">Nick</th>
-			<th class="kills">Kills</th>
-			<th class="captures">Captures</th>
-			<th class="pickups">Pickups</th>
-			<th class="fck" title="Flag Carrier Kill">FCK</th>
-			<th class="returns">Returns</th>
-			<th class="score">Score</th>
-			<th class="accuracy">Accuracy</th>
-		</tr>
+    <tr>
+      <th class="nick">Nick</th>
+      <th class="kills">Kills</th>
+      <th class="captures">Captures</th>
+      <th class="pickups">Pickups</th>
+      <th class="fck" title="Flag Carrier Kill">FCK</th>
+      <th class="returns">Returns</th>
+      <th class="score">Score</th>
+      <th class="accuracy">Accuracy</th>
+    </tr>
     </thead>
 % endif
 
 % if game_type_cd == 'ca':
     <thead class="ca ${pgstat.team_html_color()}">
-		<tr>
-			<th class="nick">Nick</th>
-			<th class="kills">Kills</th>
-			<th class="score">Score</th>
-			<th class="accuracy">Accuracy</th>
-		</tr>
+    <tr>
+      <th class="nick">Nick</th>
+      <th class="kills">Kills</th>
+      <th class="score">Score</th>
+      <th class="accuracy">Accuracy</th>
+    </tr>
     </thead>
 % endif
 
 % if game_type_cd == 'freezetag':
     <thead class="freezetag ${pgstat.team_html_color()}">
-		<tr>
-			<th class="nick">Nick</th>
-			<th class="kills">Kills</th>
-			<th class="deaths">Deaths</th>
-			<th class="suicides">Suicides</th>
-			<th class="score">Score</th>
-			<th class="accuracy">Accuracy</th>
-		</tr>
+    <tr>
+      <th class="nick">Nick</th>
+      <th class="kills">Kills</th>
+      <th class="deaths">Deaths</th>
+      <th class="suicides">Suicides</th>
+      <th class="score">Score</th>
+      <th class="accuracy">Accuracy</th>
+    </tr>
     </thead>
 % endif
 </%def>
