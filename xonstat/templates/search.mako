@@ -89,14 +89,14 @@
 % if result_type == "game":
 <table>
     <tr>
-        <th>Game ID</th>
+        <th></th>
         <th>Map</th>
         <th>Server</th>
         <th>Played On</th>
     </tr>
     % for (game, server, gmap) in results:
     <tr>
-        <td><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">${game.game_id}</a></td>
+        <td><a class="btn btn-primary btn-small" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
         <td><a href="${request.route_url("map_info", id=gmap.map_id)}" name="Map info page for map #${gmap.map_id}">${gmap.name}</a></td>
         <td><a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for server #${server.server_id}">${server.name}</a></td>
         <td>${game.create_dt.strftime('%m/%d/%Y at %I:%M %p')}</td>

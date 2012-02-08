@@ -22,54 +22,8 @@ Server Information
     <p>
       IP Address: ${server.ip_addr} <br />
       Revision: ${server.revision} <br />
-      Created: ${server.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
+      Added on ${server.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
     </p>
-  </div>
-</div>
-
-
-<div class="row">
-  <div class="span12">
-    <h3>Recent Games</h2>
-    <table class="table table-bordered table-condensed">
-      <thead>
-        <tr>
-          <th>Game #</th>
-          <th>Type</th>
-          <th>Map</th>
-          <th>Time</th>
-          <th>Winner</th>
-        </tr>
-      </thead>
-      <tbody>
-      % for (game, srv, map, pgstat) in recent_games:
-        % if game != '-':
-        <tr>
-          <td><a href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">${game.game_id}</a></td>
-          <td class="gt_icon"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
-          <td><a href="${request.route_url('map_info', id=map.map_id)}" title="Go to the map detail page for this map">${map.name}</a></td>
-          <td>${game.start_dt.strftime('%m/%d/%Y %H:%M')}</td>
-          <td>
-          % if pgstat.player_id > 2:
-            <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player info page for this player">${pgstat.nick_html_colors()|n}</a>
-          </td>
-          % else:
-            ${pgstat.nick_html_colors()|n}
-          </td>
-          % endif
-        </tr>
-            % else:
-            <tr>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            % endif
-        % endfor
-        </tbody>
-    </table>
   </div>
 </div>
 
@@ -162,5 +116,53 @@ Server Information
   </div> <!-- /span4 -->
 
 </div> <!-- /row -->
+
+
+
+<div class="row">
+  <div class="span12">
+    <h3>Recent Games</h2>
+    <table class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Type</th>
+          <th>Map</th>
+          <th>Time</th>
+          <th>Winner</th>
+        </tr>
+      </thead>
+      <tbody>
+      % for (game, srv, map, pgstat) in recent_games:
+        % if game != '-':
+        <tr>
+          <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">View</a></td>
+          <td class="gt_icon"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
+          <td><a href="${request.route_url('map_info', id=map.map_id)}" title="Go to the map detail page for this map">${map.name}</a></td>
+          <td>${game.start_dt.strftime('%m/%d/%Y %H:%M')}</td>
+          <td>
+          % if pgstat.player_id > 2:
+            <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player info page for this player">${pgstat.nick_html_colors()|n}</a>
+          </td>
+          % else:
+            ${pgstat.nick_html_colors()|n}
+          </td>
+          % endif
+        </tr>
+            % else:
+            <tr>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            % endif
+        % endfor
+        </tbody>
+    </table>
+  </div>
+</div>
+
 
 % endif
