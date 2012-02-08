@@ -2,33 +2,34 @@
 <%namespace file="navlinks.mako" import="navlinks" />
 
 % if results == None:
+<h2>Advanced Search</h2>
 <form action="${request.route_url("search")}" method="get">
     <input type="hidden" name="fs" />
-    <table id="search_form" class="table table-bordered table-condensed" border="0">
+    <table style="border: none;" id="search_form" border="0">
         <tr>
-            <td style="text-align:right;">Nick:</td>
-            <td><input type="text" name="nick" /></td>
+            <td style="text-align:right; border: none;">Nick:</td>
+            <td style="border: none;"><input type="text" name="nick" /></td>
         </tr>
-        <tr>
-            <td style="text-align:right;">Server:</td>
-            <td><input type="text" name="server_name" /></td>
+        <tr style="border: none;">
+            <td style="text-align:right; border: none;">Server:</td>
+            <td style="border: none;"><input type="text" name="server_name" /></td>
         </tr>
-        <tr>
-            <td style="text-align:right;">Map:</td>
-            <td><input type="text" name="map_name" /></td>
+        <tr style="border: none;">
+            <td style="text-align:right; border: none;">Map:</td>
+            <td style="border: none;"><input type="text" name="map_name" /></td>
         </tr>
-        <tr>
-            <td style="text-align:right;">Game Type:</td>
-            <td>
+        <tr style="border: none;">
+            <td style="text-align:right; border: none;">Game Type:</td>
+            <td style="border: none;">
                 <input type="checkbox" name="dm" />Deathmatch<br/>
                 <input type="checkbox" name="duel" />Duel<br/>
                 <input type="checkbox" name="ctf" />Capture The Flag<br/>
                 <input type="checkbox" name="tdm" />Team Deathmatch<br/>
             </td>
         </tr>
-        <tr>
-            <td style="text-align:right;"></td>
-            <td><input type="submit" value="search" /></td>
+        <tr style="border: none;">
+            <td style="text-align:right; border: none;"></td>
+            <td style="border: none;"><input type="submit" value="search" /></td>
         </tr>
     </table>
     </form>
