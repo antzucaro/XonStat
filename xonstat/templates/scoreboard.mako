@@ -16,14 +16,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       </td>
     ${scoreboard_row(game_type_cd, pgstat)}
       <td>${pgstat.score}</td>
-      <td>
-      % if pgstat.player_id > 1:
-        <a href="${request.route_url("game_info", id=pgstat.game_id)}#accuracy-${pgstat.player_game_stat_id}"
-         title="View weapon accuracy details for this player in this game">
-        View
-        </a>
-      % endif
-      </td>
     </tr>
   % endfor
   </tbody>
@@ -40,7 +32,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="deaths">Deaths</th>
       <th class="suicides">Suicides</th>
       <th class="score">Score</th>
-      <th class="accuracy">Accuracy</th>
     </tr>
     </thead>
 % endif
@@ -55,7 +46,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="fck" title="Flag Carrier Kill">FCK</th>
       <th class="returns">Returns</th>
       <th class="score">Score</th>
-      <th class="accuracy">Accuracy</th>
     </tr>
     </thead>
 % endif
@@ -66,7 +56,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="nick">Nick</th>
       <th class="kills">Kills</th>
       <th class="score">Score</th>
-      <th class="accuracy">Accuracy</th>
     </tr>
     </thead>
 % endif
@@ -79,7 +68,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="deaths">Deaths</th>
       <th class="suicides">Suicides</th>
       <th class="score">Score</th>
-      <th class="accuracy">Accuracy</th>
     </tr>
     </thead>
 % endif

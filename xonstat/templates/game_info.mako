@@ -37,7 +37,7 @@ Game Information
 </div>
 
 <div class="row">
-  <div class="span12">
+  <div class="span12 game">
     <h3>Scoreboard</h3>
     ${scoreboard(game.game_type_cd, pgstats)}
   </div>
@@ -52,11 +52,11 @@ Game Information
     % if pgstat.player_game_stat_id in pwstats:
       <div class="accordion-group">
         <div class="accordion-heading">
-          <a class="accordion-toggle" data-toggle="collapse" data-parent="#acc-accordion" href="#${pgstat.player_game_stat_id}">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#acc-accordion" href="#accuracy-${pgstat.player_game_stat_id}">
           Accuracy for ${pgstat.nick_html_colors()|n}
           </a>
         </div>
-        <div id="${pgstat.player_game_stat_id}" class="accordion-body collapse in">
+        <div id="accuracy-${pgstat.player_game_stat_id}" class="accordion-body collapse in">
           <div class="accordion-inner">
             ${accuracy(pwstats[pgstat.player_game_stat_id])}
           </div>
