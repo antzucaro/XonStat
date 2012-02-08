@@ -17,6 +17,7 @@
         padding-bottom: 40px;
       }
     </style>
+
     <%block name="css">
     <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
     <link href="/static/css/style.min.css" rel="stylesheet">
@@ -45,8 +46,6 @@
       </%block>
 
       <%block name="js">
-      <script src="/static/js/jquery-1.7.1.min.js"></script>
-      <script src="/static/js/bootstrap-collapse.min.js"></script>
       </%block>
     </body>
 </html>

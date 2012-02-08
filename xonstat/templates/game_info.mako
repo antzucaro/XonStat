@@ -7,6 +7,14 @@
 ${nav.nav('games')}
 </%block>
 
+<%block name="js">
+      <script src="/static/js/jquery-1.7.1.min.js"></script>
+      <script src="/static/js/bootstrap-collapse.min.js"></script>
+      <script>
+        $(".collapse").collapse()
+      </script>
+</%block>
+
 <%block name="title">
 Game Information
 </%block>
@@ -16,29 +24,49 @@ Game Information
 <h2>Sorry, that game wasn't found!</h2>
 
 % else:
-<h2>Game Detail</h2>
-<p>
-Played on: ${game.start_dt.strftime('%m/%d/%Y at %I:%M %p')}<br />
-Game Type: ${game.game_type_cd}<br />
-Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
-Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />
-</p>
+<div class="row">
+  <div class="span6">
+    <h2>Game Detail</h2>
+    <p>
+      Played on: ${game.start_dt.strftime('%m/%d/%Y at %I:%M %p')}<br />
+      Game Type: ${game.game_type_cd}<br />
+      Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
+      Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />
+    </p>
+  </div>
+</div>
 
-##### SCOREBOARD #####
-<h2>Scoreboard</h2>
-${scoreboard(game.game_type_cd, pgstats)}
+<div class="row">
+  <div class="span12">
+    <h3>Scoreboard</h3>
+    ${scoreboard(game.game_type_cd, pgstats)}
+  </div>
+</div>
 
-
-##### ACCURACY #####
-<h2>Accuracy</h2>
-% for pgstat in pgstats:
-% if pgstat.player_game_stat_id in pwstats:
-<a name="accuracy-${pgstat.player_game_stat_id}" />
-Accuracy for <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player detail page for this player">${pgstat.nick_html_colors()|n}</a>:
-${accuracy(pwstats[pgstat.player_game_stat_id])}
-<br />
-<br />
+% if len(pgstats) > 0:
+<div class="row">
+  <div class="span12">
+    <h3>Accuracy Information</h3>
+    <div class="accordion" id="acc-accordion">
+    % for pgstat in pgstats:
+    % if pgstat.player_game_stat_id in pwstats:
+      <div class="accordion-group">
+        <div class="accordion-heading">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#acc-accordion" href="#${pgstat.player_game_stat_id}">
+          Accuracy for ${pgstat.nick_html_colors()|n}
+          </a>
+        </div>
+        <div id="${pgstat.player_game_stat_id}" class="accordion-body collapse in">
+          <div class="accordion-inner">
+            ${accuracy(pwstats[pgstat.player_game_stat_id])}
+          </div>
+        </div>
+      </div>
+    % endif
+    % endfor
+  </div>
+</div>
 % endif
-% endfor
 
+</div>
 % endif
