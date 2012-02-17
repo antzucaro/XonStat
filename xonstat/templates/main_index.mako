@@ -31,9 +31,9 @@ Leaderboard
         <tr>
           <td>${i}</td>
           % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick}</a></td>
+          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
           % else:
-          <td>${nick}</td>
+          <td>${nick|n}</td>
           % endif
           % if elo != '-':
           <td>${round(elo, 3)}</td>
@@ -65,9 +65,9 @@ Leaderboard
         <tr>
           <td>${i}</td>
           % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick}</a></td>
+          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
           % else:
-          <td>${nick}</td>
+          <td>${nick|n}</td>
           % endif
           % if elo != '-':
           <td>${round(elo, 3)}</td>
@@ -99,9 +99,9 @@ Leaderboard
         <tr>
           <td>${i}</td>
           % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick}</a></td>
+          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
           % else:
-          <td>${nick}</td>
+          <td>${nick|n}</td>
           % endif
           % if elo != '-':
           <td>${round(elo, 3)}</td>
@@ -136,7 +136,7 @@ Leaderboard
           % if player_id != '-':
           <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
           % else:
-          <td>${nick}</td>
+          <td>${nick|n}</td>
           % endif
           <td class="play-time">${alivetime}</td>
         </tr>
