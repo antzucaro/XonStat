@@ -1,23 +1,32 @@
 <%inherit file="base.mako"/>
+<%namespace name="nav" file="nav.mako" />
+<%namespace file="scoreboard.mako" import="scoreboard" />
+<%namespace file="navlinks.mako" import="navlinks" />
+
+<%block name="navigation">
+${nav.nav('games')}
+</%block>
 
 <%block name="title">
-Player Game Index for ${player.nick_html_colors()|n} - ${parent.title()}
+Game Index
 </%block>
 
 % if not games:
-<h2>Sorry, no games yet. Get playing, scrub!</h2>
+<h2>Sorry, no games yet. Get playing!</h2>
 
 % else:
-<h2>Recent Games by ${player.nick_html_colors()|n}</h2>
-% for (playergamestat, game, server, map) in games:
-   <li><a href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">#${game.game_id}:</a> <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a></li>
-% endfor
-<br />
-% endif
+<div class="row">
+  <div class="span12">
+    <h2>Recent Games</h2>
+    % for (game, server, map) in games:
+    <div class="game">
+      <h4><img src="/static/images/icons/48x48/${game.game_type_cd}.png" width="30" height="30" /><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a> <span class="permalink">(<a href="${request.route_url('game_info', id=game.game_id)}" name="Permalink for game #${game.game_id}">permalink</a>)</span></h4>
+      ${scoreboard(game.game_type_cd, pgstats[game.game_id])}
+    </div>
+    % endfor
+  </div>
+</div>
 
-% if games.previous_page:
-<a href="${request.route_url("player_game_index", player_id=player.player_id, page=games.previous_page)}" name="Previous Page">Previous</a>
-% endif
-% if games.next_page:
-<a href="${request.route_url("player_game_index", player_id=player.player_id, page=games.next_page)}" name="Next Page">Next</a>
+<!-- navigation links -->
+${navlinks("player_game_index_paged", games.page, games.last_page, player_id=player_id)}
 % endif

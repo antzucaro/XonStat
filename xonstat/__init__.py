@@ -27,14 +27,15 @@ def main(global_config, **settings):
         renderer="main_index.mako")
 
     # PLAYER ROUTES
-    config.add_route("player_game_index_default",
-            "/player/{player_id:\d+}/games")
-    config.add_view(player_game_index, route_name="player_game_index_default",
+    config.add_route("player_game_index_paged",
+            "/player/{player_id:\d+}/games/page/{page:\d+}")
+    config.add_view(player_game_index, route_name="player_game_index_paged",
         renderer="player_game_index.mako")
 
     config.add_route("player_game_index",
-            "/player/{player_id:\d+}/games/page/{page:\d+}")
-    config.add_view(player_game_index, renderer="player_game_index.mako")
+            "/player/{player_id:\d+}/games")
+    config.add_view(player_game_index, route_name="player_game_index",
+        renderer="player_game_index.mako")
 
     config.add_route("player_index_paged", "/players/page/{page:\d+}")
     config.add_view(player_index, route_name="player_index_paged",

@@ -28,7 +28,7 @@ def player_index(request):
                 filter(sa.not_(Player.nick.like('Anonymous Player%'))).\
                 order_by(Player.player_id.desc())
 
-        players = Page(player_q, current_page, url=page_url)
+        players = Page(player_q, current_page, items_per_page=10, url=page_url)
 
         last_linked_page = current_page + 4
         if last_linked_page > players.last_page:
@@ -140,21 +140,26 @@ def player_game_index(request):
         current_page = 1
 
     try:
-        player = DBSession.query(Player).filter_by(player_id=player_id).one()
-
-        games_q = DBSession.query(PlayerGameStat, Game, Server, Map).\
-                filter(PlayerGameStat.player_id == player_id).\
-                filter(PlayerGameStat.game_id == Game.game_id).\
-                filter(Game.server_id == Server.server_id).\
-                filter(Game.map_id == Map.map_id).\
-                order_by(Game.game_id.desc())
+        games_q = DBSession.query(Game, Server, Map).\
+            filter(PlayerGameStat.game_id == Game.game_id).\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(Game.server_id == Server.server_id).\
+            filter(Game.map_id == Map.map_id).\
+            order_by(Game.game_id.desc())
 
         games = Page(games_q, current_page, url=page_url)
 
-        
+        pgstats = {}
+        for (game, server, map) in games:
+            pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
+                    filter(PlayerGameStat.game_id == game.game_id).\
+                    order_by(PlayerGameStat.rank).\
+                    order_by(PlayerGameStat.score).all()
+
     except Exception as e:
         player = None
         games = None
 
-    return {'player':player,
-            'games':games}
+    return {'player_id':player_id,
+            'games':games,
+            'pgstats':pgstats}
