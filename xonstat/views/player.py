@@ -25,6 +25,7 @@ def player_index(request):
     try:
         player_q = DBSession.query(Player).\
                 filter(Player.player_id > 2).\
+                filter(Player.active_ind == True).\
                 filter(sa.not_(Player.nick.like('Anonymous Player%'))).\
                 order_by(Player.player_id.desc())
 
@@ -54,7 +55,8 @@ def player_info(request):
         player_id = -1;
         
     try:
-        player = DBSession.query(Player).filter_by(player_id=player_id).one()
+        player = DBSession.query(Player).filter_by(player_id=player_id).\
+                filter(Player.active_ind == True).one()
 
         weapon_stats = DBSession.query("descr", "weapon_cd", "actual_total", 
                 "max_total", "hit_total", "fired_total", "frags_total").\

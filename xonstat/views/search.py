@@ -29,6 +29,7 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None,
             q = q.filter(
                     func.upper(Player.stripped_nick).like('%'+nick.upper()+'%')).\
                     filter(Player.player_id > 2).\
+                    filter(Player.active_ind == True).\
                     order_by(Player.player_id)
 
     # server-only searches
