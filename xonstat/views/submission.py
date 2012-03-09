@@ -49,7 +49,7 @@ def is_supported_gametype(gametype):
     """Whether a gametype is supported or not"""
     flg_supported = True
 
-    if gametype == 'cts' or gametype == 'ca' or gametype == 'lms':
+    if gametype == 'cts' or gametype == 'lms':
         flg_supported = False
 
     return flg_supported
