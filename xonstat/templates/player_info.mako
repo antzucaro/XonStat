@@ -17,14 +17,22 @@ Player Information
 
 % else:
 <div class="row">
-  <div class="span5">
+  <div class="span8">
     <h2>${player.nick_html_colors()|n}</h2>
     <p>
-       Member Since: ${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} <br />
-       Last Seen: ${recent_games[0][1].fuzzy_date()} <br />
-       Playing Time: ${game_stats['total_alivetime']} <br />
-       Games Played: ${game_stats['total_games_played']} <br />
-       Average Rank: ${game_stats['avg_rank']} <br />
+       Member Since: <small>${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} </small><br />
+       Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
+       Playing Time: <small>${game_stats['total_alivetime']} </small><br />
+       Games Played: <small>${game_stats['total_games_played']} </small><br />
+       Average Rank: <small>${game_stats['avg_rank']} </small><br />
+       % if elos_display is not None and len(elos_display) > 0:
+       Elo:
+          <small>${', '.join(elos_display)} </small>
+          <br />
+          %if '*' in ', '.join(elos_display):
+              <small><i>*preliminary Elo</i></small>
+          %endif
+      % endif
     </p>
   </div>
 </div>

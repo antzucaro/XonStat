@@ -53,10 +53,24 @@ def player_info(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
         player_id = -1;
-        
+
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).\
                 filter(Player.active_ind == True).one()
+
+        elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
+                filter(PlayerElo.game_type_cd.in_(['ctf','duel','dm'])).\
+                order_by(PlayerElo.elo.desc()).all()
+
+        elos_display = []
+        for elo in elos:
+            if elo.games > 32:
+                str = "{0} ({1})"
+            else:
+                str = "{0}* ({1})"
+
+            elos_display.append(str.format(round(elo.elo, 3),
+                elo.game_type_cd))
 
         weapon_stats = DBSession.query("descr", "weapon_cd", "actual_total", 
                 "max_total", "hit_total", "fired_total", "frags_total").\
@@ -118,11 +132,13 @@ def player_info(request):
 
     except Exception as e:
         player = None
+        elos_display = None
         weapon_stats = None
         game_stats = None
         recent_games = None
 
     return {'player':player, 
+            'elos_display':elos_display,
             'recent_games':recent_games,
             'weapon_stats':weapon_stats,
             'game_stats':game_stats}
