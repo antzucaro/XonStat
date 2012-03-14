@@ -389,17 +389,14 @@ def create_player_game_stat(session=None, player=None,
         if key == 'scoreboard-kills': pgstat.kills = value
         if key == 'scoreboard-suicides': pgstat.suicides = value
 
-    # check to see if we had a name, and if 
-    # not use the name from the player id
+    # check to see if we had a name, and if
+    # not use an anonymous handle
     if pgstat.nick == None:
-        pgstat.nick = player.nick
+        pgstat.nick = "Anonymous Player"
+        pgstat.stripped_nick = "Anonymous Player"
 
-    # whichever nick we ended up with, strip it and store as the stripped_nick
-    pgstat.stripped_nick = qfont_decode(strip_colors(pgstat.nick))
-
-    # if the nick we end up with is different from the one in the
-    # player record, change the nick to reflect the new value
-    if pgstat.nick != player.nick and player.player_id > 2:
+    # otherwise process a nick change
+    elif pgstat.nick != player.nick and player.player_id > 2:
         register_new_nick(session, player, pgstat.nick)
 
     # if the player is ranked #1 and it is a team game, set the game's winner
