@@ -65,7 +65,7 @@ def qfont_decode(qstr=''):
         qstr = ''
     chars = []
     for c in qstr:
-        if c >= u'\ue000' and c <= u'\ue0ff':
+        if u'\ue000' <= c <= u'\ue0ff':
             c = _qfont_table[ord(c) - 0xe000]
         chars.append(c)
     return ''.join(chars)
