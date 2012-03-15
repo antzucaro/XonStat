@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 import sqlalchemy as sa
+import sqlalchemy.sql.functions as func
 import time
 from pyramid.response import Response
 from pyramid.url import current_route_url
@@ -46,6 +47,27 @@ def player_index(request):
             }
 
 
+def games_played(player_id):
+    """
+    Provides a breakdown by gametype of the games played by player_id.
+
+    Returns a tuple containing (total_games, games_breakdown), where
+    total_games is the absolute number of games played by player_id
+    and games_breakdown is an array containing (game_type_cd, # games)
+    """
+    games_played = DBSession.query(Game.game_type_cd, func.count()).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(PlayerGameStat.player_id == player_id).\
+            group_by(Game.game_type_cd).\
+            order_by(func.count().desc()).all()
+
+    total = 0
+    for (game_type_cd, games) in games_played:
+        total += games
+
+    return (total, games_played)
+
+
 def player_info(request):
     """
     Provides detailed information on a specific player
@@ -57,6 +79,8 @@ def player_info(request):
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).\
                 filter(Player.active_ind == True).one()
+
+        (total_games, games_breakdown) = games_played(player.player_id)
 
         elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
                 filter(PlayerElo.game_type_cd.in_(['ctf','duel','dm'])).\
@@ -136,12 +160,16 @@ def player_info(request):
         weapon_stats = None
         game_stats = None
         recent_games = None
+        total_games = None
+        games_breakdown = None
 
     return {'player':player, 
             'elos_display':elos_display,
             'recent_games':recent_games,
             'weapon_stats':weapon_stats,
-            'game_stats':game_stats}
+            'game_stats':game_stats, 
+            'total_games':total_games,
+            'games_breakdown':games_breakdown}
 
 
 def player_game_index(request):

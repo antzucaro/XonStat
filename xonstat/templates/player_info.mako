@@ -23,7 +23,8 @@ Player Information
        Member Since: <small>${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} </small><br />
        Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
        Playing Time: <small>${game_stats['total_alivetime']} </small><br />
-       Games Played: <small>${game_stats['total_games_played']} </small><br />
+       <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
+       Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
        Average Rank: <small>${game_stats['avg_rank']} </small><br />
        % if elos_display is not None and len(elos_display) > 0:
        Elo:
