@@ -1,5 +1,6 @@
 import re
-from cgi import escape
+from colorsys import rgb_to_hls
+from cgi import escape as html_escape
 from datetime import datetime
 
 # Map of special chars to ascii from Darkplace's console.c.
@@ -76,15 +77,21 @@ def strip_colors(qstr=''):
     if qstr == None:
         qstr = ''
     return _all_colors.sub('', qstr)
+    
+    
+def hex_repl(match):
+    r = match.group(1) * 2
+    g = match.group(2) * 2
+    b = match.group(3) * 2
+    hue, light, satur = rgb_to_hls(int(r, 16), int(g, 16), int(b, 16))
+    klass = 'text_dark' if light < 0x80 else 'text_light'
+    return '<span style="color:#{0}{1}{2}" class="{3}">'.format(r, g, b, klass)
 
 
 def html_colors(qstr=''):
-    qstr = escape(qfont_decode(qstr))
-    def dec_repl(match):
-        return _dec_spans[int(match.group(1))]
-    qstr = qstr.replace('^^', '^')
-    html = _dec_colors.sub(dec_repl, qstr)
-    html = _hex_colors.sub(r"<span style='color:#\1\1\2\2\3\3'>", html)
+    qstr = html_escape(qfont_decode(qstr).replace('^^', '^'))
+    html = _dec_colors.sub(lambda match: _dec_spans[int(match.group(1))], qstr)
+    html = _hex_colors.sub(hex_repl, html)
     return html + "</span>" * len(_all_colors.findall(qstr))
 
 
