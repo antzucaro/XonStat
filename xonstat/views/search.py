@@ -83,6 +83,7 @@ def search(request):
     result_type = None
     results = None
     query = None
+    _query = {}
 
     if 'page' in request.matchdict:
         current_page = request.matchdict['page']
@@ -119,10 +120,13 @@ def search(request):
             stype = request.params['stype']
             sval = request.params['sval']
             if stype == "players":
+                query['nick'] = sval
                 nick = sval
             if stype == "servers":
+                query['server_name'] = sval
                 server_name = sval
             if stype == "maps":
+                query['map_name'] = sval
                 map_name = sval
 
         (result_type, q) = search_q(nick=nick, server_name=server_name,
