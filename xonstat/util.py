@@ -1,5 +1,5 @@
 import re
-from colorsys import rgb_to_hls
+from colorsys import rgb_to_hls, hls_to_rgb
 from cgi import escape as html_escape
 from datetime import datetime
 
@@ -59,6 +59,9 @@ _all_colors = re.compile(r'\^(\d|x[\dA-Fa-f]{3})')
 _dec_colors = re.compile(r'\^(\d)')
 _hex_colors = re.compile(r'\^x([\dA-Fa-f])([\dA-Fa-f])([\dA-Fa-f])')
 
+# On a light scale of 0 (black) to 255 (white)
+_contrash_threshold = 128
+
 
 def qfont_decode(qstr=''):
     """ Convert the qfont characters in a string to ascii.
@@ -84,8 +87,10 @@ def hex_repl(match):
     g = match.group(2) * 2
     b = match.group(3) * 2
     hue, light, satur = rgb_to_hls(int(r, 16), int(g, 16), int(b, 16))
-    klass = 'text_dark' if light < 0x80 else 'text_light'
-    return '<span style="color:#{0}{1}{2}" class="{3}">'.format(r, g, b, klass)
+    if light < _contrash_threshold:
+        light = _contrash_threshold
+    r, g, b = hls_to_rgb(hue, light, satur)
+    return '<span style="rgb({0},{1},{2})">'.format(r, g, b)
 
 
 def html_colors(qstr=''):
