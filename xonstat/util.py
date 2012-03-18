@@ -91,7 +91,7 @@ def hex_repl(match):
     if light < _contrast_threshold:
         light = _contrast_threshold
     # Get new rgb in 0-255 scale
-    r, g, b = tuple([255 * i for i in hls_to_rgb(hue, light, satur)])
+    r, g, b = tuple([int(round(255 * i)) for i in hls_to_rgb(hue, light, satur)])
     return '<span style="color:rgb({0},{1},{2})">'.format(r, g, b)
 
 
