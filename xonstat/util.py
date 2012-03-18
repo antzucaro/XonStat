@@ -83,16 +83,23 @@ def strip_colors(qstr=''):
     
     
 def hex_repl(match):
-    # Convert hex to 8 bits and to 0.0-1.0 scale
-    r = int(match.group(1) * 2, 16) / 255.
-    g = int(match.group(2) * 2, 16) / 255.
-    b = int(match.group(3) * 2, 16) / 255.
+    """Convert Darkplaces hex color codes to CSS rgb.
+    Brighten colors with HSL light value less than 50%"""
+
+    # Extend hex char to 8 bits and to 0.0-1.0 scale
+    r = int(match.group(0) * 2, 16) / 255.0
+    g = int(match.group(1) * 2, 16) / 255.0
+    b = int(match.group(2) * 2, 16) / 255.0
+
+    # Check if color is too dark
     hue, light, satur = rgb_to_hls(r, g, b)
     if light < _contrast_threshold:
         light = _contrast_threshold
-    # Get new rgb in 0-255 scale
-    r, g, b = tuple([int(round(255 * i)) for i in hls_to_rgb(hue, light, satur)])
-    return '<span style="color:rgb({0},{1},{2})">'.format(r, g, b)
+        r, g, b = hls_to_rgb(hue, light, satur)
+
+    # Convert back to 0-255 scale for css
+    return '<span style="color:rgb(%d,%d,%d)">' % (255 * r, 255 * g, 255 * b)
+
 
 
 def html_colors(qstr=''):
