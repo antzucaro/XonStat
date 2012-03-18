@@ -59,8 +59,8 @@ _all_colors = re.compile(r'\^(\d|x[\dA-Fa-f]{3})')
 _dec_colors = re.compile(r'\^(\d)')
 _hex_colors = re.compile(r'\^x([\dA-Fa-f])([\dA-Fa-f])([\dA-Fa-f])')
 
-# On a light scale of 0 (black) to 255 (white)
-_contrast_threshold = 128
+# On a light scale of 0 (black) to 1.0 (white)
+_contrast_threshold = 0.5
 
 
 def qfont_decode(qstr=''):
@@ -83,13 +83,15 @@ def strip_colors(qstr=''):
     
     
 def hex_repl(match):
-    r = match.group(1) * 2
-    g = match.group(2) * 2
-    b = match.group(3) * 2
-    hue, light, satur = rgb_to_hls(int(r, 16), int(g, 16), int(b, 16))
+    # Convert hex to 8 bits and to 0.0-1.0 scale
+    r = 255. / int(match.group(1) * 2, 16)
+    g = 255. / int(match.group(2) * 2, 16)
+    b = 255. / int(match.group(3) * 2, 16)
+    hue, light, satur = rgb_to_hls(r, g, b)
     if light < _contrast_threshold:
         light = _contrast_threshold
-    r, g, b = hls_to_rgb(hue, light, satur)
+    # Get new rgb in 0-255 scale
+    r, g, b = map((255).__mul__, hls_to_rgb(hue, light, satur))
     return '<span style="color:rgb({0},{1},{2})">'.format(r, g, b)
 
 
