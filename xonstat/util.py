@@ -84,9 +84,9 @@ def strip_colors(qstr=''):
     
 def hex_repl(match):
     # Convert hex to 8 bits and to 0.0-1.0 scale
-    r = 255. / int(match.group(1) * 2, 16)
-    g = 255. / int(match.group(2) * 2, 16)
-    b = 255. / int(match.group(3) * 2, 16)
+    r = int(match.group(1) * 2, 16) / 255.
+    g = int(match.group(2) * 2, 16) / 255.
+    b = int(match.group(3) * 2, 16) / 255.
     hue, light, satur = rgb_to_hls(r, g, b)
     if light < _contrast_threshold:
         light = _contrast_threshold
