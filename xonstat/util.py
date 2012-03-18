@@ -42,16 +42,16 @@ _qfont_table = [
 
 # Hex-colored spans for decimal color codes ^0 - ^9
 _dec_spans = [
- "<span style='color:#333333'>",
- "<span style='color:#FF0000'>",
- "<span style='color:#33FF00'>",
- "<span style='color:#FFFF00'>",
- "<span style='color:#3366FF'>",
- "<span style='color:#33FFFF'>",
- "<span style='color:#FF3366'>",
- "<span style='color:#FFFFFF'>",
- "<span style='color:#999999'>",
- "<span style='color:#666666'>"
+ "<span style='color:rgb(128,128,128)'>",
+ "<span style='color:rgb(255,0,0)'>",
+ "<span style='color:rgb(51,255,0)'>",
+ "<span style='color:rgb(255,255,0)'>",
+ "<span style='color:rgb(51,102,255)'>",
+ "<span style='color:rgb(51,255,255)'>",
+ "<span style='color:rgb(255,51,102)'>",
+ "<span style='color:rgb(255,255,255)'>",
+ "<span style='color:rgb(153,153,153)'>",
+ "<span style='color:rgb(128,128,128)'>"
 ]
 
 # Color code patterns
