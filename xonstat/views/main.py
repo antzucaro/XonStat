@@ -22,7 +22,8 @@ def main_index(request):
     duel_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
             PlayerRank.elo).\
             filter(PlayerRank.game_type_cd=='duel').\
-            order_by(PlayerRank.rank).all()[0:10]
+            order_by(PlayerRank.rank).\
+            limit(10).all()
 
     duel_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in duel_ranks]
@@ -34,7 +35,8 @@ def main_index(request):
     ctf_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
             PlayerRank.elo).\
             filter(PlayerRank.game_type_cd=='ctf').\
-            order_by(PlayerRank.rank).all()[0:10]
+            order_by(PlayerRank.rank).\
+            limit(10).all()
 
     ctf_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in ctf_ranks]
@@ -46,7 +48,8 @@ def main_index(request):
     dm_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
             PlayerRank.elo).\
             filter(PlayerRank.game_type_cd=='dm').\
-            order_by(PlayerRank.rank).all()[0:10]
+            order_by(PlayerRank.rank).\
+            limit(10).all()
 
     dm_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in dm_ranks]
@@ -54,16 +57,18 @@ def main_index(request):
     for i in range(leaderboard_count-len(dm_ranks)):
         dm_ranks.append(('-', '-', '-'))
 
+    right_now = datetime.utcnow()
+    back_then = datetime.utcnow() - timedelta(days=leaderboard_lifetime)
+
     # top players by playing time
     top_players = DBSession.query(Player.player_id, Player.nick, 
             func.sum(PlayerGameStat.alivetime)).\
             filter(Player.player_id == PlayerGameStat.player_id).\
             filter(Player.player_id > 2).\
-            filter(PlayerGameStat.create_dt > 
-                    (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
+            filter(expr.between(PlayerGameStat.create_dt, back_then, right_now)).\
             order_by(expr.desc(func.sum(PlayerGameStat.alivetime))).\
             group_by(Player.nick).\
-            group_by(Player.player_id).all()[0:10]
+            group_by(Player.player_id).limit(10).all()
 
     top_players = [(player_id, html_colors(nick), score) \
             for (player_id, nick, score) in top_players]
@@ -75,11 +80,10 @@ def main_index(request):
     top_servers = DBSession.query(Server.server_id, Server.name, 
             func.count()).\
             filter(Game.server_id==Server.server_id).\
-            filter(Game.create_dt > 
-                (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
+            filter(expr.between(Game.create_dt, back_then, right_now)).\
             order_by(expr.desc(func.count(Game.game_id))).\
             group_by(Server.server_id).\
-            group_by(Server.name).all()[0:10]
+            group_by(Server.name).limit(10).all()
 
     for i in range(leaderboard_count-len(top_servers)):
         top_servers.append(('-', '-', '-'))
@@ -88,11 +92,10 @@ def main_index(request):
     top_maps = DBSession.query(Game.map_id, Map.name, 
             func.count()).\
             filter(Map.map_id==Game.map_id).\
-            filter(Game.create_dt > 
-                (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
+            filter(expr.between(Game.create_dt, back_then, right_now)).\
             order_by(expr.desc(func.count())).\
             group_by(Game.map_id).\
-            group_by(Map.name).all()[0:10]
+            group_by(Map.name).limit(10).all()
 
     for i in range(leaderboard_count-len(top_maps)):
         top_maps.append(('-', '-', '-'))
@@ -103,7 +106,8 @@ def main_index(request):
             filter(Game.map_id==Map.map_id).\
             filter(PlayerGameStat.game_id==Game.game_id).\
             filter(PlayerGameStat.rank==1).\
-            order_by(expr.desc(Game.start_dt)).all()[0:recent_games_count]
+            filter(expr.between(Game.create_dt, back_then, right_now)).\
+            order_by(expr.desc(Game.start_dt)).limit(recent_games_count).all()
 
     for i in range(recent_games_count-len(recent_games)):
         recent_games.append(('-', '-', '-', '-'))
