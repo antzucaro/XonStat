@@ -22,10 +22,15 @@ Player Information
     <p>
        Member Since: <small>${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} </small><br />
        Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
-       Playing Time: <small>${game_stats['total_alivetime']} </small><br />
+       Playing Time: <small>${total_stats['alivetime']} </small><br />
+       % if total_games > 0 and total_stats['wins'] is not None:
+       Win Percentage: <small>${round(float(total_stats['wins'])/total_games * 100, 2)}% (${total_stats['wins']} wins, ${total_games - total_stats['wins']} losses) </small><br />
+       % endif
+       % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
+       Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths) </small><br />
+       % endif
        <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
        Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
-       Average Rank: <small>${game_stats['avg_rank']} </small><br />
        % if elos_display is not None and len(elos_display) > 0:
        Elo:
           <small>${', '.join(elos_display)} </small>
@@ -38,53 +43,6 @@ Player Information
   </div>
 </div>
 % endif
-
-
-% if game_stats:
-<div class="row">
-  <div class="span12">
-    <h3>Overall Game Stats</h2>
-    <table class="table table-bordered table-condensed">
-      <thead>
-        <tr>
-          <th>Score</th>
-          <th>Carrier Kills</th>
-          <th>Kills</th>
-          <th>Collects</th>
-          <th>Deaths</th>
-          <th>Destroys</th>
-          <th>Suicides</th>
-          <th>Destroys (with key)</th>
-          <th>Captures</th>
-          <th>Pushes</th>
-          <th>Pickups</th>
-          <th>Pushed</th>
-          <th>Drops</th>
-          <th>Returns</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>${game_stats['total_score']}</td>
-          <td>${game_stats['total_carrier_frags']}</td>
-          <td>${game_stats['total_kills']}</td>
-          <td>${game_stats['total_collects']}</td>
-          <td>${game_stats['total_deaths']}</td>
-          <td>${game_stats['total_destroys']}</td>
-          <td>${game_stats['total_suicides']}</td>
-          <td>${game_stats['total_destroys']}</td>
-          <td>${game_stats['total_captures']}</td>
-          <td>${game_stats['total_pushes']}</td>
-          <td>${game_stats['total_pickups']}</td>
-          <td>${game_stats['total_pushed']}</td>
-          <td>${game_stats['total_drops']}</td>
-          <td>${game_stats['total_returns']}</td>
-        </tr>
-      </tbody>
-    </table>
-    % endif
-  </div>
-</div>
 
 
 % if weapon_stats:
@@ -100,39 +58,47 @@ Player Information
 ##### RECENT GAMES (v2) ####
 % if recent_games:
 <div class="row">
-  <div class="span6">
+  <div class="span12">
     <h3>Recent Games</h3>
     <table class="table table-bordered table-condensed">
       <thead>
         <tr>
-           <th>Game Type</th>
+           <th></th>
+           <th>Type</th>
+           <th>Server</th>
            <th>Map</th>
            <th>Result</th>
            <th>Played</th>
-           <th>Permalink</th>
         </tr>
       </thead>
       <tbody>
       % for (gamestat, game, server, map) in recent_games:
         <tr>
-           <td><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
+           <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">view</a></td>
+           <td style="width:20px;"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
+           <td>${server.name}</td>
            <td>${map.name}</td>
            <td>
-           % if gamestat.team != None and gamestat.team == game.winner:
-           Won (#${gamestat.rank})
-           % elif gamestat.team != None and gamestat.team != game.winner:
-           Lost (#${gamestat.rank})
-               % else:
-               #${gamestat.rank}
-           % endif
+           % if gamestat.team != None:
+             % if gamestat.team == game.winner:
+             Win
+             % else:
+             Loss
+             % endif
+          % else:
+            % if gamestat.rank == 1:
+            Win
+            % else:
+            Loss (#${gamestat.rank})
+            % endif
+          % endif
            </td>
            <td>${game.fuzzy_date()}</td>
-           <td><a class="recent_game_box" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
         </tr>
       % endfor
       </tbody>
     </table>
-    % if game_stats['total_games_played'] > 10:
+    % if total_games > 10:
     <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More games played by ${player.nick_html_colors()|n}...</a>
     % endif
   </div>

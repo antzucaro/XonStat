@@ -47,7 +47,7 @@ def player_index(request):
             }
 
 
-def games_played(player_id):
+def get_games_played(player_id):
     """
     Provides a breakdown by gametype of the games played by player_id.
 
@@ -68,6 +68,48 @@ def games_played(player_id):
     return (total, games_played)
 
 
+# TODO: should probably factor the above function into this one such that
+# total_stats['ctf_games'] is the count of CTF games and so on...
+def get_total_stats(player_id):
+    """
+    Provides aggregated stats by player_id.
+
+    Returns a dict with the keys 'kills', 'deaths', 'alivetime'.
+
+    kills = how many kills a player has over all games
+    deaths = how many deaths a player has over all games
+    alivetime = how long a player has played over all games
+
+    If any of the above are None, they are set to 0.
+    """
+    total_stats = {}
+    (total_stats['kills'], total_stats['deaths'], total_stats['alivetime']) = DBSession.\
+            query("total_kills", "total_deaths", "total_alivetime").\
+            from_statement(
+                "select sum(kills) total_kills, "
+                "sum(deaths) total_deaths, "
+                "sum(alivetime) total_alivetime "
+                "from player_game_stats "
+                "where player_id=:player_id"
+            ).params(player_id=player_id).one()
+
+    (total_stats['wins'],) = DBSession.\
+            query("total_wins").\
+            from_statement(
+                "select count(*) total_wins "
+                "from games g, player_game_stats pgs "
+                "where g.game_id = pgs.game_id "
+                "and player_id=:player_id "
+                "and (g.winner = pgs.team or pgs.rank = 1)"
+            ).params(player_id=player_id).one()
+
+    for (key,value) in total_stats.items():
+        if value == None:
+            total_stats[key] = 0
+
+    return total_stats
+
+
 def player_info(request):
     """
     Provides detailed information on a specific player
@@ -80,7 +122,9 @@ def player_info(request):
         player = DBSession.query(Player).filter_by(player_id=player_id).\
                 filter(Player.active_ind == True).one()
 
-        (total_games, games_breakdown) = games_played(player.player_id)
+        (total_games, games_breakdown) = get_games_played(player.player_id)
+
+        total_stats = get_total_stats(player.player_id)
 
         elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
                 filter(PlayerElo.game_type_cd.in_(['ctf','duel','dm'])).\
@@ -116,49 +160,11 @@ def player_info(request):
                 filter(Game.map_id == Map.map_id).\
                 order_by(Game.game_id.desc())[0:10]
 
-        game_stats = {}
-        (game_stats['avg_rank'], game_stats['total_kills'], 
-                game_stats['total_deaths'], game_stats['total_suicides'], 
-                game_stats['total_score'], game_stats['total_time'], 
-                game_stats['total_held'], game_stats['total_captures'], 
-                game_stats['total_pickups'],game_stats['total_drops'], 
-                game_stats['total_returns'], game_stats['total_collects'], 
-                game_stats['total_destroys'], game_stats['total_dhk'], 
-                game_stats['total_pushes'], game_stats['total_pushed'], 
-                game_stats['total_carrier_frags'], 
-                game_stats['total_alivetime'],
-                game_stats['total_games_played']) = DBSession.\
-                        query("avg_rank", "total_kills", "total_deaths", 
-                "total_suicides", "total_score", "total_time", "total_held",
-                "total_captures", "total_pickups", "total_drops", 
-                "total_returns", "total_collects", "total_destroys", 
-                "total_dhk", "total_pushes", "total_pushed", 
-                "total_carrier_frags", "total_alivetime", 
-                "total_games_played").\
-                from_statement(
-                    "select round(avg(rank)) avg_rank, sum(kills) total_kills, "
-                    "sum(deaths) total_deaths, sum(suicides) total_suicides, "
-                    "sum(score) total_score, sum(time) total_time, "
-                    "sum(held) total_held, sum(captures) total_captures, "
-                    "sum(pickups) total_pickups, sum(drops) total_drops, "
-                    "sum(returns) total_returns, sum(collects) total_collects, "
-                    "sum(destroys) total_destroys, sum(destroys_holding_key) total_dhk, "
-                    "sum(pushes) total_pushes, sum(pushed) total_pushed, "
-                    "sum(carrier_frags) total_carrier_frags, "
-                    "sum(alivetime) total_alivetime, count(*) total_games_played "
-                    "from player_game_stats "
-                    "where player_id=:player_id"
-                ).params(player_id=player_id).one()
-
-        for (key,value) in game_stats.items():
-            if value == None:
-                game_stats[key] = '-'
-
     except Exception as e:
         player = None
         elos_display = None
         weapon_stats = None
-        game_stats = None
+        total_stats = None
         recent_games = None
         total_games = None
         games_breakdown = None
@@ -167,7 +173,7 @@ def player_info(request):
             'elos_display':elos_display,
             'recent_games':recent_games,
             'weapon_stats':weapon_stats,
-            'game_stats':game_stats, 
+            'total_stats':total_stats, 
             'total_games':total_games,
             'games_breakdown':games_breakdown}
 
