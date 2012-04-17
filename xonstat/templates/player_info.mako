@@ -6,6 +6,22 @@
 ${nav.nav('players')}
 </%block>
 
+<%block name="js">
+      <script src="/static/js/jquery-1.7.1.min.js"></script>
+      <script src="/static/js/jquery.flot.min.js"></script>
+      <script type="text/javascript">
+          var avg = ${avg};
+          var accs = ${accs};
+
+          $.plot($("#acc-graph"), [
+            { data: avg },
+            { data: accs },
+          ],
+          { yaxis: {ticks: 10, min: 0, max: 100 },
+          });
+      </script>
+</%block>
+
 <%block name="title">
 Player Information
 </%block>
@@ -45,11 +61,12 @@ Player Information
 % endif
 
 
-% if weapon_stats:
+% if accs is not None:
 <div class="row">
-  <div class="span12">
-    <h3>Overall Accuracy</h3>
-    ${accuracy(weapon_stats)}
+  <div class="span10">
+    <h3>Nex Accuracy</h3>
+    <div id="acc-graph" style="width:800px; height:200px;">
+    </div>
   </div>
 </div>
 % endif

@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import re
 import sqlalchemy as sa
@@ -110,6 +111,45 @@ def get_total_stats(player_id):
     return total_stats
 
 
+def get_accuracy_stats(player_id, weapon_cd, games):
+    """
+    Provides accuracy for weapon_cd by player_id for the past N games.
+    """
+    # Reaching back 90 days should give us an accurate enough average
+    # We then multiply this out for the number of data points (games) to
+    # create parameters for a flot graph
+    try:
+        raw_avg = DBSession.query(func.sum(PlayerWeaponStat.hit),
+                func.sum(PlayerWeaponStat.fired)).\
+                filter(PlayerWeaponStat.player_id == player_id).\
+                filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
+                one()
+
+        raw_avg = round(float(raw_avg[0])/raw_avg[1]*100, 2)
+
+        avg = []
+        for i in range(games):
+            avg.append((i, raw_avg))
+
+        # Determine the raw accuracy (hit, fired) numbers for $games games
+        # This is then enumerated to create parameters for a flot graph
+        raw_accs = DBSession.query(PlayerWeaponStat.hit, PlayerWeaponStat.fired).\
+                filter(PlayerWeaponStat.player_id == player_id).\
+                filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
+                order_by(PlayerWeaponStat.create_dt.desc()).\
+                limit(games).\
+                all()
+
+        accs = []
+        for i in range(len(raw_accs)):
+            accs.append((i, round(float(raw_accs[i][0])/raw_accs[i][1]*100, 2)))
+    except:
+        accs = 0
+        avg = 0
+
+    return (avg, accs)
+
+
 def player_info(request):
     """
     Provides detailed information on a specific player
@@ -122,10 +162,14 @@ def player_info(request):
         player = DBSession.query(Player).filter_by(player_id=player_id).\
                 filter(Player.active_ind == True).one()
 
-        (total_games, games_breakdown) = get_games_played(player.player_id)
-
+        # games played, alivetime, wins, kills, deaths
         total_stats = get_total_stats(player.player_id)
 
+        # games breakdown - N games played (X ctf, Y dm) etc
+        (total_games, games_breakdown) = get_games_played(player.player_id)
+
+
+        # friendly display of elo information and preliminary status
         elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
                 filter(PlayerElo.game_type_cd.in_(['ctf','duel','dm'])).\
                 order_by(PlayerElo.elo.desc()).all()
@@ -140,19 +184,15 @@ def player_info(request):
             elos_display.append(str.format(round(elo.elo, 3),
                 elo.game_type_cd))
 
-        weapon_stats = DBSession.query("descr", "weapon_cd", "actual_total", 
-                "max_total", "hit_total", "fired_total", "frags_total").\
-                from_statement(
-                    "select cw.descr, cw.weapon_cd, sum(actual) actual_total, "
-                    "sum(max) max_total, sum(hit) hit_total, "
-                    "sum(fired) fired_total, sum(frags) frags_total "
-                    "from player_weapon_stats ws, cd_weapon cw "
-                    "where ws.weapon_cd = cw.weapon_cd "
-                    "and player_id = :player_id "
-                    "group by descr, cw.weapon_cd "
-                    "order by descr"
-                ).params(player_id=player_id).all()
+        # data for the accuracy graph, which is converted into a JSON array for
+        # usage by flot
+        (avg, accs) = get_accuracy_stats(player_id, 'nex', 20)
 
+        avg = json.dumps(avg)
+        accs = json.dumps(accs)
+
+
+        # recent games table, all data
         recent_games = DBSession.query(PlayerGameStat, Game, Server, Map).\
                 filter(PlayerGameStat.player_id == player_id).\
                 filter(PlayerGameStat.game_id == Game.game_id).\
@@ -163,19 +203,23 @@ def player_info(request):
     except Exception as e:
         player = None
         elos_display = None
-        weapon_stats = None
         total_stats = None
         recent_games = None
         total_games = None
         games_breakdown = None
+        avg = None
+        accs = None
+        raise e
 
-    return {'player':player, 
+    return {'player':player,
             'elos_display':elos_display,
             'recent_games':recent_games,
-            'weapon_stats':weapon_stats,
-            'total_stats':total_stats, 
+            'total_stats':total_stats,
             'total_games':total_games,
-            'games_breakdown':games_breakdown}
+            'games_breakdown':games_breakdown,
+            'avg':avg,
+            'accs':accs,
+            }
 
 
 def player_game_index(request):
