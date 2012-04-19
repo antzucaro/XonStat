@@ -209,7 +209,6 @@ def player_info(request):
         games_breakdown = None
         avg = None
         accs = None
-        raise e
 
     return {'player':player,
             'elos_display':elos_display,
