@@ -136,7 +136,7 @@ def get_accuracy_stats(player_id, weapon_cd, games):
         raw_accs = DBSession.query(PlayerWeaponStat.hit, PlayerWeaponStat.fired).\
                 filter(PlayerWeaponStat.player_id == player_id).\
                 filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
-                order_by(PlayerWeaponStat.create_dt.desc()).\
+                order_by(PlayerWeaponStat.create_dt).\
                 limit(games).\
                 all()
 
