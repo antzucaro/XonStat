@@ -1,4 +1,3 @@
-import pyramid_jinja2
 import sqlahelper
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
@@ -17,14 +16,16 @@ def main(global_config, **settings):
 
     config = Configurator(settings=settings)
 
-    config.add_renderer('.jinja2', pyramid_jinja2.renderer_factory)
-
     config.add_static_view('static', 'xonstat:static')
 
     # ROOT ROUTE
     config.add_route("main_index", "/")
     config.add_view(main_index, route_name="main_index",
         renderer="main_index.mako")
+
+    # MAIN SUBMISSION ROUTE
+    config.add_route("stats_submit", "stats/submit")
+    config.add_view(stats_submit, route_name="stats_submit")
 
     # PLAYER ROUTES
     config.add_route("player_game_index_paged",
@@ -100,10 +101,6 @@ def main(global_config, **settings):
     config.add_route("map_info", "/map/{id:\d+}")
     config.add_view(map_info, route_name="map_info",
         renderer="map_info.mako")
-
-    config.add_route("stats_submit", "stats/submit")
-    config.add_view(stats_submit, route_name="stats_submit",
-        renderer="index.jinja2")
 
     # SEARCH ROUTES
     config.add_route("search", "search")
