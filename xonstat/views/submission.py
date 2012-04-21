@@ -549,7 +549,7 @@ def stats_submit(request):
 
         if not has_required_metadata(game_meta):
             log.debug("ERROR: Required game meta missing")
-            raise pyramid.exceptions.HTTPUnprocessableEntity("Missing game meta")
+            raise pyramid.httpexceptions.HTTPUnprocessableEntity("Missing game meta")
 
         if not is_supported_gametype(game_meta['G']):
             log.debug("ERROR: Unsupported gametype")
