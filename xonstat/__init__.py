@@ -50,6 +50,10 @@ def main(global_config, **settings):
     config.add_view(player_info, route_name="player_info",
         renderer="player_info.mako")
 
+    config.add_route("player_accuracy", "/player/{id:\d+}/accuracy")
+    config.add_view(player_accuracy, route_name="player_accuracy",
+        renderer="json")
+
     # GAME ROUTES
     config.add_route("game_index", "/games")
     config.add_view(game_index, route_name="game_index",

@@ -133,21 +133,27 @@ def get_accuracy_stats(player_id, weapon_cd, games):
 
         # Determine the raw accuracy (hit, fired) numbers for $games games
         # This is then enumerated to create parameters for a flot graph
-        raw_accs = DBSession.query(PlayerWeaponStat.hit, PlayerWeaponStat.fired).\
+        raw_accs = DBSession.query(PlayerWeaponStat.game_id, 
+            PlayerWeaponStat.hit, PlayerWeaponStat.fired).\
                 filter(PlayerWeaponStat.player_id == player_id).\
                 filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
-                order_by(PlayerWeaponStat.create_dt).\
+                order_by(PlayerWeaponStat.game_id.desc()).\
                 limit(games).\
                 all()
 
+        # they come out in opposite order, so flip them in the right direction
+        raw_accs.reverse()
+
+        games = []
         accs = []
         for i in range(len(raw_accs)):
-            accs.append((i, round(float(raw_accs[i][0])/raw_accs[i][1]*100, 2)))
+            games.append((i, raw_accs[i][0]))
+            accs.append((i, round(float(raw_accs[i][1])/raw_accs[i][2]*100, 2)))
     except:
         accs = 0
         avg = 0
 
-    return (avg, accs)
+    return (games, avg, accs)
 
 
 def player_info(request):
@@ -186,7 +192,7 @@ def player_info(request):
 
         # data for the accuracy graph, which is converted into a JSON array for
         # usage by flot
-        (avg, accs) = get_accuracy_stats(player_id, 'nex', 20)
+        (games, avg, accs) = get_accuracy_stats(player_id, 'nex', 20)
 
         avg = json.dumps(avg)
         accs = json.dumps(accs)
@@ -258,3 +264,26 @@ def player_game_index(request):
     return {'player_id':player_id,
             'games':games,
             'pgstats':pgstats}
+
+def player_accuracy(request):
+    """
+    Provides a JSON response representing the accuracy for the given weapon.
+
+    Parameters:
+       weapon = which weapon to display accuracy for. Valid values are 'nex',
+                'shotgun', 'uzi', and 'minstanex'.
+       games = over how many games to display accuracy. Can be up to 50.
+    """
+    player_id = request.matchdict['id']
+    allowed_weapons = ['nex', 'shotgun', 'uzi', 'minstanex']
+    weapon_cd = 'nex'
+    games = 20
+
+    if request.params.has_key('weapon'):
+        if request.params['weapon'] in allowed_weapons:
+            weapon_cd = request.params['weapon']
+
+    (games, avg, accs) = get_accuracy_stats(player_id, weapon_cd, games)
+
+    return {'weapon':weapon_cd, 'games':games, 'avg':avg, 'accs':accs}
+
