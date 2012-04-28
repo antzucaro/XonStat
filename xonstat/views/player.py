@@ -125,11 +125,7 @@ def get_accuracy_stats(player_id, weapon_cd, games):
                 filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
                 one()
 
-        raw_avg = round(float(raw_avg[0])/raw_avg[1]*100, 2)
-
-        avg = []
-        for i in range(games):
-            avg.append((i, raw_avg))
+        avg = round(float(raw_avg[0])/raw_avg[1]*100, 2)
 
         # Determine the raw accuracy (hit, fired) numbers for $games games
         # This is then enumerated to create parameters for a flot graph
@@ -144,16 +140,14 @@ def get_accuracy_stats(player_id, weapon_cd, games):
         # they come out in opposite order, so flip them in the right direction
         raw_accs.reverse()
 
-        games = []
         accs = []
         for i in range(len(raw_accs)):
-            games.append((i, raw_accs[i][0]))
-            accs.append((i, round(float(raw_accs[i][1])/raw_accs[i][2]*100, 2)))
+            accs.append((raw_accs[i][0], round(float(raw_accs[i][1])/raw_accs[i][2]*100, 2)))
     except:
         accs = 0
         avg = 0
 
-    return (games, avg, accs)
+    return (avg, accs)
 
 
 def player_info(request):
@@ -192,7 +186,7 @@ def player_info(request):
 
         # data for the accuracy graph, which is converted into a JSON array for
         # usage by flot
-        (games, avg, accs) = get_accuracy_stats(player_id, 'nex', 20)
+        (avg, accs) = get_accuracy_stats(player_id, 'nex', 20)
 
         avg = json.dumps(avg)
         accs = json.dumps(accs)
@@ -283,7 +277,25 @@ def player_accuracy(request):
         if request.params['weapon'] in allowed_weapons:
             weapon_cd = request.params['weapon']
 
-    (games, avg, accs) = get_accuracy_stats(player_id, weapon_cd, games)
+    if request.params.has_key('games'):
+        try:
+            games = request.params['games']
 
-    return {'weapon':weapon_cd, 'games':games, 'avg':avg, 'accs':accs}
+            if games < 0:
+                games = 20
+            if games > 50:
+                games = 50
+        except:
+            games = 20
+
+    (avg, accs) = get_accuracy_stats(player_id, weapon_cd, games)
+
+    return {
+            'player_id':player_id, 
+            'player_url':request.route_url('player_info', id=player_id), 
+            'weapon':weapon_cd, 
+            'games':games, 
+            'avg':avg, 
+            'accs':accs
+            }
 

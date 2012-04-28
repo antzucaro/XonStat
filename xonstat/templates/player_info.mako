@@ -10,15 +10,42 @@ ${nav.nav('players')}
       <script src="/static/js/jquery-1.7.1.min.js"></script>
       <script src="/static/js/jquery.flot.min.js"></script>
       <script type="text/javascript">
-          var avg = ${avg};
-          var accs = ${accs};
+      $(function () {
+          function plot_acc_graph(data) {
+              var games = new Array();
+              var avgs = new Array();
+              var accs = new Array();
 
-          $.plot($("#acc-graph"), [
-            { data: avg },
-            { data: accs },
-          ],
-          { yaxis: {ticks: 10, min: 0, max: 100 },
+              var i=0;
+              for(i=0; i < data.games; i++) {
+                  avgs[i] = [i, data.avg];
+                  accs[i] = [i, data.accs[i][1]];
+                  games[i] = [i, data.accs[i][0]];
+              }
+
+              $.plot(
+                  $("#acc-graph"), 
+                  [ { data: avgs }, { data: accs }, ],
+                  { yaxis: {ticks: 10, min: 0, max: 100 },
+              });
+          }
+
+          $.ajax({
+              url: '${request.route_url("player_accuracy", id=player.player_id)}',
+              method: 'GET',
+              dataType: 'json',
+              success: plot_acc_graph
           });
+      })
+          // var avg = ${avg};
+          // var accs = ${accs};
+
+          // $.plot($("#acc-graph"), [
+            // { data: avg },
+            // { data: accs },
+          // ],
+          // { yaxis: {ticks: 10, min: 0, max: 100 },
+          // });
       </script>
 </%block>
 
