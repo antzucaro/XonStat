@@ -29,7 +29,7 @@ def main_index(request):
             for (player_id, nick, elo) in duel_ranks]
 
     for i in range(leaderboard_count-len(duel_ranks)):
-        duel_ranks.append(('-', '-', '-', '-'))
+        duel_ranks.append(('-', '-', '-'))
 
     # top ranked CTF-ers
     ctf_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
