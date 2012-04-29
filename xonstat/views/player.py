@@ -269,7 +269,7 @@ def player_accuracy(request):
        games = over how many games to display accuracy. Can be up to 50.
     """
     player_id = request.matchdict['id']
-    allowed_weapons = ['nex', 'shotgun', 'uzi', 'minstanex']
+    allowed_weapons = ['nex', 'rifle', 'shotgun', 'uzi', 'minstanex']
     weapon_cd = 'nex'
     games = 20
 

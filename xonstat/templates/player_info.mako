@@ -11,6 +11,7 @@ ${nav.nav('players')}
       <script src="/static/js/jquery.flot.min.js"></script>
       <script type="text/javascript">
       $(function () {
+
           function plot_acc_graph(data) {
               var games = new Array();
               var avgs = new Array();
@@ -36,16 +37,18 @@ ${nav.nav('players')}
               dataType: 'json',
               success: plot_acc_graph
           });
-      })
-          // var avg = ${avg};
-          // var accs = ${accs};
 
-          // $.plot($("#acc-graph"), [
-            // { data: avg },
-            // { data: accs },
-          // ],
-          // { yaxis: {ticks: 10, min: 0, max: 100 },
-          // });
+          $(".acc-weap").click(function () {
+              var dataurl = $(this).find('a').attr('href');
+
+              $.ajax({
+                  url: dataurl,
+                  method: 'GET',
+                  dataType: 'json',
+                  success: plot_acc_graph
+              });
+          });
+      })
       </script>
 </%block>
 
@@ -94,6 +97,32 @@ Player Information
     <h3>Nex Accuracy</h3>
     <div id="acc-graph" style="width:800px; height:200px;">
     </div>
+
+    <div class="acc-weap">
+        Show nex accuracy.
+        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
+    </div>
+
+    <div class="acc-weap">
+        Show rifle accuracy.
+        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
+    </div>
+
+    <div class="acc-weap">
+        Show minstanex accuracy.
+        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
+    </div>
+
+    <div class="acc-weap">
+        Show uzi accuracy.
+        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
+    </div>
+
+    <div class="acc-weap">
+        Show shotgun accuracy.
+        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
+    </div>
+
   </div>
 </div>
 % endif
