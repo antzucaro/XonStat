@@ -7,7 +7,7 @@ import sqlalchemy.sql.functions as func
 import time
 from pyramid.response import Response
 from pyramid.url import current_route_url
-from sqlalchemy import desc
+from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url
@@ -144,8 +144,8 @@ def get_accuracy_stats(player_id, weapon_cd, games):
         for i in range(len(raw_accs)):
             accs.append((raw_accs[i][0], round(float(raw_accs[i][1])/raw_accs[i][2]*100, 2)))
     except:
-        accs = 0
-        avg = 0
+        accs = []
+        avg = 0.0
 
     return (avg, accs)
 
@@ -184,13 +184,17 @@ def player_info(request):
             elos_display.append(str.format(round(elo.elo, 3),
                 elo.game_type_cd))
 
-        # data for the accuracy graph, which is converted into a JSON array for
-        # usage by flot
-        (avg, accs) = get_accuracy_stats(player_id, 'nex', 20)
-
-        avg = json.dumps(avg)
-        accs = json.dumps(accs)
-
+        # which weapons have been used in the past 90 days
+        # and also, used in 5 games or more?
+        back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
+        recent_weapons = []
+        for weapon in DBSession.query(PlayerWeaponStat.weapon_cd, func.count()).\
+                filter(PlayerWeaponStat.player_id == player_id).\
+                filter(PlayerWeaponStat.create_dt > back_then).\
+                group_by(PlayerWeaponStat.weapon_cd).\
+                having(func.count() > 4).\
+                all():
+                    recent_weapons.append(weapon[0])
 
         # recent games table, all data
         recent_games = DBSession.query(PlayerGameStat, Game, Server, Map).\
@@ -207,8 +211,7 @@ def player_info(request):
         recent_games = None
         total_games = None
         games_breakdown = None
-        avg = None
-        accs = None
+        recent_weapons = None
 
     return {'player':player,
             'elos_display':elos_display,
@@ -216,8 +219,7 @@ def player_info(request):
             'total_stats':total_stats,
             'total_games':total_games,
             'games_breakdown':games_breakdown,
-            'avg':avg,
-            'accs':accs,
+            'recent_weapons':recent_weapons,
             }
 
 
@@ -289,6 +291,10 @@ def player_accuracy(request):
             games = 20
 
     (avg, accs) = get_accuracy_stats(player_id, weapon_cd, games)
+
+    # if we don't have enough data for the given weapon
+    if len(accs) < games:
+        games = len(accs)
 
     return {
             'player_id':player_id, 

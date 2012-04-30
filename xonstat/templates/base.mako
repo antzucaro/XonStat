@@ -20,7 +20,8 @@
 
     <%block name="css">
     <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
-    <link href="/static/css/style.min.css" rel="stylesheet">
+    <!-- <link href="/static/css/style.min.css" rel="stylesheet"> -->
+    <link href="/static/css/style.css" rel="stylesheet">
     </%block>
   </head>
 

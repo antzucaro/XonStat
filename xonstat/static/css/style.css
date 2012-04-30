@@ -3454,3 +3454,24 @@ a.thumbnail:hover {
 .game tr:hover {
     background-color: #222;
 }
+.weapon-nav {
+  height: 70px;
+  margin-bottom: 20px;
+}
+.weapon-nav ul {
+  display: block;
+  list-style: none outside none;
+}
+.weapon-nav li {
+  float: left;
+  margin-right: 10px;
+}
+.weapon-nav li:hover {
+  border-bottom: 2px solid #001021;
+}
+.weapon-nav .weapon-active {
+  border-bottom: 2px solid #436688;
+}
+.weapon-nav p {
+  text-align: center;
+}

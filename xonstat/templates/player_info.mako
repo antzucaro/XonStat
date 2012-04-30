@@ -41,6 +41,9 @@ ${nav.nav('players')}
           $(".acc-weap").click(function () {
               var dataurl = $(this).find('a').attr('href');
 
+              $('.weapon-active').removeClass('weapon-active');
+              $(this).addClass('weapon-active');
+
               $.ajax({
                   url: dataurl,
                   method: 'GET',
@@ -94,33 +97,62 @@ Player Information
 % if accs is not None:
 <div class="row">
   <div class="span10">
-    <h3>Nex Accuracy</h3>
+    <h3>Accuracy</h3>
     <div id="acc-graph" style="width:800px; height:200px;">
     </div>
 
-    <div class="acc-weap">
-        Show nex accuracy.
-        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
-    </div>
+    <div class="weapon-nav">
+      <ul>
+        % if 'nex' in recent_weapons:
+        <li>
+          <div class="acc-weap weapon-active">
+            <img src="${request.static_url("xonstat:static/images/nex.png")}" />
+            <p><small>Nex</small></p>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
+          </div>
+        </li>
+        % endif
 
-    <div class="acc-weap">
-        Show rifle accuracy.
-        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
-    </div>
+        % if 'rifle' in recent_weapons:
+        <li>
+          <div class="acc-weap">
+            <img src="${request.static_url("xonstat:static/images/rifle.png")}" />
+            <p><small>Rifle</small></p>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
+          </div>
+        </li>
+        % endif
 
-    <div class="acc-weap">
-        Show minstanex accuracy.
-        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
-    </div>
+        % if 'minstanex' in recent_weapons:
+        <li>
+          <div class="acc-weap">
+            <img src="${request.static_url("xonstat:static/images/minstanex.png")}" />
+            <p><small>Minstanex</small></p>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
+          </div>
+        </li>
+        % endif
 
-    <div class="acc-weap">
-        Show uzi accuracy.
-        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
-    </div>
+        % if 'uzi' in recent_weapons:
+        <li>
+          <div class="acc-weap">
+            <img src="${request.static_url("xonstat:static/images/uzi.png")}" />
+            <p><small>Uzi</small></p>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
+          </div>
+        </li>
+        % endif
 
-    <div class="acc-weap">
-        Show shotgun accuracy.
-        <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
+        % if 'shotgun' in recent_weapons:
+        <li>
+          <div class="acc-weap">
+            <img src="${request.static_url("xonstat:static/images/shotgun.png")}" />
+            <p><small>Shotgun</small></p>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
+          </div>
+        </li>
+        % endif
+      </ul>
     </div>
 
   </div>
