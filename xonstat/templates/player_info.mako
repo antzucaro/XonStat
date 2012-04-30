@@ -7,6 +7,7 @@ ${nav.nav('players')}
 </%block>
 
 <%block name="js">
+    % if player is not None:
       <script src="/static/js/jquery-1.7.1.min.js"></script>
       <script src="/static/js/jquery.flot.min.js"></script>
       <script type="text/javascript">
@@ -53,6 +54,7 @@ ${nav.nav('players')}
           });
       })
       </script>
+    % endif
 </%block>
 
 <%block name="title">
@@ -91,7 +93,6 @@ Player Information
     </p>
   </div>
 </div>
-% endif
 
 
 % if accs is not None:
@@ -208,4 +209,5 @@ Player Information
     % endif
   </div>
 </div>
+% endif
 % endif

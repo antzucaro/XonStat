@@ -211,7 +211,7 @@ def player_info(request):
         recent_games = None
         total_games = None
         games_breakdown = None
-        recent_weapons = None
+        recent_weapons = []
 
     return {'player':player,
             'elos_display':elos_display,
