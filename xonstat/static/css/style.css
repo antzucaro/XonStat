@@ -3399,6 +3399,7 @@ a.thumbnail:hover {
   -moz-border-image: url(img/web_border.png) 85 85 85 stretch;
   -webkit-border-image: url(img/web_border.png) 72 85 85 stretch;
   -o-border-image: url(img/web_border.png) 96 96 96 stretch;
+  background-color: #000000;
   border-image: url(img/web_border.png) 96 96 96 stretch;
   border-width: 40px;
   left: -40px;
@@ -3463,6 +3464,7 @@ a.thumbnail:hover {
   list-style: none outside none;
 }
 .weapon-nav li {
+  cursor: pointer;
   float: left;
   margin-right: 10px;
 }
