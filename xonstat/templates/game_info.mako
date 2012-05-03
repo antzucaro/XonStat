@@ -11,7 +11,10 @@ ${nav.nav('games')}
       <script src="/static/js/jquery-1.7.1.min.js"></script>
       <script src="/static/js/bootstrap-collapse.min.js"></script>
       <script>
-        $(".collapse").collapse()
+        $(".collapse").collapse();
+
+        // show accordion only when loaded to prevent rollup from being seen
+        $("#acc-accordion").css('display', '');
       </script>
 </%block>
 
@@ -47,7 +50,7 @@ Game Information
 <div class="row">
   <div class="span12">
     <h3>Accuracy Information</h3>
-    <div class="accordion" id="acc-accordion">
+    <div class="accordion" id="acc-accordion" style="display:none;">
     % for pgstat in pgstats:
     % if pgstat.player_game_stat_id in pwstats:
       <div class="accordion-group">
