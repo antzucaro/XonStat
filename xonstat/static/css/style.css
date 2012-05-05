@@ -3425,6 +3425,22 @@ a.thumbnail:hover {
 #navsearch select {
   width: 80px;
 }
+
+header {
+  height:0;
+}
+header a {
+  position:absolute;
+  top:20px;
+  left:180px;
+  display:block;
+  height:210px;
+  width:0;
+  padding-left:660px;
+  overflow:hidden;
+}
+header h2 { display:none; }
+
 /* Game scoreboard */
 .game {
   background-image: -moz-linear-gradient(center bottom , #062C52, #041B33);

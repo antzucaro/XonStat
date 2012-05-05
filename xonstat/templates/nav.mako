@@ -7,7 +7,13 @@
             <span class="i-bar"></span>
             <span class="i-bar"></span>
           </a>
-          <a class="brand" href="${request.route_url('main_index')}"><img src="/static/css/img/Xonotic_icon.png" /></a>
+          <header>
+            <a class="brand" href="${request.route_url('main_index')}">
+             <img src="/static/css/img/Xonotic_icon.png" />
+             <h1>Xonotic Game Statistics</h1>
+            </a>
+            <h2>Xonotic is a fast-paced open-source GPL first person shooter</h2>
+          </header>
           <div class="nav-collapse">
             <ul class="nav">
               <li 
