@@ -22,15 +22,52 @@ ${nav.nav('players')}
               for(i=0; i < data.games; i++) {
                   avgs[i] = [i, data.avg];
                   accs[i] = [i, data.accs[i][1]];
-                  games[i] = [i, data.accs[i][0]];
+                  game_link = '/game/' + data.accs[i][0];
+                  j = 20 - i;
+                  games[i] = [i, '<a href="' + game_link + '">' + j + '</a>'];
               }
 
               $.plot(
                   $("#acc-graph"), 
-                  [ { label: 'average', data: avgs }, { label: 'accuracy', data: accs }, ],
+                  [ { label: 'average', data: avgs, hoverable: false, clickable: false }, 
+                    { label: 'accuracy', data: accs, lines: {show:true}, points: {show:true}, hoverable: true, clickable: true }, ],
                   { yaxis: {ticks: 10, min: 0, max: 100 },
+                    xaxis: {ticks: games},
+                    grid: { hoverable: true, clickable: true },
               });
           }
+
+          function showTooltip(x, y, contents) {
+            $('<div id="tooltip">' + contents + '</div>').css( {
+                position: 'absolute',
+                display: 'none',
+                top: y - 35,
+                left: x + 10,
+                border: '1px solid #fdd',
+                padding: '2px',
+                'background-color': '#333333',
+                opacity: 0.80
+            }).appendTo("body").fadeIn(200);
+          }
+
+          var previousPoint = null;
+          $('#acc-graph').bind("plothover", function (event, pos, item) {
+              if (item) {
+                  if (previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+                    
+                    $("#tooltip").remove();
+                    var x = item.datapoint[0].toFixed(2),
+                        y = item.datapoint[1].toFixed(2);
+                    
+                    showTooltip(item.pageX, item.pageY, y + "%");
+                  }
+              }
+              else {
+                  $("#tooltip").remove();
+                  previousPoint = null;
+              }
+          });
 
           $.ajax({
               url: '${request.route_url("player_accuracy", id=player.player_id)}',
