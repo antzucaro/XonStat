@@ -27,7 +27,7 @@ ${nav.nav('players')}
 
               $.plot(
                   $("#acc-graph"), 
-                  [ { data: avgs }, { data: accs }, ],
+                  [ { label: 'average', data: avgs }, { label: 'accuracy', data: accs }, ],
                   { yaxis: {ticks: 10, min: 0, max: 100 },
               });
           }
@@ -99,7 +99,7 @@ Player Information
 <div class="row">
   <div class="span10">
     <h3>Accuracy</h3>
-    <div id="acc-graph" style="width:800px; height:200px;">
+    <div id="acc-graph" class="flot" style="width:800px; height:200px;">
     </div>
 
     <div class="weapon-nav">

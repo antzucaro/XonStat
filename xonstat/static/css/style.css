@@ -3455,6 +3455,8 @@ a.thumbnail:hover {
 .game tr:hover {
     background-color: #222;
 }
+
+/* accuracy and weapon graphs */
 .weapon-nav {
   height: 70px;
   margin-bottom: 20px;
@@ -3477,3 +3479,8 @@ a.thumbnail:hover {
 .weapon-nav p {
   text-align: center;
 }
+
+.flot table, .flot td {
+	border: 0;
+}
+
