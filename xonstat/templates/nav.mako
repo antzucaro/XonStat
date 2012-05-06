@@ -44,7 +44,7 @@
                 <option>servers</option>
                 <option>maps</option>
               </select>
-            [<a href="${request.route_url('search')}"" title="Advanced search">+</a>]
+            [<a href="${request.route_url('search')}" title="Advanced search">+</a>]
             </form>
           </div><!--/.nav-collapse -->
         </div>
