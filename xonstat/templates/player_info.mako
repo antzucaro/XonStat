@@ -29,8 +29,8 @@ ${nav.nav('players')}
 
               $.plot(
                   $("#acc-graph"), 
-                  [ { label: 'average', data: avgs, hoverable: false, clickable: false }, 
-                    { label: 'accuracy', data: accs, lines: {show:true}, points: {show:true}, hoverable: true, clickable: true }, ],
+                  [ { label: 'average', data: avgs, hoverable: true, clickable: false }, 
+                    { label: 'accuracy', data: accs, lines: {show:true}, points: {show:false}, hoverable: true, clickable: true }, ],
                   { yaxis: {ticks: 10, min: 0, max: 100 },
                     xaxis: {ticks: games},
                     grid: { hoverable: true, clickable: true },
