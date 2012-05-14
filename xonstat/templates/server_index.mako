@@ -35,6 +35,6 @@ Server Index
     </table>
     % endif
 
-    ${navlinks("server_index_paged", servers.page, servers.last_page)}
+    ${navlinks("server_index", servers.page, servers.last_page)}
   </div> <!-- /span4 -->
 </div> <!-- /row -->

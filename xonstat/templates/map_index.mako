@@ -37,6 +37,6 @@ Map Index
     % endif
 
     <!-- navigation links -->
-    ${navlinks("map_index_paged", maps.page, maps.last_page)}
+    ${navlinks("map_index", maps.page, maps.last_page)}
   </div> <!-- /span4 -->
 </div> <!-- /row -->
