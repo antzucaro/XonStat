@@ -563,15 +563,21 @@ def stats_submit(request):
             log.debug("ERROR: Blank game")
             raise pyramid.httpexceptions.HTTPOk("OK")
 
-        # FIXME: if we have two players and game type is 'dm',
-        # change this into a 'duel' gametype. This should be
-        # removed when the stats actually send 'duel' instead of 'dm'
+        # the "duel" gametype is fake
         if num_real_players(players, count_bots=True) == 2 and \
                 game_meta['G'] == 'dm':
             game_meta['G'] = 'duel'
 
+
+        # fix for DTG, who didn't #ifdef WATERMARK to set the revision info
+        try:
+            revision = game_meta['R']
+        except:
+            revision = "unknown"
+
+        log.debug(revision)
         server = get_or_create_server(session=session, hashkey=idfp, 
-                name=game_meta['S'], revision=game_meta['R'],
+                name=game_meta['S'], revision=revision,
                 ip_addr=get_remote_addr(request))
 
         gmap = get_or_create_map(session=session, name=game_meta['M'])
