@@ -575,7 +575,6 @@ def stats_submit(request):
         except:
             revision = "unknown"
 
-        log.debug(revision)
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'], revision=revision,
                 ip_addr=get_remote_addr(request))
