@@ -11,7 +11,10 @@ Next you'll want to set up [xonstatdb][xonstatdb]. This is maintained as a separ
 
     https://github.com/antzucaro/xonstatdb
 
-Next you'll want to open up development.ini and change a few things for added security. Chief among these is the "sqlalchemy.url" setting, which contains your username and password for the database. Change that match the new password you gave xonstat during the installation of xonstatdb. The other setting to change is "session.secret," which is used to keep your web session (cookies and such) secure.
+Next you'll want to open up development.ini and change a few things for added security.
+Chief among these is the "sqlalchemy.url" setting, which contains your username and password for the database.
+Change that match the new password you gave xonstat during the installation of xonstatdb.
+The other setting to change is "session.secret," which is used to keep your web session (cookies and such) secure.
 
 To start the server run the following from the root directory. I recommend running this within a GNU screen session:
 
