@@ -15,8 +15,8 @@ def server_index(request):
     """
     Provides a list of all the current servers. 
     """
-    if 'page' in request.matchdict:
-        current_page = request.matchdict['page']
+    if request.params.has_key('page'):
+        current_page = request.params['page']
     else:
         current_page = 1
 
@@ -24,7 +24,7 @@ def server_index(request):
         server_q = DBSession.query(Server).\
                 order_by(Server.server_id.desc())
 
-        servers = Page(server_q, current_page, url=page_url)
+        servers = Page(server_q, current_page, items_per_page=10, url=page_url)
 
         
     except Exception as e:

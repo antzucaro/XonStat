@@ -85,8 +85,9 @@ def search(request):
     query = None
     _query = {}
 
-    if 'page' in request.matchdict:
-        current_page = request.matchdict['page']
+
+    if request.params.has_key('page'):
+        current_page = request.params['page']
     else:
         current_page = 1
 
@@ -134,7 +135,7 @@ def search(request):
 
         try:
             if q != None:
-                results = Page(q, current_page, url=page_url)
+                results = Page(q, current_page, items_per_page=10, url=page_url)
         except Exception as e:
             raise e
             result_type = None

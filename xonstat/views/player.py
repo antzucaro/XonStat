@@ -19,8 +19,8 @@ def player_index(request):
     """
     Provides a list of all the current players. 
     """
-    if 'page' in request.matchdict:
-        current_page = int(request.matchdict['page'])
+    if request.params.has_key('page'):
+        current_page = request.params['page']
     else:
         current_page = 1
 
@@ -33,19 +33,12 @@ def player_index(request):
 
         players = Page(player_q, current_page, items_per_page=10, url=page_url)
 
-        last_linked_page = current_page + 4
-        if last_linked_page > players.last_page:
-            last_linked_page = players.last_page
-
-        pages_to_link = range(current_page+1, last_linked_page+1)
-
     except Exception as e:
         players = None
         raise e
 
-    return {'players':players,
-            'pages_to_link':pages_to_link,
-            }
+    return {'players':players
+           }
 
 
 def get_games_played(player_id):

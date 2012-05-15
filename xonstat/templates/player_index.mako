@@ -35,6 +35,6 @@ Player Index
     </table>
 % endif
 
-    ${navlinks("player_index_paged", players.page, players.last_page)}
+    ${navlinks("player_index", players.page, players.last_page)}
   </div> <!-- /span4 -->
 </div> <!-- /row -->

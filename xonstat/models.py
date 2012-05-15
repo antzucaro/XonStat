@@ -1,3 +1,4 @@
+import json
 import logging
 import math
 import sqlalchemy
@@ -65,6 +66,9 @@ class Map(object):
 
     def __repr__(self):
         return "<Map(%s, %s, %s)>" % (self.map_id, self.name, self.version)
+
+    def to_dict(self):
+        return {'map_id':self.map_id, 'name':self.name}
 
 
 class Game(object):

@@ -39,5 +39,5 @@ Rank Index</h2>
 </table>
 
 <!-- navigation links -->
-${navlinks("rank_index_paged", ranks.page, ranks.last_page, game_type_cd=game_type_cd)}
+${navlinks("rank_index", ranks.page, ranks.last_page, game_type_cd=game_type_cd)}
 % endif
