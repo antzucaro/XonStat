@@ -99,8 +99,8 @@ def rank_index(request):
     """
     Provide a list of gametype ranks, paginated.
     """
-    if 'page' in request.matchdict:
-        current_page = request.matchdict['page']
+    if request.params.has_key('page'):
+        current_page = request.params['page']
     else:
         current_page = 1
 
