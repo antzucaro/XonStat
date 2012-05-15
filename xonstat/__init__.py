@@ -28,19 +28,10 @@ def main(global_config, **settings):
     config.add_view(stats_submit, route_name="stats_submit")
 
     # PLAYER ROUTES
-    config.add_route("player_game_index_paged",
-            "/player/{player_id:\d+}/games/page/{page:\d+}")
-    config.add_view(player_game_index, route_name="player_game_index_paged",
-        renderer="player_game_index.mako")
-
     config.add_route("player_game_index",
             "/player/{player_id:\d+}/games")
     config.add_view(player_game_index, route_name="player_game_index",
         renderer="player_game_index.mako")
-
-    config.add_route("player_index_paged", "/players/page/{page:\d+}")
-    config.add_view(player_index, route_name="player_index_paged",
-        renderer="player_index.mako")
 
     config.add_route("player_index", "/players")
     config.add_view(player_index, route_name="player_index",
@@ -59,10 +50,6 @@ def main(global_config, **settings):
     config.add_view(game_index, route_name="game_index",
         renderer="game_index.mako")
 
-    config.add_route("game_index_paged", "/games/page/{page:\d+}")
-    config.add_view(game_index, route_name="game_index_paged",
-        renderer="game_index.mako")
-
     config.add_route("game_info", "/game/{id:\d+}")
     config.add_view(game_info, route_name="game_info",
         renderer="game_info.mako")
@@ -71,15 +58,7 @@ def main(global_config, **settings):
     config.add_view(rank_index, route_name="rank_index",
         renderer="rank_index.mako")
 
-    config.add_route("rank_index_paged", "/ranks/{game_type_cd:ctf|dm|tdm|duel}/page/{page:\d+}")
-    config.add_view(rank_index, route_name="rank_index_paged",
-        renderer="rank_index.mako")
-
     # SERVER ROUTES
-    config.add_route("server_index_paged", "/servers/page/{page:\d+}")
-    config.add_view(server_index, route_name="server_index_paged",
-        renderer="server_index.mako")
-
     config.add_route("server_index", "/servers")
     config.add_view(server_index, route_name="server_index",
         renderer="server_index.mako")
@@ -94,10 +73,6 @@ def main(global_config, **settings):
         renderer="server_info.mako")
 
     # MAP ROUTES
-    config.add_route("map_index_paged", "/maps/page/{page:\d+}")
-    config.add_view(map_index, route_name="map_index_paged",
-        renderer="map_index.mako")
-
     config.add_route("map_index", "/maps")
     config.add_view(map_index, route_name="map_index",
         renderer="map_index.mako")
@@ -110,10 +85,5 @@ def main(global_config, **settings):
     config.add_route("search", "search")
     config.add_view(search, route_name="search",
         renderer="search.mako")
-
-    config.add_route("search_paged", "search/page/{page:\d+}")
-    config.add_view(search, route_name="search_paged",
-        renderer="search.mako")
-
 
     return config.make_wsgi_app()
