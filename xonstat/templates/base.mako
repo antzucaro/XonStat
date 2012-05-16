@@ -21,6 +21,7 @@
     <%block name="css">
     <!-- <link href="/static/css/style.min.css" rel="stylesheet"> -->
     <link href="/static/css/style.css" rel="stylesheet">
+    <link type="images/vnd.microsoft.icon" rel="shortcut icon" href="/static/favicon.ico">
     </%block>
   </head>
 
