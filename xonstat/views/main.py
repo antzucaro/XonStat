@@ -8,7 +8,7 @@ from xonstat.util import *
 
 log = logging.getLogger(__name__)
 
-def main_index(request):
+def _main_index_data(request):
     try: 
         leaderboard_lifetime = int(
                 request.registry.settings['xonstat.leaderboard_lifetime'])
@@ -23,39 +23,30 @@ def main_index(request):
             PlayerRank.elo).\
             filter(PlayerRank.game_type_cd=='duel').\
             order_by(PlayerRank.rank).\
-            limit(10).all()
+            limit(leaderboard_count).all()
 
     duel_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in duel_ranks]
-
-    for i in range(leaderboard_count-len(duel_ranks)):
-        duel_ranks.append(('-', '-', '-'))
 
     # top ranked CTF-ers
     ctf_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
             PlayerRank.elo).\
             filter(PlayerRank.game_type_cd=='ctf').\
             order_by(PlayerRank.rank).\
-            limit(10).all()
+            limit(leaderboard_count).all()
 
     ctf_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in ctf_ranks]
-
-    for i in range(leaderboard_count-len(ctf_ranks)):
-        ctf_ranks.append(('-', '-', '-'))
 
     # top ranked DM-ers
     dm_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
             PlayerRank.elo).\
             filter(PlayerRank.game_type_cd=='dm').\
             order_by(PlayerRank.rank).\
-            limit(10).all()
+            limit(leaderboard_count).all()
 
     dm_ranks = [(player_id, html_colors(nick), elo) \
             for (player_id, nick, elo) in dm_ranks]
-
-    for i in range(leaderboard_count-len(dm_ranks)):
-        dm_ranks.append(('-', '-', '-'))
 
     right_now = datetime.utcnow()
     back_then = datetime.utcnow() - timedelta(days=leaderboard_lifetime)
@@ -68,13 +59,10 @@ def main_index(request):
             filter(expr.between(PlayerGameStat.create_dt, back_then, right_now)).\
             order_by(expr.desc(func.sum(PlayerGameStat.alivetime))).\
             group_by(Player.nick).\
-            group_by(Player.player_id).limit(10).all()
+            group_by(Player.player_id).limit(leaderboard_count).all()
 
     top_players = [(player_id, html_colors(nick), score) \
             for (player_id, nick, score) in top_players]
-
-    for i in range(leaderboard_count-len(top_players)):
-        top_players.append(('-', '-', '-'))
 
     # top servers by number of total players played
     top_servers = DBSession.query(Server.server_id, Server.name, 
@@ -83,10 +71,7 @@ def main_index(request):
             filter(expr.between(Game.create_dt, back_then, right_now)).\
             order_by(expr.desc(func.count(Game.game_id))).\
             group_by(Server.server_id).\
-            group_by(Server.name).limit(10).all()
-
-    for i in range(leaderboard_count-len(top_servers)):
-        top_servers.append(('-', '-', '-'))
+            group_by(Server.name).limit(leaderboard_count).all()
 
     # top maps by total times played
     top_maps = DBSession.query(Game.map_id, Map.name, 
@@ -95,10 +80,7 @@ def main_index(request):
             filter(expr.between(Game.create_dt, back_then, right_now)).\
             order_by(expr.desc(func.count())).\
             group_by(Game.map_id).\
-            group_by(Map.name).limit(10).all()
-
-    for i in range(leaderboard_count-len(top_maps)):
-        top_maps.append(('-', '-', '-'))
+            group_by(Map.name).limit(leaderboard_count).all()
 
     # recent games played in descending order
     recent_games = DBSession.query(Game, Server, Map, PlayerGameStat).\
@@ -109,9 +91,6 @@ def main_index(request):
             filter(expr.between(Game.create_dt, back_then, right_now)).\
             order_by(expr.desc(Game.start_dt)).limit(recent_games_count).all()
 
-    for i in range(recent_games_count-len(recent_games)):
-        recent_games.append(('-', '-', '-', '-'))
-
     return {'top_players':top_players,
             'top_servers':top_servers,
             'top_maps':top_maps,
@@ -120,3 +99,37 @@ def main_index(request):
             'ctf_ranks':ctf_ranks,
             'dm_ranks':dm_ranks,
             }
+
+
+def main_index(request):
+    """
+    Display the main page information.
+    """
+    mainindex_data =  _main_index_data(request)
+
+    # FIXME: code clone, should get these from _main_index_data
+    leaderboard_count = 10
+    recent_games_count = 20
+
+    for i in range(leaderboard_count-len(mainindex_data['duel_ranks'])):
+        mainindex_data['duel_ranks'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mainindex_data['ctf_ranks'])):
+        mainindex_data['ctf_ranks'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mainindex_data['dm_ranks'])):
+        mainindex_data['dm_ranks'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mainindex_data['top_players'])):
+        mainindex_data['top_players'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mainindex_data['top_servers'])):
+        mainindex_data['top_servers'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mainindex_data['top_maps'])):
+        mainindex_data['top_maps'].append(('-', '-', '-'))
+
+    for i in range(recent_games_count-len(mainindex_data['recent_games'])):
+        mainindex_data['recent_games'].append(('-', '-', '-', '-'))
+
+    return mainindex_data

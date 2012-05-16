@@ -42,7 +42,7 @@ def main(global_config, **settings):
         renderer="player_info.mako")
 
     config.add_route("player_accuracy", "/player/{id:\d+}/accuracy")
-    config.add_view(player_accuracy, route_name="player_accuracy",
+    config.add_view(player_accuracy_json, route_name="player_accuracy",
         renderer="json")
 
     # GAME ROUTES

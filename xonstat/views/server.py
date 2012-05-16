@@ -11,10 +11,7 @@ from xonstat.util import page_url, html_colors
 
 log = logging.getLogger(__name__)
 
-def server_index(request):
-    """
-    Provides a list of all the current servers. 
-    """
+def _server_index_data(request):
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
@@ -33,10 +30,14 @@ def server_index(request):
     return {'servers':servers, }
 
 
-def server_info(request):
+def server_index(request):
     """
-    List the stored information about a given server.
+    Provides a list of all the current servers.
     """
+    return _server_index_data(request)
+
+
+def _server_info_data(request):
     server_id = request.matchdict['id']
 
     try: 
@@ -60,10 +61,7 @@ def server_info(request):
                     (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.count())).\
                 group_by(Game.map_id).\
-                group_by(Map.name).all()[0:10]
-
-        for i in range(leaderboard_count-len(top_maps)):
-            top_maps.append(('-', '-', '-'))
+                group_by(Map.name).all()[0:leaderboard_count]
 
         # top players by score
         top_scorers = DBSession.query(Player.player_id, Player.nick, 
@@ -76,13 +74,10 @@ def server_info(request):
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.score))).\
                 group_by(Player.nick).\
-                group_by(Player.player_id).all()[0:10]
+                group_by(Player.player_id).all()[0:leaderboard_count]
 
         top_scorers = [(player_id, html_colors(nick), score) \
                 for (player_id, nick, score) in top_scorers]
-
-        for i in range(leaderboard_count-len(top_scorers)):
-            top_scorers.append(('-', '-', '-'))
 
         # top players by playing time
         top_players = DBSession.query(Player.player_id, Player.nick, 
@@ -95,13 +90,10 @@ def server_info(request):
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.alivetime))).\
                 group_by(Player.nick).\
-                group_by(Player.player_id).all()[0:10]
+                group_by(Player.player_id).all()[0:leaderboard_count]
 
         top_players = [(player_id, html_colors(nick), score) \
                 for (player_id, nick, score) in top_players]
-
-        for i in range(leaderboard_count-len(top_players)):
-            top_players.append(('-', '-', '-'))
 
         # recent games played in descending order
         recent_games = DBSession.query(Game, Server, Map, PlayerGameStat).\
@@ -111,9 +103,6 @@ def server_info(request):
             filter(PlayerGameStat.rank==1).\
             filter(Server.server_id==server.server_id).\
             order_by(expr.desc(Game.start_dt)).all()[0:recent_games_count]
-
-        for i in range(recent_games_count-len(recent_games)):
-            recent_games.append(('-', '-', '-', '-'))
 
     except Exception as e:
         server = None
@@ -128,10 +117,32 @@ def server_info(request):
             }
 
 
-def server_game_index(request):
+def server_info(request):
     """
-    List the games played on a given server. Paginated.
+    List the stored information about a given server.
     """
+    serverinfo_data =  _server_info_data(request)
+
+    # FIXME: code clone, should get these from _server_info_data
+    leaderboard_count = 10
+    recent_games_count = 20
+
+    for i in range(leaderboard_count-len(serverinfo_data['top_maps'])):
+        serverinfo_data['top_maps'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(serverinfo_data['top_scorers'])):
+        serverinfo_data['top_scorers'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(serverinfo_data['top_players'])):
+        serverinfo_data['top_players'].append(('-', '-', '-'))
+
+    for i in range(recent_games_count-len(serverinfo_data['recent_games'])):
+        serverinfo_data['recent_games'].append(('-', '-', '-', '-'))
+
+    return serverinfo_data
+
+
+def _server_game_index_data(request):
     server_id = request.matchdict['server_id']
     current_page = request.matchdict['page']
 
@@ -152,3 +163,10 @@ def server_game_index(request):
 
     return {'games':games,
             'server':server}
+
+
+def server_game_index(request):
+    """
+    List the games played on a given server. Paginated.
+    """
+    return _server_game_index_data(request)
