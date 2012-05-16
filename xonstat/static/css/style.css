@@ -3425,6 +3425,17 @@ a.thumbnail:hover {
 #navsearch select {
   width: 80px;
 }
+
+header {
+  height:0;
+}
+header a {
+  display:block;
+  overflow:hidden;
+}
+header h1 { display:none; }
+header h2 { display:none; }
+
 /* Game scoreboard */
 .game {
   background-image: -moz-linear-gradient(center bottom , #062C52, #041B33);
