@@ -224,8 +224,8 @@ def player_game_index(request):
     """
     player_id = request.matchdict['player_id']
 
-    if 'page' in request.matchdict:
-        current_page = request.matchdict['page']
+    if request.params.has_key('page'):
+        current_page = request.params['page']
     else:
         current_page = 1
 
@@ -237,7 +237,7 @@ def player_game_index(request):
             filter(Game.map_id == Map.map_id).\
             order_by(Game.game_id.desc())
 
-        games = Page(games_q, current_page, url=page_url)
+        games = Page(games_q, current_page, items_per_page=10, url=page_url)
 
         pgstats = {}
         for (game, server, map) in games:

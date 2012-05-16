@@ -28,5 +28,5 @@ Game Index
 </div>
 
 <!-- navigation links -->
-${navlinks("player_game_index_paged", games.page, games.last_page, player_id=player_id)}
+${navlinks("player_game_index", games.page, games.last_page, player_id=player_id)}
 % endif
