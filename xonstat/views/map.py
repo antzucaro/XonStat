@@ -10,7 +10,7 @@ from xonstat.util import page_url
 
 log = logging.getLogger(__name__)
 
-def map_index(request):
+def _map_index_data(request):
     """
     Provides a list of all the current maps. 
     """
@@ -29,6 +29,24 @@ def map_index(request):
         maps = None
 
     return {'maps':maps, }
+
+
+def map_index(request):
+    """
+    Provides a list of all the current maps. 
+    """
+    return _map_index_data(request)
+
+
+def map_index_json(request):
+    """
+    Provides a JSON-serialized list of all the current maps. 
+    """
+    view_data =  _map_index_data(request)
+
+    maps = [m.to_dict() for m in view_data['maps']]
+
+    return maps
 
 
 def map_info(request):

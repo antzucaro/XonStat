@@ -73,6 +73,10 @@ def main(global_config, **settings):
         renderer="server_info.mako")
 
     # MAP ROUTES
+    config.add_route("map_index_json", "/maps.json")
+    config.add_view(map_index_json, route_name="map_index_json",
+        renderer="json")
+
     config.add_route("map_index", "/maps")
     config.add_view(map_index, route_name="map_index",
         renderer="map_index.mako")
