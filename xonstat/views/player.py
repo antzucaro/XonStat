@@ -15,10 +15,7 @@ from xonstat.util import page_url
 log = logging.getLogger(__name__)
 
 
-def player_index(request):
-    """
-    Provides a list of all the current players. 
-    """
+def _player_index_data(request):
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
@@ -41,7 +38,14 @@ def player_index(request):
            }
 
 
-def get_games_played(player_id):
+def player_index(request):
+    """
+    Provides a list of all the current players.
+    """
+    return _player_index_data(request)
+
+
+def _get_games_played(player_id):
     """
     Provides a breakdown by gametype of the games played by player_id.
 
@@ -64,7 +68,7 @@ def get_games_played(player_id):
 
 # TODO: should probably factor the above function into this one such that
 # total_stats['ctf_games'] is the count of CTF games and so on...
-def get_total_stats(player_id):
+def _get_total_stats(player_id):
     """
     Provides aggregated stats by player_id.
 
@@ -143,10 +147,7 @@ def get_accuracy_stats(player_id, weapon_cd, games):
     return (avg, accs)
 
 
-def player_info(request):
-    """
-    Provides detailed information on a specific player
-    """
+def _player_info_data(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
         player_id = -1;
@@ -156,10 +157,10 @@ def player_info(request):
                 filter(Player.active_ind == True).one()
 
         # games played, alivetime, wins, kills, deaths
-        total_stats = get_total_stats(player.player_id)
+        total_stats = _get_total_stats(player.player_id)
 
         # games breakdown - N games played (X ctf, Y dm) etc
-        (total_games, games_breakdown) = get_games_played(player.player_id)
+        (total_games, games_breakdown) = _get_games_played(player.player_id)
 
 
         # friendly display of elo information and preliminary status
@@ -216,12 +217,14 @@ def player_info(request):
             }
 
 
-def player_game_index(request):
+def player_info(request):
     """
-    Provides an index of the games in which a particular
-    player was involved. This is ordered by game_id, with
-    the most recent game_ids first. Paginated.
+    Provides detailed information on a specific player
     """
+    return _player_info_data(request)
+
+
+def _player_game_index_data(request):
     player_id = request.matchdict['player_id']
 
     if request.params.has_key('page'):
@@ -254,15 +257,17 @@ def player_game_index(request):
             'games':games,
             'pgstats':pgstats}
 
-def player_accuracy(request):
-    """
-    Provides a JSON response representing the accuracy for the given weapon.
 
-    Parameters:
-       weapon = which weapon to display accuracy for. Valid values are 'nex',
-                'shotgun', 'uzi', and 'minstanex'.
-       games = over how many games to display accuracy. Can be up to 50.
+def player_game_index(request):
     """
+    Provides an index of the games in which a particular
+    player was involved. This is ordered by game_id, with
+    the most recent game_ids first. Paginated.
+    """
+    return _player_game_index_data(request)
+
+
+def _player_accuracy_data(request):
     player_id = request.matchdict['id']
     allowed_weapons = ['nex', 'rifle', 'shotgun', 'uzi', 'minstanex']
     weapon_cd = 'nex'
@@ -298,3 +303,14 @@ def player_accuracy(request):
             'accs':accs
             }
 
+
+def player_accuracy_json(request):
+    """
+    Provides a JSON response representing the accuracy for the given weapon.
+
+    Parameters:
+       weapon = which weapon to display accuracy for. Valid values are 'nex',
+                'shotgun', 'uzi', and 'minstanex'.
+       games = over how many games to display accuracy. Can be up to 50.
+    """
+    return _player_accuracy_data(request)

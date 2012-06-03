@@ -74,7 +74,7 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None,
 
     return (result_type, q)
 
-def search(request):
+def _search_data(request):
     fs = None
     nick = None
     server_name = None
@@ -145,3 +145,7 @@ def search(request):
             'results':results,
             'query':query,
             }
+
+
+def search(request):
+    return _search_data(request)

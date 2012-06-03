@@ -11,9 +11,6 @@ from xonstat.util import page_url
 log = logging.getLogger(__name__)
 
 def _map_index_data(request):
-    """
-    Provides a list of all the current maps. 
-    """
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
@@ -49,10 +46,7 @@ def map_index_json(request):
     return maps
 
 
-def map_info(request):
-    """
-    List the information stored about a given map. 
-    """
+def _map_info_data(request):
     map_id = request.matchdict['id']
 
     try: 
@@ -76,10 +70,6 @@ def map_info(request):
             filter(PlayerGameStat.rank==1).\
             order_by(expr.desc(Game.start_dt)).all()[0:recent_games_count]
 
-        for i in range(recent_games_count-len(recent_games)):
-            recent_games.append(('-', '-', '-', '-'))
-
-
         # top players by score
         top_scorers = DBSession.query(Player.player_id, Player.nick,
                 func.sum(PlayerGameStat.score)).\
@@ -91,13 +81,10 @@ def map_info(request):
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.score))).\
                 group_by(Player.nick).\
-                group_by(Player.player_id).all()[0:10]
+                group_by(Player.player_id).all()[0:leaderboard_count]
 
         top_scorers = [(player_id, html_colors(nick), score) \
                 for (player_id, nick, score) in top_scorers]
-
-        for i in range(leaderboard_count-len(top_scorers)):
-            top_scorers.append(('-', '-', '-'))
 
         # top players by playing time
         top_players = DBSession.query(Player.player_id, Player.nick, 
@@ -110,13 +97,10 @@ def map_info(request):
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.alivetime))).\
                 group_by(Player.nick).\
-                group_by(Player.player_id).all()[0:10]
+                group_by(Player.player_id).all()[0:leaderboard_count]
 
         top_players = [(player_id, html_colors(nick), score) \
                 for (player_id, nick, score) in top_players]
-
-        for i in range(leaderboard_count-len(top_players)):
-            top_players.append(('-', '-', '-'))
 
         # top servers using/playing this map
         top_servers = DBSession.query(Server.server_id, Server.name, 
@@ -127,10 +111,7 @@ def map_info(request):
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.count(Game.game_id))).\
                 group_by(Server.name).\
-                group_by(Server.server_id).all()[0:10]
-
-        for i in range(leaderboard_count-len(top_servers)):
-            top_servers.append(('-', '-', '-'))
+                group_by(Server.server_id).all()[0:leaderboard_count]
 
     except Exception as e:
         gmap = None
@@ -140,3 +121,28 @@ def map_info(request):
             'top_players':top_players,
             'top_servers':top_servers,
             }
+
+
+def map_info(request):
+    """
+    List the information stored about a given map.
+    """
+    mapinfo_data =  _map_info_data(request)
+
+    # FIXME: code clone, should get these from _map_info_data
+    leaderboard_count = 10
+    recent_games_count = 20
+
+    for i in range(recent_games_count-len(mapinfo_data['recent_games'])):
+        mapinfo_data['recent_games'].append(('-', '-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mapinfo_data['top_scorers'])):
+        mapinfo_data['top_scorers'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mapinfo_data['top_players'])):
+        mapinfo_data['top_players'].append(('-', '-', '-'))
+
+    for i in range(leaderboard_count-len(mapinfo_data['top_servers'])):
+        mapinfo_data['top_servers'].append(('-', '-', '-'))
+
+    return mapinfo_data

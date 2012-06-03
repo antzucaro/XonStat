@@ -11,12 +11,7 @@ from xonstat.util import page_url
 log = logging.getLogger(__name__)
 
 
-def game_index(request):
-    """
-    Provides a list of current games, with the associated game stats.
-    These games are ordered by game_id, with the most current ones first.
-    Paginated.
-    """
+def _game_index_data(request):
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
@@ -40,10 +35,16 @@ def game_index(request):
             'pgstats':pgstats}
 
 
-def game_info(request):
+def game_index(request):
     """
-    List the game stats (scoreboard) for a particular game. Paginated.
+    Provides a list of current games, with the associated game stats.
+    These games are ordered by game_id, with the most current ones first.
+    Paginated.
     """
+    return _game_index_data(request)
+
+
+def _game_info_data(request):
     game_id = request.matchdict['id']
     try:
         notfound = False
@@ -95,10 +96,14 @@ def game_info(request):
             }
 
 
-def rank_index(request):
+def game_info(request):
     """
-    Provide a list of gametype ranks, paginated.
+    List the game stats (scoreboard) for a particular game. Paginated.
     """
+    return _game_info_data(request)
+
+
+def _rank_index_data(request):
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
@@ -119,3 +124,10 @@ def rank_index(request):
             'ranks':ranks,
             'game_type_cd':game_type_cd,
            }
+
+
+def rank_index(request):
+    """
+    Provide a list of gametype ranks, paginated.
+    """
+    return _rank_index_data(request)
