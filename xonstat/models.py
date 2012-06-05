@@ -36,15 +36,24 @@ class Player(object):
     def __repr__(self):
         return "<Player(%s, %s)>" % (self.player_id, self.nick.encode('utf-8'))
 
+    def to_dict(self):
+        return {'player_id':self.player_id, 'name':self.nick.encode('utf-8')}
+
 
 class GameType(object):
     def __repr__(self):
         return "<GameType(%s, %s, %s)>" % (self.game_type_cd, self.descr, self.active_ind)
 
+    def to_dict(self):
+        return {'game_type_cd':self.game_type_cd, 'name':self.descr, 'active':self.active_ind}
+
 
 class Weapon(object):
     def __repr__(self):
         return "<Weapon(%s, %s, %s)>" % (self.weapon_cd, self.descr, self.active_ind)
+
+    def to_dict(self):
+        return {'weapon_cd':self.weapon_cd, 'name':self.descr, 'active':self.active_ind}
 
 
 class Server(object):
@@ -56,6 +65,9 @@ class Server(object):
     def __repr__(self):
         return "<Server(%s, %s)>" % (self.server_id, self.name.encode('utf-8'))
 
+    def to_dict(self):
+        return {'server_id':self.server_id, 'name':self.name.encode('utf-8')}
+
 
 class Map(object):
     def __init__(self, name=None):
@@ -65,7 +77,7 @@ class Map(object):
         return "<Map(%s, %s, %s)>" % (self.map_id, self.name, self.version)
 
     def to_dict(self):
-        return {'map_id':self.map_id, 'name':self.name}
+        return {'map_id':self.map_id, 'name':self.name, 'version':self.version}
 
 
 class Game(object):
@@ -80,6 +92,9 @@ class Game(object):
 
     def __repr__(self):
         return "<Game(%s, %s, %s, %s)>" % (self.game_id, self.start_dt, self.game_type_cd, self.server_id)
+
+    def to_dict(self):
+        return {'game_id':self.game_id, 'start':self.start_dt.strftime('%Y-%m-%dT%H:%M:%SZ'), 'game_type_cd':self.game_type_cd, 'server_id':self.server_id}
 
     def fuzzy_date(self):
         return pretty_date(self.start_dt)
@@ -199,6 +214,9 @@ class PlayerGameStat(object):
     def __repr__(self):
         return "<PlayerGameStat(%s, %s, %s)>" % (self.player_id, self.game_id, self.create_dt)
 
+    def to_dict(self):
+        return {'player_id':self.player_id, 'game_id':self.game_id, 'create_dt':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ')}
+
     def nick_stripped(self):
         if self.nick is None:
             return "Anonymous Player"
@@ -228,15 +246,24 @@ class Achievement(object):
     def __repr__(self):
         return "<Achievement(%s, %s, %s)>" % (self.achievement_cd, self.descr, self.limit)
 
+    def to_dict(self):
+        return {'achievement_cd':self.achievement_cd, 'name':self.descr, 'limit':self.limit}
+
 
 class PlayerAchievement(object):
     def __repr__(self):
         return "<PlayerAchievement(%s, %s)>" % (self.player_id, self.achievement_cd)
 
+    def to_dict(self):
+        return {'player_id':self.player_id, 'achievement_cd':self.achievement_cd}
+
 
 class PlayerWeaponStat(object):
     def __repr__(self):
         return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stats_id, self.player_id, self.game_id)
+
+    def to_dict(self):
+        return {'player_weapon_stats_id':self.player_weapon_stats_id, 'player_id':self.player_id, 'game_id':self.game_id}
 
 
 class Hashkey(object):
@@ -247,10 +274,16 @@ class Hashkey(object):
     def __repr__(self):
         return "<Hashkey(%s, %s)>" % (self.player_id, self.hashkey)
 
+    def to_dict(self):
+        return {'player_id':self.player_id, 'hashkey':self.hashkey}
+
 
 class PlayerNick(object):
     def __repr__(self):
         return "<PlayerNick(%s, %s)>" % (self.player_id, self.stripped_nick)
+
+    def to_dict(self):
+        return {'player_id':self.player_id, 'name':self.stripped_nick}
 
 
 class PlayerElo(object):
@@ -265,6 +298,9 @@ class PlayerElo(object):
     def __repr__(self):
         return "<PlayerElo(pid=%s, gametype=%s, elo=%s)>" % (self.player_id, self.game_type_cd, self.elo)
 
+    def to_dict(self):
+        return {'player_id':self.player_id, 'game_type_cd':self.game_type_cd, 'elo':self.elo}
+
 
 class PlayerRank(object):
 
@@ -274,9 +310,11 @@ class PlayerRank(object):
         else:
             return html_colors(self.nick)
 
-
     def __repr__(self):
         return "<PlayerRank(pid=%s, gametype=%s, rank=%s)>" % (self.player_id, self.game_type_cd, self.rank)
+
+    def to_dict(self):
+        return {'player_id':self.player_id, 'game_type_cd':self.game_type_cd, 'rank':self.rank}
 
 
 def initialize_db(engine=None):
