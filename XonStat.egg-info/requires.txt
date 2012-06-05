@@ -1,4 +1,4 @@
-pyramid
+pyramid>=1.1
 SQLAlchemy
 transaction
 repoze.tm2>=1.0b1

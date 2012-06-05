@@ -1,5 +1,6 @@
 import sqlahelper
 from pyramid.config import Configurator
+from pyramid.renderers import JSONP
 from sqlalchemy import engine_from_config
 from xonstat.models import initialize_db
 from xonstat.views import *
@@ -17,6 +18,8 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
 
     config.add_static_view('static', 'xonstat:static')
+
+    config.add_renderer('jsonp', JSONP(param_name='callback'))
 
     # ROOT ROUTE
     config.add_route("main_index", "/")
@@ -38,8 +41,8 @@ def main(global_config, **settings):
 
     config.add_route("player_accuracy",      "/player/{id:\d+}/accuracy")
     config.add_route("player_accuracy_json", "/player/{id:\d+}/accuracy.json")
-    config.add_view(player_accuracy_json, route_name="player_accuracy",      renderer="json")
-    config.add_view(player_accuracy_json, route_name="player_accuracy_json", renderer="json")
+    config.add_view(player_accuracy_json, route_name="player_accuracy",      renderer="jsonp")
+    config.add_view(player_accuracy_json, route_name="player_accuracy_json", renderer="jsonp")
 
     # GAME ROUTES
     config.add_route("game_index", "/games")
@@ -65,7 +68,7 @@ def main(global_config, **settings):
     config.add_route("map_index",      "/maps")
     config.add_route("map_index_json", "/maps.json")
     config.add_view(map_index,      route_name="map_index",      renderer="map_index.mako")
-    config.add_view(map_index_json, route_name="map_index_json", renderer="json")
+    config.add_view(map_index_json, route_name="map_index_json", renderer="jsonp")
 
     config.add_route("map_info", "/map/{id:\d+}")
     config.add_view(map_info, route_name="map_info", renderer="map_info.mako")
