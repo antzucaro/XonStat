@@ -30,7 +30,7 @@ def _map_index_data(request):
 
 def map_index(request):
     """
-    Provides a list of all the current maps. 
+    Provides a list of all the current maps.
     """
     return _map_index_data(request)
 
@@ -39,7 +39,7 @@ def map_index_json(request):
     """
     Provides a JSON-serialized list of all the current maps. 
     """
-    view_data =  _map_index_data(request)
+    view_data = _map_index_data(request)
 
     maps = [m.to_dict() for m in view_data['maps']]
 
@@ -146,3 +146,10 @@ def map_info(request):
         mapinfo_data['top_servers'].append(('-', '-', '-'))
 
     return mapinfo_data
+
+
+def map_info_json(request):
+    """
+    List the information stored about a given map. JSON.
+    """
+    return [{'status':'not implemented'}]

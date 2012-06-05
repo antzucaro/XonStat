@@ -37,6 +37,13 @@ def server_index(request):
     return _server_index_data(request)
 
 
+def server_index_json(request):
+    """
+    Provides a list of all the current servers. JSON.
+    """
+    return [{'status':'not implemented'}]
+
+
 def _server_info_data(request):
     server_id = request.matchdict['id']
 
@@ -142,6 +149,13 @@ def server_info(request):
     return serverinfo_data
 
 
+def server_info_json(request):
+    """
+    List the stored information about a given server. JSON.
+    """
+    return [{'status':'not implemented'}]
+
+
 def _server_game_index_data(request):
     server_id = request.matchdict['server_id']
     current_page = request.matchdict['page']
@@ -170,3 +184,10 @@ def server_game_index(request):
     List the games played on a given server. Paginated.
     """
     return _server_game_index_data(request)
+
+
+def server_game_index_json(request):
+    """
+    List the games played on a given server. Paginated. JSON.
+    """
+    return [{'status':'not implemented'}]

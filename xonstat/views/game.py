@@ -31,7 +31,7 @@ def _game_index_data(request):
                 order_by(PlayerGameStat.rank).\
                 order_by(PlayerGameStat.score).all()
 
-    return {'games':games, 
+    return {'games':games,
             'pgstats':pgstats}
 
 
@@ -42,6 +42,15 @@ def game_index(request):
     Paginated.
     """
     return _game_index_data(request)
+
+
+def game_index_json(request):
+    """
+    Provides a list of current games, with the associated game stats.
+    These games are ordered by game_id, with the most current ones first.
+    Paginated. JSON.
+    """
+    return [{'status':'not implemented'}]
 
 
 def _game_info_data(request):
@@ -103,6 +112,13 @@ def game_info(request):
     return _game_info_data(request)
 
 
+def game_info_json(request):
+    """
+    List the game stats (scoreboard) for a particular game. Paginated. JSON.
+    """
+    return [{'status':'not implemented'}]
+
+
 def _rank_index_data(request):
     if request.params.has_key('page'):
         current_page = request.params['page']
@@ -131,3 +147,10 @@ def rank_index(request):
     Provide a list of gametype ranks, paginated.
     """
     return _rank_index_data(request)
+
+
+def rank_index_json(request):
+    """
+    Provide a list of gametype ranks, paginated. JSON.
+    """
+    return [{'status':'not implemented'}]

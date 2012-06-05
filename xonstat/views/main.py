@@ -133,3 +133,10 @@ def main_index(request):
         mainindex_data['recent_games'].append(('-', '-', '-', '-'))
 
     return mainindex_data
+
+
+def main_index_json(request):
+    """
+    JSON output of the main page information.
+    """
+    return [{'status':'not implemented'}]
