@@ -34,20 +34,17 @@ class Player(object):
         return pretty_date(self.create_dt)
 
     def __repr__(self):
-        return "<Player(%s, %s)>" % (self.player_id, 
-                self.nick.encode('utf-8'))
+        return "<Player(%s, %s)>" % (self.player_id, self.nick.encode('utf-8'))
 
 
 class GameType(object):
     def __repr__(self):
-        return "<GameType(%s, %s, %s)>" % (self.game_type_cd, self.descr, 
-                self.active_ind)
+        return "<GameType(%s, %s, %s)>" % (self.game_type_cd, self.descr, self.active_ind)
 
 
 class Weapon(object):
     def __repr__(self):
-        return "<Weapon(%s, %s, %s)>" % (self.weapon_cd, self.descr, 
-                self.active_ind)
+        return "<Weapon(%s, %s, %s)>" % (self.weapon_cd, self.descr, self.active_ind)
 
 
 class Server(object):
@@ -82,8 +79,7 @@ class Game(object):
         self.winner = winner
 
     def __repr__(self):
-        return "<Game(%s, %s, %s, %s)>" % (self.game_id, self.start_dt, 
-                self.game_type_cd, self.server_id)
+        return "<Game(%s, %s, %s, %s)>" % (self.game_id, self.start_dt, self.game_type_cd, self.server_id)
 
     def fuzzy_date(self):
         return pretty_date(self.start_dt)
@@ -201,8 +197,7 @@ class PlayerGameStat(object):
         self.create_dt = create_dt
 
     def __repr__(self):
-        return "<PlayerGameStat(%s, %s, %s)>" \
-        % (self.player_id, self.game_id, self.create_dt)
+        return "<PlayerGameStat(%s, %s, %s)>" % (self.player_id, self.game_id, self.create_dt)
 
     def nick_stripped(self):
         if self.nick is None:
@@ -231,8 +226,7 @@ class PlayerGameStat(object):
 
 class Achievement(object):
     def __repr__(self):
-        return "<Achievement(%s, %s, %s)>" % (self.achievement_cd, self.descr,
-                self.limit)
+        return "<Achievement(%s, %s, %s)>" % (self.achievement_cd, self.descr, self.limit)
 
 
 class PlayerAchievement(object):
@@ -242,8 +236,7 @@ class PlayerAchievement(object):
 
 class PlayerWeaponStat(object):
     def __repr__(self):
-        return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stats_id,
-                self.player_id, self.game_id)
+        return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stats_id, self.player_id, self.game_id)
 
 
 class Hashkey(object):
@@ -270,8 +263,7 @@ class PlayerElo(object):
         self.elo = ELOPARMS.initial
 
     def __repr__(self):
-        return "<PlayerElo(pid=%s, gametype=%s, elo=%s)>" % \
-                (self.player_id, self.game_type_cd, self.elo)
+        return "<PlayerElo(pid=%s, gametype=%s, elo=%s)>" % (self.player_id, self.game_type_cd, self.elo)
 
 
 class PlayerRank(object):
@@ -284,8 +276,7 @@ class PlayerRank(object):
 
 
     def __repr__(self):
-        return "<PlayerRank(pid=%s, gametype=%s, rank=%s)>" % \
-                (self.player_id, self.game_type_cd, self.rank)
+        return "<PlayerRank(pid=%s, gametype=%s, rank=%s)>" % (self.player_id, self.game_type_cd, self.rank)
 
 
 def initialize_db(engine=None):
