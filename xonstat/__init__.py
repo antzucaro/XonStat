@@ -45,6 +45,10 @@ def main(global_config, **settings):
     config.add_view(player_accuracy_json, route_name="player_accuracy",
         renderer="json")
 
+    config.add_route("player_damage", "/player/{id:\d+}/damage")
+    config.add_view(player_damage_json, route_name="player_damage",
+        renderer="json")
+
     # GAME ROUTES
     config.add_route("game_index", "/games")
     config.add_view(game_index, route_name="game_index",

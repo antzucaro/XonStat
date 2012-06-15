@@ -147,6 +147,48 @@ def get_accuracy_stats(player_id, weapon_cd, games):
     return (avg, accs)
 
 
+def get_damage_stats(player_id, weapon_cd, games):
+    """
+    Provides damage info for weapon_cd by player_id for the past N games.
+    """
+    try:
+        raw_avg = DBSession.query(func.sum(PlayerWeaponStat.actual),
+                func.sum(PlayerWeaponStat.hit)).\
+                filter(PlayerWeaponStat.player_id == player_id).\
+                filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
+                one()
+
+        avg = round(float(raw_avg[0])/raw_avg[1], 2)
+
+        # Determine the damage efficiency (hit, fired) numbers for $games games
+        # This is then enumerated to create parameters for a flot graph
+        raw_dmgs = DBSession.query(PlayerWeaponStat.game_id, 
+            PlayerWeaponStat.actual, PlayerWeaponStat.hit).\
+                filter(PlayerWeaponStat.player_id == player_id).\
+                filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
+                order_by(PlayerWeaponStat.game_id.desc()).\
+                limit(games).\
+                all()
+
+        # they come out in opposite order, so flip them in the right direction
+        raw_dmgs.reverse()
+
+        dmgs = []
+        for i in range(len(raw_dmgs)):
+            # try to derive, unless we've hit nothing then set to 0!
+            try:
+                dmg = round(float(raw_dmgs[i][1])/raw_dmgs[i][2], 2)
+            except:
+                dmg = 0.0
+
+            dmgs.append((raw_dmgs[i][0], dmg))
+    except Exception as e:
+        dmgs = []
+        avg = 0.0
+
+    return (avg, dmgs)
+
+
 def _player_info_data(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
@@ -314,3 +356,54 @@ def player_accuracy_json(request):
        games = over how many games to display accuracy. Can be up to 50.
     """
     return _player_accuracy_data(request)
+
+
+def _player_damage_data(request):
+    player_id = request.matchdict['id']
+    allowed_weapons = ['grenadelauncher', 'electro', 'crylink', 'hagar',
+            'rocketlauncher', 'laser']
+    weapon_cd = 'laser'
+    games = 20
+
+    if request.params.has_key('weapon'):
+        if request.params['weapon'] in allowed_weapons:
+            weapon_cd = request.params['weapon']
+
+    if request.params.has_key('games'):
+        try:
+            games = request.params['games']
+
+            if games < 0:
+                games = 20
+            if games > 50:
+                games = 50
+        except:
+            games = 20
+
+    (avg, dmgs) = get_damage_stats(player_id, weapon_cd, games)
+
+    # if we don't have enough data for the given weapon
+    if len(dmgs) < games:
+        games = len(dmgs)
+
+    return {
+            'player_id':player_id, 
+            'player_url':request.route_url('player_info', id=player_id), 
+            'weapon':weapon_cd, 
+            'games':games, 
+            'avg':avg, 
+            'dmgs':dmgs
+            }
+
+
+def player_damage_json(request):
+    """
+    Provides a JSON response representing the damage for the given weapon.
+
+    Parameters:
+       weapon = which weapon to display damage for. Valid values are
+         'grenadelauncher', 'electro', 'crylink', 'hagar', 'rocketlauncher',
+         'laser'.
+       games = over how many games to display damage. Can be up to 50.
+    """
+    return _player_damage_data(request)
