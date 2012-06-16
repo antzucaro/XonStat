@@ -1,7 +1,7 @@
 from xonstat.views.submission import stats_submit
 from xonstat.views.player import player_index, player_info, player_game_index
 from xonstat.views.player import player_accuracy
-from xonstat.views.player import player_index_json, player_info_json,
+from xonstat.views.player import player_index_json, player_info_json
 from xonstat.views.player import player_game_index_json, player_accuracy_json
 from xonstat.views.player import player_damage_json
 
