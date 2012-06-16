@@ -13,6 +13,7 @@ ${nav.nav('players')}
       <script type="text/javascript">
       $(function () {
 
+          // plot the accuracy graph
           function plot_acc_graph(data) {
               var games = new Array();
               var avgs = new Array();
@@ -23,7 +24,7 @@ ${nav.nav('players')}
                   avgs[i] = [i, data.avg];
                   accs[i] = [i, data.accs[i][1]];
                   game_link = '/game/' + data.accs[i][0];
-                  j = 20 - i;
+                  j = data.games - i;
                   games[i] = [i, '<a href="' + game_link + '">' + j + '</a>'];
               }
 
@@ -32,6 +33,31 @@ ${nav.nav('players')}
                   [ { label: 'average', data: avgs, hoverable: true, clickable: false }, 
                     { label: 'accuracy', data: accs, lines: {show:true}, points: {show:false}, hoverable: true, clickable: true }, ],
                   { yaxis: {ticks: 10, min: 0, max: 100 },
+                    xaxis: {ticks: games},
+                    grid: { hoverable: true, clickable: true },
+              });
+          }
+
+          // plot the damage graph
+          function plot_dmg_graph(data) {
+              var games = new Array();
+              var avgs = new Array();
+              var dmgs = new Array();
+
+              var i=0;
+              for(i=0; i < data.games; i++) {
+                  avgs[i] = [i, data.avg];
+                  dmgs[i] = [i, data.dmgs[i][1]];
+                  game_link = '/game/' + data.dmgs[i][0];
+                  j = data.games - i;
+                  games[i] = [i, '<a href="' + game_link + '">' + j + '</a>'];
+              }
+
+              $.plot(
+                  $("#dmg-graph"), 
+                  [ { label: 'average', data: avgs, hoverable: true, clickable: false }, 
+                    { label: 'efficiency', data: dmgs, lines: {show:true}, points: {show:false}, hoverable: true, clickable: true }, ],
+                  { yaxis: {ticks: 10, min: 0 },
                     xaxis: {ticks: games},
                     grid: { hoverable: true, clickable: true },
               });
@@ -55,11 +81,11 @@ ${nav.nav('players')}
               if (item) {
                   if (previousPoint != item.dataIndex) {
                     previousPoint = item.dataIndex;
-                    
+
                     $("#tooltip").remove();
                     var x = item.datapoint[0].toFixed(2),
                         y = item.datapoint[1].toFixed(2);
-                    
+
                     showTooltip(item.pageX, item.pageY, y + "%");
                   }
               }
@@ -69,17 +95,29 @@ ${nav.nav('players')}
               }
           });
 
-          $.ajax({
-              url: '${request.route_url("player_accuracy", id=player.player_id)}',
-              method: 'GET',
-              dataType: 'json',
-              success: plot_acc_graph
+          $('#dmg-graph').bind("plothover", function (event, pos, item) {
+              if (item) {
+                  if (previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+
+                    $("#tooltip").remove();
+                    var x = item.datapoint[0].toFixed(2),
+                        y = item.datapoint[1].toFixed(2);
+
+                    showTooltip(item.pageX, item.pageY, y);
+                  }
+              }
+              else {
+                  $("#tooltip").remove();
+                  previousPoint = null;
+              }
           });
 
+          // bind click events to the weapon images
           $(".acc-weap").click(function () {
               var dataurl = $(this).find('a').attr('href');
 
-              $('.weapon-active').removeClass('weapon-active');
+              $('.accuracy-nav').find('.weapon-active').removeClass('weapon-active');
               $(this).addClass('weapon-active');
 
               $.ajax({
@@ -89,6 +127,37 @@ ${nav.nav('players')}
                   success: plot_acc_graph
               });
           });
+
+          $(".dmg-weap").click(function () {
+              var dataurl = $(this).find('a').attr('href');
+
+              $('.damage-nav').find('.weapon-active').removeClass('weapon-active');
+              $(this).addClass('weapon-active');
+
+              $.ajax({
+                  url: dataurl,
+                  method: 'GET',
+                  dataType: 'json',
+                  success: plot_dmg_graph
+              });
+          });
+
+          // populate the graphs with the default weapons
+          $.ajax({
+              url: '${request.route_url("player_accuracy", id=player.player_id)}',
+              method: 'GET',
+              dataType: 'json',
+              success: plot_acc_graph
+          });
+
+          $.ajax({
+              url: '${request.route_url("player_damage", id=player.player_id)}',
+              method: 'GET',
+              dataType: 'json',
+              success: plot_dmg_graph
+          });
+
+
       })
       </script>
     % endif
@@ -132,14 +201,14 @@ Player Information
 </div>
 
 
-% if accs is not None:
+% if 'nex' in recent_weapons or 'rifle' in recent_weapons or 'minstanex' in recent_weapons or 'uzi' in recent_weapons or 'shotgun' in recent_weapons:
 <div class="row">
   <div class="span10">
     <h3>Accuracy</h3>
     <div id="acc-graph" class="flot" style="width:800px; height:200px;">
     </div>
 
-    <div class="weapon-nav">
+    <div class="weapon-nav accuracy-nav">
       <ul>
         % if 'nex' in recent_weapons:
         <li>
@@ -190,6 +259,83 @@ Player Information
           </div>
         </li>
         % endif
+      </ul>
+    </div>
+
+  </div>
+</div>
+% endif
+
+
+% if 'rocketlauncher' in recent_weapons or 'grenadelauncher' in recent_weapons or 'electro' in recent_weapons or 'crylink' in recent_weapons or 'laser' in recent_weapons:
+<div class="row">
+  <div class="span10">
+    <h3>Damage Efficiency</h3>
+    <div id="dmg-graph" class="flot" style="width:800px; height:200px;">
+    </div>
+
+    <div class="weapon-nav damage-nav">
+      <ul>
+        % if 'rocketlauncher' in recent_weapons:
+        <li>
+          <div class="dmg-weap weapon-active">
+            <img src="${request.static_url("xonstat:static/images/rocketlauncher.png")}" />
+            <p><small>Rocket</small></p>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'rocketlauncher'})}" title="Show rocket launcher efficiency"></a>
+          </div>
+        </li>
+        % endif
+
+        % if 'grenadelauncher' in recent_weapons:
+        <li>
+          <div class="dmg-weap">
+            <img src="${request.static_url("xonstat:static/images/grenadelauncher.png")}" />
+            <p><small>Mortar</small></p>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'grenadelauncher'})}" title="Show mortar damage efficiency"></a>
+          </div>
+        </li>
+        % endif
+
+        % if 'electro' in recent_weapons:
+        <li>
+          <div class="dmg-weap">
+            <img src="${request.static_url("xonstat:static/images/electro.png")}" />
+            <p><small>Electro</small></p>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'electro'})}" title="Show electro damage efficiency"></a>
+          </div>
+        </li>
+        % endif
+
+        % if 'crylink' in recent_weapons:
+        <li>
+          <div class="dmg-weap">
+            <img src="${request.static_url("xonstat:static/images/crylink.png")}" />
+            <p><small>Crylink</small></p>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'crylink'})}" title="Show crylink damage efficiency"></a>
+          </div>
+        </li>
+        % endif
+
+        % if 'hagar' in recent_weapons:
+        <li>
+          <div class="dmg-weap">
+            <img src="${request.static_url("xonstat:static/images/hagar.png")}" />
+            <p><small>Hagar</small></p>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'hagar'})}" title="Show hagar damage efficiency"></a>
+          </div>
+        </li>
+        % endif
+
+        % if 'laser' in recent_weapons:
+        <li>
+          <div class="dmg-weap">
+            <img src="${request.static_url("xonstat:static/images/laser.png")}" />
+            <p><small>Laser</small></p>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'laser'})}" title="Show laser damage efficiency"></a>
+          </div>
+        </li>
+        % endif
+
       </ul>
     </div>
 
