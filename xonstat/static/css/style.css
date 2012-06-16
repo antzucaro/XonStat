@@ -3492,6 +3492,7 @@ header h2 { display:none; }
 }
 
 .flot table, .flot td {
+    background-color: black;
 	border: 0;
 }
 
