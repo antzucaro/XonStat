@@ -362,7 +362,7 @@ def _player_damage_data(request):
     player_id = request.matchdict['id']
     allowed_weapons = ['grenadelauncher', 'electro', 'crylink', 'hagar',
             'rocketlauncher', 'laser']
-    weapon_cd = 'laser'
+    weapon_cd = 'rocketlauncher'
     games = 20
 
     if request.params.has_key('weapon'):
