@@ -45,6 +45,13 @@ def player_index(request):
     return _player_index_data(request)
 
 
+def player_index_json(request):
+    """
+    Provides a list of all the current players. JSON.
+    """
+    return [{'status':'not implemented'}]
+
+
 def _get_games_played(player_id):
     """
     Provides a breakdown by gametype of the games played by player_id.
@@ -266,6 +273,13 @@ def player_info(request):
     return _player_info_data(request)
 
 
+def player_info_json(request):
+    """
+    Provides detailed information on a specific player. JSON.
+    """
+    return [{'status':'not implemented'}]
+
+
 def _player_game_index_data(request):
     player_id = request.matchdict['player_id']
 
@@ -309,6 +323,15 @@ def player_game_index(request):
     return _player_game_index_data(request)
 
 
+def player_game_index_json(request):
+    """
+    Provides an index of the games in which a particular
+    player was involved. This is ordered by game_id, with
+    the most recent game_ids first. Paginated. JSON.
+    """
+    return [{'status':'not implemented'}]
+
+
 def _player_accuracy_data(request):
     player_id = request.matchdict['id']
     allowed_weapons = ['nex', 'rifle', 'shotgun', 'uzi', 'minstanex']
@@ -344,6 +367,13 @@ def _player_accuracy_data(request):
             'avg':avg, 
             'accs':accs
             }
+
+
+def player_accuracy(request):
+    """
+    Provides the accuracy for the given weapon. (JSON only)
+    """
+    return _player_accuracy_data(request)
 
 
 def player_accuracy_json(request):

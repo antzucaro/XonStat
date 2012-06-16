@@ -149,3 +149,7 @@ def _search_data(request):
 
 def search(request):
     return _search_data(request)
+
+
+def search_json(request):
+    return [{'status':'not implemented'}]
