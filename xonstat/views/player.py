@@ -142,6 +142,25 @@ def _get_fav_map(player_id):
     return fav_map
 
 
+def _get_rank(player_id):
+    """
+    Get the player's rank as well as the total number of ranks.
+    """
+    rank = DBSession.query("game_type_cd", "rank", "max_rank").\
+            from_statement(
+                "select pr.game_type_cd, pr.rank, overall.max_rank "
+                "from player_ranks pr,  "
+                   "(select game_type_cd, max(rank) max_rank "
+                    "from player_ranks  "
+                    "group by game_type_cd) overall "
+                "where pr.game_type_cd = overall.game_type_cd  "
+                "and player_id = :player_id "
+                "order by rank").\
+            params(player_id=player_id).all()
+
+    return rank;
+
+
 def get_accuracy_stats(player_id, weapon_cd, games):
     """
     Provides accuracy for weapon_cd by player_id for the past N games.
@@ -256,6 +275,12 @@ def _player_info_data(request):
             elos_display.append(str.format(round(elo.elo, 3),
                 elo.game_type_cd))
 
+        # get current rank information
+        ranks = _get_rank(player_id)
+        ranks_display = ', '.join(["{1} of {2} ({0})".format(gtc, rank,
+            max_rank) for gtc, rank, max_rank in ranks])
+
+
         # which weapons have been used in the past 90 days
         # and also, used in 5 games or more?
         back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
@@ -285,6 +310,7 @@ def _player_info_data(request):
         games_breakdown = None
         recent_weapons = []
         fav_map = None
+        ranks_display = None;
 
     return {'player':player,
             'elos_display':elos_display,
@@ -294,6 +320,7 @@ def _player_info_data(request):
             'games_breakdown':games_breakdown,
             'recent_weapons':recent_weapons,
             'fav_map':fav_map,
+            'ranks_display':ranks_display,
             }
 
 

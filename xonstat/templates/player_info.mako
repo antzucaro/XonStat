@@ -212,6 +212,10 @@ Player Information
               <small><i>*preliminary Elo</i></small><br />
           %endif
       % endif
+
+      % if ranks_display != '':
+      Ranks: <small>${ranks_display}</small><br />
+      % endif
     </p>
   </div>
 </div>
