@@ -190,7 +190,7 @@ Player Information
       Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
 
       % if fav_map is not None:
-      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map.map_id)}" title="view map info">${fav_map.name}</a></small><br />
+      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map['id'])}" title="view map info">${fav_map['name']}</a></small><br />
       % endif
     </p>
   </div>

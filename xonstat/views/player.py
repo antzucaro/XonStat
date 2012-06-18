@@ -121,19 +121,23 @@ def _get_fav_map(player_id):
     as the map that he or she has played the most in the past 
     90 days.
 
-    Returns a map object.
+    Returns a dictionary with keys for the map's name and id.
     """
     # 90 day window
     back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
 
-    fav_map = DBSession.query(Map).\
+    raw_fav_map = DBSession.query(Map.name, Map.map_id).\
             filter(Game.game_id == PlayerGameStat.game_id).\
             filter(Game.map_id == Map.map_id).\
             filter(PlayerGameStat.player_id == player_id).\
             filter(PlayerGameStat.create_dt > back_then).\
-            group_by(Map.map_id).\
+            group_by(Map.name, Map.map_id).\
             order_by(func.count().desc()).\
             limit(1).one()
+
+    fav_map = {}
+    fav_map['name'] = raw_fav_map[0]
+    fav_map['id'] = raw_fav_map[1]
 
     return fav_map
 
