@@ -156,8 +156,6 @@ ${nav.nav('players')}
               dataType: 'json',
               success: plot_dmg_graph
           });
-
-
       })
       </script>
     % endif
@@ -174,26 +172,44 @@ Player Information
 
 % else:
 <div class="row">
-  <div class="span8">
+  <div class="span12">
     <h2>${player.nick_html_colors()|n}</h2>
+  </div>
+</div>
+
+<div class="row">
+  <div class="span6">
     <p>
-       Member Since: <small>${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} </small><br />
-       Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
-       Playing Time: <small>${total_stats['alivetime']} </small><br />
+      Member Since: <small>${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} </small><br />
+
+      Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
+
+      Playing Time: <small>${total_stats['alivetime']} </small><br />
+
+      <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
+      Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
+
+      % if fav_map is not None:
+      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map.map_id)}" title="view map info">${fav_map.name}</a></small><br />
+      % endif
+    </p>
+  </div>
+  <div class="span6">
+    <p>
        % if total_games > 0 and total_stats['wins'] is not None:
        Win Percentage: <small>${round(float(total_stats['wins'])/total_games * 100, 2)}% (${total_stats['wins']} wins, ${total_games - total_stats['wins']} losses) </small><br />
        % endif
+
        % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
        Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths) </small><br />
        % endif
-       <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
-       Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
+
        % if elos_display is not None and len(elos_display) > 0:
        Elo:
           <small>${', '.join(elos_display)} </small>
           <br />
           %if '*' in ', '.join(elos_display):
-              <small><i>*preliminary Elo</i></small>
+              <small><i>*preliminary Elo</i></small><br />
           %endif
       % endif
     </p>

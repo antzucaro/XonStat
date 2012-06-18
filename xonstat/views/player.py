@@ -115,6 +115,29 @@ def _get_total_stats(player_id):
     return total_stats
 
 
+def _get_fav_map(player_id):
+    """
+    Get the player's favorite map. The favorite map is defined
+    as the map that he or she has played the most in the past 
+    90 days.
+
+    Returns a map object.
+    """
+    # 90 day window
+    back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
+
+    fav_map = DBSession.query(Map).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.map_id == Map.map_id).\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.create_dt > back_then).\
+            group_by(Map.map_id).\
+            order_by(func.count().desc()).\
+            limit(1).one()
+
+    return fav_map
+
+
 def get_accuracy_stats(player_id, weapon_cd, games):
     """
     Provides accuracy for weapon_cd by player_id for the past N games.
@@ -211,6 +234,8 @@ def _player_info_data(request):
         # games breakdown - N games played (X ctf, Y dm) etc
         (total_games, games_breakdown) = _get_games_played(player.player_id)
 
+        # favorite map from the past 90 days
+        fav_map = _get_fav_map(player.player_id)
 
         # friendly display of elo information and preliminary status
         elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
@@ -255,6 +280,7 @@ def _player_info_data(request):
         total_games = None
         games_breakdown = None
         recent_weapons = []
+        fav_map = None
 
     return {'player':player,
             'elos_display':elos_display,
@@ -263,6 +289,7 @@ def _player_info_data(request):
             'total_games':total_games,
             'games_breakdown':games_breakdown,
             'recent_weapons':recent_weapons,
+            'fav_map':fav_map,
             }
 
 
