@@ -273,6 +273,9 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
     try:
         session.query(Game).filter(Game.server_id==server_id).\
                 filter(Game.match_id==match_id).one()
+
+        log.debug("Error: game with same server and match_id found! Ignoring.")
+
         # if a game under the same server and match_id found, 
         # this is a duplicate game and can be ignored
         raise pyramid.httpexceptions.HTTPOk('OK')
