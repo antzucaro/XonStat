@@ -144,7 +144,7 @@ class Game(object):
                 del(scores[pid])
                 del(alivetimes[pid])
 
-        elos = self.update_elos(elos, scores, ELOPARMS)
+        elos = self.update_elos(session, elos, scores, ELOPARMS)
 
         # add the elos to the session for committing
         for e in elos:
@@ -153,7 +153,8 @@ class Game(object):
         if game_type_cd == 'duel':
             self.process_elos(session, "dm")
 
-    def update_elos(self, elos, scores, ep):
+
+    def update_elos(self, session, elos, scores, ep):
         eloadjust = {}
         for pid in elos.keys():
             eloadjust[pid] = 0
@@ -200,10 +201,44 @@ class Game(object):
                 adjustment = scorefactor_real - scorefactor_elo
                 eloadjust[ei.player_id] += adjustment
                 eloadjust[ej.player_id] -= adjustment
+        elo_deltas = {}
         for pid in pids:
-            elos[pid].elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
+            elo_delta = eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1)
+
+            if float(elos[pid].elo) + elo_delta < ep.floor:
+                elo_deltas[pid] = elos[pid].elo - ep.floor
+            else:
+                elo_deltas[pid] = elo_delta
+
+            # can't go below the floor
+            elos[pid].elo = max(float(elos[pid].elo) + elo_delta, ep.floor)
             elos[pid].games += 1
+
+        self.save_elo_deltas(session, elo_deltas)
+
         return elos
+
+
+    def save_elo_deltas(self, session, elo_deltas):
+        """
+        Saves the amount by which each player's Elo goes up or down
+        in a given game in the PlayerGameStat row, allowing for scoreboard display.
+
+        elo_deltas is a dictionary such that elo_deltas[player_id] is the elo_delta
+        for that player_id.
+        """
+        pgstats = {}
+        for pgstat in session.query(PlayerGameStat).\
+                filter(PlayerGameStat.game_id == self.game_id).\
+                all():
+                    pgstats[pgstat.player_id] = pgstat
+
+        for pid in elo_deltas.keys():
+            try:
+                pgstats[pid].elo_delta = elo_deltas[pid]
+                session.add(pgstats[pid])
+            except:
+                log.debug("Unable to save Elo delta value for player_id {0}".format(pid))
 
 
 class PlayerGameStat(object):

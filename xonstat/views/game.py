@@ -69,6 +69,13 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.score).\
                 all()
 
+        # mako is an absolute bastard when dealing with decimals, so...
+        for pgstat in pgstats:
+            try:
+                pgstat.elo_delta = "{0:+4.2f}".format(float(pgstat.elo_delta))
+            except:
+                pgstat.elo_delta = "0.00"
+
         pwstats = {}
         for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
                 filter(PlayerWeaponStat.game_id == game_id).\
