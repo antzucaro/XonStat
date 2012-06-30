@@ -15,7 +15,7 @@ from xonstat.util import page_url
 log = logging.getLogger(__name__)
 
 
-def _player_index_data(request):
+def player_index_data(request):
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
@@ -42,7 +42,7 @@ def player_index(request):
     """
     Provides a list of all the current players.
     """
-    return _player_index_data(request)
+    return player_index_data(request)
 
 
 def player_index_json(request):
@@ -242,7 +242,7 @@ def get_damage_stats(player_id, weapon_cd, games):
     return (avg, dmgs)
 
 
-def _player_info_data(request):
+def player_info_data(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
         player_id = -1;
@@ -328,7 +328,7 @@ def player_info(request):
     """
     Provides detailed information on a specific player
     """
-    return _player_info_data(request)
+    return player_info_data(request)
 
 
 def player_info_json(request):
@@ -338,7 +338,7 @@ def player_info_json(request):
     return [{'status':'not implemented'}]
 
 
-def _player_game_index_data(request):
+def player_game_index_data(request):
     player_id = request.matchdict['player_id']
 
     if request.params.has_key('page'):
@@ -378,7 +378,7 @@ def player_game_index(request):
     player was involved. This is ordered by game_id, with
     the most recent game_ids first. Paginated.
     """
-    return _player_game_index_data(request)
+    return player_game_index_data(request)
 
 
 def player_game_index_json(request):
@@ -390,7 +390,7 @@ def player_game_index_json(request):
     return [{'status':'not implemented'}]
 
 
-def _player_accuracy_data(request):
+def player_accuracy_data(request):
     player_id = request.matchdict['id']
     allowed_weapons = ['nex', 'rifle', 'shotgun', 'uzi', 'minstanex']
     weapon_cd = 'nex'
@@ -431,7 +431,7 @@ def player_accuracy(request):
     """
     Provides the accuracy for the given weapon. (JSON only)
     """
-    return _player_accuracy_data(request)
+    return player_accuracy_data(request)
 
 
 def player_accuracy_json(request):
@@ -443,10 +443,10 @@ def player_accuracy_json(request):
                 'shotgun', 'uzi', and 'minstanex'.
        games = over how many games to display accuracy. Can be up to 50.
     """
-    return _player_accuracy_data(request)
+    return player_accuracy_data(request)
 
 
-def _player_damage_data(request):
+def player_damage_data(request):
     player_id = request.matchdict['id']
     allowed_weapons = ['grenadelauncher', 'electro', 'crylink', 'hagar',
             'rocketlauncher', 'laser']
@@ -494,4 +494,4 @@ def player_damage_json(request):
          'laser'.
        games = over how many games to display damage. Can be up to 50.
     """
-    return _player_damage_data(request)
+    return player_damage_data(request)
