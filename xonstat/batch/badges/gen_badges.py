@@ -15,7 +15,7 @@ req.matchdict = {'id':3}
 # template setup
 t = Template(filename = 'templates/badge.mako')
 
-players = DBSession.query(Player).filter(Player.player_id < 50).\
+players = DBSession.query(Player).\
         filter(Player.player_id == PlayerElo.player_id).\
         filter(Player.nick != None).\
         filter(Player.player_id > 2).\
