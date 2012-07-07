@@ -1,0 +1,39 @@
+body {
+  color: #ccc;
+  font-family: monospace;
+  font-size: 12px;
+}
+#badge {
+  background: url('../img/dark_wall.png');
+  height: 60px;
+  padding: 5px;
+  position: fixed;
+  width: 550px;
+}
+#nick {
+  font-size: 22px;
+  font-weight: bold;
+  height: 28px;
+  left: 10px;
+  overflow: hidden;
+  position: absolute;
+  width: 285px;
+}
+#games_played {
+  left: 10px;
+  position: absolute;
+  top: 45px;
+}
+#win_percentage, #kill_ratio, #elo {
+  left: 300px;
+  position: absolute;
+}
+#win_percentage {
+  top: 5px;
+}
+#kill_ratio {
+  top: 25px;
+}
+#elo {
+  top: 45px;
+}
