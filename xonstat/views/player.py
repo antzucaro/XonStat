@@ -258,7 +258,10 @@ def player_info_data(request):
         (total_games, games_breakdown) = _get_games_played(player.player_id)
 
         # favorite map from the past 90 days
-        fav_map = _get_fav_map(player.player_id)
+        try:
+            fav_map = _get_fav_map(player.player_id)
+        except:
+            fav_map = None
 
         # friendly display of elo information and preliminary status
         elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
