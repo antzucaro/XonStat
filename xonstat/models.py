@@ -212,17 +212,17 @@ class Game(object):
 
         elo_deltas = {}
         for pid in pids:
+            old_elo = elos[pid].elo
             new_elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
-
-            log.debug("Player {0}'s Elo would be going from {1} to {2}.".format(pid, 
-                elos[pid].elo, new_elo))
 
             # winners are not penalized with negative elo
             if pid in winners and new_elo < elos[pid].elo:
+                log.debug("Not penalizing Player {0} for winning. Elo delta set to 0.0. Elo is unchanged at {1}".format(pid, old_elo))
                 elo_deltas[pid] = 0.0
             else:
-                elos[pid].elo = new_elo
                 elo_deltas[pid] = new_elo - float(elos[pid].elo)
+                log.debug("Setting Player {0}'s Elo delta to {1}. Elo is now {2} (was {3}).".format(pid, elo_deltas[pid], new_elo, old_elo))
+                elos[pid].elo = new_elo
 
             elos[pid].games += 1
 
