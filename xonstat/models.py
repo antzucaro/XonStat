@@ -113,8 +113,10 @@ class Game(object):
 
         scores = {}
         alivetimes = {}
-        for (p,s,a) in session.query(PlayerGameStat.player_id, 
-                PlayerGameStat.score, PlayerGameStat.alivetime).\
+        winners = []
+        for (p,s,a,r,t) in session.query(PlayerGameStat.player_id, 
+                PlayerGameStat.score, PlayerGameStat.alivetime,
+                PlayerGameStat.rank, PlayerGameStat.team).\
                 filter(PlayerGameStat.game_id==self.game_id).\
                 filter(PlayerGameStat.alivetime > timedelta(seconds=0)).\
                 filter(PlayerGameStat.player_id > 2).\
@@ -122,6 +124,11 @@ class Game(object):
                     # scores are per second
                     scores[p] = s/float(a.seconds)
                     alivetimes[p] = a.seconds
+
+                    # winners are either rank 1 or on the winning team
+                    # team games are where the team is set (duh)
+                    if r == 1 or (t == self.winner and t is not None):
+                        winners.append(p)
 
         player_ids = scores.keys()
 
@@ -144,7 +151,7 @@ class Game(object):
                 del(scores[pid])
                 del(alivetimes[pid])
 
-        elos = self.update_elos(session, elos, scores, ELOPARMS)
+        elos = self.update_elos(session, elos, scores, winners, ELOPARMS)
 
         # add the elos to the session for committing
         for e in elos:
@@ -155,7 +162,7 @@ class Game(object):
             # self.process_elos(session, "dm")
 
 
-    def update_elos(self, session, elos, scores, ep):
+    def update_elos(self, session, elos, scores, winners, ep):
         eloadjust = {}
         for pid in elos.keys():
             eloadjust[pid] = 0
@@ -207,13 +214,16 @@ class Game(object):
         for pid in pids:
             new_elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
 
-            # delta is new minus old
-            elo_deltas[pid] = new_elo - float(elos[pid].elo)
-
-            log.debug("Player {0}'s Elo going from {1} to {2}.".format(pid, 
+            log.debug("Player {0}'s Elo would be going from {1} to {2}.".format(pid, 
                 elos[pid].elo, new_elo))
 
-            elos[pid].elo = new_elo
+            # winners are not penalized with negative elo
+            if pid in winners and new_elo < elos[pid].elo:
+                elo_deltas[pid] = 0.0
+            else:
+                elos[pid].elo = new_elo
+                elo_deltas[pid] = new_elo - float(elos[pid].elo)
+
             elos[pid].games += 1
 
         self.save_elo_deltas(session, elo_deltas)

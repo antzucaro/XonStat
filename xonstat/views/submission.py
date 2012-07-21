@@ -378,19 +378,19 @@ def create_player_game_stat(session=None, player=None,
 
     for (key,value) in player_events.items():
         if key == 'n': pgstat.nick = value[:128]
-        if key == 't': pgstat.team = value
-        if key == 'rank': pgstat.rank = value
+        if key == 't': pgstat.team = int(value)
+        if key == 'rank': pgstat.rank = int(value)
         if key == 'alivetime': 
             pgstat.alivetime = datetime.timedelta(seconds=int(round(float(value))))
-        if key == 'scoreboard-drops': pgstat.drops = value
-        if key == 'scoreboard-returns': pgstat.returns = value
-        if key == 'scoreboard-fckills': pgstat.carrier_frags = value
-        if key == 'scoreboard-pickups': pgstat.pickups = value
-        if key == 'scoreboard-caps': pgstat.captures = value
-        if key == 'scoreboard-score': pgstat.score = value
-        if key == 'scoreboard-deaths': pgstat.deaths = value
-        if key == 'scoreboard-kills': pgstat.kills = value
-        if key == 'scoreboard-suicides': pgstat.suicides = value
+        if key == 'scoreboard-drops': pgstat.drops = int(value)
+        if key == 'scoreboard-returns': pgstat.returns = int(value)
+        if key == 'scoreboard-fckills': pgstat.carrier_frags = int(value)
+        if key == 'scoreboard-pickups': pgstat.pickups = int(value)
+        if key == 'scoreboard-caps': pgstat.captures = int(value)
+        if key == 'scoreboard-score': pgstat.score = int(value)
+        if key == 'scoreboard-deaths': pgstat.deaths = int(value)
+        if key == 'scoreboard-kills': pgstat.kills = int(value)
+        if key == 'scoreboard-suicides': pgstat.suicides = int(value)
 
     # check to see if we had a name, and if
     # not use an anonymous handle
@@ -405,7 +405,7 @@ def create_player_game_stat(session=None, player=None,
     # if the player is ranked #1 and it is a team game, set the game's winner
     # to be the team of that player
     # FIXME: this is a hack, should be using the 'W' field (not present)
-    if pgstat.rank == '1' and pgstat.team:
+    if pgstat.rank == 1 and pgstat.team:
         game.winner = pgstat.team
         session.add(game)
 
