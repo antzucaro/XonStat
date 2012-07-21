@@ -150,8 +150,9 @@ class Game(object):
         for e in elos:
             session.add(elos[e])
 
-        if game_type_cd == 'duel':
-            self.process_elos(session, "dm")
+        # no longer calculate DM elo for a duel game
+        # if game_type_cd == 'duel':
+            # self.process_elos(session, "dm")
 
 
     def update_elos(self, session, elos, scores, ep):
@@ -201,17 +202,18 @@ class Game(object):
                 adjustment = scorefactor_real - scorefactor_elo
                 eloadjust[ei.player_id] += adjustment
                 eloadjust[ej.player_id] -= adjustment
+
         elo_deltas = {}
         for pid in pids:
-            elo_delta = eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1)
+            new_elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
 
-            if float(elos[pid].elo) + elo_delta < ep.floor:
-                elo_deltas[pid] = elos[pid].elo - ep.floor
-            else:
-                elo_deltas[pid] = elo_delta
+            # delta is new minus old
+            elo_deltas[pid] = new_elo - float(elos[pid].elo)
 
-            # can't go below the floor
-            elos[pid].elo = max(float(elos[pid].elo) + elo_delta, ep.floor)
+            log.debug("Player {0}'s Elo going from {1} to {2}.".format(pid, 
+                elos[pid].elo, new_elo))
+
+            elos[pid].elo = new_elo
             elos[pid].games += 1
 
         self.save_elo_deltas(session, elo_deltas)

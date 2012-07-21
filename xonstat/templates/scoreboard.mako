@@ -16,11 +16,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       </td>
     ${scoreboard_row(game_type_cd, pgstat)}
       <td>${pgstat.score}</td>
-      % if pgstat.elo_delta == "0.00":
-          <td></td>
-      % else:
-          <td>${pgstat.elo_delta}</td>
-     % endif
     </tr>
   % endfor
   </tbody>
@@ -37,7 +32,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="deaths">Deaths</th>
       <th class="suicides">Suicides</th>
       <th class="score">Score</th>
-      <th class="points">Points</th>
     </tr>
     </thead>
 % endif
@@ -52,7 +46,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="fck" title="Flag Carrier Kill">FCK</th>
       <th class="returns">Returns</th>
       <th class="score">Score</th>
-      <th class="points">Points</th>
     </tr>
     </thead>
 % endif
