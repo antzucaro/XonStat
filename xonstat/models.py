@@ -8,7 +8,7 @@ from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from xonstat.elo import KREDUCTION, ELOPARMS
+from xonstat.elo import ELOPARMS, KREDUCTION
 from xonstat.util import strip_colors, html_colors, pretty_date
 
 log = logging.getLogger(__name__)
@@ -114,6 +114,7 @@ class Game(object):
         scores = {}
         alivetimes = {}
         winners = []
+        losers = []
         for (p,s,a,r,t) in session.query(PlayerGameStat.player_id, 
                 PlayerGameStat.score, PlayerGameStat.alivetime,
                 PlayerGameStat.rank, PlayerGameStat.team).\
@@ -129,6 +130,8 @@ class Game(object):
                     # team games are where the team is set (duh)
                     if r == 1 or (t == self.winner and t is not None):
                         winners.append(p)
+                    else:
+                        losers.append(p)
 
         player_ids = scores.keys()
 
@@ -151,80 +154,64 @@ class Game(object):
                 del(scores[pid])
                 del(alivetimes[pid])
 
-        elos = self.update_elos(session, elos, scores, winners, ELOPARMS)
+                if pid in winners:
+                    winners.remove(pid)
+                else:
+                    losers.remove(pid)
+
+        elos = self.update_elos(session, elos, scores, winners, losers, ELOPARMS)
 
         # add the elos to the session for committing
         for e in elos:
             session.add(elos[e])
 
-        # no longer calculate DM elo for a duel game
-        # if game_type_cd == 'duel':
-            # self.process_elos(session, "dm")
-
-
-    def update_elos(self, session, elos, scores, winners, ep):
-        eloadjust = {}
-        for pid in elos.keys():
-            eloadjust[pid] = 0
-
-        if len(elos) < 2:
+    def update_elos(self, session, elos, scores, winners, losers, ep):
+        if len(elos) < 2 or len(winners) == 0 or len(losers) == 0:
             return elos
 
         pids = elos.keys()
 
-        for i in xrange(0, len(pids)):
-            ei = elos[pids[i]]
-            for j in xrange(i+1, len(pids)):
-                ej = elos[pids[j]]
-                si = scores[ei.player_id]
-                sj = scores[ej.player_id]
-
-                # normalize scores
-                ofs = min(0, si, sj)
-                si -= ofs
-                sj -= ofs
-                if si + sj == 0:
-                    si, sj = 1, 1 # a draw
-
-                # real score factor
-                scorefactor_real = si / float(si + sj)
-
-                # estimated score factor by elo
-                elodiff = min(ep.maxlogdistance, max(-ep.maxlogdistance,
-                    (float(ei.elo) - float(ej.elo)) * ep.logdistancefactor))
-                scorefactor_elo = 1 / (1 + math.exp(-elodiff))
-
-                # how much adjustment is good?
-                # scorefactor(elodiff) = 1 / (1 + e^(-elodiff * logdistancefactor))
-                # elodiff(scorefactor) = -ln(1/scorefactor - 1) / logdistancefactor
-                # elodiff'(scorefactor) = 1 / ((scorefactor) (1 - scorefactor) logdistancefactor)
-                # elodiff'(scorefactor) >= 4 / logdistancefactor
-
-                # adjust'(scorefactor) = K1 + K2
-
-                # so we want:
-                # K1 + K2 <= 4 / logdistancefactor <= elodiff'(scorefactor)
-                # as we then don't overcompensate
-
-                adjustment = scorefactor_real - scorefactor_elo
-                eloadjust[ei.player_id] += adjustment
-                eloadjust[ej.player_id] -= adjustment
-
         elo_deltas = {}
+        for w_pid in winners:
+            w_elo = elos[w_pid]
+            for l_pid in losers:
+                l_elo = elos[l_pid]
+
+                w_q = math.pow(10, float(w_elo.elo)/400.0)
+                l_q = math.pow(10, float(l_elo.elo)/400.0)
+
+                w_delta = w_elo.k * ELOPARMS.global_K * (1 - w_q/(w_q + l_q))
+                l_delta = l_elo.k * ELOPARMS.global_K * (0 - l_q/(l_q + w_q))
+
+                elo_deltas[w_pid] = (elo_deltas.get(w_pid, 0.0) + w_delta)
+                elo_deltas[l_pid] = (elo_deltas.get(l_pid, 0.0) + l_delta)
+
+                log.debug("Winner {0}'s elo_delta vs Loser {1}: {2}".format(w_pid,
+                    l_pid, w_delta))
+
+                log.debug("Loser {0}'s elo_delta vs Winner {1}: {2}".format(l_pid,
+                    w_pid, l_delta))
+
+                log.debug("w_elo: {0}, w_k: {1}, w_q: {2}, l_elo: {3}, l_k: {4}, l_q: {5}".\
+                        format(w_elo.elo, w_elo.k, l_q, l_elo.elo, l_elo.k, l_q))
+
         for pid in pids:
-            old_elo = elos[pid].elo
-            new_elo = max(float(elos[pid].elo) + eloadjust[pid] * elos[pid].k * ep.global_K / float(len(elos) - 1), ep.floor)
-
-            # winners are not penalized with negative elo
-            if pid in winners and new_elo < elos[pid].elo:
-                log.debug("Not penalizing Player {0} for winning. Elo delta set to 0.0. Elo is unchanged at {1}".format(pid, old_elo))
-                elo_deltas[pid] = 0.0
+            # average the elo gain for team games
+            if pid in winners:
+                elo_deltas[pid] = elo_deltas.get(pid, 0.0) / len(losers)
             else:
-                elo_deltas[pid] = new_elo - float(elos[pid].elo)
-                log.debug("Setting Player {0}'s Elo delta to {1}. Elo is now {2} (was {3}).".format(pid, elo_deltas[pid], new_elo, old_elo))
-                elos[pid].elo = new_elo
+                elo_deltas[pid] = elo_deltas.get(pid, 0.0) / len(winners)
 
+            old_elo = float(elos[pid].elo)
+            new_elo = max(float(elos[pid].elo) + elo_deltas[pid], ep.floor)
+
+            # in case we've set a different delta from the above
+            elo_deltas[pid] = new_elo - old_elo
+
+            elos[pid].elo = new_elo
             elos[pid].games += 1
+            log.debug("Setting Player {0}'s Elo delta to {1}. Elo is now {2} (was {3}).".\
+                    format(pid, elo_deltas[pid], new_elo, old_elo))
 
         self.save_elo_deltas(session, elo_deltas)
 
@@ -251,6 +238,8 @@ class Game(object):
                 session.add(pgstats[pid])
             except:
                 log.debug("Unable to save Elo delta value for player_id {0}".format(pid))
+
+
 
 
 class PlayerGameStat(object):
