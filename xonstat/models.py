@@ -8,7 +8,6 @@ from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from xonstat.elo import ELOPARMS, KREDUCTION
 from xonstat.util import strip_colors, html_colors, pretty_date
 
 log = logging.getLogger(__name__)
@@ -99,148 +98,6 @@ class Game(object):
     def fuzzy_date(self):
         return pretty_date(self.start_dt)
 
-    def process_elos(self, session, game_type_cd=None):
-        if game_type_cd is None:
-            game_type_cd = self.game_type_cd
-
-        # we do not have the actual duration of the game, so use the 
-        # maximum alivetime of the players instead
-        duration = 0
-        for d in session.query(sfunc.max(PlayerGameStat.alivetime)).\
-                    filter(PlayerGameStat.game_id==self.game_id).\
-                    one():
-            duration = d.seconds
-
-        scores = {}
-        alivetimes = {}
-        winners = []
-        losers = []
-        for (p,s,a,r,t) in session.query(PlayerGameStat.player_id, 
-                PlayerGameStat.score, PlayerGameStat.alivetime,
-                PlayerGameStat.rank, PlayerGameStat.team).\
-                filter(PlayerGameStat.game_id==self.game_id).\
-                filter(PlayerGameStat.alivetime > timedelta(seconds=0)).\
-                filter(PlayerGameStat.player_id > 2).\
-                all():
-                    # scores are per second
-                    scores[p] = s/float(a.seconds)
-                    alivetimes[p] = a.seconds
-
-                    # winners are either rank 1 or on the winning team
-                    # team games are where the team is set (duh)
-                    if r == 1 or (t == self.winner and t is not None):
-                        winners.append(p)
-                    else:
-                        losers.append(p)
-
-        player_ids = scores.keys()
-
-        elos = {}
-        for e in session.query(PlayerElo).\
-                filter(PlayerElo.player_id.in_(player_ids)).\
-                filter(PlayerElo.game_type_cd==game_type_cd).all():
-                    elos[e.player_id] = e
-
-        # ensure that all player_ids have an elo record
-        for pid in player_ids:
-            if pid not in elos.keys():
-                elos[pid] = PlayerElo(pid, game_type_cd)
-
-        for pid in player_ids:
-            elos[pid].k = KREDUCTION.eval(elos[pid].games, alivetimes[pid],
-                    duration)
-            if elos[pid].k == 0:
-                del(elos[pid])
-                del(scores[pid])
-                del(alivetimes[pid])
-
-                if pid in winners:
-                    winners.remove(pid)
-                else:
-                    losers.remove(pid)
-
-        elos = self.update_elos(session, elos, scores, winners, losers, ELOPARMS)
-
-        # add the elos to the session for committing
-        for e in elos:
-            session.add(elos[e])
-
-    def update_elos(self, session, elos, scores, winners, losers, ep):
-        if len(elos) < 2 or len(winners) == 0 or len(losers) == 0:
-            return elos
-
-        pids = elos.keys()
-
-        elo_deltas = {}
-        for w_pid in winners:
-            w_elo = elos[w_pid]
-            for l_pid in losers:
-                l_elo = elos[l_pid]
-
-                w_q = math.pow(10, float(w_elo.elo)/400.0)
-                l_q = math.pow(10, float(l_elo.elo)/400.0)
-
-                w_delta = w_elo.k * ELOPARMS.global_K * (1 - w_q/(w_q + l_q))
-                l_delta = l_elo.k * ELOPARMS.global_K * (0 - l_q/(l_q + w_q))
-
-                elo_deltas[w_pid] = (elo_deltas.get(w_pid, 0.0) + w_delta)
-                elo_deltas[l_pid] = (elo_deltas.get(l_pid, 0.0) + l_delta)
-
-                log.debug("Winner {0}'s elo_delta vs Loser {1}: {2}".format(w_pid,
-                    l_pid, w_delta))
-
-                log.debug("Loser {0}'s elo_delta vs Winner {1}: {2}".format(l_pid,
-                    w_pid, l_delta))
-
-                log.debug("w_elo: {0}, w_k: {1}, w_q: {2}, l_elo: {3}, l_k: {4}, l_q: {5}".\
-                        format(w_elo.elo, w_elo.k, l_q, l_elo.elo, l_elo.k, l_q))
-
-        for pid in pids:
-            # average the elo gain for team games
-            if pid in winners:
-                elo_deltas[pid] = elo_deltas.get(pid, 0.0) / len(losers)
-            else:
-                elo_deltas[pid] = elo_deltas.get(pid, 0.0) / len(winners)
-
-            old_elo = float(elos[pid].elo)
-            new_elo = max(float(elos[pid].elo) + elo_deltas[pid], ep.floor)
-
-            # in case we've set a different delta from the above
-            elo_deltas[pid] = new_elo - old_elo
-
-            elos[pid].elo = new_elo
-            elos[pid].games += 1
-            log.debug("Setting Player {0}'s Elo delta to {1}. Elo is now {2} (was {3}).".\
-                    format(pid, elo_deltas[pid], new_elo, old_elo))
-
-        self.save_elo_deltas(session, elo_deltas)
-
-        return elos
-
-
-    def save_elo_deltas(self, session, elo_deltas):
-        """
-        Saves the amount by which each player's Elo goes up or down
-        in a given game in the PlayerGameStat row, allowing for scoreboard display.
-
-        elo_deltas is a dictionary such that elo_deltas[player_id] is the elo_delta
-        for that player_id.
-        """
-        pgstats = {}
-        for pgstat in session.query(PlayerGameStat).\
-                filter(PlayerGameStat.game_id == self.game_id).\
-                all():
-                    pgstats[pgstat.player_id] = pgstat
-
-        for pid in elo_deltas.keys():
-            try:
-                pgstats[pid].elo_delta = elo_deltas[pid]
-                session.add(pgstats[pid])
-            except:
-                log.debug("Unable to save Elo delta value for player_id {0}".format(pid))
-
-
-
 
 class PlayerGameStat(object):
     def __init__(self, player_game_stat_id=None, create_dt=None):
@@ -323,13 +180,13 @@ class PlayerNick(object):
 
 
 class PlayerElo(object):
-    def __init__(self, player_id=None, game_type_cd=None):
+    def __init__(self, player_id=None, game_type_cd=None, elo=None):
 
         self.player_id = player_id
         self.game_type_cd = game_type_cd
+        self.elo = elo
         self.score = 0
         self.games = 0
-        self.elo = ELOPARMS.initial
 
     def __repr__(self):
         return "<PlayerElo(pid=%s, gametype=%s, elo=%s)>" % (self.player_id, self.game_type_cd, self.elo)

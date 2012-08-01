@@ -8,6 +8,7 @@ from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.d0_blind_id import d0_blind_id_verify
+from xonstat.elo import process_elos
 from xonstat.models import *
 from xonstat.util import strip_colors, qfont_decode
 
@@ -612,7 +613,7 @@ def stats_submit(request):
 
         # update elos
         try:
-            game.process_elos(session)
+            process_elos(game, session)
         except Exception as e:
             log.debug('Error (non-fatal): elo processing failed.')
 
