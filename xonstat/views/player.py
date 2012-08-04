@@ -142,6 +142,36 @@ def _get_fav_map(player_id):
     return fav_map
 
 
+def _get_fav_weapon(player_id):
+    """
+    Get the player's favorite weapon. The favorite weapon is defined
+    as the weapon that he or she has employed the most in the past 
+    90 days.
+
+    Returns a dictionary with keys for the weapon's name and id.
+    """
+    # 90 day window
+    back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
+
+    raw_fav_weapon = DBSession.query(Weapon.descr, Weapon.weapon_cd).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd).\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.create_dt > back_then).\
+            group_by(Weapon.descr, Weapon.weapon_cd).\
+            order_by(func.count().desc()).\
+            one()
+            #limit(1).one()
+            
+    print player_id, raw_fav_weapon
+
+    fav_weapon = {}
+    fav_weapon['name'] = raw_fav_weapon[0]
+    fav_weapon['id'] = raw_fav_weapon[1]
+
+    return fav_weapon
+
+
 def _get_rank(player_id):
     """
     Get the player's rank as well as the total number of ranks.
@@ -263,6 +293,12 @@ def player_info_data(request):
         except:
             fav_map = None
 
+        # favorite weapon from the past 90 days
+        try:
+            fav_weapon = _get_fav_weapon(player.player_id)
+        except:
+            fav_weapon = None
+
         # friendly display of elo information and preliminary status
         elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
                 filter(PlayerElo.game_type_cd.in_(['ctf','duel','dm'])).\
@@ -313,6 +349,7 @@ def player_info_data(request):
         games_breakdown = None
         recent_weapons = []
         fav_map = None
+        fav_weapon = None
         ranks_display = None;
 
     return {'player':player,
@@ -323,6 +360,7 @@ def player_info_data(request):
             'games_breakdown':games_breakdown,
             'recent_weapons':recent_weapons,
             'fav_map':fav_map,
+            'fav_weapon':fav_weapon,
             'ranks_display':ranks_display,
             }
 

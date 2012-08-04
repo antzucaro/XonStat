@@ -195,6 +195,10 @@ Player Information
       % if fav_map is not None:
       Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map['id'])}" title="view map info">${fav_map['name']}</a></small><br />
       % endif
+
+      % if fav_weapon is not None:
+      Favorite Weapon: <small>${fav_weapon['name']}</small><br />
+      % endif
     </p>
   </div>
   <div class="span6">
