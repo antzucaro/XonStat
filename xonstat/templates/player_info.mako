@@ -100,8 +100,9 @@ ${nav.nav('players')}
 
           $('#dmg-graph').bind("plothover", function (event, pos, item) {
               if (item) {
-                  if (previousPoint != item.dataIndex) {
+                  if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
                     previousPoint = item.dataIndex;
+                    previousLabel = item.series.label;
 
                     $("#tooltip").remove();
                     var x = item.datapoint[0].toFixed(2),
@@ -113,6 +114,7 @@ ${nav.nav('players')}
               else {
                   $("#tooltip").remove();
                   previousPoint = null;
+                  previousLabel = null;
               }
           });
 
