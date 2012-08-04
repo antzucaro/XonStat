@@ -83,30 +83,45 @@ def _get_total_stats(player_id):
 
     kills = how many kills a player has over all games
     deaths = how many deaths a player has over all games
+    suicides = how many suicides a player has over all games
     alivetime = how long a player has played over all games
+    alivetime_week = how long a player has played over all games in the last week
+    alivetime_month = how long a player has played over all games in the last month
+    wins = how many games a player has won
 
     If any of the above are None, they are set to 0.
     """
-    total_stats = {}
-    (total_stats['kills'], total_stats['deaths'], total_stats['alivetime']) = DBSession.\
-            query("total_kills", "total_deaths", "total_alivetime").\
-            from_statement(
-                "select sum(kills) total_kills, "
-                "sum(deaths) total_deaths, "
-                "sum(alivetime) total_alivetime "
-                "from player_game_stats "
-                "where player_id=:player_id"
-            ).params(player_id=player_id).one()
+    # 7 and 30 day windows
+    one_week_ago  = datetime.datetime.utcnow() - datetime.timedelta(days=7)
+    one_month_ago = datetime.datetime.utcnow() - datetime.timedelta(days=30)
 
-    (total_stats['wins'],) = DBSession.\
-            query("total_wins").\
-            from_statement(
-                "select count(*) total_wins "
-                "from games g, player_game_stats pgs "
-                "where g.game_id = pgs.game_id "
-                "and player_id=:player_id "
-                "and (g.winner = pgs.team or pgs.rank = 1)"
-            ).params(player_id=player_id).one()
+    total_stats = {}
+    (total_stats['kills'], total_stats['deaths'], total_stats['suicides'], total_stats['alivetime'],) = DBSession.query(
+            func.sum(PlayerGameStat.kills),
+            func.sum(PlayerGameStat.deaths),
+            func.sum(PlayerGameStat.suicides),
+            func.sum(PlayerGameStat.alivetime)).\
+            filter(PlayerGameStat.player_id == player_id).\
+            one()
+
+    (total_stats['alivetime_week'],) = DBSession.query(
+            func.sum(PlayerGameStat.alivetime)).\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.create_dt > one_week_ago).\
+            one()
+
+    (total_stats['alivetime_month'],) = DBSession.query(
+            func.sum(PlayerGameStat.alivetime)).\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.create_dt > one_month_ago).\
+            one()
+
+    (total_stats['wins'],) = DBSession.query(
+            func.count("*")).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(Game.winner == PlayerGameStat.team or PlayerGameStat.rank == 1).\
+            one()
 
     for (key,value) in total_stats.items():
         if value == None:

@@ -189,7 +189,15 @@ Player Information
 
       Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
 
-      Playing Time: <small>${total_stats['alivetime']} </small><br />
+      Playing Time: <small>${total_stats['alivetime']} hours
+      % if total_stats['alivetime'] > total_stats['alivetime_month']:
+          % if total_stats['alivetime_month'] > total_stats['alivetime_week']:
+              (${total_stats['alivetime_month']} hours this month; ${total_stats['alivetime_week']} hours this week)
+          % else:
+              (${total_stats['alivetime_month']} hours this month)
+          % endif
+      % endif
+      </small><br />
 
       <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
       Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
@@ -230,7 +238,7 @@ Player Information
        % endif
 
        % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
-       Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths) </small><br />
+       Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths, ${total_stats['suicides']} suicides) </small><br />
        % endif
 
        % if elos_display is not None and len(elos_display) > 0:
