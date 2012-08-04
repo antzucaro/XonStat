@@ -195,11 +195,31 @@ Player Information
       Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
 
       % if fav_map is not None:
-      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map['id'])}" title="view map info">${fav_map['name']}</a></small><br />
+      Favorite Maps: <small>
+      <% map_list = fav_map[:3] %>
+      % for mapinfo in map_list:
+          % if mapinfo != map_list[-1]:
+              <% delim = ", " %>
+          % else:
+              <% delim = "" %>
+          % endif
+          <a href="${request.route_url('map_info', id=mapinfo['id'])}" title="view map info">${mapinfo['name']}</a>${delim}
+      % endfor
+      </small><br />
       % endif
 
       % if fav_weapon is not None:
-      Favorite Weapons: <small>${", ".join([wpn['name'] for wpn in fav_weapon[:2]])}</small><br />
+      Favorite Weapons: <small>
+      <% wpn_list = fav_weapon[:2] %>
+      % for wpninfo in wpn_list:
+          % if wpninfo != wpn_list[-1]:
+              <% delim = ", " %>
+          % else:
+              <% delim = "" %>
+          % endif
+          ${wpninfo['name']}${delim}
+      % endfor
+      </small><br />
       % endif
     </p>
   </div>

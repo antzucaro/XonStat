@@ -133,11 +133,14 @@ def _get_fav_map(player_id):
             filter(PlayerGameStat.create_dt > back_then).\
             group_by(Map.name, Map.map_id).\
             order_by(func.count().desc()).\
-            limit(1).one()
+            all()
 
-    fav_map = {}
-    fav_map['name'] = raw_fav_map[0]
-    fav_map['id'] = raw_fav_map[1]
+    fav_map = []
+    for map_e in raw_fav_map:
+        entry = {}
+        entry['name'] = map_e[0]
+        entry['id']   = map_e[1]
+        fav_map.append(entry)
 
     return fav_map
 
@@ -164,10 +167,10 @@ def _get_fav_weapon(player_id):
             all()
 
     fav_weapon = []
-    for wpn in raw_fav_weapon:
+    for wpn_e in raw_fav_weapon:
         entry = {}
-        entry['name'] = wpn[0]
-        entry['id'] = wpn[1]
+        entry['name'] = wpn_e[0]
+        entry['id']   = wpn_e[1]
         fav_weapon.append(entry)
 
     return fav_weapon
