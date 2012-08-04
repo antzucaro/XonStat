@@ -197,7 +197,7 @@ Player Information
       % endif
 
       % if fav_weapon is not None:
-      Favorite Weapon: <small>${fav_weapon['name']}</small><br />
+      Favorite Weapons: <small>${", ".join([wpn['name'] for wpn in fav_weapon[:2]])}</small><br />
       % endif
     </p>
   </div>

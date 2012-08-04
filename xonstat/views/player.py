@@ -148,7 +148,8 @@ def _get_fav_weapon(player_id):
     as the weapon that he or she has employed the most in the past 
     90 days.
 
-    Returns a dictionary with keys for the weapon's name and id.
+    Returns a sequence of dictionaries with keys for the weapon's name and id.
+    The sequence holds the most-used weapons in decreasing order.
     """
     # 90 day window
     back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
@@ -160,14 +161,14 @@ def _get_fav_weapon(player_id):
             filter(PlayerGameStat.create_dt > back_then).\
             group_by(Weapon.descr, Weapon.weapon_cd).\
             order_by(func.count().desc()).\
-            one()
-            #limit(1).one()
-            
-    print player_id, raw_fav_weapon
+            all()
 
-    fav_weapon = {}
-    fav_weapon['name'] = raw_fav_weapon[0]
-    fav_weapon['id'] = raw_fav_weapon[1]
+    fav_weapon = []
+    for wpn in raw_fav_weapon:
+        entry = {}
+        entry['name'] = wpn[0]
+        entry['id'] = wpn[1]
+        fav_weapon.append(entry)
 
     return fav_weapon
 
