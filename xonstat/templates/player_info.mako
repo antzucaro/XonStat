@@ -238,7 +238,7 @@ Player Information
           <div class="acc-weap weapon-active">
             <img src="${request.static_url("xonstat:static/images/nex.png")}" />
             <p><small>Nex</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','nex')])}" title="Show nex accuracy"></a>
           </div>
         </li>
         % endif
@@ -248,7 +248,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/rifle.png")}" />
             <p><small>Rifle</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','rifle')])}" title="Show rifle accuracy"></a>
           </div>
         </li>
         % endif
@@ -258,7 +258,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/minstanex.png")}" />
             <p><small>Minstanex</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','minstanex')])}" title="Show minstanex accuracy"></a>
           </div>
         </li>
         % endif
@@ -268,7 +268,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/uzi.png")}" />
             <p><small>Uzi</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','uzi')])}" title="Show uzi accuracy"></a>
           </div>
         </li>
         % endif
@@ -278,7 +278,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/shotgun.png")}" />
             <p><small>Shotgun</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','shotgun')])}" title="Show shotgun accuracy"></a>
           </div>
         </li>
         % endif
@@ -304,7 +304,7 @@ Player Information
           <div class="dmg-weap weapon-active">
             <img src="${request.static_url("xonstat:static/images/rocketlauncher.png")}" />
             <p><small>Rocket</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'rocketlauncher'})}" title="Show rocket launcher efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','rocketlauncher')])}" title="Show rocket launcher efficiency"></a>
           </div>
         </li>
         % endif
@@ -314,7 +314,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/grenadelauncher.png")}" />
             <p><small>Mortar</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'grenadelauncher'})}" title="Show mortar damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','grenadelauncher')])}" title="Show mortar damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -324,7 +324,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/electro.png")}" />
             <p><small>Electro</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'electro'})}" title="Show electro damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','electro')])}" title="Show electro damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -334,7 +334,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/crylink.png")}" />
             <p><small>Crylink</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'crylink'})}" title="Show crylink damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','crylink')])}" title="Show crylink damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -344,7 +344,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/hagar.png")}" />
             <p><small>Hagar</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'hagar'})}" title="Show hagar damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','hagar')])}" title="Show hagar damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -354,7 +354,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/laser.png")}" />
             <p><small>Laser</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'laser'})}" title="Show laser damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','laser')])}" title="Show laser damage efficiency"></a>
           </div>
         </li>
         % endif

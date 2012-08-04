@@ -6,6 +6,10 @@ if 'search_query' in kwargs.keys():
     kwargs['_query'] = dict(kwargs['_query'].items() + kwargs['search_query'].items())
 %>
 
+% if not last:
+    <% last = 1 %>
+% endif
+
 % if not (curr == last and curr == 1):
     % if curr != 1:
             <% kwargs['_query']['page'] = curr-1 %>
