@@ -259,7 +259,7 @@ Player Information
 </div>
 
 <div class="row">
-  <div class="span10">
+  <div class="span11">
     <p>
        % if total_stats['games_breakdown'].has_key('duel'):
        Duel Stats: <small>
@@ -303,7 +303,7 @@ Player Information
            Win Percentage ${round(float(total_stats['ctf_wins'])/total_stats['games_breakdown']['ctf'] * 100, 2)}%  (${total_stats['ctf_wins']} wins, ${total_stats['games_breakdown']['ctf'] - total_stats['ctf_wins']} losses)
            % endif
 
-           % if total_stats['ctf_pickups'] > 0 and total_stats['tdm_captures'] > 0:
+           % if total_stats['ctf_pickups'] > 0 and total_stats['ctf_caps'] > 0:
            | Cap Ratio ${round(float(total_stats['ctf_caps'])/total_stats['ctf_pickups'], 3)} (${total_stats['ctf_caps']} caps, ${total_stats['ctf_pickups']} pickups, ${total_stats['ctf_returns']} returns, ${total_stats['ctf_fckills']} fckills)
            % endif
        </small><br />
