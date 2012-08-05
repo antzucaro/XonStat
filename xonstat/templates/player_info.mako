@@ -190,8 +190,8 @@ Player Information
       Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
 
       % if fav_server is not None:
-      Favorite Server: <small>
-      <% srv_list = fav_server[:1] %>
+      Favorite Servers: <small>
+      <% srv_list = fav_server[:3] %>
       % for srvinfo in srv_list:
           % if srvinfo != srv_list[-1]:
               <% delim = ", " %>
@@ -234,18 +234,18 @@ Player Information
   </div>
   <div class="span6">
     <p>
-      Playing Time: <small>${total_stats['alivetime']} hours
-      % if total_stats['alivetime'] > total_stats['alivetime_month']:
-          % if total_stats['alivetime_month'] > total_stats['alivetime_week']:
-              (${total_stats['alivetime_month']} hours this month; ${total_stats['alivetime_week']} hours this week)
+      Playing Time: <small>${total_stats['alivetime']}
+      % if total_stats['alivetime_month'] and total_stats['alivetime'] > total_stats['alivetime_month']:
+          % if total_stats['alivetime_week'] and total_stats['alivetime_month'] > total_stats['alivetime_week']:
+              <br />(${total_stats['alivetime_month']} this month; ${total_stats['alivetime_week']} this week)
           % else:
-              (${total_stats['alivetime_month']} hours this month)
+              <br />(${total_stats['alivetime_month']} this month)
           % endif
       % endif
       </small><br />
 
       <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in total_stats['games_breakdown'].items()]) %>
-      Games Played: <small>${total_stats['games']} (${games_breakdown_str})</small><br />
+      Games Played: <small>${total_stats['games']}<br />(${games_breakdown_str})</small><br />
 
        % if total_stats['games'] > 0 and total_stats['wins'] is not None:
        Win Percentage: <small>${round(float(total_stats['wins'])/total_stats['games'] * 100, 2)}% (${total_stats['wins']} wins, ${total_stats['games'] - total_stats['wins']} losses) </small><br />
@@ -259,7 +259,7 @@ Player Information
 </div>
 
 <div class="row">
-  <div class="span11">
+  <div class="span12">
     <p>
        % if total_stats['games_breakdown'].has_key('duel'):
        Duel Stats: <small>

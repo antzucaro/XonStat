@@ -141,7 +141,7 @@ def _get_total_stats(player_id):
             filter(PlayerGameStat.player_id == player_id).\
             filter(Game.winner == PlayerGameStat.team or PlayerGameStat.rank == 1).\
             one()
-    
+
     (total_stats['duel_wins'],) = DBSession.query(
             func.count("*")).\
             filter(Game.game_id == PlayerGameStat.game_id).\
@@ -162,7 +162,7 @@ def _get_total_stats(player_id):
     (total_stats['dm_wins'],) = DBSession.query(
             func.count("*")).\
             filter(Game.game_id == PlayerGameStat.game_id).\
-            filter(Game.game_type_cd == "dm" or Game.game_type_cd == "tdm").\
+            filter(Game.game_type_cd == "dm").\
             filter(PlayerGameStat.player_id == player_id).\
             filter(PlayerGameStat.rank == 1).\
             one()
@@ -172,8 +172,25 @@ def _get_total_stats(player_id):
             func.sum(PlayerGameStat.deaths),
             func.sum(PlayerGameStat.suicides)).\
             filter(Game.game_id == PlayerGameStat.game_id).\
-            filter(Game.game_type_cd == "dm" or Game.game_type_cd == "tdm").\
+            filter(Game.game_type_cd == "dm").\
             filter(PlayerGameStat.player_id == player_id).\
+            one()
+
+    (total_stats['tdm_kills'], total_stats['tdm_deaths'], total_stats['tdm_suicides'],) = DBSession.query(
+            func.sum(PlayerGameStat.kills),
+            func.sum(PlayerGameStat.deaths),
+            func.sum(PlayerGameStat.suicides)).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "tdm").\
+            filter(PlayerGameStat.player_id == player_id).\
+            one()
+
+    (total_stats['tdm_wins'],) = DBSession.query(
+            func.count("*")).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "tdm").\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.rank == 1).\
             one()
 
     (total_stats['ctf_wins'],) = DBSession.query(
@@ -221,7 +238,7 @@ def _get_fav_map(player_id):
             filter(PlayerGameStat.create_dt > back_then).\
             group_by(Map.name, Map.map_id).\
             order_by(func.count().desc()).\
-            all()
+            limit(5).all()
 
     fav_map = []
     for map_e in raw_fav_map:
@@ -246,13 +263,13 @@ def _get_fav_weapon(player_id):
     back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
 
     raw_fav_weapon = DBSession.query(Weapon.descr, Weapon.weapon_cd).\
-            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_id == PlayerWeaponStat.game_id).\
+            filter(PlayerWeaponStat.player_id == player_id).\
             filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd).\
-            filter(PlayerGameStat.player_id == player_id).\
-            filter(PlayerGameStat.create_dt > back_then).\
+            filter(PlayerWeaponStat.create_dt > back_then).\
             group_by(Weapon.descr, Weapon.weapon_cd).\
             order_by(func.count().desc()).\
-            all()
+            limit(5).all()
 
     fav_weapon = []
     for wpn_e in raw_fav_weapon:
@@ -283,7 +300,7 @@ def _get_fav_server(player_id):
             filter(PlayerGameStat.create_dt > back_then).\
             group_by(Server.name, Server.server_id).\
             order_by(func.count().desc()).\
-            all()
+            limit(5).all()
 
     fav_server = []
     for srv_e in raw_fav_server:
