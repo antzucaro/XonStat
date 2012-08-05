@@ -54,6 +54,8 @@ def player_index_json(request):
 
 def _get_games_played(player_id):
     """
+    DEPRECATED: Now included in _get_total_stats()
+    
     Provides a breakdown by gametype of the games played by player_id.
 
     Returns a tuple containing (total_games, games_breakdown), where
@@ -73,14 +75,14 @@ def _get_games_played(player_id):
     return (total, games_played)
 
 
-# TODO: should probably factor the above function into this one such that
-# total_stats['ctf_games'] is the count of CTF games and so on...
 def _get_total_stats(player_id):
     """
     Provides aggregated stats by player_id.
 
     Returns a dict with the keys 'kills', 'deaths', 'alivetime'.
 
+    games = how many games a player has played
+    games_breakdown = how many games of given type a player has played (dictionary)
     kills = how many kills a player has over all games
     deaths = how many deaths a player has over all games
     suicides = how many suicides a player has over all games
@@ -96,7 +98,24 @@ def _get_total_stats(player_id):
     one_month_ago = datetime.datetime.utcnow() - datetime.timedelta(days=30)
 
     total_stats = {}
-    (total_stats['kills'], total_stats['deaths'], total_stats['suicides'], total_stats['alivetime'],) = DBSession.query(
+
+    games_played = DBSession.query(
+            Game.game_type_cd, func.count()).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(PlayerGameStat.player_id == player_id).\
+            group_by(Game.game_type_cd).\
+            order_by(func.count().desc()).\
+            all()
+
+    total_stats['games'] = 0
+    total_stats['games_breakdown'] = {}  # this is a dictionary inside a dictionary .. dictception?
+    for (game_type_cd, games) in games_played:
+        total_stats['games'] += games
+        total_stats['games_breakdown'][game_type_cd] = games
+
+     # more fields can be added here, e.g. 'collects' for kh games
+    (total_stats['kills'], total_stats['deaths'], total_stats['suicides'],
+     total_stats['alivetime'],) = DBSession.query(
             func.sum(PlayerGameStat.kills),
             func.sum(PlayerGameStat.deaths),
             func.sum(PlayerGameStat.suicides),
@@ -121,6 +140,60 @@ def _get_total_stats(player_id):
             filter(Game.game_id == PlayerGameStat.game_id).\
             filter(PlayerGameStat.player_id == player_id).\
             filter(Game.winner == PlayerGameStat.team or PlayerGameStat.rank == 1).\
+            one()
+    
+    (total_stats['duel_wins'],) = DBSession.query(
+            func.count("*")).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "duel").\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.rank == 1).\
+            one()
+
+    (total_stats['duel_kills'], total_stats['duel_deaths'], total_stats['duel_suicides'],) = DBSession.query(
+            func.sum(PlayerGameStat.kills),
+            func.sum(PlayerGameStat.deaths),
+            func.sum(PlayerGameStat.suicides)).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "duel").\
+            filter(PlayerGameStat.player_id == player_id).\
+            one()
+
+    (total_stats['dm_wins'],) = DBSession.query(
+            func.count("*")).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "dm" or Game.game_type_cd == "tdm").\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.rank == 1).\
+            one()
+
+    (total_stats['dm_kills'], total_stats['dm_deaths'], total_stats['dm_suicides'],) = DBSession.query(
+            func.sum(PlayerGameStat.kills),
+            func.sum(PlayerGameStat.deaths),
+            func.sum(PlayerGameStat.suicides)).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "dm" or Game.game_type_cd == "tdm").\
+            filter(PlayerGameStat.player_id == player_id).\
+            one()
+
+    (total_stats['ctf_wins'],) = DBSession.query(
+            func.count("*")).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "ctf").\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.rank == 1).\
+            one()
+
+    (total_stats['ctf_caps'], total_stats['ctf_pickups'], total_stats['ctf_drops'],
+     total_stats['ctf_returns'], total_stats['ctf_fckills'],) = DBSession.query(
+            func.sum(PlayerGameStat.captures),
+            func.sum(PlayerGameStat.pickups),
+            func.sum(PlayerGameStat.drops),
+            func.sum(PlayerGameStat.returns),
+            func.sum(PlayerGameStat.carrier_frags)).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.game_type_cd == "ctf").\
+            filter(PlayerGameStat.player_id == player_id).\
             one()
 
     for (key,value) in total_stats.items():
@@ -189,6 +262,37 @@ def _get_fav_weapon(player_id):
         fav_weapon.append(entry)
 
     return fav_weapon
+
+
+def _get_fav_server(player_id):
+    """
+    Get the player's favorite server. The favorite server is defined
+    as the server that he or she has played on the most in the past 
+    90 days.
+
+    Returns a sequence of dictionaries with keys for the server's name and id.
+    The sequence holds the most-used servers in decreasing order.
+    """
+    # 90 day window
+    back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
+
+    raw_fav_server = DBSession.query(Server.name, Server.server_id).\
+            filter(Game.game_id == PlayerGameStat.game_id).\
+            filter(Game.server_id == Server.server_id).\
+            filter(PlayerGameStat.player_id == player_id).\
+            filter(PlayerGameStat.create_dt > back_then).\
+            group_by(Server.name, Server.server_id).\
+            order_by(func.count().desc()).\
+            all()
+
+    fav_server = []
+    for srv_e in raw_fav_server:
+        entry = {}
+        entry['name'] = srv_e[0]
+        entry['id']   = srv_e[1]
+        fav_server.append(entry)
+
+    return fav_server
 
 
 def _get_rank(player_id):
@@ -304,7 +408,8 @@ def player_info_data(request):
         total_stats = _get_total_stats(player.player_id)
 
         # games breakdown - N games played (X ctf, Y dm) etc
-        (total_games, games_breakdown) = _get_games_played(player.player_id)
+        # DEPRECATED: included in total_stats, see above
+        # (total_games, games_breakdown) = _get_games_played(player.player_id)
 
         # favorite map from the past 90 days
         try:
@@ -318,12 +423,19 @@ def player_info_data(request):
         except:
             fav_weapon = None
 
+        # favorite server from the past 90 days
+        try:
+            fav_server = _get_fav_server(player.player_id)
+        except:
+            fav_server = None
+
         # friendly display of elo information and preliminary status
         elos = DBSession.query(PlayerElo).filter_by(player_id=player_id).\
                 filter(PlayerElo.game_type_cd.in_(['ctf','duel','dm'])).\
                 order_by(PlayerElo.elo.desc()).all()
 
         elos_display = []
+        elos_dict    = {}
         for elo in elos:
             if elo.games > 32:
                 str = "{0} ({1})"
@@ -332,11 +444,18 @@ def player_info_data(request):
 
             elos_display.append(str.format(round(elo.elo, 3),
                 elo.game_type_cd))
+            elos_dict[elo.game_type_cd] = round(elo.elo, 3)
+        elos_display = ', '.join(elos_display)
 
         # get current rank information
         ranks = _get_rank(player_id)
-        ranks_display = ', '.join(["{1} of {2} ({0})".format(gtc, rank,
-            max_rank) for gtc, rank, max_rank in ranks])
+        
+        ranks_display = []
+        ranks_dict    = {}
+        for gtc,rank,max_rank in ranks:
+            ranks_display.append("{1} of {2} ({0})".format(gtc, rank, max_rank))
+            ranks_dict[gtc] = (rank, max_rank)
+        ranks_display = ', '.join(ranks_display)
 
 
         # which weapons have been used in the past 90 days
@@ -361,25 +480,33 @@ def player_info_data(request):
 
     except Exception as e:
         player = None
+        elos = None
         elos_display = None
         total_stats = None
         recent_games = None
-        total_games = None
-        games_breakdown = None
+        # DEPRECATED: included in total_stats, see above
+        #total_games = None
+        #games_breakdown = None
         recent_weapons = []
         fav_map = None
         fav_weapon = None
+        fav_server = None
+        ranks = None
         ranks_display = None;
 
     return {'player':player,
+            'elos':elos_dict,
             'elos_display':elos_display,
             'recent_games':recent_games,
             'total_stats':total_stats,
-            'total_games':total_games,
-            'games_breakdown':games_breakdown,
+            # DEPRECATED: included in total_stats, see above
+            #'total_games':total_games,
+            #'games_breakdown':games_breakdown,
             'recent_weapons':recent_weapons,
             'fav_map':fav_map,
             'fav_weapon':fav_weapon,
+            'fav_server':fav_server,
+            'ranks':ranks_dict,
             'ranks_display':ranks_display,
             }
 

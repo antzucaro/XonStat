@@ -189,18 +189,19 @@ Player Information
 
       Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
 
-      Playing Time: <small>${total_stats['alivetime']} hours
-      % if total_stats['alivetime'] > total_stats['alivetime_month']:
-          % if total_stats['alivetime_month'] > total_stats['alivetime_week']:
-              (${total_stats['alivetime_month']} hours this month; ${total_stats['alivetime_week']} hours this week)
+      % if fav_server is not None:
+      Favorite Server: <small>
+      <% srv_list = fav_server[:1] %>
+      % for srvinfo in srv_list:
+          % if srvinfo != srv_list[-1]:
+              <% delim = ", " %>
           % else:
-              (${total_stats['alivetime_month']} hours this month)
+              <% delim = "" %>
           % endif
-      % endif
+          <a href="${request.route_url('server_info', id=srvinfo['id'])}" title="view server info">${srvinfo['name']}</a>${delim}
+      % endfor
       </small><br />
-
-      <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
-      Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
+      % endif
 
       % if fav_map is not None:
       Favorite Maps: <small>
@@ -218,7 +219,7 @@ Player Information
 
       % if fav_weapon is not None:
       Favorite Weapons: <small>
-      <% wpn_list = fav_weapon[:2] %>
+      <% wpn_list = fav_weapon[:3] %>
       % for wpninfo in wpn_list:
           % if wpninfo != wpn_list[-1]:
               <% delim = ", " %>
@@ -233,21 +234,88 @@ Player Information
   </div>
   <div class="span6">
     <p>
-       % if total_games > 0 and total_stats['wins'] is not None:
-       Win Percentage: <small>${round(float(total_stats['wins'])/total_games * 100, 2)}% (${total_stats['wins']} wins, ${total_games - total_stats['wins']} losses) </small><br />
+      Playing Time: <small>${total_stats['alivetime']} hours
+      % if total_stats['alivetime'] > total_stats['alivetime_month']:
+          % if total_stats['alivetime_month'] > total_stats['alivetime_week']:
+              (${total_stats['alivetime_month']} hours this month; ${total_stats['alivetime_week']} hours this week)
+          % else:
+              (${total_stats['alivetime_month']} hours this month)
+          % endif
+      % endif
+      </small><br />
+
+      <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in total_stats['games_breakdown'].items()]) %>
+      Games Played: <small>${total_stats['games']} (${games_breakdown_str})</small><br />
+
+       % if total_stats['games'] > 0 and total_stats['wins'] is not None:
+       Win Percentage: <small>${round(float(total_stats['wins'])/total_stats['games'] * 100, 2)}% (${total_stats['wins']} wins, ${total_stats['games'] - total_stats['wins']} losses) </small><br />
        % endif
 
        % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
        Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths, ${total_stats['suicides']} suicides) </small><br />
        % endif
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="span10">
+    <p>
+       % if total_stats['games_breakdown'].has_key('duel'):
+       Duel Stats: <small>
+           % if total_stats['duel_wins'] is not None:
+           Win Percentage ${round(float(total_stats['duel_wins'])/total_stats['games_breakdown']['duel'] * 100, 2)}%  (${total_stats['duel_wins']} wins, ${total_stats['games_breakdown']['duel'] - total_stats['duel_wins']} losses)
+           % endif
+
+           % if total_stats['duel_kills'] > 0 and total_stats['duel_deaths'] > 0:
+           | Kill Ratio ${round(float(total_stats['duel_kills'])/total_stats['duel_deaths'], 3)} (${total_stats['duel_kills']} kills, ${total_stats['duel_deaths']} deaths, ${total_stats['duel_suicides']} suicides)
+           % endif
+       </small><br />
+       % endif
+
+       % if total_stats['games_breakdown'].has_key('dm'):
+       DM Stats: <small>
+           % if total_stats['dm_wins'] is not None:
+           Win Percentage ${round(float(total_stats['dm_wins'])/total_stats['games_breakdown']['dm'] * 100, 2)}%  (${total_stats['dm_wins']} wins, ${total_stats['games_breakdown']['dm'] - total_stats['dm_wins']} losses)
+           % endif
+
+           % if total_stats['dm_kills'] > 0 and total_stats['dm_deaths'] > 0:
+           | Kill Ratio ${round(float(total_stats['dm_kills'])/total_stats['dm_deaths'], 3)} (${total_stats['dm_kills']} kills, ${total_stats['dm_deaths']} deaths, ${total_stats['dm_suicides']} suicides)
+           % endif
+       </small><br />
+       % endif
+
+       % if total_stats['games_breakdown'].has_key('tdm'):
+       TDM Stats: <small>
+           % if total_stats['tdm_wins'] is not None:
+           Win Percentage ${round(float(total_stats['tdm_wins'])/total_stats['games_breakdown']['tdm'] * 100, 2)}%  (${total_stats['tdm_wins']} wins, ${total_stats['games_breakdown']['tdm'] - total_stats['tdm_wins']} losses)
+           % endif
+
+           % if total_stats['tdm_kills'] > 0 and total_stats['tdm_deaths'] > 0:
+           | Kill Ratio ${round(float(total_stats['tdm_kills'])/total_stats['tdm_deaths'], 3)} (${total_stats['tdm_kills']} kills, ${total_stats['tdm_deaths']} deaths, ${total_stats['tdm_suicides']} suicides)
+           % endif
+       </small><br />
+       % endif
+
+       % if total_stats['games_breakdown'].has_key('ctf'):
+       CTF Stats: <small>
+           % if total_stats['ctf_wins'] is not None:
+           Win Percentage ${round(float(total_stats['ctf_wins'])/total_stats['games_breakdown']['ctf'] * 100, 2)}%  (${total_stats['ctf_wins']} wins, ${total_stats['games_breakdown']['ctf'] - total_stats['ctf_wins']} losses)
+           % endif
+
+           % if total_stats['ctf_pickups'] > 0 and total_stats['tdm_captures'] > 0:
+           | Cap Ratio ${round(float(total_stats['ctf_caps'])/total_stats['ctf_pickups'], 3)} (${total_stats['ctf_caps']} caps, ${total_stats['ctf_pickups']} pickups, ${total_stats['ctf_returns']} returns, ${total_stats['ctf_fckills']} fckills)
+           % endif
+       </small><br />
+       % endif
 
        % if elos_display is not None and len(elos_display) > 0:
        Elo:
-          <small>${', '.join(elos_display)} </small>
-          <br />
-          %if '*' in ', '.join(elos_display):
-              <small><i>*preliminary Elo</i></small><br />
+          <small>${elos_display} </small>
+          %if '*' in elos_display:
+              <small><i>*preliminary Elo</i></small>
           %endif
+          <br />
       % endif
 
       % if ranks_display != '':
@@ -256,7 +324,6 @@ Player Information
     </p>
   </div>
 </div>
-
 
 % if 'nex' in recent_weapons or 'rifle' in recent_weapons or 'minstanex' in recent_weapons or 'uzi' in recent_weapons or 'shotgun' in recent_weapons:
 <div class="row">
