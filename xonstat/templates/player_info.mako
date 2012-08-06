@@ -231,54 +231,6 @@ Player Information
 <div class="row">
   <div class="span12">
     <p>
-       % if total_stats['games_breakdown'].has_key('duel'):
-       Duel Stats: <small>
-           % if total_stats['duel_wins'] is not None:
-           Win Percentage ${round(float(total_stats['duel_wins'])/total_stats['games_breakdown']['duel'] * 100, 2)}%  (${total_stats['duel_wins']} wins, ${total_stats['games_breakdown']['duel'] - total_stats['duel_wins']} losses)
-           % endif
-
-           % if total_stats['duel_kills'] > 0 and total_stats['duel_deaths'] > 0:
-           | Kill Ratio ${round(float(total_stats['duel_kills'])/total_stats['duel_deaths'], 3)} (${total_stats['duel_kills']} kills, ${total_stats['duel_deaths']} deaths, ${total_stats['duel_suicides']} suicides)
-           % endif
-       </small><br />
-       % endif
-
-       % if total_stats['games_breakdown'].has_key('dm'):
-       DM Stats: <small>
-           % if total_stats['dm_wins'] is not None:
-           Win Percentage ${round(float(total_stats['dm_wins'])/total_stats['games_breakdown']['dm'] * 100, 2)}%  (${total_stats['dm_wins']} wins, ${total_stats['games_breakdown']['dm'] - total_stats['dm_wins']} losses)
-           % endif
-
-           % if total_stats['dm_kills'] > 0 and total_stats['dm_deaths'] > 0:
-           | Kill Ratio ${round(float(total_stats['dm_kills'])/total_stats['dm_deaths'], 3)} (${total_stats['dm_kills']} kills, ${total_stats['dm_deaths']} deaths, ${total_stats['dm_suicides']} suicides)
-           % endif
-       </small><br />
-       % endif
-
-       % if total_stats['games_breakdown'].has_key('tdm'):
-       TDM Stats: <small>
-           % if total_stats['tdm_wins'] is not None:
-           Win Percentage ${round(float(total_stats['tdm_wins'])/total_stats['games_breakdown']['tdm'] * 100, 2)}%  (${total_stats['tdm_wins']} wins, ${total_stats['games_breakdown']['tdm'] - total_stats['tdm_wins']} losses)
-           % endif
-
-           % if total_stats['tdm_kills'] > 0 and total_stats['tdm_deaths'] > 0:
-           | Kill Ratio ${round(float(total_stats['tdm_kills'])/total_stats['tdm_deaths'], 3)} (${total_stats['tdm_kills']} kills, ${total_stats['tdm_deaths']} deaths, ${total_stats['tdm_suicides']} suicides)
-           % endif
-       </small><br />
-       % endif
-
-       % if total_stats['games_breakdown'].has_key('ctf'):
-       CTF Stats: <small>
-           % if total_stats['ctf_wins'] is not None:
-           Win Percentage ${round(float(total_stats['ctf_wins'])/total_stats['games_breakdown']['ctf'] * 100, 2)}%  (${total_stats['ctf_wins']} wins, ${total_stats['games_breakdown']['ctf'] - total_stats['ctf_wins']} losses)
-           % endif
-
-           % if total_stats['ctf_pickups'] > 0 and total_stats['ctf_caps'] > 0:
-           | Cap Ratio ${round(float(total_stats['ctf_caps'])/total_stats['ctf_pickups'], 3)} (${total_stats['ctf_caps']} caps, ${total_stats['ctf_pickups']} pickups, ${total_stats['ctf_returns']} returns, ${total_stats['ctf_fckills']} fckills)
-           % endif
-       </small><br />
-       % endif
-
        % if elos_display is not None and len(elos_display) > 0:
        Elo:
           <small>${elos_display} </small>
@@ -437,9 +389,55 @@ Player Information
 </div>
 % endif
 
+<div class="row">
+  <div class="span12">
+    <h3>Game Breakdown</h3>
+    <table class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+           <th>Type</th>
+           <th>Games Played</th>
+           <th>Win Percentage</th>
+           <th>Kill/Cap Ratio</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% gametypes = ['Duel', 'DM', 'TDM', 'CTF'] %>
+      % for gtc in gametypes:
+        <% gtc_key = gtc.lower() %>
+        % if total_stats['games_breakdown'].has_key(gtc_key):
+        <tr>
+           <td style="width:20px;"><img title="${gtc}" src="/static/images/icons/24x24/${gtc_key}.png" alt="${gtc}" /></td>
+           <% total     = total_stats['games_breakdown'][gtc_key] %>
+           <% wins      = total_stats[gtc_key+'_wins'] %>
+           <% losses    = total - wins %>
+           <td>${total}</td>
+           <td><big>${round(float(wins)/total * 100, 2)}%</big>  (${wins} wins, ${losses} losses)</td>
+           % if gtc.lower() == "ctf":
+             <% caps      = total_stats[gtc_key+'_caps'] %>
+             <% pickups   = total_stats[gtc_key+'_pickups'] %>
+             <% returns   = total_stats[gtc_key+'_returns'] %>
+             <% drops     = total_stats[gtc_key+'_drops'] %>
+             <% fckills   = total_stats[gtc_key+'_fckills'] %>
+           <td><big>${round(float(caps)/pickups, 3)}</big>  (${caps} caps, ${pickups} pickups, ${drops} drops, ${returns} returns, ${fckills} fckills)</td>
+           % else:
+             <% kills     = total_stats[gtc_key+'_kills'] %>
+             <% deaths    = total_stats[gtc_key+'_deaths'] %>
+             <% suicides  = total_stats[gtc_key+'_suicides'] %>
+           <td><big>${round(float(kills)/deaths, 3)}</big>  (${kills} kills, ${deaths} deaths, ${suicides} suicides)</td>
+           % endif
+        </tr>
+        % endif
+      % endfor
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
 ##### RECENT GAMES (v2) ####
 % if recent_games:
+<br />
 <div class="row">
   <div class="span12">
     <h3>Recent Games</h3>
