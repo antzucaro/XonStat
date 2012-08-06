@@ -9,10 +9,10 @@ ${nav.nav('players')}
 <%block name="js">
     % if player is not None:
       <script src="/static/js/jquery-1.7.1.min.js"></script>
+      <script src="/static/js/bootstrap-tabs.min.js"></script>
       <script src="/static/js/jquery.flot.min.js"></script>
       <script type="text/javascript">
       $(function () {
-
           // plot the accuracy graph
           function plot_acc_graph(data) {
               var games = new Array();
@@ -390,47 +390,83 @@ Player Information
 % endif
 
 <div class="row">
-  <div class="span12">
+  <div class="span8 tabbable">
     <h3>Game Breakdown</h3>
-    <table class="table table-bordered table-condensed">
-      <thead>
-        <tr>
-           <th>Type</th>
-           <th>Games Played</th>
-           <th>Win Percentage</th>
-           <th>Kill/Cap Ratio</th>
-        </tr>
-      </thead>
-      <tbody>
-      <% gametypes = ['Duel', 'DM', 'TDM', 'CTF'] %>
-      % for gtc in gametypes:
-        <% gtc_key = gtc.lower() %>
-        % if total_stats['games_breakdown'].has_key(gtc_key):
-        <tr>
-           <td style="width:20px;"><img title="${gtc}" src="/static/images/icons/24x24/${gtc_key}.png" alt="${gtc}" /></td>
-           <% total     = total_stats['games_breakdown'][gtc_key] %>
-           <% wins      = total_stats[gtc_key+'_wins'] %>
-           <% losses    = total - wins %>
-           <td>${total}</td>
-           <td><big>${round(float(wins)/total * 100, 2)}%</big>  (${wins} wins, ${losses} losses)</td>
-           % if gtc.lower() == "ctf":
-             <% caps      = total_stats[gtc_key+'_caps'] %>
-             <% pickups   = total_stats[gtc_key+'_pickups'] %>
-             <% returns   = total_stats[gtc_key+'_returns'] %>
-             <% drops     = total_stats[gtc_key+'_drops'] %>
-             <% fckills   = total_stats[gtc_key+'_fckills'] %>
-           <td><big>${round(float(caps)/pickups, 3)}</big>  (${caps} caps, ${pickups} pickups, ${drops} drops, ${returns} returns, ${fckills} fckills)</td>
-           % else:
-             <% kills     = total_stats[gtc_key+'_kills'] %>
-             <% deaths    = total_stats[gtc_key+'_deaths'] %>
-             <% suicides  = total_stats[gtc_key+'_suicides'] %>
-           <td><big>${round(float(kills)/deaths, 3)}</big>  (${kills} kills, ${deaths} deaths, ${suicides} suicides)</td>
-           % endif
-        </tr>
+    <ul class="nav nav-pills tabs" data-tabs="tabs">
+    <% gametypes = ['Overall', 'Duel', 'DM', 'TDM', 'CTF'] %>
+    % for gtc in gametypes:
+      % if gtc.lower() == 'overall':
+      <li class="active">
+      % elif total_stats['games_breakdown'].has_key(gtc.lower()):
+      <li>
+      % endif
+        <a href="#breakdown-${gtc.lower()}">${gtc}</a>
+      </li>
+    % endfor
+    </ul>
+    <div class="tab-content">
+    % for gtc in gametypes:
+      <% gtc_key = gtc.lower() %>
+      % if gtc_key == "overall":
+        <% total     = total_stats['games'] %>
+        <% wins      = total_stats['wins'] %>
+        <% losses    = total - wins %>
+        <% kills     = total_stats['kills'] %>
+        <% deaths    = total_stats['deaths'] %>
+        <% suicides  = total_stats['suicides'] %>
+      % elif total_stats['games_breakdown'].has_key(gtc_key):
+        <% total     = total_stats['games_breakdown'][gtc_key] %>
+        <% wins      = total_stats[gtc_key+'_wins'] %>
+        <% losses    = total - wins %>
+        % if gtc_key == "ctf":
+          <% caps      = total_stats[gtc_key+'_caps'] %>
+          <% pickups   = total_stats[gtc_key+'_pickups'] %>
+          <% returns   = total_stats[gtc_key+'_returns'] %>
+          <% drops     = total_stats[gtc_key+'_drops'] %>
+          <% fckills   = total_stats[gtc_key+'_fckills'] %>
+        % else:
+          <% kills     = total_stats[gtc_key+'_kills'] %>
+          <% deaths    = total_stats[gtc_key+'_deaths'] %>
+          <% suicides  = total_stats[gtc_key+'_suicides'] %>
         % endif
-      % endfor
-      </tbody>
-    </table>
+      % endif
+      % if gtc_key == 'overall':
+      <div class="tab-pane active" id="breakdown-${gtc_key}">
+      % else:
+      <div class="tab-pane active" id="breakdown-${gtc_key}">
+      % endif
+        <table class="table table-bordered table-condensed">
+          <thead>
+          </thead>
+          <tbody>
+            <tr>
+              <td width="20%">Win Percentage:</td>
+              <td width="15%">${round(float(wins)/total * 100, 2)}%</td>
+              <td width="65%">${wins} wins, ${losses} losses</td>
+            </tr>
+            % if gtc_key == 'ctf':
+            <tr>
+              <td>Cap Ratio:</td>
+              <td>${round(float(caps)/pickups, 3)}</td>
+              <td>${caps} caps, ${pickups} pickups, ${drops} drops, ${returns} returns, ${fckills} fckills</td>
+            </tr>
+            <!--<tr>
+              <td>Drop Ratio:</td>
+              <td>${round(float(drops)/pickups, 3)}</td>
+              <td>${caps} caps, ${pickups} pickups, ${drops} drops, ${returns} returns, ${fckills} fckills</td>
+            </tr>-->
+            % else:
+            <tr>
+              <td>Kill Ratio:</td>
+              <td>${round(float(kills)/deaths, 3)}</td>
+              <td>${kills} kills, ${deaths} deaths, ${suicides} suicides</td>
+            </tr>
+            % endif
+          </tbody>
+        </table>
+      </div>
+    % endfor
+    </div>
   </div>
 </div>
 
