@@ -189,51 +189,6 @@ Player Information
 
       Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
 
-      % if fav_server is not None:
-      Favorite Servers: <small>
-      <% srv_list = fav_server[:3] %>
-      % for srvinfo in srv_list:
-          % if srvinfo != srv_list[-1]:
-              <% delim = ", " %>
-          % else:
-              <% delim = "" %>
-          % endif
-          <a href="${request.route_url('server_info', id=srvinfo['id'])}" title="view server info">${srvinfo['name']}</a>${delim}
-      % endfor
-      </small><br />
-      % endif
-
-      % if fav_map is not None:
-      Favorite Maps: <small>
-      <% map_list = fav_map[:3] %>
-      % for mapinfo in map_list:
-          % if mapinfo != map_list[-1]:
-              <% delim = ", " %>
-          % else:
-              <% delim = "" %>
-          % endif
-          <a href="${request.route_url('map_info', id=mapinfo['id'])}" title="view map info">${mapinfo['name']}</a>${delim}
-      % endfor
-      </small><br />
-      % endif
-
-      % if fav_weapon is not None:
-      Favorite Weapons: <small>
-      <% wpn_list = fav_weapon[:3] %>
-      % for wpninfo in wpn_list:
-          % if wpninfo != wpn_list[-1]:
-              <% delim = ", " %>
-          % else:
-              <% delim = "" %>
-          % endif
-          ${wpninfo['name']}${delim}
-      % endfor
-      </small><br />
-      % endif
-    </p>
-  </div>
-  <div class="span6">
-    <p>
       Playing Time: <small>${total_stats['alivetime']}
       % if total_stats['alivetime_month'] and total_stats['alivetime'] > total_stats['alivetime_month']:
           % if total_stats['alivetime_week'] and total_stats['alivetime_month'] > total_stats['alivetime_week']:
@@ -246,14 +201,29 @@ Player Information
 
       <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in total_stats['games_breakdown'].items()]) %>
       Games Played: <small>${total_stats['games']}<br />(${games_breakdown_str})</small><br />
+    </p>
+  </div>
+  <div class="span6">
+    <p>
+      % if fav_server is not None:
+      Favorite Server: <small><a href="${request.route_url('server_info', id=fav_server[0]['id'])}" title="view server info">${fav_server[0]['name']}</a></small><br />
+      % endif
 
-       % if total_stats['games'] > 0 and total_stats['wins'] is not None:
-       Win Percentage: <small>${round(float(total_stats['wins'])/total_stats['games'] * 100, 2)}% (${total_stats['wins']} wins, ${total_stats['games'] - total_stats['wins']} losses) </small><br />
-       % endif
+      % if fav_map is not None:
+      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map[0]['id'])}" title="view map info">${fav_map[0]['name']}</a></small><br />
+      % endif
 
-       % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
-       Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths, ${total_stats['suicides']} suicides) </small><br />
-       % endif
+      % if fav_weapon is not None:
+      Favorite Weapon: <small>${fav_weapon[0]['name']}</small><br />
+      % endif
+
+      % if total_stats['games'] > 0 and total_stats['wins'] is not None:
+      Win Percentage: <small>${round(float(total_stats['wins'])/total_stats['games'] * 100, 2)}% (${total_stats['wins']} wins, ${total_stats['games'] - total_stats['wins']} losses) </small><br />
+      % endif
+
+      % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
+      Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths, ${total_stats['suicides']} suicides) </small><br />
+      % endif
     </p>
   </div>
 </div>
