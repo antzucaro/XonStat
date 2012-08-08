@@ -8,10 +8,13 @@ ${nav.nav('players')}
 
 <%block name="js">
     % if player is not None:
-      <script src="/static/js/jquery-1.7.1.min.js"></script>
-      <script src="/static/js/bootstrap-tabs.min.js"></script>
       <script src="/static/js/jquery.flot.min.js"></script>
+      <script src="/static/js/bootstrap-tabs.js"></script>
       <script type="text/javascript">
+      jQuery(document).ready(function ($) {
+          $(".tabs").tabs();
+      });      
+
       $(function () {
           // plot the accuracy graph
           function plot_acc_graph(data) {
@@ -163,6 +166,7 @@ ${nav.nav('players')}
           });
       })
       </script>
+      <script src="/static/js/bootstrap-tabs.min.js"></script>
     % endif
 </%block>
 
@@ -392,16 +396,18 @@ Player Information
 <div class="row">
   <div class="span8 tabbable">
     <h3>Game Breakdown</h3>
-    <ul class="nav nav-pills tabs" data-tabs="tabs">
+    <ul class="tabs nav nav-pills" data-tabs="tabs">
     <% gametypes = ['Overall', 'Duel', 'DM', 'TDM', 'CTF'] %>
     % for gtc in gametypes:
-      % if gtc.lower() == 'overall':
+      % if gtc.lower() == 'overall' or total_stats['games_breakdown'].has_key(gtc.lower()):
+        % if gtc.lower() == 'overall':
       <li class="active">
-      % elif total_stats['games_breakdown'].has_key(gtc.lower()):
+        % else:
       <li>
-      % endif
-        <a href="#breakdown-${gtc.lower()}">${gtc}</a>
+        % endif
+        <a href="#breakdown-${gtc.lower()}" data-toggle="tabs">${gtc}</a>
       </li>
+      % endif
     % endfor
     </ul>
     <div class="tab-content">
@@ -409,6 +415,7 @@ Player Information
       <% gtc_key = gtc.lower() %>
       % if gtc_key == "overall":
         <% total     = total_stats['games'] %>
+        <% alivetime = total_stats['alivetime'] %>
         <% wins      = total_stats['wins'] %>
         <% losses    = total - wins %>
         <% kills     = total_stats['kills'] %>
@@ -416,6 +423,7 @@ Player Information
         <% suicides  = total_stats['suicides'] %>
       % elif total_stats['games_breakdown'].has_key(gtc_key):
         <% total     = total_stats['games_breakdown'][gtc_key] %>
+        <% alivetime = total_stats['games_alivetime'][gtc_key] %>
         <% wins      = total_stats[gtc_key+'_wins'] %>
         <% losses    = total - wins %>
         % if gtc_key == "ctf":
@@ -430,41 +438,104 @@ Player Information
           <% suicides  = total_stats[gtc_key+'_suicides'] %>
         % endif
       % endif
-      % if gtc_key == 'overall':
+      % if gtc_key == 'overall' or total_stats['games_breakdown'].has_key(gtc_key):
+        % if gtc_key == 'overall':
       <div class="tab-pane active" id="breakdown-${gtc_key}">
-      % else:
-      <div class="tab-pane active" id="breakdown-${gtc_key}">
-      % endif
+        % else:
+      <div class="tab-pane" id="breakdown-${gtc_key}">
+        % endif
+        <div style="margin:15px;float:left;"><img title="${gtc}" src="/static/images/icons/48x48/${gtc_key}.png" alt="${gtc}" /></div>
         <table class="table table-bordered table-condensed">
           <thead>
           </thead>
           <tbody>
             <tr>
-              <td width="20%">Win Percentage:</td>
-              <td width="15%">${round(float(wins)/total * 100, 2)}%</td>
-              <td width="65%">${wins} wins, ${losses} losses</td>
+              <td width="30%"><b>Games Played:</b></td>
+              <td width="30%">${total}</td>
+              <td width="40%"></td>
+            </tr>
+            <tr>
+              <td><b>Playing Time:</b></td>
+              <td>${alivetime} hours</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><b>Win Percentage:</b></td>
+              <td>${round(float(wins)/total * 100, 2)}%</td>
+              <td>${wins} wins, ${losses} losses</td>
             </tr>
             % if gtc_key == 'ctf':
             <tr>
-              <td>Cap Ratio:</td>
-              <td>${round(float(caps)/pickups, 3)}</td>
-              <td>${caps} caps, ${pickups} pickups, ${drops} drops, ${returns} returns, ${fckills} fckills</td>
+              <td><b>Caps:</b></td>
+              <td>${round(float(caps)/total, 2)} per game</td>
+              <td>${caps} total</td>
             </tr>
-            <!--<tr>
-              <td>Drop Ratio:</td>
+            <tr>
+              <td><b>Pickups:</b></td>
+              <td>${round(float(pickups)/total, 2)} per game</td>
+              <td>${pickups} total</td>
+            </tr>
+            <tr>
+              <td><b>Drops:</b></td>
+              <td>${round(float(drops)/total, 2)} per game</td>
+              <td>${drops} total</td>
+            </tr>
+            <tr>
+              <td><b>Returns:</b></td>
+              <td>${round(float(returns)/total, 2)} per game</td>
+              <td>${returns} total</td>
+            </tr>
+            <tr>
+              <td><b>FC Kills:</b></td>
+              <td>${round(float(fckills)/total, 2)} per game</td>
+              <td>${fckills} total</td>
+            </tr>
+            <tr>
+              <td><b>Cap Ratio:</b></td>
+              <td>${round(float(caps)/pickups, 3)}</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><b>Drop Ratio:</b></td>
               <td>${round(float(drops)/pickups, 3)}</td>
-              <td>${caps} caps, ${pickups} pickups, ${drops} drops, ${returns} returns, ${fckills} fckills</td>
-            </tr>-->
+              <td></td>
+            </tr>
+            <tr>
+              <td><b>Return Ratio:</b></td>
+              <td>${round(float(returns)/fckills, 3)}</td>
+              <td></td>
+            </tr>
             % else:
             <tr>
-              <td>Kill Ratio:</td>
+              <td><b>Kills:</b></td>
+              <td>${round(float(kills)/total, 2)} per game</td>
+              <td>${kills} total</td>
+            </tr>
+            <tr>
+              <td><b>Deaths:</b></td>
+              <td>${round(float(deaths)/total, 2)} per game</td>
+              <td>${deaths} total</td>
+            </tr>
+            <tr>
+              <td><b>Suicides:</b></td>
+              <td>${round(float(suicides)/total, 2)} per game</td>
+              <td>${suicides} total</td>
+            </tr>
+            <tr>
+              <td><b>Kill Ratio:</b></td>
               <td>${round(float(kills)/deaths, 3)}</td>
-              <td>${kills} kills, ${deaths} deaths, ${suicides} suicides</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><b>Suicide Ratio:</b></td>
+              <td>${round(float(suicides)/deaths, 3)}</td>
+              <td></td>
             </tr>
             % endif
           </tbody>
         </table>
       </div>
+      % endif
     % endfor
     </div>
   </div>

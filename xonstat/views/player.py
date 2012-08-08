@@ -83,6 +83,7 @@ def _get_total_stats(player_id):
 
     games = how many games a player has played
     games_breakdown = how many games of given type a player has played (dictionary)
+    games_alivetime = how many time a player has spent in a give game type (dictionary)
     kills = how many kills a player has over all games
     deaths = how many deaths a player has over all games
     suicides = how many suicides a player has over all games
@@ -100,7 +101,7 @@ def _get_total_stats(player_id):
     total_stats = {}
 
     games_played = DBSession.query(
-            Game.game_type_cd, func.count()).\
+            Game.game_type_cd, func.count(), func.sum(PlayerGameStat.alivetime)).\
             filter(Game.game_id == PlayerGameStat.game_id).\
             filter(PlayerGameStat.player_id == player_id).\
             group_by(Game.game_type_cd).\
@@ -109,9 +110,11 @@ def _get_total_stats(player_id):
 
     total_stats['games'] = 0
     total_stats['games_breakdown'] = {}  # this is a dictionary inside a dictionary .. dictception?
-    for (game_type_cd, games) in games_played:
+    total_stats['games_alivetime'] = {}
+    for (game_type_cd, games, alivetime) in games_played:
         total_stats['games'] += games
         total_stats['games_breakdown'][game_type_cd] = games
+        total_stats['games_alivetime'][game_type_cd] = alivetime
 
      # more fields can be added here, e.g. 'collects' for kh games
     (total_stats['kills'], total_stats['deaths'], total_stats['suicides'],
