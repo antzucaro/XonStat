@@ -450,19 +450,27 @@ Player Information
           </thead>
           <tbody>
             <tr>
-              <td width="30%"><b>Games Played:</b></td>
-              <td width="30%">${total}</td>
-              <td width="40%"></td>
+              <td><b>Games Played:</b></td>
+              <td>${total}</td>
+              % if gtc_key == 'overall':
+              <td></td>
+              % else:
+              <td>${round(float(total)/total_stats['games'] * 100, 2)}% of all games</td>
+              % endif
             </tr>
             <tr>
               <td><b>Playing Time:</b></td>
               <td>${alivetime} hours</td>
+              % if gtc_key == 'overall':
               <td></td>
+              % else:
+              <td>${round(float(alivetime.total_seconds())/total_stats['alivetime'].total_seconds() * 100, 2)}% of total playing time</td>
+              % endif
             </tr>
             <tr>
-              <td><b>Win Percentage:</b></td>
-              <td>${round(float(wins)/total * 100, 2)}%</td>
-              <td>${wins} wins, ${losses} losses</td>
+              <td width="30%"><b>Win Percentage:</b></td>
+              <td width="30%">${round(float(wins)/total * 100, 2)}%</td>
+              <td width="40%">${wins} wins, ${losses} losses</td>
             </tr>
             % if gtc_key == 'ctf':
             <tr>
