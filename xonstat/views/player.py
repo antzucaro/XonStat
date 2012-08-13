@@ -115,31 +115,70 @@ def _get_total_stats(player_id):
     return total_stats
 
 
-def _get_fav_map(player_id):
+def _get_fav_maps(player_id):
     """
     Get the player's favorite map. The favorite map is defined
-    as the map that he or she has played the most in the past 
-    90 days.
+    as the map that he or she has played the most with game
+    types considered separate. This is to say that if a person
+    plays dm and duel on stormkeep with 25 games in each mode, 
+    final_rage could still be the favorite map overall if it has
+    26 dm games.
 
-    Returns a dictionary with keys for the map's name and id.
+    Returns a dictionary with entries for each played game type.
+    Each game type ditionary value contained a nested dictionary
+    with the following keys:
+        id = the favorite map id
+        name = the favorite map's name
+        times_played = the number of times the map was played in that mode
+
+    Note also that there's a superficial "overall" game type that is
+    meant to hold the top map overall. It'll be a dupe of one of the
+    other game types' nested dictionary.
     """
-    # 90 day window
-    back_then = datetime.datetime.utcnow() - datetime.timedelta(days=90)
 
-    raw_fav_map = DBSession.query(Map.name, Map.map_id).\
-            filter(Game.game_id == PlayerGameStat.game_id).\
-            filter(Game.map_id == Map.map_id).\
-            filter(PlayerGameStat.player_id == player_id).\
-            filter(PlayerGameStat.create_dt > back_then).\
-            group_by(Map.name, Map.map_id).\
-            order_by(func.count().desc()).\
-            limit(1).one()
+    fav_maps = {}
+    for (game_type_cd, name, map_id, times_played) in DBSession.\
+            query("game_type_cd", "name", "map_id", "times_played").\
+            from_statement(
+                "SELECT game_type_cd, "
+                       "name, "
+                       "map_id, "
+                       "times_played "
+                "FROM   (SELECT g.game_type_cd, "
+                               "m.name, "
+                               "m.map_id, "
+                               "count(*) times_played, "
+                               "row_number() "
+                                 "over ( "
+                                   "PARTITION BY g.game_type_cd "
+                                   "ORDER BY Count(*) DESC, m.map_id ASC) rank "
+                        "FROM   games g, "
+                               "player_game_stats pgs, "
+                               "maps m "
+                        "WHERE  g.game_id = pgs.game_id "
+                               "AND g.map_id = m.map_id "
+                               "AND pgs.player_id = :player_id "
+                        "GROUP  BY g.game_type_cd, "
+                                  "m.map_id, "
+                                  "m.name) most_played "
+                "WHERE  rank = 1"
+            ).params(player_id=player_id).all():
+                fav_map_detail = {}
+                fav_map_detail['name'] = name
+                fav_map_detail['map_id'] = map_id
+                fav_map_detail['times_played'] = times_played
+                fav_maps[game_type_cd] = fav_map_detail
 
-    fav_map = {}
-    fav_map['name'] = raw_fav_map[0]
-    fav_map['id'] = raw_fav_map[1]
+    max_played = 0
+    overall = {}
+    for fav_map_detail in fav_maps.values():
+        if fav_map_detail['times_played'] > max_played:
+            max_played = fav_map_detail['times_played']
+            overall = fav_map_detail
 
-    return fav_map
+    fav_maps['overall'] = overall
+
+    return fav_maps
 
 
 def _get_rank(player_id):
@@ -259,7 +298,11 @@ def player_info_data(request):
 
         # favorite map from the past 90 days
         try:
-            fav_map = _get_fav_map(player.player_id)
+            fav_maps = _get_fav_maps(player.player_id)
+            # TODO remove later, after there are multiple 
+            # fav maps and not just one. For now we'll just
+            # set it to nothing.
+            fav_map = None
         except:
             fav_map = None
 
