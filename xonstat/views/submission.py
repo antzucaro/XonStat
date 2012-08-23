@@ -101,7 +101,6 @@ def has_minimum_real_players(settings, player_events):
 
     real_players = num_real_players(player_events)
 
-    #TODO: put this into a config setting in the ini file?
     if real_players < minimum_required_players:
         flg_has_min_real_players = False
 
@@ -539,8 +538,6 @@ def stats_submit(request):
     Entry handler for POST stats submissions.
     """
     try:
-        session = DBSession()
-
         log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
                 "----- END REQUEST BODY -----\n\n")
 
@@ -578,6 +575,12 @@ def stats_submit(request):
             revision = game_meta['R']
         except:
             revision = "unknown"
+
+        #----------------------------------------------------------------------
+        # This ends the "precondition" section of sanity checks. All
+        # functions not requiring a database connection go ABOVE HERE.
+        #----------------------------------------------------------------------
+        session = DBSession()
 
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'], revision=revision,
