@@ -149,18 +149,19 @@ def render_image(data):
 
     surf = C.ImageSurface(C.FORMAT_RGB24, width, height)
     ctx = C.Context(surf)
+    ctx.set_antialias(C.ANTIALIAS_GRAY)
 
     # draw background (just plain fillcolor)
     if params['bg'] == 0:
-        ctx.rectangle(0, 0, 1, 1);
-        ctx.set_source_rgba(0.2, 0.2, 0.2, 1.0);
-        ctx.fill();
+        ctx.rectangle(0, 0, width, height)
+        ctx.set_source_rgba(0.2, 0.2, 0.2, 1.0)
+        ctx.fill()
     
     # draw background image (try to get correct tiling, too)
     if params['bg'] > 0:
         bg = None
         if params['bg'] == 1:
-            bg = C.ImageSurface.create_from_png("img/dark_wall.png");
+            bg = C.ImageSurface.create_from_png("img/dark_wall.png")
         
         if bg:
             bg_w, bg_h = bg.get_width(), bg.get_height()
@@ -168,7 +169,7 @@ def render_image(data):
             while bg_xoff < width:
                 bg_yoff = 0
                 while bg_yoff < height:
-                    ctx.set_source_surface(bg, bg_xoff, bg_yoff);
+                    ctx.set_source_surface(bg, bg_xoff, bg_yoff)
                     ctx.paint()
                     bg_yoff += bg_h
                 bg_xoff += bg_w
@@ -176,18 +177,25 @@ def render_image(data):
 
     ## draw player's nickname with fancy colors
     
-    # fontsize is reduced if width gets too large - TODO: needs finetuning
+    # fontsize is reduced if width gets too large
+    nick_xmax = 335
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-    ctx.set_font_size(18)
+    ctx.set_font_size(20)
     xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
-    if tw > 340:
-        ctx.set_font_size(16)
-    xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
-    if tw > 340:
-        ctx.set_font_size(14)
+    if tw > nick_xmax:
+        ctx.set_font_size(18)
+        xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
+        if tw > nick_xmax:
+            ctx.set_font_size(16)
+            xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
+            if tw > nick_xmax:
+                ctx.set_font_size(14)
+                xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
+                if tw > nick_xmax:
+                    ctx.set_font_size(12)
     
     # split up nick into colored segments and draw each of them
-    qstr = qfont_decode(player.nick).replace('^^', '^').replace('\x00', '')
+    qstr = qfont_decode(player.nick).replace('^^', '^').replace('\x00', ' ')
     txt_xoff = 0
     txt_xpos, txt_ypos = 5,18
     
@@ -250,32 +258,39 @@ def render_image(data):
         ctx.set_source_rgb(1.0, 1.0, 1.0)
         txt = "[ %s ]" % gt.upper()
         xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(games_x-xoff-tw/2,games_y-yoff-th/2)
+        ctx.move_to(games_x-xoff-tw/2,games_y-yoff-4)
         ctx.show_text(txt)
         
+        old_aa = ctx.get_antialias()
+        ctx.set_antialias(C.ANTIALIAS_NONE)
+        ctx.set_source_rgb(0.8, 0.8, 0.8)
         ctx.set_line_width(1)
-        ctx.move_to(games_x-games_w/2+5, games_y+8);
-        ctx.line_to(games_x+games_w/2-5, games_y+8);
+        ctx.move_to(games_x-games_w/2+5, games_y+8)
+        ctx.line_to(games_x+games_w/2-5, games_y+8)
         ctx.stroke()
-        ctx.move_to(games_x-games_w/2+5, games_y+32);
-        ctx.line_to(games_x+games_w/2-5, games_y+32);
+        ctx.move_to(games_x-games_w/2+5, games_y+32)
+        ctx.line_to(games_x+games_w/2-5, games_y+32)
         ctx.stroke()
+        ctx.set_antialias(old_aa)
         
         if not elos.has_key(gt) or not ranks.has_key(gt):
-            ctx.select_font_face(font, C.FONT_SLANT_ITALIC, C.FONT_WEIGHT_NORMAL)
-            ctx.set_font_size(10)
-            ctx.set_source_rgb(0.6, 0.6, 0.6)
-            txt = "(no stats yet!)"
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
+            ctx.set_font_size(12)
+            ctx.set_source_rgb(0.8, 0.2, 0.2)
+            txt = "no stats yet!"
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-            ctx.move_to(games_x-xoff-tw/2,games_y+22-yoff-th/2)
+            ctx.move_to(games_x-xoff-tw/2,games_y+28-yoff-4)
+            ctx.save()
+            ctx.rotate(math.radians(-10))
             ctx.show_text(txt)
+            ctx.restore()
         else:
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
             ctx.set_font_size(10)
             ctx.set_source_rgb(1.0, 1.0, 0.5)
             txt = "Elo: %.0f" % round(elos[gt], 0)
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-            ctx.move_to(games_x-xoff-tw/2,games_y+15-yoff-th/2)
+            ctx.move_to(games_x-xoff-tw/2,games_y+15-yoff-4)
             ctx.show_text(txt)
             
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
@@ -283,92 +298,128 @@ def render_image(data):
             ctx.set_source_rgb(0.8, 0.8, 0.8)
             txt = "Rank %d of %d" % ranks[gt]
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-            ctx.move_to(games_x-xoff-tw/2,games_y+25-yoff-th/2)
+            ctx.move_to(games_x-xoff-tw/2,games_y+25-yoff-3)
             ctx.show_text(txt)
         
         games_x += games_w
 
 
     # print win percentage
-    win_x, win_y = 500,18
+    win_x, win_y = 505,11
+    win_w, win_h = 100,14
     
+    ctx.rectangle(win_x-win_w/2,win_y-win_h/2,win_w,win_h)
+    ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
+    ctx.fill();
+    
+    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+    ctx.set_font_size(10)
+    ctx.set_source_rgb(0.8, 0.8, 0.8)
+    txt = "Win Percentage"
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(win_x-xoff-tw/2,win_y-yoff-3)
+    ctx.show_text(txt)
+    
+    txt = "???"
     if total_games > 0 and total_stats['wins'] is not None:
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(9)
-        ctx.set_source_rgb(0.8, 0.8, 0.8)
-        txt = "Win Percentage"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(win_x-xoff-tw/2,win_y-yoff-th/2)
-        ctx.show_text(txt)
-        
         ratio = float(total_stats['wins'])/total_games
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
-        ctx.set_font_size(12)
-        if ratio >= 0.75:
-            ctx.set_source_rgb(0.5, 1.0, 1.0)
-        elif ratio >= 0.5:
-            ctx.set_source_rgb(0.6, 1.0, 0.8)
-        elif ratio >= 0.25:
-            ctx.set_source_rgb(0.8, 1.0, 0.6)
-        else:
-            ctx.set_source_rgb(1.0, 1.0, 0.5)
         txt = "%.2f%%" % round(ratio * 100, 2)
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(win_x-xoff-tw/2,win_y+14-yoff-th/2)
-        ctx.show_text(txt)
+    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
+    ctx.set_font_size(12)
+    if ratio >= 0.90:
+        ctx.set_source_rgb(0.2, 1.0, 1.0)
+    elif ratio >= 0.75:
+        ctx.set_source_rgb(0.5, 1.0, 1.0)
+    elif ratio >= 0.5:
+        ctx.set_source_rgb(0.5, 1.0, 0.8)
+    elif ratio >= 0.25:
+        ctx.set_source_rgb(0.8, 1.0, 0.5)
+    else:
+        ctx.set_source_rgb(1.0, 1.0, 0.5)
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(win_x-xoff-tw/2,win_y+16-yoff-4)
+    ctx.show_text(txt)
+    
+    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+    ctx.set_font_size(8)
+    ctx.set_source_rgb(0.6, 0.8, 0.6)
+    txt = "%d wins" % total_stats["wins"]
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(win_x-xoff-tw/2,win_y+28-yoff-3)
+    ctx.show_text(txt)
+    ctx.set_source_rgb(0.8, 0.6, 0.6)
+    txt = "%d losses" % (total_games-total_stats['wins'])
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(win_x-xoff-tw/2,win_y+38-yoff-3)
+    ctx.show_text(txt)
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(8)
-        ctx.set_source_rgb(0.6, 0.8, 0.6)
-        txt = "%d wins" % total_stats["wins"]
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(win_x-xoff-tw/2,win_y+28-yoff-th/2)
-        ctx.show_text(txt)
-        ctx.set_source_rgb(0.8, 0.6, 0.6)
-        txt = "%d losses" % (total_games-total_stats['wins'])
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(win_x-xoff-tw/2,win_y+38-yoff-th/2)
-        ctx.show_text(txt)
 
     # print kill/death ratio
-    kill_x, kill_y = 400,18
-    if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(9)
-        ctx.set_source_rgb(0.8, 0.8, 0.8)
-        txt = "Kill Ratio"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(kill_x-xoff-tw/2,kill_y-yoff-th/2)
-        ctx.show_text(txt)
-        
+    kill_x, kill_y = 395,11
+    kill_w, kill_h = 100,14
+    
+    ctx.rectangle(kill_x-kill_w/2,kill_y-kill_h/2,kill_w,kill_h)
+    ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
+    ctx.fill()
+    
+    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+    ctx.set_font_size(10)
+    ctx.set_source_rgb(0.8, 0.8, 0.8)
+    txt = "Kill Ratio"
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(kill_x-xoff-tw/2,kill_y-yoff-3)
+    ctx.show_text(txt)
+    
+    txt = "???"
+    if total_stats['deaths'] > 0 and total_stats['kills'] is not None:
         ratio = float(total_stats['kills'])/total_stats['deaths']
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
-        ctx.set_font_size(12)
-        if ratio >= 2:
-            ctx.set_source_rgb(0.2, 1.0, 0.2)
-        elif ratio >= 1:
-            ctx.set_source_rgb(0.5, 1.0, 0.5)
-        elif ratio >= 0.5:
-            ctx.set_source_rgb(1.0, 0.5, 0.5)
-        else:
-            ctx.set_source_rgb(1.0, 0.2, 0.2)
         txt = "%.3f" % round(ratio, 3)
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(kill_x-xoff-tw/2,kill_y+14-yoff-th/2)
-        ctx.show_text(txt)
+    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
+    ctx.set_font_size(12)
+    if ratio >= 3:
+        ctx.set_source_rgb(0.0, 1.0, 0.0)
+    elif ratio >= 2:
+        ctx.set_source_rgb(0.2, 1.0, 0.2)
+    elif ratio >= 1:
+        ctx.set_source_rgb(0.5, 1.0, 0.5)
+    elif ratio >= 0.5:
+        ctx.set_source_rgb(1.0, 0.5, 0.5)
+    else:
+        ctx.set_source_rgb(1.0, 0.2, 0.2)
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(kill_x-xoff-tw/2,kill_y+16-yoff-4)
+    ctx.show_text(txt)
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(8)
-        ctx.set_source_rgb(0.6, 0.8, 0.6)
-        txt = "%d kills" % total_stats["kills"]
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(kill_x-xoff-tw/2,kill_y+28-yoff-th/2)
-        ctx.show_text(txt)
-        ctx.set_source_rgb(0.8, 0.6, 0.6)
-        txt = "%d deaths" % total_stats['deaths']
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(kill_x-xoff-tw/2,kill_y+38-yoff-th/2)
-        ctx.show_text(txt)
+    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+    ctx.set_font_size(8)
+    ctx.set_source_rgb(0.6, 0.8, 0.6)
+    txt = "%d kills" % total_stats["kills"]
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(kill_x-xoff-tw/2,kill_y+28-yoff-3)
+    ctx.show_text(txt)
+    ctx.set_source_rgb(0.8, 0.6, 0.6)
+    txt = "%d deaths" % total_stats['deaths']
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(kill_x-xoff-tw/2,kill_y+38-yoff-3)
+    ctx.show_text(txt)
+
+
+    # print playing time
+    time_x, time_y = 450,64
+    time_w, time_h = 210,10
+    
+    ctx.rectangle(time_x-time_w/2,time_y-time_h/2-1,time_w,time_y+time_h/2-1)
+    ctx.set_source_rgba(0.8, 0.8, 0.8, 0.6)
+    ctx.fill();
+    
+    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+    ctx.set_font_size(10)
+    ctx.set_source_rgb(0.1, 0.1, 0.1)
+    txt = "Playing time: %s" % str(total_stats['alivetime'])
+    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+    ctx.move_to(time_x-xoff-tw/2,time_y-yoff-4)
+    ctx.show_text(txt)
+
 
     # save to PNG
     surf.write_to_png(output)
