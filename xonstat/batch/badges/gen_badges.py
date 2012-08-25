@@ -424,7 +424,7 @@ def render_image(data):
 
 
 # environment setup
-env = bootstrap('../../../development.ini')
+env = bootstrap('../../../development.ini.home')
 req = env['request']
 req.matchdict = {'id':3}
 
@@ -437,7 +437,9 @@ players = DBSession.query(Player).\
         filter(Player.active_ind == True).\
         limit(NUM_PLAYERS).all()
 stop = datetime.now()
-print "Query took %.2f seconds" % (stop-start).total_seconds()
+td = stop-start
+total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+print "Query took %.2f seconds" % (total_seconds)
 
 print "Creating badges for %d players ..." % len(players)
 start = datetime.now()
@@ -448,14 +450,20 @@ for player in players:
     sstart = datetime.now()
     data = get_data(player)
     sstop = datetime.now()
-    data_time += (sstop-sstart).total_seconds()
+    td = sstop-sstart
+    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    data_time += total_seconds
 
     sstart = datetime.now()
     render_image(data)
     sstop = datetime.now()
-    render_time += (sstop-sstart).total_seconds()
+    td = sstop-sstart
+    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    render_time += total_seconds
 
 stop = datetime.now()
-print "Creating the badges took %.2f seconds (%.2f s per player)" % ((stop-start).total_seconds(), (stop-start).total_seconds()/float(len(players)))
+td = stop-start
+total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+print "Creating the badges took %.2f seconds (%.2f s per player)" % (total_seconds, total_seconds/float(len(players)))
 print "Total time for redering images: %.2f s" % render_time
 print "Total time for getting data: %.2f s" % data_time
