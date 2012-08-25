@@ -47,20 +47,20 @@ NICK_MAXWIDTH   = 330
 GAMES_POS       = (60,35)
 GAMES_WIDTH     = 110
 
-WINLOSS_POS     = (505,11)
-WINLOSS_WIDTH   = 100
+WINLOSS_POS     = (508,6)
+WINLOSS_WIDTH   = 104
 
-KILLDEATH_POS   = (395,11)
-KILLDEATH_WIDTH = 100
+KILLDEATH_POS   = (390,6)
+KILLDEATH_WIDTH = 104
 
-PLAYTIME_POS    = (450,64)
-PLAYTIME_WIDTH  = 210
+PLAYTIME_POS    = (452,64)
+PLAYTIME_WIDTH  = 218
 
 
 # parameters to affect the output, could be changed via URL
 params = {
-    'bg':           1,                      # 0 - black, 1 - dark_wall, ...
-    'overlay':      1,                      # 0 - none, 1 - Archer, ...
+    'bg':           8,                      # 0 - black, 1 - dark_wall, ...
+    'overlay':      0,                      # 0 - none, 1 - default overlay, ...
     'font':         0,                      # 0 - xolonium, 1 - dejavu sans
 }
 
@@ -202,6 +202,8 @@ def render_image(data):
             bg = C.ImageSurface.create_from_png("img/txture.png")
         elif params['bg'] == 7:
             bg = C.ImageSurface.create_from_png("img/black_linen_v2.png")
+        elif params['bg'] == 8:
+            bg = C.ImageSurface.create_from_png("img/background_archer-v1.png")
         
         # tile image
         if bg:
@@ -358,7 +360,7 @@ def render_image(data):
 
     # print win percentage
     
-    ctx.rectangle(WINLOSS_POS[0]-WINLOSS_WIDTH/2, WINLOSS_POS[1]-7, WINLOSS_WIDTH, 14)
+    ctx.rectangle(WINLOSS_POS[0]-WINLOSS_WIDTH/2, WINLOSS_POS[1]-7, WINLOSS_WIDTH, 15)
     ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
     ctx.fill();
     
@@ -370,10 +372,13 @@ def render_image(data):
     ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]-yoff-3)
     ctx.show_text(txt)
     
+    wins, losses = total_stats["wins"], total_games-total_stats["wins"]
     txt = "???"
-    if total_games > 0 and total_stats['wins'] is not None:
-        ratio = float(total_stats['wins'])/total_games
+    try:
+        ratio = float(wins)/total_games
         txt = "%.2f%%" % round(ratio * 100, 2)
+    except:
+        ratio = 0
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
     ctx.set_font_size(12)
     if ratio >= 0.90:
@@ -387,26 +392,30 @@ def render_image(data):
     else:
         ctx.set_source_rgb(1.0, 1.0, 0.5)
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+16-yoff-4)
+    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+18-yoff-4)
     ctx.show_text(txt)
     
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(8)
-    ctx.set_source_rgb(0.6, 0.8, 0.6)
-    txt = "%d wins" % total_stats["wins"]
+    ctx.set_source_rgb(0.6, 0.8, 0.8)
+    txt = "%d win" % wins
+    if wins != 1:
+        txt += "s"
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+28-yoff-3)
+    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+30-yoff-3)
     ctx.show_text(txt)
-    ctx.set_source_rgb(0.8, 0.6, 0.6)
-    txt = "%d losses" % (total_games-total_stats['wins'])
+    ctx.set_source_rgb(0.8, 0.8, 0.6)
+    txt = "%d loss" % losses
+    if losses != 1:
+        txt += "es"
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+38-yoff-3)
+    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+40-yoff-3)
     ctx.show_text(txt)
 
 
     # print kill/death ratio
     
-    ctx.rectangle(KILLDEATH_POS[0]-KILLDEATH_WIDTH/2, KILLDEATH_POS[1]-7, KILLDEATH_WIDTH, 14)
+    ctx.rectangle(KILLDEATH_POS[0]-KILLDEATH_WIDTH/2, KILLDEATH_POS[1]-7, KILLDEATH_WIDTH, 15)
     ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
     ctx.fill()
     
@@ -418,10 +427,13 @@ def render_image(data):
     ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]-yoff-3)
     ctx.show_text(txt)
     
+    kills, deaths = total_stats['kills'] , total_stats['deaths'] 
     txt = "???"
-    if total_stats['deaths'] > 0 and total_stats['kills'] is not None:
-        ratio = float(total_stats['kills'])/total_stats['deaths']
+    try:
+        ratio = float(kills)/deaths
         txt = "%.3f" % round(ratio, 3)
+    except:
+        ratio = 0
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
     ctx.set_font_size(12)
     if ratio >= 3:
@@ -435,20 +447,24 @@ def render_image(data):
     else:
         ctx.set_source_rgb(1.0, 0.2, 0.2)
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+16-yoff-4)
+    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+18-yoff-4)
     ctx.show_text(txt)
 
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(8)
     ctx.set_source_rgb(0.6, 0.8, 0.6)
-    txt = "%d kills" % total_stats["kills"]
+    txt = "%d kill" % kills
+    if kills != 1:
+        txt += "s"
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+28-yoff-3)
+    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+30-yoff-3)
     ctx.show_text(txt)
     ctx.set_source_rgb(0.8, 0.6, 0.6)
-    txt = "%d deaths" % total_stats['deaths']
+    txt = "%d death" % deaths
+    if deaths != 1:
+        txt += "s"
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+38-yoff-3)
+    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+40-yoff-3)
     ctx.show_text(txt)
 
 
