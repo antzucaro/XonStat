@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 
+import sys
 import cairo as C
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
@@ -29,17 +30,49 @@ _dec_colors = [ (0.5,0.5,0.5),
             ]
 
 
+# maximal number of query results (for testing, set to 0 to get all)
+NUM_PLAYERS = 100
+
+# image dimensions (likely breaks layout if changed)
+WIDTH   = 560
+HEIGHT  = 70
+
+# output filename, parameter is player id
+OUTPUT = "output/%d.png"
+
+
+NICK_POS        = (5,18)
+NICK_MAXWIDTH   = 330
+
+GAMES_POS       = (60,35)
+GAMES_WIDTH     = 110
+
+WINLOSS_POS     = (505,11)
+WINLOSS_WIDTH   = 100
+
+KILLDEATH_POS   = (395,11)
+KILLDEATH_WIDTH = 100
+
+PLAYTIME_POS    = (450,64)
+PLAYTIME_WIDTH  = 210
+
+
 # parameters to affect the output, could be changed via URL
 params = {
-    'width':        560,
-    'height':        70,
-    'bg':           1,                      # 0 - black, 1 - dark_wall
+    'bg':           1,                      # 0 - black, 1 - dark_wall, ...
+    'overlay':      1,                      # 0 - none, 1 - Archer, ...
     'font':         0,                      # 0 - xolonium, 1 - dejavu sans
 }
 
 
-# maximal number of query results (for testing, set to 0 to get all)
-NUM_PLAYERS = 100
+# parse cmdline parameters (for testing)
+for arg in sys.argv[1:]:
+    try:
+        k,v = arg.split("=")
+        if params.has_key(k.lower()):
+            params[k] = int(v)
+    except:
+        continue
 
 
 def get_data(player):
@@ -76,11 +109,9 @@ def get_data(player):
         total_stats['games_breakdown'][game_type_cd] = games
         total_stats['games_alivetime'][game_type_cd] = alivetime
     
-    (total_stats['kills'], total_stats['deaths'], total_stats['suicides'],
-     total_stats['alivetime'],) = DBSession.query(
+    (total_stats['kills'], total_stats['deaths'], total_stats['alivetime'],) = DBSession.query(
             func.sum(PlayerGameStat.kills),
             func.sum(PlayerGameStat.deaths),
-            func.sum(PlayerGameStat.suicides),
             func.sum(PlayerGameStat.alivetime)).\
             filter(PlayerGameStat.player_id == player_id).\
             one()
@@ -132,9 +163,6 @@ def get_data(player):
 def render_image(data):
     """Render an image from the given data fields."""
     
-    width, height = params['width'], params['height']
-    output = "output/%s.png" % data['player'].player_id
-    
     font = "Xolonium"
     if params['font'] == 1:
         font = "DejaVu Sans"
@@ -147,14 +175,14 @@ def render_image(data):
 
     ## create background
 
-    surf = C.ImageSurface(C.FORMAT_RGB24, width, height)
+    surf = C.ImageSurface(C.FORMAT_RGB24, WIDTH, HEIGHT)
     ctx = C.Context(surf)
     ctx.set_antialias(C.ANTIALIAS_GRAY)
 
     # draw background (just plain fillcolor)
     if params['bg'] == 0:
-        ctx.rectangle(0, 0, width, height)
-        ctx.set_source_rgba(0.2, 0.2, 0.2, 1.0)
+        ctx.rectangle(0, 0, WIDTH, HEIGHT)
+        ctx.set_source_rgb(0.04, 0.04, 0.04)  # bgcolor of Xonotic forum
         ctx.fill()
     
     # draw background image (try to get correct tiling, too)
@@ -162,42 +190,71 @@ def render_image(data):
         bg = None
         if params['bg'] == 1:
             bg = C.ImageSurface.create_from_png("img/dark_wall.png")
+        elif params['bg'] == 2:
+            bg = C.ImageSurface.create_from_png("img/asfalt.png")
+        elif params['bg'] == 3:
+            bg = C.ImageSurface.create_from_png("img/broken_noise.png")
+        elif params['bg'] == 4:
+            bg = C.ImageSurface.create_from_png("img/burried.png")
+        elif params['bg'] == 5:
+            bg = C.ImageSurface.create_from_png("img/dark_leather.png")
+        elif params['bg'] == 6:
+            bg = C.ImageSurface.create_from_png("img/txture.png")
+        elif params['bg'] == 7:
+            bg = C.ImageSurface.create_from_png("img/black_linen_v2.png")
         
+        # tile image
         if bg:
             bg_w, bg_h = bg.get_width(), bg.get_height()
             bg_xoff = 0
-            while bg_xoff < width:
+            while bg_xoff < WIDTH:
                 bg_yoff = 0
-                while bg_yoff < height:
+                while bg_yoff < HEIGHT:
                     ctx.set_source_surface(bg, bg_xoff, bg_yoff)
                     ctx.paint()
                     bg_yoff += bg_h
                 bg_xoff += bg_w
+    
+    # draw overlay graphic
+    if params['overlay'] > 0:
+        overlay = None
+        if params['overlay'] == 1:
+            overlay = C.ImageSurface.create_from_png("img/overlay.png")
+        if overlay:
+            ctx.set_source_surface(overlay, 0, 0)
+            ctx.mask_surface(overlay)
+            ctx.paint()
 
 
     ## draw player's nickname with fancy colors
     
+    # deocde nick, strip all weird-looking characters
+    qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', ' ')
+    chars = []
+    for c in qstr:
+        if ord(c) < 128:
+            chars.append(c)
+    qstr = ''.join(chars)
+    stripped_nick = strip_colors(qstr)
+    
     # fontsize is reduced if width gets too large
-    nick_xmax = 335
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(20)
-    xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
-    if tw > nick_xmax:
+    xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
+    if tw > NICK_MAXWIDTH:
         ctx.set_font_size(18)
-        xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
-        if tw > nick_xmax:
+        xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
+        if tw > NICK_MAXWIDTH:
             ctx.set_font_size(16)
-            xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
-            if tw > nick_xmax:
+            xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
+            if tw > NICK_MAXWIDTH:
                 ctx.set_font_size(14)
-                xoff, yoff, tw, th = ctx.text_extents(player.stripped_nick)[:4]
-                if tw > nick_xmax:
+                xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
+                if tw > NICK_MAXWIDTH:
                     ctx.set_font_size(12)
     
+    
     # split up nick into colored segments and draw each of them
-    qstr = qfont_decode(player.nick).replace('^^', '^').replace('\x00', ' ')
-    txt_xoff = 0
-    txt_xpos, txt_ypos = 5,18
     
     # split nick into colored segments
     parts = []
@@ -210,6 +267,7 @@ def render_image(data):
         parts.append(qstr[pos-1:npos])
         pos = npos+1
     
+    xoffset = 0
     for txt in parts:
         r,g,b = _dec_colors[7]
         try:
@@ -235,41 +293,35 @@ def render_image(data):
             continue
         
         ctx.set_source_rgb(r, g, b)
-        ctx.move_to(txt_xpos + txt_xoff, txt_ypos)
+        ctx.move_to(NICK_POS[0] + xoffset, NICK_POS[1])
         ctx.show_text(txt)
 
         xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        if tw == 0:
-            # only whitespaces, use some extra space
-            tw += 5*len(txt)
-        
-        txt_xoff += tw + 1
+        xoffset += tw + 2
 
 
     ## print elos and ranks
     
-    games_x, games_y = 60,35
-    games_w = 110       # width of each gametype field
-    
     # show up to three gametypes the player has participated in
+    xoffset = 0
     for gt in total_stats['gametypes'][:3]:
         ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
         ctx.set_font_size(10)
         ctx.set_source_rgb(1.0, 1.0, 1.0)
         txt = "[ %s ]" % gt.upper()
         xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(games_x-xoff-tw/2,games_y-yoff-4)
+        ctx.move_to(GAMES_POS[0]+xoffset-xoff-tw/2, GAMES_POS[1]-yoff-4)
         ctx.show_text(txt)
         
         old_aa = ctx.get_antialias()
         ctx.set_antialias(C.ANTIALIAS_NONE)
         ctx.set_source_rgb(0.8, 0.8, 0.8)
         ctx.set_line_width(1)
-        ctx.move_to(games_x-games_w/2+5, games_y+8)
-        ctx.line_to(games_x+games_w/2-5, games_y+8)
+        ctx.move_to(GAMES_POS[0]+xoffset-GAMES_WIDTH/2+5, GAMES_POS[1]+8)
+        ctx.line_to(GAMES_POS[0]+xoffset+GAMES_WIDTH/2-5, GAMES_POS[1]+8)
         ctx.stroke()
-        ctx.move_to(games_x-games_w/2+5, games_y+32)
-        ctx.line_to(games_x+games_w/2-5, games_y+32)
+        ctx.move_to(GAMES_POS[0]+xoffset-GAMES_WIDTH/2+5, GAMES_POS[1]+32)
+        ctx.line_to(GAMES_POS[0]+xoffset+GAMES_WIDTH/2-5, GAMES_POS[1]+32)
         ctx.stroke()
         ctx.set_antialias(old_aa)
         
@@ -279,7 +331,7 @@ def render_image(data):
             ctx.set_source_rgb(0.8, 0.2, 0.2)
             txt = "no stats yet!"
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-            ctx.move_to(games_x-xoff-tw/2,games_y+28-yoff-4)
+            ctx.move_to(GAMES_POS[0]+xoffset-xoff-tw/2, GAMES_POS[1]+28-yoff-4)
             ctx.save()
             ctx.rotate(math.radians(-10))
             ctx.show_text(txt)
@@ -290,7 +342,7 @@ def render_image(data):
             ctx.set_source_rgb(1.0, 1.0, 0.5)
             txt = "Elo: %.0f" % round(elos[gt], 0)
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-            ctx.move_to(games_x-xoff-tw/2,games_y+15-yoff-4)
+            ctx.move_to(GAMES_POS[0]+xoffset-xoff-tw/2, GAMES_POS[1]+15-yoff-4)
             ctx.show_text(txt)
             
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
@@ -298,17 +350,15 @@ def render_image(data):
             ctx.set_source_rgb(0.8, 0.8, 0.8)
             txt = "Rank %d of %d" % ranks[gt]
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-            ctx.move_to(games_x-xoff-tw/2,games_y+25-yoff-3)
+            ctx.move_to(GAMES_POS[0]+xoffset-xoff-tw/2, GAMES_POS[1]+25-yoff-3)
             ctx.show_text(txt)
         
-        games_x += games_w
+        xoffset += GAMES_WIDTH
 
 
     # print win percentage
-    win_x, win_y = 505,11
-    win_w, win_h = 100,14
     
-    ctx.rectangle(win_x-win_w/2,win_y-win_h/2,win_w,win_h)
+    ctx.rectangle(WINLOSS_POS[0]-WINLOSS_WIDTH/2, WINLOSS_POS[1]-7, WINLOSS_WIDTH, 14)
     ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
     ctx.fill();
     
@@ -317,7 +367,7 @@ def render_image(data):
     ctx.set_source_rgb(0.8, 0.8, 0.8)
     txt = "Win Percentage"
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(win_x-xoff-tw/2,win_y-yoff-3)
+    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]-yoff-3)
     ctx.show_text(txt)
     
     txt = "???"
@@ -337,7 +387,7 @@ def render_image(data):
     else:
         ctx.set_source_rgb(1.0, 1.0, 0.5)
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(win_x-xoff-tw/2,win_y+16-yoff-4)
+    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+16-yoff-4)
     ctx.show_text(txt)
     
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
@@ -345,20 +395,18 @@ def render_image(data):
     ctx.set_source_rgb(0.6, 0.8, 0.6)
     txt = "%d wins" % total_stats["wins"]
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(win_x-xoff-tw/2,win_y+28-yoff-3)
+    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+28-yoff-3)
     ctx.show_text(txt)
     ctx.set_source_rgb(0.8, 0.6, 0.6)
     txt = "%d losses" % (total_games-total_stats['wins'])
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(win_x-xoff-tw/2,win_y+38-yoff-3)
+    ctx.move_to(WINLOSS_POS[0]-xoff-tw/2, WINLOSS_POS[1]+38-yoff-3)
     ctx.show_text(txt)
 
 
     # print kill/death ratio
-    kill_x, kill_y = 395,11
-    kill_w, kill_h = 100,14
     
-    ctx.rectangle(kill_x-kill_w/2,kill_y-kill_h/2,kill_w,kill_h)
+    ctx.rectangle(KILLDEATH_POS[0]-KILLDEATH_WIDTH/2, KILLDEATH_POS[1]-7, KILLDEATH_WIDTH, 14)
     ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
     ctx.fill()
     
@@ -367,7 +415,7 @@ def render_image(data):
     ctx.set_source_rgb(0.8, 0.8, 0.8)
     txt = "Kill Ratio"
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(kill_x-xoff-tw/2,kill_y-yoff-3)
+    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]-yoff-3)
     ctx.show_text(txt)
     
     txt = "???"
@@ -387,7 +435,7 @@ def render_image(data):
     else:
         ctx.set_source_rgb(1.0, 0.2, 0.2)
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(kill_x-xoff-tw/2,kill_y+16-yoff-4)
+    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+16-yoff-4)
     ctx.show_text(txt)
 
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
@@ -395,20 +443,18 @@ def render_image(data):
     ctx.set_source_rgb(0.6, 0.8, 0.6)
     txt = "%d kills" % total_stats["kills"]
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(kill_x-xoff-tw/2,kill_y+28-yoff-3)
+    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+28-yoff-3)
     ctx.show_text(txt)
     ctx.set_source_rgb(0.8, 0.6, 0.6)
     txt = "%d deaths" % total_stats['deaths']
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(kill_x-xoff-tw/2,kill_y+38-yoff-3)
+    ctx.move_to(KILLDEATH_POS[0]-xoff-tw/2, KILLDEATH_POS[1]+38-yoff-3)
     ctx.show_text(txt)
 
 
     # print playing time
-    time_x, time_y = 450,64
-    time_w, time_h = 210,10
     
-    ctx.rectangle(time_x-time_w/2,time_y-time_h/2-1,time_w,time_y+time_h/2-1)
+    ctx.rectangle( PLAYTIME_POS[0]-PLAYTIME_WIDTH/2, PLAYTIME_POS[1]-7, PLAYTIME_WIDTH, 14)
     ctx.set_source_rgba(0.8, 0.8, 0.8, 0.6)
     ctx.fill();
     
@@ -417,12 +463,12 @@ def render_image(data):
     ctx.set_source_rgb(0.1, 0.1, 0.1)
     txt = "Playing time: %s" % str(total_stats['alivetime'])
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-    ctx.move_to(time_x-xoff-tw/2,time_y-yoff-4)
+    ctx.move_to(PLAYTIME_POS[0]-xoff-tw/2, PLAYTIME_POS[1]-yoff-4)
     ctx.show_text(txt)
 
 
     # save to PNG
-    surf.write_to_png(output)
+    surf.write_to_png(OUTPUT % data['player'].player_id)
 
 
 # environment setup
@@ -441,7 +487,7 @@ players = DBSession.query(Player).\
 stop = datetime.now()
 print "Query took %.2f seconds" % (stop-start).total_seconds()
 
-print "Creating badges for %d players ..." % len(players)
+print "Creating badges for %d active players ..." % len(players)
 start = datetime.now()
 data_time, render_time = 0,0
 for player in players:
@@ -453,15 +499,17 @@ for player in players:
     sstop = datetime.now()
     data_time += (sstop-sstart).total_seconds()
     
-    print "\t#%d (%s)" % (player.player_id, player.stripped_nick)
+    print "\r  #%-5d" % player.player_id,
+    sys.stdout.flush()
 
     sstart = datetime.now()
     render_image(data)
     sstop = datetime.now()
     render_time += (sstop-sstart).total_seconds()
+print
 
 stop = datetime.now()
 print "Creating the badges took %.2f seconds (%.2f s per player)" % ((stop-start).total_seconds(), (stop-start).total_seconds()/float(len(players)))
-print "Total time for getting data: %.2f s" % data_time
-print "Total time for redering images: %.2f s" % render_time
+print " Total time for getting data: %.2f s" % data_time
+print " Total time for renering images: %.2f s" % render_time
 
