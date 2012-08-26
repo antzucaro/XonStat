@@ -396,7 +396,8 @@ def render_image(data):
     ctx.move_to(kill_x-xoff-tw/2,kill_y+28-yoff-3)
     ctx.show_text(txt)
     ctx.set_source_rgb(0.8, 0.6, 0.6)
-    txt = "%d deaths" % total_stats['deaths']
+    if total_stats['deaths'] is not None:
+        txt = "%d deaths" % total_stats['deaths']
     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
     ctx.move_to(kill_x-xoff-tw/2,kill_y+38-yoff-3)
     ctx.show_text(txt)
@@ -435,7 +436,8 @@ players = DBSession.query(Player).\
         filter(Player.nick != None).\
         filter(Player.player_id > 2).\
         filter(Player.active_ind == True).\
-        limit(NUM_PLAYERS).all()
+        all()
+
 stop = datetime.now()
 td = stop-start
 total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
