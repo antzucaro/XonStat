@@ -117,12 +117,22 @@ def get_data(player):
             filter(PlayerGameStat.player_id == player_id).\
             one()
     
-    (total_stats['wins'],) = DBSession.query(
-            func.count("*")).\
-            filter(Game.game_id == PlayerGameStat.game_id).\
-            filter(PlayerGameStat.player_id == player_id).\
-            filter(Game.winner == PlayerGameStat.team or PlayerGameStat.rank == 1).\
-            one()
+#    (total_stats['wins'],) = DBSession.query(
+#            func.count("*")).\
+#            filter(Game.game_id == PlayerGameStat.game_id).\
+#            filter(PlayerGameStat.player_id == player_id).\
+#            filter(Game.winner == PlayerGameStat.team or PlayerGameStat.rank == 1).\
+#            one()
+
+    (total_stats['wins'],) = DBSession.\
+            query("total_wins").\
+            from_statement(
+                "select count(*) total_wins "
+                "from games g, player_game_stats pgs "
+                "where g.game_id = pgs.game_id "
+                "and player_id=:player_id "
+                "and (g.winner = pgs.team or pgs.rank = 1)"
+            ).params(player_id=player_id).one()
     
     ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
             from_statement(
