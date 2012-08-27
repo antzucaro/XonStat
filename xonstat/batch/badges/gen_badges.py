@@ -262,6 +262,8 @@ def render_image(data):
                 xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
                 if tw > NICK_MAXWIDTH:
                     ctx.set_font_size(12)
+    xoff, yoff, tw, th = ctx.text_extents("_")[:4]
+    space_w = tw
     
     # split up nick into colored segments and draw each of them
     
@@ -306,7 +308,7 @@ def render_image(data):
         ctx.show_text(txt)
 
         xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        tw += (len(txt)-len(txt.strip()))*3  # account for lost whitespaces
+        tw += (len(txt)-len(txt.strip())) * space_w  # account for lost whitespaces
         xoffset += tw + 2
 
 
