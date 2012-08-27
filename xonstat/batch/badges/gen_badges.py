@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
 import sys
+import re
 import cairo as C
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
@@ -10,7 +11,7 @@ from os import system
 from pyramid.paster import bootstrap
 from xonstat.models import *
 from xonstat.views.player import player_info_data
-from xonstat.util import qfont_decode
+from xonstat.util import qfont_decode, _all_colors
 from colorsys import rgb_to_hls, hls_to_rgb
 
 
@@ -31,7 +32,7 @@ _dec_colors = [ (0.5,0.5,0.5),
 
 
 # maximal number of query results (for testing, set to 0 to get all)
-NUM_PLAYERS = 100
+NUM_PLAYERS = 50
 
 # image dimensions (likely breaks layout if changed)
 WIDTH   = 560
@@ -59,7 +60,7 @@ PLAYTIME_WIDTH  = 218
 
 # parameters to affect the output, could be changed via URL
 params = {
-    'bg':           8,                      # 0 - black, 1 - dark_wall, ...
+    'bg':           1,                      # 0 - black, 1 - dark_wall, ...
     'overlay':      0,                      # 0 - none, 1 - default overlay, ...
     'font':         0,                      # 0 - xolonium, 1 - dejavu sans
 }
@@ -231,7 +232,7 @@ def render_image(data):
     ## draw player's nickname with fancy colors
     
     # deocde nick, strip all weird-looking characters
-    qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', ' ')
+    qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', '').replace(u' ', '    ')
     chars = []
     for c in qstr:
         if ord(c) < 128:
@@ -259,46 +260,47 @@ def render_image(data):
     # split up nick into colored segments and draw each of them
     
     # split nick into colored segments
-    parts = []
-    pos = 1
-    while True:
-        npos = qstr.find('^', pos)
-        if npos < 0:
-            parts.append(qstr[pos-1:])
-            break;
-        parts.append(qstr[pos-1:npos])
-        pos = npos+1
-    
     xoffset = 0
-    for txt in parts:
-        r,g,b = _dec_colors[7]
-        try:
-            if txt.startswith('^'):
-                txt = txt[1:]
-                if txt.startswith('x'):
-                    r = int(txt[1] * 2, 16) / 255.0
-                    g = int(txt[2] * 2, 16) / 255.0
-                    b = int(txt[3] * 2, 16) / 255.0
-                    hue, light, satur = rgb_to_hls(r, g, b)
-                    if light < _contrast_threshold:
-                        light = _contrast_threshold
-                        r, g, b = hls_to_rgb(hue, light, satur)
-                    txt = txt[4:]
-                else:
-                    r,g,b = _dec_colors[int(txt[0])]
-                    txt = txt[1:]
-        except:
-            r,g,b = _dec_colors[7]
-        
-        if len(txt) < 1:
+    _all_colors = re.compile(r'(\^\d|\^x[\dA-Fa-f]{3})')
+    #print qstr, _all_colors.findall(qstr), _all_colors.split(qstr)
+    
+    parts = _all_colors.split(qstr)
+    while len(parts) > 0:
+        tag = None
+        txt = parts[0]
+        if _all_colors.match(txt):
+            tag = txt[1:]  # strip leading '^'
+            if len(parts) < 2:
+                break
+            txt = parts[1]
+            del parts[1]
+        del parts[0]
+            
+        if not txt or len(txt) == 0:
             # only colorcode and no real text, skip this
             continue
+            
+        r,g,b = _dec_colors[7]
+        try:
+            if tag.startswith('x'):
+                r = int(tag[1] * 2, 16) / 255.0
+                g = int(tag[2] * 2, 16) / 255.0
+                b = int(tag[3] * 2, 16) / 255.0
+                hue, light, satur = rgb_to_hls(r, g, b)
+                if light < _contrast_threshold:
+                    light = _contrast_threshold
+                    r, g, b = hls_to_rgb(hue, light, satur)
+            else:
+                r,g,b = _dec_colors[int(tag[0])]
+        except:
+            r,g,b = _dec_colors[7]
         
         ctx.set_source_rgb(r, g, b)
         ctx.move_to(NICK_POS[0] + xoffset, NICK_POS[1])
         ctx.show_text(txt)
 
         xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+        tw += (len(txt)-len(txt.strip()))*3  # account for lost whitespaces
         xoffset += tw + 2
 
 
@@ -349,7 +351,7 @@ def render_image(data):
             
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
             ctx.set_font_size(8)
-            ctx.set_source_rgb(0.8, 0.8, 0.8)
+            ctx.set_source_rgb(0.8, 0.8, 1.0)
             txt = "Rank %d of %d" % ranks[gt]
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
             ctx.move_to(GAMES_POS[0]+xoffset-xoff-tw/2, GAMES_POS[1]+25-yoff-3)
@@ -360,9 +362,10 @@ def render_image(data):
 
     # print win percentage
     
-    ctx.rectangle(WINLOSS_POS[0]-WINLOSS_WIDTH/2, WINLOSS_POS[1]-7, WINLOSS_WIDTH, 15)
-    ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
-    ctx.fill();
+    if params['overlay'] == 0:
+        ctx.rectangle(WINLOSS_POS[0]-WINLOSS_WIDTH/2, WINLOSS_POS[1]-7, WINLOSS_WIDTH, 15)
+        ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
+        ctx.fill();
     
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(10)
@@ -415,9 +418,10 @@ def render_image(data):
 
     # print kill/death ratio
     
-    ctx.rectangle(KILLDEATH_POS[0]-KILLDEATH_WIDTH/2, KILLDEATH_POS[1]-7, KILLDEATH_WIDTH, 15)
-    ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
-    ctx.fill()
+    if params['overlay'] == 0:
+        ctx.rectangle(KILLDEATH_POS[0]-KILLDEATH_WIDTH/2, KILLDEATH_POS[1]-7, KILLDEATH_WIDTH, 15)
+        ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
+        ctx.fill()
     
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(10)
@@ -470,9 +474,10 @@ def render_image(data):
 
     # print playing time
     
-    ctx.rectangle( PLAYTIME_POS[0]-PLAYTIME_WIDTH/2, PLAYTIME_POS[1]-7, PLAYTIME_WIDTH, 14)
-    ctx.set_source_rgba(0.8, 0.8, 0.8, 0.6)
-    ctx.fill();
+    if params['overlay'] == 0:
+        ctx.rectangle( PLAYTIME_POS[0]-PLAYTIME_WIDTH/2, PLAYTIME_POS[1]-7, PLAYTIME_WIDTH, 14)
+        ctx.set_source_rgba(0.8, 0.8, 0.8, 0.6)
+        ctx.fill();
     
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(10)
