@@ -58,7 +58,7 @@ PLAYTIME_WIDTH  = 218
 
 # parameters to affect the output, could be changed via URL
 params = {
-    'bg':           1,                      # 0 - black, 1 - dark_wall, ...
+    'bg':           1,                      # -1 - none, 0 - black, 1 - dark_wall, ...
     'overlay':      0,                      # 0 - none, 1 - default overlay, ...
     'font':         0,                      # 0 - xolonium, 1 - dejavu sans
 }
@@ -183,7 +183,7 @@ def render_image(data):
 
     ## create background
 
-    surf = C.ImageSurface(C.FORMAT_RGB24, WIDTH, HEIGHT)
+    surf = C.ImageSurface(C.FORMAT_ARGB32, WIDTH, HEIGHT)
     ctx = C.Context(surf)
     ctx.set_antialias(C.ANTIALIAS_GRAY)
 
@@ -192,6 +192,12 @@ def render_image(data):
         ctx.rectangle(0, 0, WIDTH, HEIGHT)
         ctx.set_source_rgb(0.04, 0.04, 0.04)  # bgcolor of Xonotic forum
         ctx.fill()
+    elif params['bg'] < 0:
+        ctx.save()
+        ctx.set_operator(C.OPERATOR_SOURCE)
+        ctx.set_source_rgba(1, 1, 1, 0)
+        ctx.paint()
+        ctx.restore()
 
     # draw background image (try to get correct tiling, too)
     if params['bg'] > 0:
@@ -509,12 +515,21 @@ req.matchdict = {'id':3}
 
 print "Requesting player data from db ..."
 start = datetime.now()
-players = DBSession.query(Player).\
-        filter(Player.player_id == PlayerElo.player_id).\
-        filter(Player.nick != None).\
-        filter(Player.player_id > 2).\
-        filter(Player.active_ind == True).\
-        all()
+players = []
+if NUM_PLAYERS:
+    players = DBSession.query(Player).\
+            filter(Player.player_id == PlayerElo.player_id).\
+            filter(Player.nick != None).\
+            filter(Player.player_id > 2).\
+            filter(Player.active_ind == True).\
+            limit(NUM_PLAYERS).all()
+else:
+    players = DBSession.query(Player).\
+            filter(Player.player_id == PlayerElo.player_id).\
+            filter(Player.nick != None).\
+            filter(Player.player_id > 2).\
+            filter(Player.active_ind == True).\
+            all()
 
 stop = datetime.now()
 td = stop-start
