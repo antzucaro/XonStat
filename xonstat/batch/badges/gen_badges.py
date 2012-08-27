@@ -3,16 +3,14 @@
 import sys
 import re
 import cairo as C
+from datetime import datetime
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
-from datetime import datetime
-from mako.template import Template
+from colorsys import rgb_to_hls, hls_to_rgb
 from os import system
 from pyramid.paster import bootstrap
 from xonstat.models import *
-from xonstat.views.player import player_info_data
 from xonstat.util import qfont_decode, _all_colors
-from colorsys import rgb_to_hls, hls_to_rgb
 
 
 # similar to html_colors() from util.py
@@ -32,7 +30,7 @@ _dec_colors = [ (0.5,0.5,0.5),
 
 
 # maximal number of query results (for testing, set to 0 to get all)
-NUM_PLAYERS = 50
+NUM_PLAYERS = 100
 
 # image dimensions (likely breaks layout if changed)
 WIDTH   = 560
@@ -78,7 +76,7 @@ for arg in sys.argv[1:]:
 
 def get_data(player):
     """Return player data as dict.
-    
+
     This function is similar to the function in player.py but more optimized
     for this purpose.
     """
@@ -87,11 +85,11 @@ def get_data(player):
     # wins/losses
     # kills/deaths
     # duel/dm/tdm/ctf elo + rank
-    
+
     player_id = player.player_id
-    
+
     total_stats = {}
-    
+
     games_played = DBSession.query(
             Game.game_type_cd, func.count(), func.sum(PlayerGameStat.alivetime)).\
             filter(Game.game_id == PlayerGameStat.game_id).\
@@ -99,7 +97,7 @@ def get_data(player):
             group_by(Game.game_type_cd).\
             order_by(func.count().desc()).\
             limit(3).all()  # limit to 3 gametypes!
-    
+
     total_stats['games'] = 0
     total_stats['games_breakdown'] = {}  # this is a dictionary inside a dictionary .. dictception?
     total_stats['games_alivetime'] = {}
@@ -109,14 +107,14 @@ def get_data(player):
         total_stats['gametypes'].append(game_type_cd)
         total_stats['games_breakdown'][game_type_cd] = games
         total_stats['games_alivetime'][game_type_cd] = alivetime
-    
+
     (total_stats['kills'], total_stats['deaths'], total_stats['alivetime'],) = DBSession.query(
             func.sum(PlayerGameStat.kills),
             func.sum(PlayerGameStat.deaths),
             func.sum(PlayerGameStat.alivetime)).\
             filter(PlayerGameStat.player_id == player_id).\
             one()
-    
+
 #    (total_stats['wins'],) = DBSession.query(
 #            func.count("*")).\
 #            filter(Game.game_id == PlayerGameStat.game_id).\
@@ -133,7 +131,7 @@ def get_data(player):
                 "and player_id=:player_id "
                 "and (g.winner = pgs.team or pgs.rank = 1)"
             ).params(player_id=player_id).one()
-    
+
     ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
             from_statement(
                 "select pr.game_type_cd, pr.rank, overall.max_rank "
@@ -145,7 +143,7 @@ def get_data(player):
                 "and player_id = :player_id "
                 "order by rank").\
             params(player_id=player_id).all()
-    
+
     ranks_dict = {}
     for gtc,rank,max_rank in ranks:
         ranks_dict[gtc] = (rank, max_rank)
@@ -154,26 +152,25 @@ def get_data(player):
             filter_by(player_id=player_id).\
             order_by(PlayerElo.elo.desc()).\
             all()
-    
+
     elos_dict = {}
     for elo in elos:
         if elo.games > 32:
             elos_dict[elo.game_type_cd] = elo.elo
-    
+
     data = {
             'player':player,
             'total_stats':total_stats,
             'ranks':ranks_dict,
             'elos':elos_dict,
         }
-        
+
     #print data
     return data
 
 
 def render_image(data):
     """Render an image from the given data fields."""
-    
     font = "Xolonium"
     if params['font'] == 1:
         font = "DejaVu Sans"
@@ -195,7 +192,7 @@ def render_image(data):
         ctx.rectangle(0, 0, WIDTH, HEIGHT)
         ctx.set_source_rgb(0.04, 0.04, 0.04)  # bgcolor of Xonotic forum
         ctx.fill()
-    
+
     # draw background image (try to get correct tiling, too)
     if params['bg'] > 0:
         bg = None
@@ -227,7 +224,7 @@ def render_image(data):
                     ctx.paint()
                     bg_yoff += bg_h
                 bg_xoff += bg_w
-    
+
     # draw overlay graphic
     if params['overlay'] > 0:
         overlay = None
@@ -242,7 +239,7 @@ def render_image(data):
     ## draw player's nickname with fancy colors
     
     # deocde nick, strip all weird-looking characters
-    qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', '').replace(u' ', '    ')
+    qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', '')
     chars = []
     for c in qstr:
         if ord(c) < 128:
@@ -265,7 +262,6 @@ def render_image(data):
                 xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
                 if tw > NICK_MAXWIDTH:
                     ctx.set_font_size(12)
-    
     
     # split up nick into colored segments and draw each of them
     
@@ -327,6 +323,7 @@ def render_image(data):
         ctx.move_to(GAMES_POS[0]+xoffset-xoff-tw/2, GAMES_POS[1]-yoff-4)
         ctx.show_text(txt)
         
+
         old_aa = ctx.get_antialias()
         ctx.set_antialias(C.ANTIALIAS_NONE)
         ctx.set_source_rgb(0.8, 0.8, 0.8)
@@ -338,7 +335,7 @@ def render_image(data):
         ctx.line_to(GAMES_POS[0]+xoffset+GAMES_WIDTH/2-5, GAMES_POS[1]+32)
         ctx.stroke()
         ctx.set_antialias(old_aa)
-        
+
         if not elos.has_key(gt) or not ranks.has_key(gt):
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
             ctx.set_font_size(12)
@@ -371,12 +368,12 @@ def render_image(data):
 
 
     # print win percentage
-    
+
     if params['overlay'] == 0:
         ctx.rectangle(WINLOSS_POS[0]-WINLOSS_WIDTH/2, WINLOSS_POS[1]-7, WINLOSS_WIDTH, 15)
         ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
         ctx.fill();
-    
+
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(10)
     ctx.set_source_rgb(0.8, 0.8, 0.8)
@@ -427,12 +424,12 @@ def render_image(data):
 
 
     # print kill/death ratio
-    
+
     if params['overlay'] == 0:
         ctx.rectangle(KILLDEATH_POS[0]-KILLDEATH_WIDTH/2, KILLDEATH_POS[1]-7, KILLDEATH_WIDTH, 15)
         ctx.set_source_rgba(0.8, 0.8, 0.8, 0.1)
         ctx.fill()
-    
+
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(10)
     ctx.set_source_rgb(0.8, 0.8, 0.8)
@@ -448,6 +445,7 @@ def render_image(data):
         txt = "%.3f" % round(ratio, 3)
     except:
         ratio = 0
+
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
     ctx.set_font_size(12)
     if ratio >= 3:
@@ -483,12 +481,12 @@ def render_image(data):
 
 
     # print playing time
-    
+
     if params['overlay'] == 0:
         ctx.rectangle( PLAYTIME_POS[0]-PLAYTIME_WIDTH/2, PLAYTIME_POS[1]-7, PLAYTIME_WIDTH, 14)
         ctx.set_source_rgba(0.8, 0.8, 0.8, 0.6)
         ctx.fill();
-    
+
     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(10)
     ctx.set_source_rgb(0.1, 0.1, 0.1)
@@ -514,33 +512,37 @@ players = DBSession.query(Player).\
         filter(Player.nick != None).\
         filter(Player.player_id > 2).\
         filter(Player.active_ind == True).\
-        limit(NUM_PLAYERS).all()
-stop = datetime.now()
-print "Query took %.2f seconds" % (stop-start).total_seconds()
+        all()
 
-print "Creating badges for %d active players ..." % len(players)
+stop = datetime.now()
+td = stop-start
+total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+print "Query took %.2f seconds" % (total_seconds)
+
+print "Creating badges for %d players ..." % len(players)
 start = datetime.now()
 data_time, render_time = 0,0
 for player in players:
     req.matchdict['id'] = player.player_id
-    
+
     sstart = datetime.now()
-    #data = player_info_data(req)
     data = get_data(player)
     sstop = datetime.now()
-    data_time += (sstop-sstart).total_seconds()
-    
-    print "\r  #%-5d" % player.player_id,
-    sys.stdout.flush()
+    td = sstop-sstart
+    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    data_time += total_seconds
 
     sstart = datetime.now()
     render_image(data)
     sstop = datetime.now()
-    render_time += (sstop-sstart).total_seconds()
-print
+    td = sstop-sstart
+    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    render_time += total_seconds
 
 stop = datetime.now()
-print "Creating the badges took %.2f seconds (%.2f s per player)" % ((stop-start).total_seconds(), (stop-start).total_seconds()/float(len(players)))
-print " Total time for getting data: %.2f s" % data_time
-print " Total time for renering images: %.2f s" % render_time
+td = stop-start
+total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+print "Creating the badges took %.2f seconds (%.2f s per player)" % (total_seconds, total_seconds/float(len(players)))
+print "Total time for redering images: %.2f s" % render_time
+print "Total time for getting data: %.2f s" % data_time
 
