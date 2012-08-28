@@ -13,9 +13,8 @@ from render import Skin
 # maximal number of query results (for testing, set to 0 to get all)
 #NUM_PLAYERS = 100
 
-
 skin_classic = Skin(
-        bg_h            = "asfalt",
+        bg              = "asfalt",
     )
 
 skin_archer = Skin(
@@ -50,7 +49,6 @@ skin_minimal = Skin(
         loss_pos        = None,
         ptime_pos       = (458,30),
         ptime_color     = (0.8, 0.8, 0.9),
-        
     )
 
 # parse cmdline parameters (for testing)

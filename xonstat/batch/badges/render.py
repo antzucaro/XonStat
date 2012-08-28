@@ -53,77 +53,80 @@ class Skin:
     data = {}
 
     # skin parameters, can be overriden by init
-    params = {
-        'bg':               "dark_wall",    # None - plain; otherwise use given texture
-        'bgcolor':          None,           # transparent bg when bgcolor==None
-        'overlay':          None,           # add overlay graphic on top of bg
-        'font':             "Xolonium",
-        'width':            560,
-        'height':           70,
-        'nick_fontsize':    20,
-        'nick_pos':         (5,18),
-        'nick_maxwidth':    330,
-        'gametype_fontsize':12,
-        'gametype_pos':     (60,31),
-        'gametype_width':   110,
-        'gametype_height':  22,
-        'gametype_color':   (1.0, 1.0, 1.0),
-        'gametype_text':    "[ %s ]",
-        'num_gametypes':    3,
-        'nostats_fontsize': 12,
-        'nostats_pos':      (60,59),
-        'nostats_color':    (0.8, 0.2, 0.2),
-        'nostats_angle':    -10,
-        'nostats_text':     "no stats yet!",
-        'elo_pos':          (60,47),
-        'elo_fontsize':     10,
-        'elo_color':        (1.0, 1.0, 0.5),
-        'elo_text':         "Elo %.0f",
-        'rank_fontsize':    8,
-        'rank_pos':         (60,57),
-        'rank_color':       (0.8, 0.8, 1.0),
-        'rank_text':        "Rank %d of %d",
-        'wintext_fontsize': 10,
-        'wintext_pos':      (508,3),
-        'wintext_width':    102,
-        'wintext_color':    (0.8, 0.8, 0.8),
-        'wintext_bg':       (0.8, 0.8, 0.8, 0.1),
-        'wintext_text':     "Win Percentage",
-        'winp_fontsize':    12,
-        'winp_pos':         (508,19),
-        'winp_colortop':    (0.2, 1.0, 1.0),
-        'winp_colorbot':    (1.0, 1.0, 0.2),
-        'wins_fontsize':    8,
-        'wins_pos':         (508,33),
-        'wins_color':       (0.6, 0.8, 0.8),
-        'loss_fontsize':    8,
-        'loss_pos':         (508,43),
-        'loss_color':       (0.8, 0.8, 0.6),
-        'kdtext_fontsize':  10,
-        'kdtext_pos':       (390,3),
-        'kdtext_width':     102,
-        'kdtext_color':     (0.8, 0.8, 0.8),
-        'kdtext_bg':        (0.8, 0.8, 0.8, 0.1),
-        'kdtext_text':      "Kill Ratio",
-        'kdr_fontsize':     12,
-        'kdr_pos':          (392,19),
-        'kdr_colortop':     (0.2, 1.0, 0.2),
-        'kdr_colorbot':     (1.0, 0.2, 0.2),
-        'kills_fontsize':   8,
-        'kills_pos':        (392,46),
-        'kills_color':      (0.6, 0.8, 0.6),
-        'deaths_fontsize':  8,
-        'deaths_pos':       (392,56),
-        'deaths_color':     (0.8, 0.6, 0.6),
-        'ptime_fontsize':   10,
-        'ptime_pos':        (451,60),
-        'ptime_width':      222,
-        'ptime_bg':         (0.8, 0.8, 0.8, 0.5),
-        'ptime_color':      (0.1, 0.1, 0.1),
-        'ptime_text':       "Playing Time: %s",
-    }
-    
+    params = {}
+
     def __init__(self, **params):
+        # default parameters
+        self.params = {
+            'bg':               "dark_wall",    # None - plain; otherwise use given texture
+            'bgcolor':          None,           # transparent bg when bgcolor==None
+            'overlay':          None,           # add overlay graphic on top of bg
+            'font':             "Xolonium",
+            'width':            560,
+            'height':           70,
+            'nick_fontsize':    20,
+            'nick_pos':         (5,18),
+            'nick_maxwidth':    330,
+            'gametype_fontsize':12,
+            'gametype_pos':     (60,31),
+            'gametype_width':   110,
+            'gametype_height':  22,
+            'gametype_color':   (1.0, 1.0, 1.0),
+            'gametype_text':    "[ %s ]",
+            'num_gametypes':    3,
+            'nostats_fontsize': 12,
+            'nostats_pos':      (60,59),
+            'nostats_color':    (0.8, 0.2, 0.2),
+            'nostats_angle':    -10,
+            'nostats_text':     "no stats yet!",
+            'elo_pos':          (60,47),
+            'elo_fontsize':     10,
+            'elo_color':        (1.0, 1.0, 0.5),
+            'elo_text':         "Elo %.0f",
+            'rank_fontsize':    8,
+            'rank_pos':         (60,57),
+            'rank_color':       (0.8, 0.8, 1.0),
+            'rank_text':        "Rank %d of %d",
+            'wintext_fontsize': 10,
+            'wintext_pos':      (508,3),
+            'wintext_width':    102,
+            'wintext_color':    (0.8, 0.8, 0.8),
+            'wintext_bg':       (0.8, 0.8, 0.8, 0.1),
+            'wintext_text':     "Win Percentage",
+            'winp_fontsize':    12,
+            'winp_pos':         (508,19),
+            'winp_colortop':    (0.2, 1.0, 1.0),
+            'winp_colorbot':    (1.0, 1.0, 0.2),
+            'wins_fontsize':    8,
+            'wins_pos':         (508,33),
+            'wins_color':       (0.6, 0.8, 0.8),
+            'loss_fontsize':    8,
+            'loss_pos':         (508,43),
+            'loss_color':       (0.8, 0.8, 0.6),
+            'kdtext_fontsize':  10,
+            'kdtext_pos':       (390,3),
+            'kdtext_width':     102,
+            'kdtext_color':     (0.8, 0.8, 0.8),
+            'kdtext_bg':        (0.8, 0.8, 0.8, 0.1),
+            'kdtext_text':      "Kill Ratio",
+            'kdr_fontsize':     12,
+            'kdr_pos':          (392,19),
+            'kdr_colortop':     (0.2, 1.0, 0.2),
+            'kdr_colorbot':     (1.0, 0.2, 0.2),
+            'kills_fontsize':   8,
+            'kills_pos':        (392,46),
+            'kills_color':      (0.6, 0.8, 0.6),
+            'deaths_fontsize':  8,
+            'deaths_pos':       (392,56),
+            'deaths_color':     (0.8, 0.6, 0.6),
+            'ptime_fontsize':   10,
+            'ptime_pos':        (451,60),
+            'ptime_width':      222,
+            'ptime_bg':         (0.8, 0.8, 0.8, 0.5),
+            'ptime_color':      (0.1, 0.1, 0.1),
+            'ptime_text':       "Playing Time: %s",
+        }
+        
         for k,v in params.items():
             if self.params.has_key(k):
                 self.params[k] = v
@@ -156,14 +159,15 @@ class Skin:
         ctx.set_antialias(C.ANTIALIAS_GRAY)
         
         # draw background
-        ctx.save()
-        ctx.set_operator(C.OPERATOR_SOURCE)
         if self.bg == None:
             if self.bgcolor != None:
                 # plain fillcolor, full transparency possible with (1,1,1,0)
+                ctx.save()
+                ctx.set_operator(C.OPERATOR_SOURCE)
                 ctx.rectangle(0, 0, self.width, self.height)
                 ctx.set_source_rgba(self.bgcolor[0], self.bgcolor[1], self.bgcolor[2], self.bgcolor[3])
                 ctx.fill()
+                ctx.restore()
         else:
             try:
                 # background texture
@@ -181,11 +185,9 @@ class Skin:
                             ctx.paint()
                             bg_yoff += bg_h
                         bg_xoff += bg_w
-
             except:
                 #print "Error: Can't load background texture: %s" % self.bg
                 pass
-        ctx.restore()
 
         # draw overlay graphic
         if self.overlay != None:
