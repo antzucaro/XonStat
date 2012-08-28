@@ -1,5 +1,7 @@
 import re
+import zlib, struct
 import cairo as C
+from colorsys import rgb_to_hls, hls_to_rgb
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
 from xonstat.models import *
@@ -19,6 +21,30 @@ _dec_colors = [ (0.5,0.5,0.5),
                 (0.6,0.6,0.6),
                 (0.5,0.5,0.5)
             ]
+
+
+def writepng(filename, buf, width, height):
+    width_byte_4 = width * 4
+    # fix color ordering (BGR -> RGB)
+    for byte in xrange(width*height):
+        pos = byte * 4
+        buf[pos:pos+4] = buf[pos+2] + buf[pos+1] + buf[pos+0] + buf[pos+3]
+    # merge lines
+    #raw_data = b"".join(b'\x00' + buf[span:span + width_byte_4] for span in xrange((height - 1) * width * 4, -1, - width_byte_4))
+    raw_data = b"".join(b'\x00' + buf[span:span + width_byte_4] for span in range(0, (height-1) * width * 4 + 1, width_byte_4))
+    def png_pack(png_tag, data):
+        chunk_head = png_tag + data
+        return struct.pack("!I", len(data)) + chunk_head + struct.pack("!I", 0xFFFFFFFF & zlib.crc32(chunk_head))
+    data = b"".join([
+        b'\x89PNG\r\n\x1a\n',
+        png_pack(b'IHDR', struct.pack("!2I5B", width, height, 8, 6, 0, 0, 0)),
+        png_pack(b'IDAT', zlib.compress(raw_data, 9)),
+        png_pack(b'IEND', b'')])
+    f = open(filename, "wb")
+    try:
+        f.write(data)
+    finally:
+        f.close()
 
 
 class Skin:
@@ -214,9 +240,8 @@ class Skin:
             if not txt or len(txt) == 0:
                 # only colorcode and no real text, skip this
                 continue
-                
-            r,g,b = _dec_colors[7]
-            try:
+            
+            if tag:
                 if tag.startswith('x'):
                     r = int(tag[1] * 2, 16) / 255.0
                     g = int(tag[2] * 2, 16) / 255.0
@@ -227,7 +252,7 @@ class Skin:
                         r, g, b = hls_to_rgb(hue, light, satur)
                 else:
                     r,g,b = _dec_colors[int(tag[0])]
-            except:
+            else:
                 r,g,b = _dec_colors[7]
             
             ctx.set_source_rgb(r, g, b)
@@ -425,7 +450,10 @@ class Skin:
 
 
         # save to PNG
-        surf.write_to_png(output_filename)
+        #surf.write_to_png(output_filename)
+        surf.flush()
+        imgdata = surf.get_data()
+        writepng(output_filename, imgdata, self.width, self.height)
 
 
     def get_data(self, player):

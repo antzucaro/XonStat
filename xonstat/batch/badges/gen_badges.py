@@ -4,7 +4,6 @@ import sys
 from datetime import datetime
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
-from colorsys import rgb_to_hls, hls_to_rgb
 from pyramid.paster import bootstrap
 from xonstat.models import *
 
@@ -12,7 +11,7 @@ from render import Skin
 
 
 # maximal number of query results (for testing, set to 0 to get all)
-NUM_PLAYERS = 100
+#NUM_PLAYERS = 100
 
 
 skin_classic = Skin()
@@ -41,7 +40,7 @@ req.matchdict = {'id':3}
 print "Requesting player data from db ..."
 start = datetime.now()
 players = []
-if NUM_PLAYERS:
+if locals().has_key('NUM_PLAYERS'):
     players = DBSession.query(Player).\
             filter(Player.player_id == PlayerElo.player_id).\
             filter(Player.nick != None).\
