@@ -68,22 +68,27 @@ class Skin:
         'gametype_width':   110,
         'gametype_height':  22,
         'gametype_color':   (1.0, 1.0, 1.0),
+        'gametype_text':    "[ %s ]",
         'num_gametypes':    3,
         'nostats_fontsize': 12,
         'nostats_pos':      (60,59),
         'nostats_color':    (0.8, 0.2, 0.2),
         'nostats_angle':    -10,
+        'nostats_text':     "no stats yet!",
         'elo_pos':          (60,47),
         'elo_fontsize':     10,
         'elo_color':        (1.0, 1.0, 0.5),
+        'elo_text':         "Elo %.0f",
         'rank_fontsize':    8,
         'rank_pos':         (60,57),
         'rank_color':       (0.8, 0.8, 1.0),
+        'rank_text':        "Rank %d of %d",
         'wintext_fontsize': 10,
         'wintext_pos':      (508,3),
         'wintext_width':    102,
         'wintext_color':    (0.8, 0.8, 0.8),
         'wintext_bg':       (0.8, 0.8, 0.8, 0.1),
+        'wintext_text':     "Win Percentage",
         'winp_fontsize':    12,
         'winp_pos':         (508,19),
         'winp_colortop':    (0.2, 1.0, 1.0),
@@ -99,6 +104,7 @@ class Skin:
         'kdtext_width':     102,
         'kdtext_color':     (0.8, 0.8, 0.8),
         'kdtext_bg':        (0.8, 0.8, 0.8, 0.1),
+        'kdtext_text':      "Kill Ratio",
         'kdr_fontsize':     12,
         'kdr_pos':          (392,19),
         'kdr_colortop':     (0.2, 1.0, 0.2),
@@ -111,9 +117,10 @@ class Skin:
         'deaths_color':     (0.8, 0.6, 0.6),
         'ptime_fontsize':   10,
         'ptime_pos':        (451,60),
-        'ptime_width':      218,
-        'ptime_bg':         (0.8, 0.8, 0.8, 0.6),
+        'ptime_width':      222,
+        'ptime_bg':         (0.8, 0.8, 0.8, 0.5),
         'ptime_color':      (0.1, 0.1, 0.1),
+        'ptime_text':       "Playing Time: %s",
     }
     
     def __init__(self, **params):
@@ -149,18 +156,13 @@ class Skin:
         ctx.set_antialias(C.ANTIALIAS_GRAY)
         
         # draw background
+        ctx.save()
+        ctx.set_operator(C.OPERATOR_SOURCE)
         if self.bg == None:
-            if self.bgcolor == None:
-                # transparent background
-                ctx.save()
-                ctx.set_operator(C.OPERATOR_SOURCE)
-                ctx.set_source_rgba(1, 1, 1, 0)
-                ctx.paint()
-                ctx.restore()
-            else:
-                # plain fillcolor
+            if self.bgcolor != None:
+                # plain fillcolor, full transparency possible with (1,1,1,0)
                 ctx.rectangle(0, 0, self.width, self.height)
-                ctx.set_source_rgb(self.bgcolor, self.bgcolor, self.bgcolor)
+                ctx.set_source_rgba(self.bgcolor[0], self.bgcolor[1], self.bgcolor[2], self.bgcolor[3])
                 ctx.fill()
         else:
             try:
@@ -175,20 +177,22 @@ class Skin:
                         bg_yoff = 0
                         while bg_yoff < self.height:
                             ctx.set_source_surface(bg, bg_xoff, bg_yoff)
+                            #ctx.mask_surface(bg)
                             ctx.paint()
                             bg_yoff += bg_h
                         bg_xoff += bg_w
+
             except:
                 #print "Error: Can't load background texture: %s" % self.bg
                 pass
+        ctx.restore()
 
         # draw overlay graphic
-        if self.overlay:
-            overlay = None
+        if self.overlay != None:
             try:
                 overlay = C.ImageSurface.create_from_png("img/%s.png" % self.overlay)
                 ctx.set_source_surface(overlay, 0, 0)
-                ctx.mask_surface(overlay)
+                #ctx.mask_surface(overlay)
                 ctx.paint()
             except:
                 #print "Error: Can't load overlay texture: %s" % self.overlay
@@ -268,76 +272,79 @@ class Skin:
         # show up to three gametypes the player has participated in
         xoffset = 0
         for gt in total_stats['gametypes'][:self.num_gametypes]:
-            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
-            ctx.set_font_size(self.gametype_fontsize)
-            ctx.set_source_rgb(self.gametype_color[0],self.gametype_color[1],self.gametype_color[2])
-            txt = "[ %s ]" % gt.upper()
-            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-            ctx.move_to(self.gametype_pos[0]+xoffset-xoff-tw/2, self.gametype_pos[1]-yoff)
-            ctx.show_text(txt)
-            
+            if self.gametype_pos:
+                ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
+                ctx.set_font_size(self.gametype_fontsize)
+                ctx.set_source_rgb(self.gametype_color[0],self.gametype_color[1],self.gametype_color[2])
+                txt = self.gametype_text % gt.upper()
+                xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+                ctx.move_to(self.gametype_pos[0]+xoffset-xoff-tw/2, self.gametype_pos[1]-yoff)
+                ctx.show_text(txt)
 
-            # draw lines - TODO put this in overlay graphic
-            if not self.overlay:
-                old_aa = ctx.get_antialias()
-                ctx.set_antialias(C.ANTIALIAS_NONE)
-                ctx.set_source_rgb(0.8, 0.8, 0.8)
-                ctx.set_line_width(1)
-                ctx.move_to(self.gametype_pos[0]+xoffset-self.gametype_width/2+5, self.gametype_pos[1]+14)
-                ctx.line_to(self.gametype_pos[0]+xoffset+self.gametype_width/2-5, self.gametype_pos[1]+14)
-                ctx.stroke()
-                ctx.move_to(self.gametype_pos[0]+xoffset-self.gametype_width/2+5, self.gametype_pos[1]+self.gametype_height+14)
-                ctx.line_to(self.gametype_pos[0]+xoffset+self.gametype_width/2-5, self.gametype_pos[1]+self.gametype_height+14)
-                ctx.stroke()
-                ctx.set_antialias(old_aa)
+                # draw lines - TODO put this in overlay graphic
+                if self.overlay == None:
+                    old_aa = ctx.get_antialias()
+                    ctx.set_antialias(C.ANTIALIAS_NONE)
+                    ctx.set_source_rgb(0.8, 0.8, 0.8)
+                    ctx.set_line_width(1)
+                    ctx.move_to(self.gametype_pos[0]+xoffset-self.gametype_width/2+5, self.gametype_pos[1]+14)
+                    ctx.line_to(self.gametype_pos[0]+xoffset+self.gametype_width/2-5, self.gametype_pos[1]+14)
+                    ctx.stroke()
+                    ctx.move_to(self.gametype_pos[0]+xoffset-self.gametype_width/2+5, self.gametype_pos[1]+self.gametype_height+14)
+                    ctx.line_to(self.gametype_pos[0]+xoffset+self.gametype_width/2-5, self.gametype_pos[1]+self.gametype_height+14)
+                    ctx.stroke()
+                    ctx.set_antialias(old_aa)
 
             if not elos.has_key(gt) or not ranks.has_key(gt):
-                ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
-                ctx.set_font_size(self.nostats_fontsize)
-                ctx.set_source_rgb(self.nostats_color[0],self.nostats_color[1],self.nostats_color[2])
-                txt = "no stats yet!"
-                xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-                ctx.move_to(self.nostats_pos[0]+xoffset-xoff-tw/2, self.nostats_pos[1]-yoff)
-                ctx.save()
-                ctx.rotate(math.radians(self.nostats_angle))
-                ctx.show_text(txt)
-                ctx.restore()
+                if self.nostats_pos:
+                    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
+                    ctx.set_font_size(self.nostats_fontsize)
+                    ctx.set_source_rgb(self.nostats_color[0],self.nostats_color[1],self.nostats_color[2])
+                    txt = self.nostats_text
+                    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+                    ctx.move_to(self.nostats_pos[0]+xoffset-xoff-tw/2, self.nostats_pos[1]-yoff)
+                    ctx.save()
+                    ctx.rotate(math.radians(self.nostats_angle))
+                    ctx.show_text(txt)
+                    ctx.restore()
             else:
-                ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-                ctx.set_font_size(self.elo_fontsize)
-                ctx.set_source_rgb(self.elo_color[0], self.elo_color[1], self.elo_color[2])
-                txt = "Elo: %.0f" % round(elos[gt], 0)
-                xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-                ctx.move_to(self.elo_pos[0]+xoffset-xoff-tw/2, self.elo_pos[1]-yoff)
-                ctx.show_text(txt)
-                
-                ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-                ctx.set_font_size(self.rank_fontsize)
-                ctx.set_source_rgb(self.rank_color[0], self.rank_color[1], self.rank_color[2])
-                txt = "Rank %d of %d" % ranks[gt]
-                xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-                ctx.move_to(self.rank_pos[0]+xoffset-xoff-tw/2, self.rank_pos[1]-yoff)
-                ctx.show_text(txt)
+                if self.elo_pos:
+                    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+                    ctx.set_font_size(self.elo_fontsize)
+                    ctx.set_source_rgb(self.elo_color[0], self.elo_color[1], self.elo_color[2])
+                    txt = self.elo_text % round(elos[gt], 0)
+                    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+                    ctx.move_to(self.elo_pos[0]+xoffset-xoff-tw/2, self.elo_pos[1]-yoff)
+                    ctx.show_text(txt)
+                if  self.rank_pos:
+                    ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+                    ctx.set_font_size(self.rank_fontsize)
+                    ctx.set_source_rgb(self.rank_color[0], self.rank_color[1], self.rank_color[2])
+                    txt = self.rank_text % ranks[gt]
+                    xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+                    ctx.move_to(self.rank_pos[0]+xoffset-xoff-tw/2, self.rank_pos[1]-yoff)
+                    ctx.show_text(txt)
             
             xoffset += self.gametype_width
 
 
         # print win percentage
 
-        if not self.overlay:
-            ctx.rectangle(self.wintext_pos[0]-self.wintext_width/2, self.wintext_pos[1]-self.wintext_fontsize/2+1,
-                    self.wintext_width, self.wintext_fontsize+4)
-            ctx.set_source_rgba(self.wintext_bg[0], self.wintext_bg[1], self.wintext_bg[2], self.wintext_bg[3])
-            ctx.fill()
+        if self.wintext_pos:
+            if self.overlay == None:
+                ctx.rectangle(self.wintext_pos[0]-self.wintext_width/2, self.wintext_pos[1]-self.wintext_fontsize/2+1,
+                        self.wintext_width, self.wintext_fontsize+4)
+                ctx.set_source_rgba(self.wintext_bg[0], self.wintext_bg[1], self.wintext_bg[2], self.wintext_bg[3])
+                ctx.fill()
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(self.wintext_fontsize)
-        ctx.set_source_rgb(self.wintext_color[0], self.wintext_color[1], self.wintext_color[2])
-        txt = "Win Percentage"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.wintext_pos[0]-xoff-tw/2, self.wintext_pos[1]-yoff)
-        ctx.show_text(txt)
-        
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+            ctx.set_font_size(self.wintext_fontsize)
+            ctx.set_source_rgb(self.wintext_color[0], self.wintext_color[1], self.wintext_color[2])
+            txt = self.wintext_text
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.wintext_pos[0]-xoff-tw/2, self.wintext_pos[1]-yoff)
+            ctx.show_text(txt)
+
         wins, losses = total_stats["wins"], total_games-total_stats["wins"]
         txt = "???"
         try:
@@ -345,51 +352,56 @@ class Skin:
             txt = "%.2f%%" % round(ratio * 100, 2)
         except:
             ratio = 0
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
-        ctx.set_font_size(self.winp_fontsize)
-        r = ratio*self.winp_colortop[0] + (1-ratio)*self.winp_colorbot[0]
-        g = ratio*self.winp_colortop[1] + (1-ratio)*self.winp_colorbot[1]
-        b = ratio*self.winp_colortop[2] + (1-ratio)*self.winp_colorbot[2]
-        ctx.set_source_rgb(r, g, b)
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.winp_pos[0]-xoff-tw/2, self.winp_pos[1]-yoff)
-        ctx.show_text(txt)
+        
+        if self.winp_pos:
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
+            ctx.set_font_size(self.winp_fontsize)
+            r = ratio*self.winp_colortop[0] + (1-ratio)*self.winp_colorbot[0]
+            g = ratio*self.winp_colortop[1] + (1-ratio)*self.winp_colorbot[1]
+            b = ratio*self.winp_colortop[2] + (1-ratio)*self.winp_colorbot[2]
+            ctx.set_source_rgb(r, g, b)
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.winp_pos[0]-xoff-tw/2, self.winp_pos[1]-yoff)
+            ctx.show_text(txt)
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(self.wins_fontsize)
-        ctx.set_source_rgb(self.wins_color[0], self.wins_color[1], self.wins_color[2])
-        txt = "%d win" % wins
-        if wins != 1:
-            txt += "s"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.wins_pos[0]-xoff-tw/2, self.wins_pos[1]-yoff)
-        ctx.show_text(txt)
+        if self.wins_pos:
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+            ctx.set_font_size(self.wins_fontsize)
+            ctx.set_source_rgb(self.wins_color[0], self.wins_color[1], self.wins_color[2])
+            txt = "%d win" % wins
+            if wins != 1:
+                txt += "s"
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.wins_pos[0]-xoff-tw/2, self.wins_pos[1]-yoff)
+            ctx.show_text(txt)
 
-        ctx.set_font_size(self.loss_fontsize)
-        ctx.set_source_rgb(self.loss_color[0], self.loss_color[1], self.loss_color[2])
-        txt = "%d loss" % losses
-        if losses != 1:
-            txt += "es"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.loss_pos[0]-xoff-tw/2, self.loss_pos[1]-yoff)
-        ctx.show_text(txt)
+        if self.loss_pos:
+            ctx.set_font_size(self.loss_fontsize)
+            ctx.set_source_rgb(self.loss_color[0], self.loss_color[1], self.loss_color[2])
+            txt = "%d loss" % losses
+            if losses != 1:
+                txt += "es"
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.loss_pos[0]-xoff-tw/2, self.loss_pos[1]-yoff)
+            ctx.show_text(txt)
 
 
         # print kill/death ratio
 
-        if not self.overlay:
-            ctx.rectangle(self.kdtext_pos[0]-self.kdtext_width/2, self.kdtext_pos[1]-self.kdtext_fontsize/2+1,
-                    self.kdtext_width, self.kdtext_fontsize+4)
-            ctx.set_source_rgba(self.kdtext_bg[0], self.kdtext_bg[1], self.kdtext_bg[2], self.kdtext_bg[3])
-            ctx.fill()
+        if self.kdtext_pos:
+            if self.overlay == None:
+                ctx.rectangle(self.kdtext_pos[0]-self.kdtext_width/2, self.kdtext_pos[1]-self.kdtext_fontsize/2+1,
+                        self.kdtext_width, self.kdtext_fontsize+4)
+                ctx.set_source_rgba(self.kdtext_bg[0], self.kdtext_bg[1], self.kdtext_bg[2], self.kdtext_bg[3])
+                ctx.fill()
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(self.kdtext_fontsize)
-        ctx.set_source_rgb(self.kdtext_color[0], self.kdtext_color[1], self.kdtext_color[2])
-        txt = "Kill Ratio"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.kdtext_pos[0]-xoff-tw/2, self.kdtext_pos[1]-yoff)
-        ctx.show_text(txt)
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+            ctx.set_font_size(self.kdtext_fontsize)
+            ctx.set_source_rgb(self.kdtext_color[0], self.kdtext_color[1], self.kdtext_color[2])
+            txt = self.kdtext_text
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.kdtext_pos[0]-xoff-tw/2, self.kdtext_pos[1]-yoff)
+            ctx.show_text(txt)
         
         kills, deaths = total_stats['kills'] , total_stats['deaths'] 
         txt = "???"
@@ -399,54 +411,59 @@ class Skin:
         except:
             ratio = 0
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
-        ctx.set_font_size(self.kdr_fontsize)
-        nr = ratio / 2.0
-        if nr > 1:
-            nr = 1
-        r = nr*self.kdr_colortop[0] + (1-nr)*self.kdr_colorbot[0]
-        g = nr*self.kdr_colortop[1] + (1-nr)*self.kdr_colorbot[1]
-        b = nr*self.kdr_colortop[2] + (1-nr)*self.kdr_colorbot[2]
-        ctx.set_source_rgb(r, g, b)
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.kdr_pos[0]-xoff-tw/2, self.kdr_pos[1]-yoff)
-        ctx.show_text(txt)
+        if self.kdr_pos:
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
+            ctx.set_font_size(self.kdr_fontsize)
+            nr = ratio / 2.0
+            if nr > 1:
+                nr = 1
+            r = nr*self.kdr_colortop[0] + (1-nr)*self.kdr_colorbot[0]
+            g = nr*self.kdr_colortop[1] + (1-nr)*self.kdr_colorbot[1]
+            b = nr*self.kdr_colortop[2] + (1-nr)*self.kdr_colorbot[2]
+            ctx.set_source_rgb(r, g, b)
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.kdr_pos[0]-xoff-tw/2, self.kdr_pos[1]-yoff)
+            ctx.show_text(txt)
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(self.kills_fontsize)
-        ctx.set_source_rgb(self.kills_color[0], self.kills_color[1], self.kills_color[2])
-        txt = "%d kill" % kills
-        if kills != 1:
-            txt += "s"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.kills_pos[0]-xoff-tw/2, self.kills_pos[1]+yoff)
-        ctx.show_text(txt)
+        if self.kills_pos:
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+            ctx.set_font_size(self.kills_fontsize)
+            ctx.set_source_rgb(self.kills_color[0], self.kills_color[1], self.kills_color[2])
+            txt = "%d kill" % kills
+            if kills != 1:
+                txt += "s"
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.kills_pos[0]-xoff-tw/2, self.kills_pos[1]+yoff)
+            ctx.show_text(txt)
 
-        ctx.set_font_size(self.deaths_fontsize)
-        ctx.set_source_rgb(self.deaths_color[0], self.deaths_color[1], self.deaths_color[2])
-        txt = "%d death" % deaths
-        if deaths != 1:
-            txt += "s"
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.deaths_pos[0]-xoff-tw/2, self.deaths_pos[1]+yoff)
-        ctx.show_text(txt)
+        if self.deaths_pos:
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+            ctx.set_font_size(self.deaths_fontsize)
+            ctx.set_source_rgb(self.deaths_color[0], self.deaths_color[1], self.deaths_color[2])
+            txt = "%d death" % deaths
+            if deaths != 1:
+                txt += "s"
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.deaths_pos[0]-xoff-tw/2, self.deaths_pos[1]+yoff)
+            ctx.show_text(txt)
 
 
         # print playing time
 
-        if not self.overlay:
-            ctx.rectangle( self.ptime_pos[0]-self.ptime_width/2, self.ptime_pos[1]-self.ptime_fontsize/2+1,
-                    self.ptime_width, self.ptime_fontsize+4)
-            ctx.set_source_rgba(self.ptime_bg[0], self.ptime_bg[1], self.ptime_bg[2], self.ptime_bg[2])
-            ctx.fill()
+        if self.ptime_pos:
+            if self.overlay == None:
+                ctx.rectangle( self.ptime_pos[0]-self.ptime_width/2, self.ptime_pos[1]-self.ptime_fontsize/2+1,
+                        self.ptime_width, self.ptime_fontsize+4)
+                ctx.set_source_rgba(self.ptime_bg[0], self.ptime_bg[1], self.ptime_bg[2], self.ptime_bg[2])
+                ctx.fill()
 
-        ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(self.ptime_fontsize)
-        ctx.set_source_rgb(self.ptime_color[0], self.ptime_color[1], self.ptime_color[2])
-        txt = "Playing time: %s" % str(total_stats['alivetime'])
-        xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-        ctx.move_to(self.ptime_pos[0]-xoff-tw/2, self.ptime_pos[1]-yoff)
-        ctx.show_text(txt)
+            ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
+            ctx.set_font_size(self.ptime_fontsize)
+            ctx.set_source_rgb(self.ptime_color[0], self.ptime_color[1], self.ptime_color[2])
+            txt = self.ptime_text % str(total_stats['alivetime'])
+            xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.move_to(self.ptime_pos[0]-xoff-tw/2, self.ptime_pos[1]-yoff)
+            ctx.show_text(txt)
 
 
         # save to PNG
