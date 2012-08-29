@@ -8,26 +8,29 @@ from sqlalchemy import distinct
 from pyramid.paster import bootstrap
 from xonstat.models import *
 
-from render import Skin
+from render import PlayerData, Skin
 
 
 # maximal number of query results (for testing, set to 0 to get all)
-#NUM_PLAYERS = 200
+NUM_PLAYERS = None
 
 # we look for players who have activity within the past DELTA hours
 DELTA = 6
 
 
-skin_classic = Skin(
+# classic skin WITHOUT NAME - writes PNGs into "output//###.png"
+skin_classic = Skin( "",
         bg              = "asfalt",
     )
 
-skin_archer = Skin(
+# more fancy skin [** WIP **]- writes PNGs into "output/archer/###.png"
+skin_archer = Skin( "archer",
         bg              = "background_archer-v1",
         overlay         = "",
     )
 
-skin_minimal = Skin(
+# minimal skin - writes PNGs into "output/minimal/###.png"
+skin_minimal = Skin( "minimal",
         bg              = None,
         bgcolor         = (0.04, 0.04, 0.04, 1.0),
         overlay         = "overlay_minimal",
@@ -57,15 +60,38 @@ skin_minimal = Skin(
     )
 
 # parse cmdline parameters (for testing)
-skin = skin_classic
-if len(sys.argv) > 1:
-    arg = sys.argv[1].lower()
-    if arg == "classic":
-        skin = skin_classic
-    elif arg == "minimal":
-        skin = skin_minimal
-    elif arg == "archer":
-        skin = skin_archer
+
+skins = []
+for arg in sys.argv[1:]:
+    if arg.startswith("-"):
+        arg = arg[1:]
+        if arg == "force":
+            DELTA = 2**24   # large enough to enforce update, and doesn't result in errors
+        elif arg == "test":
+            NUM_PLAYERS = 200
+        else:
+            print """Usage:  gen_badges.py [options] [skin list]
+    Options:
+        -force      Force updating all badges (delta = 2^24)
+        -testing    Limit number of players to 200 (for testing)
+        -help       Show this help text
+    Skin list:
+        Space-separated list of skins to use when creating badges.
+        Available skins:  classic, minimal, archer
+        If no skins are given, classic and minmal will be used by default.
+        NOTE: Output directories must exists before running the program!
+"""
+        sys.exit(-1)
+    else:
+        if arg == "classic":
+            skins.append(skin_classic)
+        elif arg == "minimal":
+            skins.append(skin_minimal)
+        elif arg == "archer":
+            skins.append(skin_archer)
+
+if len(skins) == 0:
+    skins = [ skin_classic, skin_minimal ]
 
 
 # environment setup
@@ -77,7 +103,7 @@ print "Requesting player data from db ..."
 cutoff_dt = datetime.utcnow() - timedelta(hours=DELTA)
 start = datetime.now()
 players = []
-if locals().has_key('NUM_PLAYERS'):
+if NUM_PLAYERS:
     players = DBSession.query(distinct(Player.player_id)).\
             filter(Player.player_id == PlayerElo.player_id).\
             filter(Player.player_id == PlayerGameStat.player_id).\
@@ -96,6 +122,8 @@ else:
             filter(Player.active_ind == True).\
             all()
 
+playerdata = PlayerData()
+
 if len(players) > 0:
     stop = datetime.now()
     td = stop-start
@@ -109,24 +137,25 @@ if len(players) > 0:
         req.matchdict['id'] = player_id
 
         sstart = datetime.now()
-        skin.get_data(player_id)
+        playerdata.get_data(player_id)
         sstop = datetime.now()
         td = sstop-sstart
-        total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+        total_seconds = float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
         data_time += total_seconds
 
         sstart = datetime.now()
-        skin.render_image("output/%d.png" % player_id)
+        for sk in skins:
+            sk.render_image(playerdata, "output/%s/%d.png" % (str(sk), player_id[0]))
         sstop = datetime.now()
         td = sstop-sstart
-        total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+        total_seconds = float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
         render_time += total_seconds
 
     stop = datetime.now()
     td = stop-start
-    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    total_seconds = float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
     print "Creating the badges took %.1f seconds (%.3f s per player)" % (total_seconds, total_seconds/float(len(players)))
-    print "Total time for redering images: %.3f s" % render_time
+    print "Total time for rendering images: %.3f s" % render_time
     print "Total time for getting data: %.3f s" % data_time
 
 else:

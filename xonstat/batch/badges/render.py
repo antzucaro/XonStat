@@ -47,16 +47,121 @@ def writepng(filename, buf, width, height):
         f.close()
 
 
-class Skin:
+class PlayerData:
 
     # player data, will be filled by get_data()
     data = {}
 
+    def __init__(self):
+        self.data = {}
+
+    def __getattr__(self, key):
+        if self.data.has_key(key):
+            return self.data[key]
+        return None
+
+    def get_data(self, player_id):
+        """Return player data as dict.
+
+        This function is similar to the function in player.py but more optimized
+        for this purpose.
+        """
+        # total games
+        # wins/losses
+        # kills/deaths
+        # duel/dm/tdm/ctf elo + rank
+
+        player = DBSession.query(Player).filter(Player.player_id == player_id).one()
+
+        games_played = DBSession.query(
+                Game.game_type_cd, func.count(), func.sum(PlayerGameStat.alivetime)).\
+                filter(Game.game_id == PlayerGameStat.game_id).\
+                filter(PlayerGameStat.player_id == player_id).\
+                group_by(Game.game_type_cd).\
+                order_by(func.count().desc()).\
+                limit(3).all()  # limit to 3 gametypes!
+
+        total_stats = {}
+        total_stats['games'] = 0
+        total_stats['games_breakdown'] = {}  # this is a dictionary inside a dictionary .. dictception?
+        total_stats['games_alivetime'] = {}
+        total_stats['gametypes'] = []
+        for (game_type_cd, games, alivetime) in games_played:
+            total_stats['games'] += games
+            total_stats['gametypes'].append(game_type_cd)
+            total_stats['games_breakdown'][game_type_cd] = games
+            total_stats['games_alivetime'][game_type_cd] = alivetime
+
+        (total_stats['kills'], total_stats['deaths'], total_stats['alivetime'],) = DBSession.query(
+                func.sum(PlayerGameStat.kills),
+                func.sum(PlayerGameStat.deaths),
+                func.sum(PlayerGameStat.alivetime)).\
+                filter(PlayerGameStat.player_id == player_id).\
+                one()
+
+    #    (total_stats['wins'],) = DBSession.query(
+    #            func.count("*")).\
+    #            filter(Game.game_id == PlayerGameStat.game_id).\
+    #            filter(PlayerGameStat.player_id == player_id).\
+    #            filter(Game.winner == PlayerGameStat.team or PlayerGameStat.rank == 1).\
+    #            one()
+
+        (total_stats['wins'],) = DBSession.\
+                query("total_wins").\
+                from_statement(
+                    "select count(*) total_wins "
+                    "from games g, player_game_stats pgs "
+                    "where g.game_id = pgs.game_id "
+                    "and player_id=:player_id "
+                    "and (g.winner = pgs.team or pgs.rank = 1)"
+                ).params(player_id=player_id).one()
+
+        ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
+                from_statement(
+                    "select pr.game_type_cd, pr.rank, overall.max_rank "
+                    "from player_ranks pr,  "
+                       "(select game_type_cd, max(rank) max_rank "
+                        "from player_ranks  "
+                        "group by game_type_cd) overall "
+                    "where pr.game_type_cd = overall.game_type_cd  "
+                    "and player_id = :player_id "
+                    "order by rank").\
+                params(player_id=player_id).all()
+
+        ranks_dict = {}
+        for gtc,rank,max_rank in ranks:
+            ranks_dict[gtc] = (rank, max_rank)
+
+        elos = DBSession.query(PlayerElo).\
+                filter_by(player_id=player_id).\
+                order_by(PlayerElo.elo.desc()).\
+                all()
+
+        elos_dict = {}
+        for elo in elos:
+            if elo.games > 32:
+                elos_dict[elo.game_type_cd] = elo.elo
+
+        self.data = {
+                'player':player,
+                'total_stats':total_stats,
+                'ranks':ranks_dict,
+                'elos':elos_dict,
+            }
+
+
+
+class Skin:
+
     # skin parameters, can be overriden by init
     params = {}
 
-    def __init__(self, **params):
+    # skin name
+    name = ""
+
+    def __init__(self, name, **params):
         # default parameters
+        self.name = name
         self.params = {
             'bg':               "dark_wall",    # None - plain; otherwise use given texture
             'bgcolor':          None,           # transparent bg when bgcolor==None
@@ -131,21 +236,23 @@ class Skin:
             if self.params.has_key(k):
                 self.params[k] = v
 
+    def __str__(self):
+        return self.name
+
     def __getattr__(self, key):
         if self.params.has_key(key):
             return self.params[key]
         return None
 
-    def render_image(self, output_filename):
+    def render_image(self, data, output_filename):
         """Render an image for the given player id."""
 
         # setup variables
 
-        player = self.data['player']
-        total_stats = self.data['total_stats']
-        total_games = total_stats['games']
-        elos  = self.data["elos"]
-        ranks = self.data["ranks"]
+        player      = data.player
+        total_stats = data.total_stats
+        elos        = data.elos
+        ranks       = data.ranks
 
         font = "Xolonium"
         if self.font == 1:
@@ -347,7 +454,8 @@ class Skin:
             ctx.move_to(self.wintext_pos[0]-xoff-tw/2, self.wintext_pos[1]-yoff)
             ctx.show_text(txt)
 
-        wins, losses = total_stats["wins"], total_games-total_stats["wins"]
+        total_games = total_stats['games']
+        wins, losses = total_stats['wins'], total_games-total_stats['wins']
         txt = "???"
         try:
             ratio = float(wins)/total_games
@@ -476,94 +584,4 @@ class Skin:
         surf.flush()
         imgdata = surf.get_data()
         writepng(output_filename, imgdata, self.width, self.height)
-
-
-    def get_data(self, player_id):
-        """Return player data as dict.
-
-        This function is similar to the function in player.py but more optimized
-        for this purpose.
-        """
-
-        # total games
-        # wins/losses
-        # kills/deaths
-        # duel/dm/tdm/ctf elo + rank
-        player = DBSession.query(Player).filter(Player.player_id == player_id).one()
-
-        games_played = DBSession.query(
-                Game.game_type_cd, func.count(), func.sum(PlayerGameStat.alivetime)).\
-                filter(Game.game_id == PlayerGameStat.game_id).\
-                filter(PlayerGameStat.player_id == player_id).\
-                group_by(Game.game_type_cd).\
-                order_by(func.count().desc()).\
-                limit(3).all()  # limit to 3 gametypes!
-
-        total_stats = {}
-        total_stats['games'] = 0
-        total_stats['games_breakdown'] = {}  # this is a dictionary inside a dictionary .. dictception?
-        total_stats['games_alivetime'] = {}
-        total_stats['gametypes'] = []
-        for (game_type_cd, games, alivetime) in games_played:
-            total_stats['games'] += games
-            total_stats['gametypes'].append(game_type_cd)
-            total_stats['games_breakdown'][game_type_cd] = games
-            total_stats['games_alivetime'][game_type_cd] = alivetime
-
-        (total_stats['kills'], total_stats['deaths'], total_stats['alivetime'],) = DBSession.query(
-                func.sum(PlayerGameStat.kills),
-                func.sum(PlayerGameStat.deaths),
-                func.sum(PlayerGameStat.alivetime)).\
-                filter(PlayerGameStat.player_id == player_id).\
-                one()
-
-    #    (total_stats['wins'],) = DBSession.query(
-    #            func.count("*")).\
-    #            filter(Game.game_id == PlayerGameStat.game_id).\
-    #            filter(PlayerGameStat.player_id == player_id).\
-    #            filter(Game.winner == PlayerGameStat.team or PlayerGameStat.rank == 1).\
-    #            one()
-
-        (total_stats['wins'],) = DBSession.\
-                query("total_wins").\
-                from_statement(
-                    "select count(*) total_wins "
-                    "from games g, player_game_stats pgs "
-                    "where g.game_id = pgs.game_id "
-                    "and player_id=:player_id "
-                    "and (g.winner = pgs.team or pgs.rank = 1)"
-                ).params(player_id=player_id).one()
-
-        ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
-                from_statement(
-                    "select pr.game_type_cd, pr.rank, overall.max_rank "
-                    "from player_ranks pr,  "
-                       "(select game_type_cd, max(rank) max_rank "
-                        "from player_ranks  "
-                        "group by game_type_cd) overall "
-                    "where pr.game_type_cd = overall.game_type_cd  "
-                    "and player_id = :player_id "
-                    "order by rank").\
-                params(player_id=player_id).all()
-
-        ranks_dict = {}
-        for gtc,rank,max_rank in ranks:
-            ranks_dict[gtc] = (rank, max_rank)
-
-        elos = DBSession.query(PlayerElo).\
-                filter_by(player_id=player_id).\
-                order_by(PlayerElo.elo.desc()).\
-                all()
-
-        elos_dict = {}
-        for elo in elos:
-            if elo.games > 32:
-                elos_dict[elo.game_type_cd] = elo.elo
-
-        self.data = {
-                'player':player,
-                'total_stats':total_stats,
-                'ranks':ranks_dict,
-                'elos':elos_dict,
-            }
 
