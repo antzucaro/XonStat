@@ -64,31 +64,31 @@ class Skin:
             'width':            560,
             'height':           70,
             'nick_fontsize':    20,
-            'nick_pos':         (5,18),
-            'nick_maxwidth':    330,
-            'gametype_fontsize':12,
-            'gametype_pos':     (60,31),
-            'gametype_width':   110,
+            'nick_pos':         (56,18),
+            'nick_maxwidth':    280,
+            'gametype_fontsize':10,
+            'gametype_pos':     (101,33),
+            'gametype_width':   94,
             'gametype_color':   (0.9, 0.9, 0.9),
             'gametype_text':    "[ %s ]",
             'gametype_center':  True,
             'num_gametypes':    3,
             'nostats_fontsize': 12,
-            'nostats_pos':      (60,59),
+            'nostats_pos':      (101,59),
             'nostats_color':    (0.8, 0.2, 0.1),
             'nostats_angle':    -10,
             'nostats_text':     "no stats yet!",
-            'nostats_center':   False,
-            'elo_pos':          (60,47),
+            'nostats_center':   True,
+            'elo_pos':          (101,47),
             'elo_fontsize':     10,
             'elo_color':        (1.0, 1.0, 0.5),
             'elo_text':         "Elo %.0f",
-            'elo_center':       False,
+            'elo_center':       True,
             'rank_fontsize':    8,
-            'rank_pos':         (60,57),
+            'rank_pos':         (101,57),
             'rank_color':       (0.8, 0.8, 1.0),
             'rank_text':        "Rank %d of %d",
-            'rank_center':      False,
+            'rank_center':      True,
             'wintext_fontsize': 10,
             'wintext_pos':      (508,3),
             'wintext_color':    (0.8, 0.8, 0.8),
@@ -281,6 +281,9 @@ class Skin:
         # show up to three gametypes the player has participated in
         xoffset = 0
         for gt in data.total_stats['gametypes'][:self.num_gametypes]:
+            if not elos.has_key(gt) or not ranks.has_key(gt):
+                continue
+
             if self.gametype_pos:
                 ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
                 ctx.set_font_size(self.gametype_fontsize)
@@ -290,10 +293,11 @@ class Skin:
                 if self.gametype_center:
                     ctx.move_to(self.gametype_pos[0]+xoffset-xoff-tw/2, self.gametype_pos[1]-yoff)
                 else:
-                    ctx.move_to(self.gametype_pos[0]+xoffset-xoff, self.gametype_pos[1]-yoff)
+                    ctx.move_to(self.gametype_pos[0]+xoffset-xoff-tw, self.gametype_pos[1]-yoff)
                 ctx.show_text(txt)
 
             if not elos.has_key(gt) or not ranks.has_key(gt):
+                pass
                 if self.nostats_pos:
                     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
                     ctx.set_font_size(self.nostats_fontsize)
