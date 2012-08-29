@@ -71,20 +71,24 @@ class Skin:
             'gametype_width':   110,
             'gametype_color':   (0.9, 0.9, 0.9),
             'gametype_text':    "[ %s ]",
+            'gametype_center':  True,
             'num_gametypes':    3,
             'nostats_fontsize': 12,
             'nostats_pos':      (60,59),
-            'nostats_color':    (0.8, 0.2, 0.2),
+            'nostats_color':    (0.8, 0.2, 0.1),
             'nostats_angle':    -10,
             'nostats_text':     "no stats yet!",
+            'nostats_center':   False,
             'elo_pos':          (60,47),
             'elo_fontsize':     10,
             'elo_color':        (1.0, 1.0, 0.5),
             'elo_text':         "Elo %.0f",
+            'elo_center':       False,
             'rank_fontsize':    8,
             'rank_pos':         (60,57),
             'rank_color':       (0.8, 0.8, 1.0),
             'rank_text':        "Rank %d of %d",
+            'rank_center':      False,
             'wintext_fontsize': 10,
             'wintext_pos':      (508,3),
             'wintext_color':    (0.8, 0.8, 0.8),
@@ -92,6 +96,7 @@ class Skin:
             'winp_fontsize':    12,
             'winp_pos':         (508,19),
             'winp_colortop':    (0.2, 1.0, 1.0),
+            'winp_colormid':    (0.4, 0.8, 0.4),
             'winp_colorbot':    (1.0, 1.0, 0.2),
             'wins_fontsize':    8,
             'wins_pos':         (508,33),
@@ -108,6 +113,7 @@ class Skin:
             'kdr_fontsize':     12,
             'kdr_pos':          (392,19),
             'kdr_colortop':     (0.2, 1.0, 0.2),
+            'kdr_colormid':     (0.8, 0.8, 0.4),
             'kdr_colorbot':     (1.0, 0.2, 0.2),
             'kills_fontsize':   8,
             'kills_pos':        (392,46),
@@ -281,7 +287,10 @@ class Skin:
                 ctx.set_source_rgb(self.gametype_color[0],self.gametype_color[1],self.gametype_color[2])
                 txt = self.gametype_text % gt.upper()
                 xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-                ctx.move_to(self.gametype_pos[0]+xoffset-xoff-tw/2, self.gametype_pos[1]-yoff)
+                if self.gametype_center:
+                    ctx.move_to(self.gametype_pos[0]+xoffset-xoff-tw/2, self.gametype_pos[1]-yoff)
+                else:
+                    ctx.move_to(self.gametype_pos[0]+xoffset-xoff, self.gametype_pos[1]-yoff)
                 ctx.show_text(txt)
 
             if not elos.has_key(gt) or not ranks.has_key(gt):
@@ -291,7 +300,10 @@ class Skin:
                     ctx.set_source_rgb(self.nostats_color[0],self.nostats_color[1],self.nostats_color[2])
                     txt = self.nostats_text
                     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-                    ctx.move_to(self.nostats_pos[0]+xoffset-xoff-tw/2, self.nostats_pos[1]-yoff)
+                    if self.nostats_center:
+                        ctx.move_to(self.nostats_pos[0]+xoffset-xoff-tw/2, self.nostats_pos[1]-yoff)
+                    else:
+                        ctx.move_to(self.nostats_pos[0]+xoffset-xoff, self.nostats_pos[1]-yoff)
                     ctx.save()
                     ctx.rotate(math.radians(self.nostats_angle))
                     ctx.show_text(txt)
@@ -303,7 +315,10 @@ class Skin:
                     ctx.set_source_rgb(self.elo_color[0], self.elo_color[1], self.elo_color[2])
                     txt = self.elo_text % round(elos[gt], 0)
                     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-                    ctx.move_to(self.elo_pos[0]+xoffset-xoff-tw/2, self.elo_pos[1]-yoff)
+                    if self.elo_center:
+                        ctx.move_to(self.elo_pos[0]+xoffset-xoff-tw/2, self.elo_pos[1]-yoff)
+                    else:
+                        ctx.move_to(self.elo_pos[0]+xoffset-xoff, self.elo_pos[1]-yoff)
                     ctx.show_text(txt)
                 if  self.rank_pos:
                     ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
@@ -311,7 +326,10 @@ class Skin:
                     ctx.set_source_rgb(self.rank_color[0], self.rank_color[1], self.rank_color[2])
                     txt = self.rank_text % ranks[gt]
                     xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
-                    ctx.move_to(self.rank_pos[0]+xoffset-xoff-tw/2, self.rank_pos[1]-yoff)
+                    if self.rank_center:
+                        ctx.move_to(self.rank_pos[0]+xoffset-xoff-tw/2, self.rank_pos[1]-yoff)
+                    else:
+                        ctx.move_to(self.rank_pos[0]+xoffset-xoff, self.rank_pos[1]-yoff)
                     ctx.show_text(txt)
             
             xoffset += self.gametype_width
@@ -338,9 +356,16 @@ class Skin:
         if self.winp_pos:
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
             ctx.set_font_size(self.winp_fontsize)
-            r = ratio*self.winp_colortop[0] + (1-ratio)*self.winp_colorbot[0]
-            g = ratio*self.winp_colortop[1] + (1-ratio)*self.winp_colorbot[1]
-            b = ratio*self.winp_colortop[2] + (1-ratio)*self.winp_colorbot[2]
+            if ratio >= 0.5:
+                nr = 2*(ratio-0.5)
+                r = nr*self.winp_colortop[0] + (1-nr)*self.winp_colormid[0]
+                g = nr*self.winp_colortop[1] + (1-nr)*self.winp_colormid[1]
+                b = nr*self.winp_colortop[2] + (1-nr)*self.winp_colormid[2]
+            else:
+                nr = 2*ratio
+                r = nr*self.winp_colormid[0] + (1-nr)*self.winp_colorbot[0]
+                g = nr*self.winp_colormid[1] + (1-nr)*self.winp_colorbot[1]
+                b = nr*self.winp_colormid[2] + (1-nr)*self.winp_colorbot[2]
             ctx.set_source_rgb(r, g, b)
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
             ctx.move_to(self.winp_pos[0]-xoff-tw/2, self.winp_pos[1]-yoff)
@@ -389,12 +414,18 @@ class Skin:
         if self.kdr_pos:
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_BOLD)
             ctx.set_font_size(self.kdr_fontsize)
-            nr = ratio / 2.0
-            if nr > 1:
-                nr = 1
-            r = nr*self.kdr_colortop[0] + (1-nr)*self.kdr_colorbot[0]
-            g = nr*self.kdr_colortop[1] + (1-nr)*self.kdr_colorbot[1]
-            b = nr*self.kdr_colortop[2] + (1-nr)*self.kdr_colorbot[2]
+            if ratio >= 1.0:
+                nr = ratio-1.0
+                if nr > 1:
+                    nr = 1
+                r = nr*self.kdr_colortop[0] + (1-nr)*self.kdr_colormid[0]
+                g = nr*self.kdr_colortop[1] + (1-nr)*self.kdr_colormid[1]
+                b = nr*self.kdr_colortop[2] + (1-nr)*self.kdr_colormid[2]
+            else:
+                nr = ratio
+                r = nr*self.kdr_colormid[0] + (1-nr)*self.kdr_colorbot[0]
+                g = nr*self.kdr_colormid[1] + (1-nr)*self.kdr_colorbot[1]
+                b = nr*self.kdr_colormid[2] + (1-nr)*self.kdr_colorbot[2]
             ctx.set_source_rgb(r, g, b)
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
             ctx.move_to(self.kdr_pos[0]-xoff-tw/2, self.kdr_pos[1]-yoff)
