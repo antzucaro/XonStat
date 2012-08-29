@@ -8,10 +8,11 @@ from sqlalchemy import distinct
 from pyramid.paster import bootstrap
 from xonstat.models import *
 
-from render import PlayerData, Skin
+from skin import Skin
+from playerdata import PlayerData
 
 
-# maximal number of query results (for testing, set to 0 to get all)
+# maximal number of query results (for testing, set to None to get all)
 NUM_PLAYERS = None
 
 # we look for players who have activity within the past DELTA hours
@@ -21,12 +22,13 @@ DELTA = 6
 # classic skin WITHOUT NAME - writes PNGs into "output//###.png"
 skin_classic = Skin( "",
         bg              = "asfalt",
+        overlay         = "overlay_classic",
     )
 
 # more fancy skin [** WIP **]- writes PNGs into "output/archer/###.png"
 skin_archer = Skin( "archer",
         bg              = "background_archer-v1",
-        overlay         = "",
+        overlay         = None,
     )
 
 # minimal skin - writes PNGs into "output/minimal/###.png"
@@ -36,10 +38,10 @@ skin_minimal = Skin( "minimal",
         overlay         = "overlay_minimal",
         width           = 560,
         height          = 40,
-        num_gametypes   = 4,
+        num_gametypes   = 3,
         gametype_pos    = (25,30),
         gametype_text   = "%s :",
-        gametype_width  = 120,
+        gametype_width  = 115,
         gametype_fontsize = 10,
         elo_pos         = (75,30),
         elo_text        = "Elo %.0f",
@@ -59,6 +61,7 @@ skin_minimal = Skin( "minimal",
         ptime_color     = (0.8, 0.8, 0.9),
     )
 
+
 # parse cmdline parameters (for testing)
 
 skins = []
@@ -68,12 +71,12 @@ for arg in sys.argv[1:]:
         if arg == "force":
             DELTA = 2**24   # large enough to enforce update, and doesn't result in errors
         elif arg == "test":
-            NUM_PLAYERS = 200
+            NUM_PLAYERS = 100
         else:
             print """Usage:  gen_badges.py [options] [skin list]
     Options:
         -force      Force updating all badges (delta = 2^24)
-        -testing    Limit number of players to 200 (for testing)
+        -test       Limit number of players to 100 (for testing)
         -help       Show this help text
     Skin list:
         Space-separated list of skins to use when creating badges.
@@ -81,7 +84,7 @@ for arg in sys.argv[1:]:
         If no skins are given, classic and minmal will be used by default.
         NOTE: Output directories must exists before running the program!
 """
-        sys.exit(-1)
+            sys.exit(-1)
     else:
         if arg == "classic":
             skins.append(skin_classic)
