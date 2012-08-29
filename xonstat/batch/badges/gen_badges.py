@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
+from sqlalchemy import distinct
 from pyramid.paster import bootstrap
 from xonstat.models import *
 
@@ -12,6 +13,9 @@ from render import Skin
 
 # maximal number of query results (for testing, set to 0 to get all)
 #NUM_PLAYERS = 100
+
+# we look for players who have activity within the past DELTA hours
+DELTA = 6
 
 skin_classic = Skin(
         bg              = "asfalt",
@@ -69,18 +73,23 @@ req = env['request']
 req.matchdict = {'id':3}
 
 print "Requesting player data from db ..."
+cutoff_dt = datetime.utcnow() - timedelta(hours=DELTA)
 start = datetime.now()
 players = []
 if locals().has_key('NUM_PLAYERS'):
-    players = DBSession.query(Player).\
+    players = DBSession.query(distinct(Player.player_id)).\
             filter(Player.player_id == PlayerElo.player_id).\
+            filter(Player.player_id == PlayerGameStat.player_id).\
+            filter(PlayerGameStat.create_dt > cutoff_dt).\
             filter(Player.nick != None).\
             filter(Player.player_id > 2).\
             filter(Player.active_ind == True).\
             limit(NUM_PLAYERS).all()
 else:
-    players = DBSession.query(Player).\
+    players = DBSession.query(distinct(Player.player_id)).\
             filter(Player.player_id == PlayerElo.player_id).\
+            filter(Player.player_id == PlayerGameStat.player_id).\
+            filter(PlayerGameStat.create_dt > cutoff_dt).\
             filter(Player.nick != None).\
             filter(Player.player_id > 2).\
             filter(Player.active_ind == True).\
@@ -94,18 +103,18 @@ print "Query took %.2f seconds" % (total_seconds)
 print "Creating badges for %d players ..." % len(players)
 start = datetime.now()
 data_time, render_time = 0,0
-for player in players:
-    req.matchdict['id'] = player.player_id
+for player_id in players:
+    req.matchdict['id'] = player_id
 
     sstart = datetime.now()
-    skin.get_data(player)
+    skin.get_data(player_id)
     sstop = datetime.now()
     td = sstop-sstart
     total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
     data_time += total_seconds
 
     sstart = datetime.now()
-    skin.render_image("output/%d.png" % player.player_id)
+    skin.render_image("output/%d.png" % player_id)
     sstop = datetime.now()
     td = sstop-sstart
     total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6

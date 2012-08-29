@@ -442,9 +442,12 @@ class Skin:
             ctx.select_font_face(font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
             ctx.set_font_size(self.deaths_fontsize)
             ctx.set_source_rgb(self.deaths_color[0], self.deaths_color[1], self.deaths_color[2])
-            txt = "%d death" % deaths
-            if deaths != 1:
-                txt += "s"
+            if deaths is not None:
+                txt = "%d death" % deaths
+                if deaths != 1:
+                    txt += "s"
+            else:
+                txt = ""
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
             ctx.move_to(self.deaths_pos[0]-xoff-tw/2, self.deaths_pos[1]+yoff)
             ctx.show_text(txt)
@@ -475,7 +478,7 @@ class Skin:
         writepng(output_filename, imgdata, self.width, self.height)
 
 
-    def get_data(self, player):
+    def get_data(self, player_id):
         """Return player data as dict.
 
         This function is similar to the function in player.py but more optimized
@@ -486,8 +489,7 @@ class Skin:
         # wins/losses
         # kills/deaths
         # duel/dm/tdm/ctf elo + rank
-
-        player_id = player.player_id
+        player = DBSession.query(Player).filter(Player.player_id == player_id).one()
 
         games_played = DBSession.query(
                 Game.game_type_cd, func.count(), func.sum(PlayerGameStat.alivetime)).\
