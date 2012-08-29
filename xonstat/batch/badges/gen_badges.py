@@ -12,10 +12,11 @@ from render import Skin
 
 
 # maximal number of query results (for testing, set to 0 to get all)
-#NUM_PLAYERS = 100
+#NUM_PLAYERS = 200
 
 # we look for players who have activity within the past DELTA hours
 DELTA = 6
+
 
 skin_classic = Skin(
         bg              = "asfalt",
@@ -95,35 +96,39 @@ else:
             filter(Player.active_ind == True).\
             all()
 
-stop = datetime.now()
-td = stop-start
-total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-print "Query took %.2f seconds" % (total_seconds)
-
-print "Creating badges for %d players ..." % len(players)
-start = datetime.now()
-data_time, render_time = 0,0
-for player_id in players:
-    req.matchdict['id'] = player_id
-
-    sstart = datetime.now()
-    skin.get_data(player_id)
-    sstop = datetime.now()
-    td = sstop-sstart
+if len(players) > 0:
+    stop = datetime.now()
+    td = stop-start
     total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-    data_time += total_seconds
+    print "Query took %.2f seconds" % (total_seconds)
 
-    sstart = datetime.now()
-    skin.render_image("output/%d.png" % player_id)
-    sstop = datetime.now()
-    td = sstop-sstart
+    print "Creating badges for %d players ..." % len(players)
+    start = datetime.now()
+    data_time, render_time = 0,0
+    for player_id in players:
+        req.matchdict['id'] = player_id
+
+        sstart = datetime.now()
+        skin.get_data(player_id)
+        sstop = datetime.now()
+        td = sstop-sstart
+        total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+        data_time += total_seconds
+
+        sstart = datetime.now()
+        skin.render_image("output/%d.png" % player_id)
+        sstop = datetime.now()
+        td = sstop-sstart
+        total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+        render_time += total_seconds
+
+    stop = datetime.now()
+    td = stop-start
     total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-    render_time += total_seconds
+    print "Creating the badges took %.1f seconds (%.3f s per player)" % (total_seconds, total_seconds/float(len(players)))
+    print "Total time for redering images: %.3f s" % render_time
+    print "Total time for getting data: %.3f s" % data_time
 
-stop = datetime.now()
-td = stop-start
-total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-print "Creating the badges took %.1f seconds (%.3f s per player)" % (total_seconds, total_seconds/float(len(players)))
-print "Total time for redering images: %.3f s" % render_time
-print "Total time for getting data: %.3f s" % data_time
+else:
+    print "No active players found!"
 
