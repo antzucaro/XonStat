@@ -76,6 +76,7 @@ class Skin:
             'gametype_color':   (0.9, 0.9, 0.9),
             'gametype_text':    "%s",
             'gametype_align':   0,
+            'gametype_upper':   True,
             'num_gametypes':    3,
             'nostats_fontsize': 12,
             'nostats_pos':      (101,59),
@@ -345,7 +346,10 @@ class Skin:
 
                 offset = (xoffset, yoffset)
                 if self.gametype_pos:
-                    txt = self.gametype_text % gt.upper()
+                    if self.gametype_upper:
+                        txt = self.gametype_text % gt.upper()
+                    else:
+                        txt = self.gametype_text % gt.lower()
                     self.set_font(self.gametype_fontsize, self.gametype_color, bold=True)
                     self.show_text(txt, self.gametype_pos, self.gametype_align, offset=offset)
 
