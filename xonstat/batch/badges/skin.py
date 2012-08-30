@@ -310,12 +310,12 @@ class Skin:
                     r,g,b = _dec_colors[int(tag[0])]
             else:
                 r,g,b = _dec_colors[7]
-            
-            ctx.set_source_rgb(r, g, b)
-            ctx.move_to(self.nick_pos[0] + xoffset, self.nick_pos[1])
-            ctx.show_text(txt)
 
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
+            ctx.set_source_rgb(r, g, b)
+            ctx.move_to(self.nick_pos[0] + xoffset - xoff, self.nick_pos[1])
+            ctx.show_text(txt)
+
             tw += (len(txt)-len(txt.strip())) * space_w  # account for lost whitespaces
             xoffset += tw + 2
 
