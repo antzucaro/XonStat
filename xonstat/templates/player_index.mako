@@ -29,7 +29,7 @@ Player Index
     % for player in players:
       <tr>
         <td><a href="${request.route_url("player_info", id=player.player_id)}" title="Go to this player's info page">${player.nick_html_colors()|n}</a></th>
-        <td>${player.joined_pretty_date()}</th>
+        <td><span title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${player.joined_pretty_date()}</span></th>
       </tr>
     % endfor
     </table>

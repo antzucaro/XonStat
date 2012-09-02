@@ -1,7 +1,7 @@
 import re
 from colorsys import rgb_to_hls, hls_to_rgb
 from cgi import escape as html_escape
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Map of special chars to ascii from Darkplace's console.c.
 _qfont_table = [
@@ -113,53 +113,41 @@ def page_url(page):
 
 
 def pretty_date(time=False):
-    """
-    Get a datetime object or a int() Epoch timestamp and return a
-    pretty string like 'an hour ago', 'Yesterday', '3 months ago',
-    'just now', etc
-    """
+    '''Returns a human-readable relative date.'''
     now = datetime.utcnow()
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time,datetime):
-        diff = now - time 
+        diff = now - time
     elif not time:
+        print "not a time value"
         diff = now - now
-    second_diff = diff.seconds
-    day_diff = diff.days
 
-    if day_diff < 0:
-        return ''
+    dim = round(diff.seconds/60.0 + diff.days*1440.0)
 
-    if day_diff == 0:
-        if second_diff < 10:
-            return "just now"
-        if second_diff < 60:
-            return str(second_diff) + " seconds ago"
-        if second_diff < 120:
-            return  "a minute ago"
-        if second_diff < 3600:
-            return str( second_diff / 60 ) + " minutes ago"
-        if second_diff < 7200:
-            return "an hour ago"
-        if second_diff < 86400:
-            return str( second_diff / 3600 ) + " hours ago"
-    if day_diff == 1:
-        return "Yesterday"
-    if day_diff < 7:
-        return str(day_diff) + " days ago"
-    if day_diff < 31:
-        if day_diff/7 == 1:
-            return "a week ago"
-        else:
-            return str(day_diff/7) + " weeks ago"
-    if day_diff < 365:
-        if day_diff/30 == 1:
-            return "a month ago"
-        else:
-            return str(day_diff/30) + " months ago"
+    if dim == 0:
+        return "less than a minute ago"
+    elif dim == 1:
+        return "1 minute ago"
+    elif dim >= 2 and dim <= 44:
+        return "{0} minutes ago".format(int(dim))
+    elif dim >= 45 and dim <= 89:
+        return "about 1 hour ago"
+    elif dim >= 90 and dim <= 1439:
+        return "about {0} hours ago".format(int(round(dim/60.0)))
+    elif dim >= 1440 and dim <= 2519:
+        return "1 day ago"
+    elif dim >= 2520 and dim <= 43199:
+        return "{0} days ago".format(int(round(dim/1440.0)))
+    elif dim >= 43200 and dim <= 86399:
+        return "about 1 month ago"
+    elif dim >= 86400 and dim <= 525599:
+        return "{0} months ago".format(int(round(dim/43200.0)))
+    elif dim >= 525600 and dim <= 655199:
+        return "about 1 year ago"
+    elif dim >= 655200 and dim <= 914399:
+        return "over 1 year ago"
+    elif dim >= 914400 and dim <= 1051199:
+        return "almost 2 years ago"
     else:
-        if day_diff/365 == 1:
-            return "a year ago"
-        else:
-            return str(day_diff/365) + " years ago"
+        return "about {0} years ago".format(int(round(dim/525600.0)))

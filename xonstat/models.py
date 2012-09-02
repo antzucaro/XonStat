@@ -67,6 +67,9 @@ class Server(object):
     def to_dict(self):
         return {'server_id':self.server_id, 'name':self.name.encode('utf-8')}
 
+    def fuzzy_date(self):
+        return pretty_date(self.create_dt)
+
 
 class Map(object):
     def __init__(self, name=None):
@@ -78,6 +81,8 @@ class Map(object):
     def to_dict(self):
         return {'map_id':self.map_id, 'name':self.name, 'version':self.version}
 
+    def fuzzy_date(self):
+        return pretty_date(self.create_dt)
 
 class Game(object):
     def __init__(self, game_id=None, start_dt=None, game_type_cd=None, 

@@ -29,7 +29,7 @@ Map Index
     % for map in maps:
       <tr>
         <td><a href="${request.route_url("map_info", id=map.map_id)}" title="Go to this map's info page">${map.name}</a></th>
-        <td>${map.create_dt.strftime('%m/%d/%Y at %H:%M')}</td>
+        <td><span title="${map.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${map.fuzzy_date()}</span></td>
     </td>
       </tr>
     % endfor
