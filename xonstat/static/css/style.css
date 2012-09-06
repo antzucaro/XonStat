@@ -3404,9 +3404,10 @@ a.thumbnail:hover {
     color: #0088CC;
     font-size: 30px;
     font-style: italic;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
     position: relative;
     text-align: center;
+    text-shadow: 2px 2px 3px #333;
 }
 #navsearch {
   float: right;

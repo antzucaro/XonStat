@@ -37,7 +37,7 @@
 
       <div class="row">
         <div class="span12" id="xonborder">
-          <div id="title"><%block name="title"></%block></div>
+          <div id="title"><%block name="title"></%block>&nbsp;</div>
             ${self.body()}
         </div> <!-- /xonborder -->
       </div> <!-- /main row -->
