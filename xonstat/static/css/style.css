@@ -3395,10 +3395,11 @@ a.thumbnail:hover {
   top: -25px;
 }
 #xonborder {
-    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.4);
-    border-radius: 6px 6px 6px 6px;
-    margin-bottom: 30px;
-    padding: 20px;
+  background: rgb(0, 0, 0); /* IE Fallback */
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.4);
+  border-radius: 6px 6px 6px 6px;
+  margin-bottom: 30px;
+  padding: 20px;
 }
 #title {
     color: #0088CC;
