@@ -415,7 +415,7 @@ def create_player_game_stat(session=None, player=None,
 
 
 def create_player_weapon_stats(session=None, player=None, 
-        game=None, pgstat=None, player_events=None):
+        game=None, pgstat=None, player_events=None, game_meta=None):
     """
     Creates accuracy records for each weapon used by a given player in a
     given game. Parameters:
@@ -426,8 +426,22 @@ def create_player_weapon_stats(session=None, player=None,
     pgstat - Corresponding PlayerGameStat record for these weapon stats
     player_events - dictionary containing the raw weapon values that need to be
         transformed
+    game_meta - dictionary of game metadata (only used for stats version info)
     """
     pwstats = []
+
+    # Version 1 of stats submissions doubled the data sent.
+    # To counteract this we divide the data by 2 only for
+    # POSTs coming from version 1.
+    try:
+        version = int(game_meta['V'])
+        if version == 1:
+            is_doubled = True
+            log.debug('NOTICE: found a version 1 request, halving the weapon stats...')
+        else:
+            is_doubled = False
+    except:
+        is_doubled = False
 
     for (key,value) in player_events.items():
         matched = re.search("acc-(.*?)-cnt-fired", key)
@@ -450,18 +464,28 @@ def create_player_weapon_stats(session=None, player=None,
             if 'acc-' + weapon_cd + '-cnt-fired' in player_events:
                 pwstat.fired = int(round(float(
                         player_events['acc-' + weapon_cd + '-cnt-fired'])))
+                if is_doubled:
+                    pwstat.fired = pwstat.fired/2
             if 'acc-' + weapon_cd + '-fired' in player_events:
                 pwstat.max = int(round(float(
                         player_events['acc-' + weapon_cd + '-fired'])))
+                if is_doubled:
+                    pwstat.max = pwstat.max/2
             if 'acc-' + weapon_cd + '-cnt-hit' in player_events:
                 pwstat.hit = int(round(float(
                         player_events['acc-' + weapon_cd + '-cnt-hit'])))
+                if is_doubled:
+                    pwstat.hit = pwstat.hit/2
             if 'acc-' + weapon_cd + '-hit' in player_events:
                 pwstat.actual = int(round(float(
                         player_events['acc-' + weapon_cd + '-hit'])))
+                if is_doubled:
+                    pwstat.actual = pwstat.actual/2
             if 'acc-' + weapon_cd + '-frags' in player_events:
                 pwstat.frags = int(round(float(
                         player_events['acc-' + weapon_cd + '-frags'])))
+                if is_doubled:
+                    pwstat.frags = pwstat.frags/2
 
             session.add(pwstat)
             pwstats.append(pwstat)
@@ -519,7 +543,7 @@ def parse_body(request):
 
 
 def create_player_stats(session=None, player=None, game=None, 
-        player_events=None):
+        player_events=None, game_meta=None):
     """
     Creates player game and weapon stats according to what type of player
     """
@@ -530,7 +554,7 @@ def create_player_stats(session=None, player=None, game=None,
     if not re.search('^bot#\d+$', player_events['P']):
         create_player_weapon_stats(session=session, 
             player=player, game=game, pgstat=pgstat,
-            player_events=player_events)
+            player_events=player_events, game_meta=game_meta)
 
 
 def stats_submit(request):
@@ -546,7 +570,7 @@ def stats_submit(request):
             log.debug("ERROR: Unverified request")
             raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
 
-        (game_meta, players) = parse_body(request)  
+        (game_meta, players) = parse_body(request)
 
         if not has_required_metadata(game_meta):
             log.debug("ERROR: Required game meta missing")
@@ -612,7 +636,7 @@ def stats_submit(request):
                     hashkey=player_events['P'], nick=nick)
                 log.debug('Creating stats for %s' % player_events['P'])
                 create_player_stats(session=session, player=player, game=game, 
-                        player_events=player_events)
+                        player_events=player_events, game_meta=game_meta)
 
         # update elos
         try:
