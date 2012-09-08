@@ -157,6 +157,13 @@ class PlayerAchievement(object):
 
 
 class PlayerWeaponStat(object):
+    def __init__(self):
+        self.fired = 0
+        self.max = 0
+        self.hit = 0
+        self.actual = 0
+        self.frags = 0
+
     def __repr__(self):
         return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stats_id, self.player_id, self.game_id)
 

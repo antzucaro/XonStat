@@ -464,28 +464,25 @@ def create_player_weapon_stats(session=None, player=None,
             if 'acc-' + weapon_cd + '-cnt-fired' in player_events:
                 pwstat.fired = int(round(float(
                         player_events['acc-' + weapon_cd + '-cnt-fired'])))
-                if is_doubled:
-                    pwstat.fired = pwstat.fired/2
             if 'acc-' + weapon_cd + '-fired' in player_events:
                 pwstat.max = int(round(float(
                         player_events['acc-' + weapon_cd + '-fired'])))
-                if is_doubled:
-                    pwstat.max = pwstat.max/2
             if 'acc-' + weapon_cd + '-cnt-hit' in player_events:
                 pwstat.hit = int(round(float(
                         player_events['acc-' + weapon_cd + '-cnt-hit'])))
-                if is_doubled:
-                    pwstat.hit = pwstat.hit/2
             if 'acc-' + weapon_cd + '-hit' in player_events:
                 pwstat.actual = int(round(float(
                         player_events['acc-' + weapon_cd + '-hit'])))
-                if is_doubled:
-                    pwstat.actual = pwstat.actual/2
             if 'acc-' + weapon_cd + '-frags' in player_events:
                 pwstat.frags = int(round(float(
                         player_events['acc-' + weapon_cd + '-frags'])))
-                if is_doubled:
-                    pwstat.frags = pwstat.frags/2
+
+            if is_doubled:
+                pwstat.fired = pwstat.fired/2
+                pwstat.max = pwstat.max/2
+                pwstat.hit = pwstat.hit/2
+                pwstat.actual = pwstat.actual/2
+                pwstat.frags = pwstat.frags/2
 
             session.add(pwstat)
             pwstats.append(pwstat)
