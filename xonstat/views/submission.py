@@ -562,6 +562,9 @@ def stats_submit(request):
     Entry handler for POST stats submissions.
     """
     try:
+        # placeholder for the actual session
+        session = None
+
         log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
                 "----- END REQUEST BODY -----\n\n")
 
@@ -648,5 +651,6 @@ def stats_submit(request):
         log.debug('Success! Stats recorded.')
         return Response('200 OK')
     except Exception as e:
-        session.rollback()
+        if session:
+            session.rollback()
         return e
