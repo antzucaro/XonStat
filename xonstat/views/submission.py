@@ -155,7 +155,7 @@ def register_new_nick(session, player, new_nick):
     new_nick - the new nickname
     """
     # see if that nick already exists
-    stripped_nick = strip_colors(player.nick)
+    stripped_nick = strip_colors(qfont_decode(player.nick))
     try:
         player_nick = session.query(PlayerNick).filter_by(
             player_id=player.player_id, stripped_nick=stripped_nick).one()
@@ -171,7 +171,7 @@ def register_new_nick(session, player, new_nick):
 
     # We change to the new nick regardless
     player.nick = new_nick
-    player.stripped_nick = strip_colors(new_nick)
+    player.stripped_nick = strip_colors(qfont_decode(new_nick))
     session.add(player)
 
 
@@ -324,7 +324,7 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
             # with a suffix added for uniqueness.
             if nick:
                 player.nick = nick[:128]
-                player.stripped_nick = strip_colors(nick[:128])
+                player.stripped_nick = strip_colors(qfont_decode(nick[:128]))
             else:
                 player.nick = "Anonymous Player #{0}".format(player.player_id)
                 player.stripped_nick = player.nick
@@ -361,8 +361,9 @@ def create_player_game_stat(session=None, player=None,
     #set game id from game record
     pgstat.game_id = game.game_id
 
-    # all games have a score
+    # all games have a score and every player has an alivetime
     pgstat.score = 0
+    pgstat.alivetime = datetime.timedelta(seconds=0)
 
     if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' or game.game_type_cd == 'duel':
         pgstat.kills = 0
@@ -377,7 +378,9 @@ def create_player_game_stat(session=None, player=None,
         pgstat.carrier_frags = 0
 
     for (key,value) in player_events.items():
-        if key == 'n': pgstat.nick = value[:128]
+        if key == 'n': 
+            pgstat.nick = value[:128]
+            pgstat.stripped_nick = strip_colors(qfont_decode(pgstat.nick))
         if key == 't': pgstat.team = int(value)
         if key == 'rank': pgstat.rank = int(value)
         if key == 'alivetime': 
