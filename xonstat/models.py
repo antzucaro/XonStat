@@ -3,6 +3,7 @@ import logging
 import math
 import sqlalchemy
 import sqlalchemy.sql.functions as sfunc
+from calendar import timegm
 from datetime import timedelta
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
@@ -70,6 +71,9 @@ class Server(object):
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
 
+    def epoch(self):
+        return timegm(self.create_dt.timetuple())
+
 
 class Map(object):
     def __init__(self, name=None):
@@ -83,6 +87,10 @@ class Map(object):
 
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
+
+    def epoch(self):
+        return timegm(self.create_dt.timetuple())
+
 
 class Game(object):
     def __init__(self, game_id=None, start_dt=None, game_type_cd=None, 
@@ -102,6 +110,9 @@ class Game(object):
 
     def fuzzy_date(self):
         return pretty_date(self.start_dt)
+
+    def epoch(self):
+        return timegm(self.start_dt.timetuple())
 
 
 class PlayerGameStat(object):
