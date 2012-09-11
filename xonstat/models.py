@@ -39,6 +39,9 @@ class Player(object):
     def to_dict(self):
         return {'player_id':self.player_id, 'name':self.nick.encode('utf-8')}
 
+    def epoch(self):
+        return timegm(self.create_dt.timetuple())
+
 
 class GameType(object):
     def __repr__(self):

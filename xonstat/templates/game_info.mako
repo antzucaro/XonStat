@@ -31,7 +31,7 @@ Game Information
   <div class="span6">
     <h2>Game Detail</h2>
     <p>
-      Played: ${game.fuzzy_date()} (${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')})<br />
+      Played: <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span><br />
       Game Type: ${game.game_type_cd}<br />
       Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
       Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />

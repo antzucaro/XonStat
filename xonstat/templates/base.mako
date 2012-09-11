@@ -47,8 +47,20 @@
       </%block>
 
       <%block name="js">
+      <script src="/static/js/jquery-1.7.1.min.js"></script>
       </%block>
 
+      <!-- RELATIVE TIME CONVERSION -->
+      <script type="text/javascript">
+      $('.abstime').each(function(i,e){
+        var epoch = e.getAttribute('data-epoch');
+        var d = new Date(0);
+        d.setUTCSeconds(epoch);
+        e.setAttribute('title', d.toDateString() + ' ' + d.toTimeString());  
+      });
+      </script>
+
+      <!-- GOOGLE ANALYTICS -->
       <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-30391685-1']);
