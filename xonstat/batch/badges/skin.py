@@ -15,7 +15,7 @@ _dec_colors = [ (0.5,0.5,0.5),
                 (1.0,1.0,0.0),
                 (0.2,0.4,1.0),
                 (0.2,1.0,1.0),
-                (1.0,0.2,102),
+                (1.0,0.2,0.4),
                 (1.0,1.0,1.0),
                 (0.6,0.6,0.6),
                 (0.5,0.5,0.5)
@@ -266,11 +266,11 @@ class Skin:
         # fontsize is reduced if width gets too large
         ctx.select_font_face(self.font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
         shrinknick = 0
-        while shrinknick < 10:
+        while shrinknick < 0.6*fontsize:
             ctx.set_font_size(self.nick_fontsize - shrinknick)
             xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
             if tw > self.nick_maxwidth:
-                shrinknick += 2
+                shrinknick += 1
                 continue
             break
 
