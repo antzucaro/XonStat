@@ -10,7 +10,7 @@ from pyramid.url import current_route_url
 from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
-from xonstat.util import page_url
+from xonstat.util import page_url, datetime_seconds
 
 log = logging.getLogger(__name__)
 
@@ -552,7 +552,44 @@ def player_info_json(request):
     """
     Provides detailed information on a specific player. JSON.
     """
-    return [{'status':'not implemented'}]
+    player_info = player_info_data(request)
+    json_result = {
+        'player': {
+            'id':               player_info['player'].player_id,
+            'nick':             player_info['player'].nick.encode('utf-8'),
+            'stripped_nick':    player_info['player'].nick_strip_colors(),
+            'joined':           player_info['player'].create_dt.isoformat(),
+            },
+        'elos':         player_info['elos'],
+        'ranks':        player_info['ranks'],
+        'total_stats':  {
+                'games':            player_info['total_stats']['games'],
+                'games_breakdown':  player_info['total_stats']['games_breakdown'],
+                'alivetime':        datetime_seconds(player_info['total_stats']['alivetime']),
+                'kills':            player_info['total_stats']['kills'],
+                'deaths':           player_info['total_stats']['deaths'],
+                'suicides':         player_info['total_stats']['suicides'],
+                'wins':             player_info['total_stats']['wins'],
+                # FIXME - current "wins" query is flawed!
+                #'losses':           player_info['total_stats']['loses'],
+            },
+        'recent_games': [
+                {
+                    'game_id':      game.game_id,
+                    'game_type':    game.game_type_cd,
+                    'server':       server.name,
+                    'map':          map.name,
+                    'team':         gamestat.team,
+                    'rank':         gamestat.rank,
+                    'win':          ((gamestat.team != None and gamestat.team == game.winner)
+                                        or (gamestat.team == None and gamestat.rank == 1)),
+                    'time':         game.create_dt.isoformat(),
+                }
+                for (gamestat, game, server, map) in player_info['recent_games'][:5]
+            ],
+        }
+    print json_result
+    return json_result
 
 
 def player_game_index_data(request):
