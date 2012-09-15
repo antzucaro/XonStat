@@ -47,7 +47,7 @@
     % for player in results:
     <tr>
         <td><a href="${request.route_url("player_info", id=player.player_id)}" name="Player info page for player #${player.player_id}">${player.nick_html_colors()|n}</a></td>
-        <td>${player.joined_pretty_date()}</td>
+        <td><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${player.joined_pretty_date()}</span></td>
     </tr>
     % endfor
 </table>
@@ -63,7 +63,7 @@
     % for server in results:
     <tr>
         <td><a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for server #${server.server_id}">${server.name}</a></td>
-        <td>${server.create_dt.strftime('%m/%d/%Y at %I:%M %p')}</td>
+        <td><span class="abstime" data-epoch="${server.epoch()}" title="${server.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${server.fuzzy_date()}</span></td>
     </tr>
     % endfor
 </table>
@@ -79,7 +79,7 @@
     % for map in results:
     <tr>
         <td><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for map #${map.map_id}">${map.name}</a></td>
-        <td>${map.create_dt.strftime('%m/%d/%Y at %I:%M %p')}</td>
+        <td><span class="abstime" data-epoch="${map.epoch()}" title="${map.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${map.fuzzy_date()}</span></td>
     </tr>
     % endfor
 </table>
@@ -92,14 +92,14 @@
         <th></th>
         <th>Map</th>
         <th>Server</th>
-        <th>Played On</th>
+        <th>Time</th>
     </tr>
     % for (game, server, gmap) in results:
     <tr>
         <td><a class="btn btn-primary btn-small" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
         <td><a href="${request.route_url("map_info", id=gmap.map_id)}" name="Map info page for map #${gmap.map_id}">${gmap.name}</a></td>
         <td><a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for server #${server.server_id}">${server.name}</a></td>
-        <td>${game.create_dt.strftime('%m/%d/%Y at %I:%M %p')}</td>
+        <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
     </tr>
     % endfor
 </table>

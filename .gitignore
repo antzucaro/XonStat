@@ -1,1 +1,5 @@
-*pyc
+*.pyc
+*~
+*.bak
+xonstat/batch/badges/output/*.png
+xonstat/batch/badges/output/*/*.png

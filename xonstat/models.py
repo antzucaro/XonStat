@@ -3,6 +3,7 @@ import logging
 import math
 import sqlalchemy
 import sqlalchemy.sql.functions as sfunc
+from calendar import timegm
 from datetime import timedelta
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
@@ -38,6 +39,9 @@ class Player(object):
     def to_dict(self):
         return {'player_id':self.player_id, 'name':self.nick.encode('utf-8')}
 
+    def epoch(self):
+        return timegm(self.create_dt.timetuple())
+
 
 class GameType(object):
     def __repr__(self):
@@ -67,6 +71,12 @@ class Server(object):
     def to_dict(self):
         return {'server_id':self.server_id, 'name':self.name.encode('utf-8')}
 
+    def fuzzy_date(self):
+        return pretty_date(self.create_dt)
+
+    def epoch(self):
+        return timegm(self.create_dt.timetuple())
+
 
 class Map(object):
     def __init__(self, name=None):
@@ -77,6 +87,12 @@ class Map(object):
 
     def to_dict(self):
         return {'map_id':self.map_id, 'name':self.name, 'version':self.version}
+
+    def fuzzy_date(self):
+        return pretty_date(self.create_dt)
+
+    def epoch(self):
+        return timegm(self.create_dt.timetuple())
 
 
 class Game(object):
@@ -97,6 +113,9 @@ class Game(object):
 
     def fuzzy_date(self):
         return pretty_date(self.start_dt)
+
+    def epoch(self):
+        return timegm(self.start_dt.timetuple())
 
 
 class PlayerGameStat(object):
@@ -152,6 +171,13 @@ class PlayerAchievement(object):
 
 
 class PlayerWeaponStat(object):
+    def __init__(self):
+        self.fired = 0
+        self.max = 0
+        self.hit = 0
+        self.actual = 0
+        self.frags = 0
+
     def __repr__(self):
         return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stats_id, self.player_id, self.game_id)
 

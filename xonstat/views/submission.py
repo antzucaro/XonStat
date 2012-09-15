@@ -101,7 +101,6 @@ def has_minimum_real_players(settings, player_events):
 
     real_players = num_real_players(player_events)
 
-    #TODO: put this into a config setting in the ini file?
     if real_players < minimum_required_players:
         flg_has_min_real_players = False
 
@@ -156,7 +155,7 @@ def register_new_nick(session, player, new_nick):
     new_nick - the new nickname
     """
     # see if that nick already exists
-    stripped_nick = strip_colors(player.nick)
+    stripped_nick = strip_colors(qfont_decode(player.nick))
     try:
         player_nick = session.query(PlayerNick).filter_by(
             player_id=player.player_id, stripped_nick=stripped_nick).one()
@@ -172,7 +171,7 @@ def register_new_nick(session, player, new_nick):
 
     # We change to the new nick regardless
     player.nick = new_nick
-    player.stripped_nick = strip_colors(new_nick)
+    player.stripped_nick = strip_colors(qfont_decode(new_nick))
     session.add(player)
 
 
@@ -325,7 +324,7 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
             # with a suffix added for uniqueness.
             if nick:
                 player.nick = nick[:128]
-                player.stripped_nick = strip_colors(nick[:128])
+                player.stripped_nick = strip_colors(qfont_decode(nick[:128]))
             else:
                 player.nick = "Anonymous Player #{0}".format(player.player_id)
                 player.stripped_nick = player.nick
@@ -362,8 +361,9 @@ def create_player_game_stat(session=None, player=None,
     #set game id from game record
     pgstat.game_id = game.game_id
 
-    # all games have a score
+    # all games have a score and every player has an alivetime
     pgstat.score = 0
+    pgstat.alivetime = datetime.timedelta(seconds=0)
 
     if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' or game.game_type_cd == 'duel':
         pgstat.kills = 0
@@ -378,7 +378,9 @@ def create_player_game_stat(session=None, player=None,
         pgstat.carrier_frags = 0
 
     for (key,value) in player_events.items():
-        if key == 'n': pgstat.nick = value[:128]
+        if key == 'n': 
+            pgstat.nick = value[:128]
+            pgstat.stripped_nick = strip_colors(qfont_decode(pgstat.nick))
         if key == 't': pgstat.team = int(value)
         if key == 'rank': pgstat.rank = int(value)
         if key == 'alivetime': 
@@ -416,7 +418,7 @@ def create_player_game_stat(session=None, player=None,
 
 
 def create_player_weapon_stats(session=None, player=None, 
-        game=None, pgstat=None, player_events=None):
+        game=None, pgstat=None, player_events=None, game_meta=None):
     """
     Creates accuracy records for each weapon used by a given player in a
     given game. Parameters:
@@ -427,8 +429,22 @@ def create_player_weapon_stats(session=None, player=None,
     pgstat - Corresponding PlayerGameStat record for these weapon stats
     player_events - dictionary containing the raw weapon values that need to be
         transformed
+    game_meta - dictionary of game metadata (only used for stats version info)
     """
     pwstats = []
+
+    # Version 1 of stats submissions doubled the data sent.
+    # To counteract this we divide the data by 2 only for
+    # POSTs coming from version 1.
+    try:
+        version = int(game_meta['V'])
+        if version == 1:
+            is_doubled = True
+            log.debug('NOTICE: found a version 1 request, halving the weapon stats...')
+        else:
+            is_doubled = False
+    except:
+        is_doubled = False
 
     for (key,value) in player_events.items():
         matched = re.search("acc-(.*?)-cnt-fired", key)
@@ -463,6 +479,13 @@ def create_player_weapon_stats(session=None, player=None,
             if 'acc-' + weapon_cd + '-frags' in player_events:
                 pwstat.frags = int(round(float(
                         player_events['acc-' + weapon_cd + '-frags'])))
+
+            if is_doubled:
+                pwstat.fired = pwstat.fired/2
+                pwstat.max = pwstat.max/2
+                pwstat.hit = pwstat.hit/2
+                pwstat.actual = pwstat.actual/2
+                pwstat.frags = pwstat.frags/2
 
             session.add(pwstat)
             pwstats.append(pwstat)
@@ -520,7 +543,7 @@ def parse_body(request):
 
 
 def create_player_stats(session=None, player=None, game=None, 
-        player_events=None):
+        player_events=None, game_meta=None):
     """
     Creates player game and weapon stats according to what type of player
     """
@@ -531,7 +554,7 @@ def create_player_stats(session=None, player=None, game=None,
     if not re.search('^bot#\d+$', player_events['P']):
         create_player_weapon_stats(session=session, 
             player=player, game=game, pgstat=pgstat,
-            player_events=player_events)
+            player_events=player_events, game_meta=game_meta)
 
 
 def stats_submit(request):
@@ -539,7 +562,8 @@ def stats_submit(request):
     Entry handler for POST stats submissions.
     """
     try:
-        session = DBSession()
+        # placeholder for the actual session
+        session = None
 
         log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
                 "----- END REQUEST BODY -----\n\n")
@@ -549,7 +573,7 @@ def stats_submit(request):
             log.debug("ERROR: Unverified request")
             raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
 
-        (game_meta, players) = parse_body(request)  
+        (game_meta, players) = parse_body(request)
 
         if not has_required_metadata(game_meta):
             log.debug("ERROR: Required game meta missing")
@@ -578,6 +602,12 @@ def stats_submit(request):
             revision = game_meta['R']
         except:
             revision = "unknown"
+
+        #----------------------------------------------------------------------
+        # This ends the "precondition" section of sanity checks. All
+        # functions not requiring a database connection go ABOVE HERE.
+        #----------------------------------------------------------------------
+        session = DBSession()
 
         server = get_or_create_server(session=session, hashkey=idfp, 
                 name=game_meta['S'], revision=revision,
@@ -609,7 +639,7 @@ def stats_submit(request):
                     hashkey=player_events['P'], nick=nick)
                 log.debug('Creating stats for %s' % player_events['P'])
                 create_player_stats(session=session, player=player, game=game, 
-                        player_events=player_events)
+                        player_events=player_events, game_meta=game_meta)
 
         # update elos
         try:
@@ -621,5 +651,6 @@ def stats_submit(request):
         log.debug('Success! Stats recorded.')
         return Response('200 OK')
     except Exception as e:
-        session.rollback()
+        if session:
+            session.rollback()
         return e

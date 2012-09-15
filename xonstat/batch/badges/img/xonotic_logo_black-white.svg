@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="256"
+   height="243.72501"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.48.2 r9819"
+   version="1.0"
+   sodipodi:docname="xonotic_logo_black-white.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-xdpi="14.765625"
+   inkscape:export-ydpi="14.765625"
+   inkscape:export-filename="/home/zykure/XonStat/xonstat/batch/badges/img/xonotic_logo_black-white.png">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="219.9015"
+     inkscape:cy="151.47868"
+     inkscape:document-units="px"
+     inkscape:current-layer="XonoticLogo"
+     showgrid="false"
+     inkscape:showpageshadow="false"
+     gridtolerance="10"
+     showguides="false"
+     inkscape:guide-bbox="true"
+     inkscape:snap-to-guides="true"
+     inkscape:snap-global="true"
+     borderlayer="true"
+     inkscape:window-width="1366"
+     inkscape:window-height="744"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     units="pt">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2383"
+       visible="true"
+       enabled="true"
+       empspacing="4"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <dc:date>2010</dc:date>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Xonotic Community</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:publisher>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Xonotic Community</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <cc:license
+           rdf:resource="Dual-licensed under the &quot;GNU LGPL v2.1, or any later version&quot; (http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) and &quot;CC-BY v3.0&quot; (http://creativecommons.org/licenses/by/3.0/)" />
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>Xonotic</rdf:li>
+            <rdf:li>Phoenix</rdf:li>
+            <rdf:li>Logo</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <dc:description>A print version of the Xonotic logo. Completely black.</dc:description>
+        <dc:relation>Xonotic Logo</dc:relation>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="XonoticLogo"
+     transform="translate(-896,-396.275)">
+    <path
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+       d="m 1057.0938,439.71875 c -34.0014,5.48439 -77.51225,47.9452 -119.9063,82.0625 l 52.125,-24.0625 -30.125,32.03125 26.03125,-12.1875 c -8.54487,16.84277 -7.62992,45.97673 -35.75,51.71875 14.64181,14.49069 33.4581,24.78052 54.50005,28.8125 C 1014,600 1021,628 1024,628 c 3,0 10,-28 20.0312,-29.90625 21.8482,-4.18648 41.2906,-15.12031 56.1563,-30.5 -74.3924,0.92961 -69.6917,-74.54814 -3.9687,-91.0625 -5.069,-4.72305 -21.9395,-3.83806 -35.75,-1.65625 2.4067,-16.09443 25.2286,-23.80249 42.0937,-21.71875 -9.6384,-9.77813 -21.3735,-16.84255 -40.8437,-8.71875 l -4.625,-4.71875 z m -9.3438,13.5625 5.0625,5 c -6.6098,5.59761 -12.4827,5.96968 -18.0625,0.96875 l 13,-5.96875 z"
+       id="PhoenixHead"
+       sodipodi:nodetypes="cccccccsccccccccccc"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       d="M 969.28125,396.2812 C 925.981,416.8108 896,460.9225 896,512 c 0,70.656 57.344,128 128.0001,128 70.656,0 128,-57.344 128,-128 0,-51.0775 -29.9809,-95.1892 -73.2812,-115.7188 34.1753,19.1854 57.2812,55.7626 57.2812,97.7188 0,54.5462 -39.0631,100.0173 -90.7188,109.9688 -6.8922,1.3277 -15.2812,32.0312 -21.2812,32.0312 -6,0 -14.3892,-30.7034 -21.2814,-32.0312 C 951.06315,594.0172 912,548.5462 912,494 c 0,-41.9562 23.1059,-78.5334 57.28125,-97.7188 z"
+       id="RingBorder"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="14.765619"
+       inkscape:export-ydpi="14.765619" />
+  </g>
+</svg>

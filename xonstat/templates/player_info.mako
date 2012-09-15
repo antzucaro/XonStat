@@ -191,7 +191,7 @@ Player Information
     <p>
       Member Since: <small>${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} </small><br />
 
-      Last Seen: <small>${recent_games[0][1].fuzzy_date()} </small><br />
+      Last Seen: <small><span class="abstime" data-epoch="${recent_games[0][1].epoch()}" title="${recent_games[0][1].create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${recent_games[0][1].fuzzy_date()}</span> </small><br />
 
       Playing Time: <small>${total_stats['alivetime']}
       % if total_stats['alivetime_month'] and total_stats['alivetime'] > total_stats['alivetime_month']:
@@ -589,7 +589,7 @@ Player Information
             % endif
           % endif
            </td>
-           <td>${game.fuzzy_date()}</td>
+           <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
         </tr>
       % endfor
       </tbody>
