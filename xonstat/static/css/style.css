@@ -106,9 +106,12 @@ textarea {
   vertical-align: top;
 }
 body {
+  background: url('img/web_background_3.jpg') no-repeat center center fixed;
   background-color: #000000;
-  background:#000 url('img/web_background_2.jpg') 0 0 no-repeat;
-  background-size: 100%;
+  -webkit-background-size: cover; /*for webKit*/
+  -moz-background-size: cover; /*Mozilla*/
+  -o-background-size: cover; /*opera*/
+  background-size: cover; /*generic*/
   color: #d0d0d0;
   font-family: "XoloniumNormal", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 11px;
@@ -3396,7 +3399,7 @@ a.thumbnail:hover {
 }
 #xonborder {
   background: rgb(0, 0, 0); /* IE Fallback */
-  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.4);
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.8);
   border-radius: 6px 6px 6px 6px;
   margin-bottom: 30px;
   padding: 20px;
