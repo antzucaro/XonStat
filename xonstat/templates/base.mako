@@ -11,13 +11,6 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-    </style>
-
     <%block name="css">
     <!-- <link href="/static/css/style.min.css" rel="stylesheet"> -->
     <link href="/static/css/style.css" rel="stylesheet">
