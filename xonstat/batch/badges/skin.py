@@ -266,7 +266,7 @@ class Skin:
         # fontsize is reduced if width gets too large
         ctx.select_font_face(self.font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
         shrinknick = 0
-        while shrinknick < 0.6*fontsize:
+        while shrinknick < 0.6 * self.nick_fontsize:
             ctx.set_font_size(self.nick_fontsize - shrinknick)
             xoff, yoff, tw, th = ctx.text_extents(stripped_nick)[:4]
             if tw > self.nick_maxwidth:
