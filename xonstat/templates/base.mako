@@ -16,6 +16,8 @@
     <link href="/static/css/style.css" rel="stylesheet">
     <link type="images/vnd.microsoft.icon" rel="shortcut icon" href="/static/favicon.ico">
     </%block>
+    
+    <script src="/static/js/jquery-1.7.1.min.js"></script>
   </head>
 
   <body>
