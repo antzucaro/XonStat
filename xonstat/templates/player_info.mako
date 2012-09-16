@@ -8,14 +8,11 @@ ${nav.nav('players')}
 
 <%block name="js">
     % if player is not None:
+      <script src="/static/js/jquery-1.7.1.min.js"></script>
       <script src="/static/js/jquery.flot.min.js"></script>
-      <script src="/static/js/bootstrap-tabs.js"></script>
       <script type="text/javascript">
-      jQuery(document).ready(function ($) {
-          $(".tabs").tabs();
-      });      
-
       $(function () {
+
           // plot the accuracy graph
           function plot_acc_graph(data) {
               var games = new Array();
@@ -80,12 +77,10 @@ ${nav.nav('players')}
           }
 
           var previousPoint = null;
-          var previousLabel = null;
           $('#acc-graph').bind("plothover", function (event, pos, item) {
               if (item) {
-                  if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
+                  if (previousPoint != item.dataIndex) {
                     previousPoint = item.dataIndex;
-                    previousLabel = item.series.label;
 
                     $("#tooltip").remove();
                     var x = item.datapoint[0].toFixed(2),
@@ -97,15 +92,13 @@ ${nav.nav('players')}
               else {
                   $("#tooltip").remove();
                   previousPoint = null;
-                  previousLabel = null;
               }
           });
 
           $('#dmg-graph').bind("plothover", function (event, pos, item) {
               if (item) {
-                  if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
+                  if (previousPoint != item.dataIndex) {
                     previousPoint = item.dataIndex;
-                    previousLabel = item.series.label;
 
                     $("#tooltip").remove();
                     var x = item.datapoint[0].toFixed(2),
@@ -117,7 +110,6 @@ ${nav.nav('players')}
               else {
                   $("#tooltip").remove();
                   previousPoint = null;
-                  previousLabel = null;
               }
           });
 
@@ -166,7 +158,6 @@ ${nav.nav('players')}
           });
       })
       </script>
-      <script src="/static/js/bootstrap-tabs.min.js"></script>
     % endif
 </%block>
 
@@ -193,55 +184,33 @@ Player Information
 
       Last Seen: <small><span class="abstime" data-epoch="${recent_games[0][1].epoch()}" title="${recent_games[0][1].create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${recent_games[0][1].fuzzy_date()}</span> </small><br />
 
-      Playing Time: <small>${total_stats['alivetime']}
-      % if total_stats['alivetime_month'] and total_stats['alivetime'] > total_stats['alivetime_month']:
-          % if total_stats['alivetime_week'] and total_stats['alivetime_month'] > total_stats['alivetime_week']:
-              <br />(${total_stats['alivetime_month']} this month; ${total_stats['alivetime_week']} this week)
-          % else:
-              <br />(${total_stats['alivetime_month']} this month)
-          % endif
-      % endif
-      </small><br />
+      Playing Time: <small>${total_stats['alivetime']} </small><br />
 
-      <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in total_stats['games_breakdown'].items()]) %>
-      Games Played: <small>${total_stats['games']}<br />(${games_breakdown_str})</small><br />
+      <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
+      Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
+
+      % if fav_map is not None:
+      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map['id'])}" title="view map info">${fav_map['name']}</a></small><br />
+      % endif
     </p>
   </div>
   <div class="span6">
     <p>
-      % if fav_server is not None:
-      Favorite Server: <small><a href="${request.route_url('server_info', id=fav_server[0]['id'])}" title="view server info">${fav_server[0]['name']}</a></small><br />
-      % endif
+       % if total_games > 0 and total_stats['wins'] is not None:
+       Win Percentage: <small>${round(float(total_stats['wins'])/total_games * 100, 2)}% (${total_stats['wins']} wins, ${total_games - total_stats['wins']} losses) </small><br />
+       % endif
 
-      % if fav_map is not None:
-      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map[0]['id'])}" title="view map info">${fav_map[0]['name']}</a></small><br />
-      % endif
+       % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
+       Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths) </small><br />
+       % endif
 
-      % if fav_weapon is not None:
-      Favorite Weapon: <small>${fav_weapon[0]['name']}</small><br />
-      % endif
-
-      % if total_stats['games'] > 0 and total_stats['wins'] is not None:
-      Win Percentage: <small>${round(float(total_stats['wins'])/total_stats['games'] * 100, 2)}% (${total_stats['wins']} wins, ${total_stats['games'] - total_stats['wins']} losses) </small><br />
-      % endif
-
-      % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
-      Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths, ${total_stats['suicides']} suicides) </small><br />
-      % endif
-    </p>
-  </div>
-</div>
-
-<div class="row">
-  <div class="span12">
-    <p>
        % if elos_display is not None and len(elos_display) > 0:
        Elo:
-          <small>${elos_display} </small>
-          %if '*' in elos_display:
-              <small><i>*preliminary Elo</i></small>
-          %endif
+          <small>${', '.join(elos_display)} </small>
           <br />
+          %if '*' in ', '.join(elos_display):
+              <small><i>*preliminary Elo</i></small><br />
+          %endif
       % endif
 
       % if ranks_display != '':
@@ -250,6 +219,7 @@ Player Information
     </p>
   </div>
 </div>
+
 
 % if 'nex' in recent_weapons or 'rifle' in recent_weapons or 'minstanex' in recent_weapons or 'uzi' in recent_weapons or 'shotgun' in recent_weapons:
 <div class="row">
@@ -265,7 +235,7 @@ Player Information
           <div class="acc-weap weapon-active">
             <img src="${request.static_url("xonstat:static/images/nex.png")}" />
             <p><small>Nex</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','nex')])}" title="Show nex accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
           </div>
         </li>
         % endif
@@ -275,7 +245,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/rifle.png")}" />
             <p><small>Rifle</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','rifle')])}" title="Show rifle accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
           </div>
         </li>
         % endif
@@ -285,7 +255,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/minstanex.png")}" />
             <p><small>Minstanex</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','minstanex')])}" title="Show minstanex accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
           </div>
         </li>
         % endif
@@ -295,7 +265,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/uzi.png")}" />
             <p><small>Uzi</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','uzi')])}" title="Show uzi accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
           </div>
         </li>
         % endif
@@ -305,7 +275,7 @@ Player Information
           <div class="acc-weap">
             <img src="${request.static_url("xonstat:static/images/shotgun.png")}" />
             <p><small>Shotgun</small></p>
-            <a href="${request.route_url('player_accuracy', id=player.player_id, _query=[('weapon','shotgun')])}" title="Show shotgun accuracy"></a>
+            <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
           </div>
         </li>
         % endif
@@ -331,7 +301,7 @@ Player Information
           <div class="dmg-weap weapon-active">
             <img src="${request.static_url("xonstat:static/images/rocketlauncher.png")}" />
             <p><small>Rocket</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','rocketlauncher')])}" title="Show rocket launcher efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'rocketlauncher'})}" title="Show rocket launcher efficiency"></a>
           </div>
         </li>
         % endif
@@ -341,7 +311,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/grenadelauncher.png")}" />
             <p><small>Mortar</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','grenadelauncher')])}" title="Show mortar damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'grenadelauncher'})}" title="Show mortar damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -351,7 +321,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/electro.png")}" />
             <p><small>Electro</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','electro')])}" title="Show electro damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'electro'})}" title="Show electro damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -361,7 +331,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/crylink.png")}" />
             <p><small>Crylink</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','crylink')])}" title="Show crylink damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'crylink'})}" title="Show crylink damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -371,7 +341,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/hagar.png")}" />
             <p><small>Hagar</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','hagar')])}" title="Show hagar damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'hagar'})}" title="Show hagar damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -381,7 +351,7 @@ Player Information
           <div class="dmg-weap">
             <img src="${request.static_url("xonstat:static/images/laser.png")}" />
             <p><small>Laser</small></p>
-            <a href="${request.route_url('player_damage', id=player.player_id, _query=[('weapon','laser')])}" title="Show laser damage efficiency"></a>
+            <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'laser'})}" title="Show laser damage efficiency"></a>
           </div>
         </li>
         % endif
@@ -393,166 +363,9 @@ Player Information
 </div>
 % endif
 
-<div class="row">
-  <div class="span8 tabbable">
-    <h3>Game Breakdown</h3>
-    <ul class="tabs nav nav-pills" data-tabs="tabs">
-    <% gametypes = ['Overall', 'Duel', 'DM', 'TDM', 'CTF'] %>
-    % for gtc in gametypes:
-      % if gtc.lower() == 'overall' or total_stats['games_breakdown'].has_key(gtc.lower()):
-        % if gtc.lower() == 'overall':
-      <li class="active">
-        % else:
-      <li>
-        % endif
-        <a href="#breakdown-${gtc.lower()}" data-toggle="tabs">${gtc}</a>
-      </li>
-      % endif
-    % endfor
-    </ul>
-    <div class="tab-content">
-    % for gtc in gametypes:
-      <% gtc_key = gtc.lower() %>
-      % if gtc_key == "overall":
-        <% total     = total_stats['games'] %>
-        <% alivetime = total_stats['alivetime'] %>
-        <% wins      = total_stats['wins'] %>
-        <% losses    = total - wins %>
-        <% kills     = total_stats['kills'] %>
-        <% deaths    = total_stats['deaths'] %>
-        <% suicides  = total_stats['suicides'] %>
-      % elif total_stats['games_breakdown'].has_key(gtc_key):
-        <% total     = total_stats['games_breakdown'][gtc_key] %>
-        <% alivetime = total_stats['games_alivetime'][gtc_key] %>
-        <% wins      = total_stats[gtc_key+'_wins'] %>
-        <% losses    = total - wins %>
-        % if gtc_key == "ctf":
-          <% caps      = total_stats[gtc_key+'_caps'] %>
-          <% pickups   = total_stats[gtc_key+'_pickups'] %>
-          <% returns   = total_stats[gtc_key+'_returns'] %>
-          <% drops     = total_stats[gtc_key+'_drops'] %>
-          <% fckills   = total_stats[gtc_key+'_fckills'] %>
-        % else:
-          <% kills     = total_stats[gtc_key+'_kills'] %>
-          <% deaths    = total_stats[gtc_key+'_deaths'] %>
-          <% suicides  = total_stats[gtc_key+'_suicides'] %>
-        % endif
-      % endif
-      % if gtc_key == 'overall' or total_stats['games_breakdown'].has_key(gtc_key):
-        % if gtc_key == 'overall':
-      <div class="tab-pane active" id="breakdown-${gtc_key}">
-        % else:
-      <div class="tab-pane" id="breakdown-${gtc_key}">
-        % endif
-        <div style="margin:15px;float:left;"><img title="${gtc}" src="/static/images/icons/48x48/${gtc_key}.png" alt="${gtc}" /></div>
-        <table class="table table-bordered table-condensed">
-          <thead>
-          </thead>
-          <tbody>
-            <tr>
-              <td><b>Games Played:</b></td>
-              <td>${total}</td>
-              % if gtc_key == 'overall':
-              <td></td>
-              % else:
-              <td>${round(float(total)/total_stats['games'] * 100, 2)}% of all games</td>
-              % endif
-            </tr>
-            <tr>
-              <td><b>Playing Time:</b></td>
-              <td>${alivetime} hours</td>
-              % if gtc_key == 'overall':
-              <td></td>
-              % else:
-              <td>${round(float(alivetime.total_seconds())/total_stats['alivetime'].total_seconds() * 100, 2)}% of total playing time</td>
-              % endif
-            </tr>
-            <tr>
-              <td width="30%"><b>Win Percentage:</b></td>
-              <td width="30%">${round(float(wins)/total * 100, 2)}%</td>
-              <td width="40%">${wins} wins, ${losses} losses</td>
-            </tr>
-            % if gtc_key == 'ctf':
-            <tr>
-              <td><b>Caps:</b></td>
-              <td>${round(float(caps)/total, 2)} per game</td>
-              <td>${caps} total</td>
-            </tr>
-            <tr>
-              <td><b>Pickups:</b></td>
-              <td>${round(float(pickups)/total, 2)} per game</td>
-              <td>${pickups} total</td>
-            </tr>
-            <tr>
-              <td><b>Drops:</b></td>
-              <td>${round(float(drops)/total, 2)} per game</td>
-              <td>${drops} total</td>
-            </tr>
-            <tr>
-              <td><b>Returns:</b></td>
-              <td>${round(float(returns)/total, 2)} per game</td>
-              <td>${returns} total</td>
-            </tr>
-            <tr>
-              <td><b>FC Kills:</b></td>
-              <td>${round(float(fckills)/total, 2)} per game</td>
-              <td>${fckills} total</td>
-            </tr>
-            <tr>
-              <td><b>Cap Ratio:</b></td>
-              <td>${round(float(caps)/pickups, 3)}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><b>Drop Ratio:</b></td>
-              <td>${round(float(drops)/pickups, 3)}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><b>Return Ratio:</b></td>
-              <td>${round(float(returns)/fckills, 3)}</td>
-              <td></td>
-            </tr>
-            % else:
-            <tr>
-              <td><b>Kills:</b></td>
-              <td>${round(float(kills)/total, 2)} per game</td>
-              <td>${kills} total</td>
-            </tr>
-            <tr>
-              <td><b>Deaths:</b></td>
-              <td>${round(float(deaths)/total, 2)} per game</td>
-              <td>${deaths} total</td>
-            </tr>
-            <tr>
-              <td><b>Suicides:</b></td>
-              <td>${round(float(suicides)/total, 2)} per game</td>
-              <td>${suicides} total</td>
-            </tr>
-            <tr>
-              <td><b>Kill Ratio:</b></td>
-              <td>${round(float(kills)/deaths, 3)}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><b>Suicide Ratio:</b></td>
-              <td>${round(float(suicides)/deaths, 3)}</td>
-              <td></td>
-            </tr>
-            % endif
-          </tbody>
-        </table>
-      </div>
-      % endif
-    % endfor
-    </div>
-  </div>
-</div>
-
 
 ##### RECENT GAMES (v2) ####
 % if recent_games:
-<br />
 <div class="row">
   <div class="span12">
     <h3>Recent Games</h3>
