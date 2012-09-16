@@ -2,25 +2,21 @@
 <%namespace file="navlinks.mako" import="navlinks" />
 
 <%block name="title">
-Rank Index - ${parent.title()}
+% if game_type_cd == 'dm':
+Deathmatch Rank Index
+% elif game_type_cd == 'duel':
+Duel Rank Index
+% elif game_type_cd == 'tdm':
+Team Deathmatch Rank Index
+% elif game_type_cd == 'ctf':
+Capture The Flag Rank Index
+% endif
 </%block>
 
 % if not ranks:
 <h2>Sorry, no ranks yet. Get some buddies together and start playing!</h2>
 
 % else:
-<h2>
-% if game_type_cd == 'dm':
-Deathmatch 
-% elif game_type_cd == 'duel':
-Duel 
-% elif game_type_cd == 'tdm':
-Team Deathmatch 
-% elif game_type_cd == 'ctf':
-Capture The Flag 
-% endif
-
-Rank Index</h2>
 <table id="rank-index-table" border="1">
   <tr>
     <th>Rank</th>
