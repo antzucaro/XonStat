@@ -588,7 +588,6 @@ def player_info_json(request):
                 for (gamestat, game, server, map) in player_info['recent_games'][:5]
             ],
         }
-    print json_result
     return json_result
 
 
