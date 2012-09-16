@@ -7,6 +7,7 @@ import sqlalchemy.sql.functions as func
 from sqlalchemy import distinct
 from pyramid.paster import bootstrap
 from xonstat.models import *
+from xonstat.util import datetime_seconds
 
 from skin import Skin
 from playerdata import PlayerData
@@ -113,7 +114,6 @@ for arg in sys.argv[1:]:
 if len(skins) == 0:
     skins = [ skin_classic, skin_minimal ]
 
-
 # environment setup
 env = bootstrap('../../../development.ini')
 req = env['request']
@@ -147,8 +147,7 @@ playerdata = PlayerData()
 if len(players) > 0:
     stop = datetime.now()
     td = stop-start
-    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-    print "Query took %.2f seconds" % (total_seconds)
+    print "Query took %.2f seconds" % (datetime_seconds(td))
 
     print "Creating badges for %d players ..." % len(players)
     start = datetime.now()
@@ -160,20 +159,18 @@ if len(players) > 0:
         playerdata.get_data(player_id)
         sstop = datetime.now()
         td = sstop-sstart
-        total_seconds = float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-        data_time += total_seconds
+        data_time += datetime_seconds(td)
 
         sstart = datetime.now()
         for sk in skins:
             sk.render_image(playerdata, "output/%s/%d.png" % (str(sk), player_id[0]))
         sstop = datetime.now()
         td = sstop-sstart
-        total_seconds = float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-        render_time += total_seconds
+        render_time += datetime_seconds(td)
 
     stop = datetime.now()
     td = stop-start
-    total_seconds = float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    total_seconds = datetime_seconds(td)
     print "Creating the badges took %.1f seconds (%.3f s per player)" % (total_seconds, total_seconds/float(len(players)))
     print "Total time for rendering images: %.3f s" % render_time
     print "Total time for getting data: %.3f s" % data_time

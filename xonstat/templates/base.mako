@@ -11,18 +11,13 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-    </style>
-
     <%block name="css">
     <!-- <link href="/static/css/style.min.css" rel="stylesheet"> -->
     <link href="/static/css/style.css" rel="stylesheet">
     <link type="images/vnd.microsoft.icon" rel="shortcut icon" href="/static/favicon.ico">
     </%block>
+    
+    <script src="/static/js/jquery-1.7.1.min.js"></script>
   </head>
 
   <body>
@@ -37,7 +32,7 @@
 
       <div class="row">
         <div class="span12" id="xonborder">
-          <div id="title"><%block name="title"></%block>&nbsp;</div>
+          <div id="title"><%block name="title"></%block></div>
             ${self.body()}
         </div> <!-- /xonborder -->
       </div> <!-- /main row -->

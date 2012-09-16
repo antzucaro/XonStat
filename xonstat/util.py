@@ -151,3 +151,7 @@ def pretty_date(time=False):
         return "almost 2 years ago"
     else:
         return "about {0} years ago".format(int(round(dim/525600.0)))
+
+def datetime_seconds(td):
+    return float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+
