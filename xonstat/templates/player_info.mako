@@ -10,9 +10,18 @@ ${nav.nav('players')}
     % if player is not None:
       <script src="/static/js/jquery-1.7.1.min.js"></script>
       <script src="/static/js/jquery.flot.min.js"></script>
+      <script src="/static/js/bootstrap-tab.js"></script>
       <script type="text/javascript">
       $(function () {
+        $('#gbtab').click(function(e) {
+            e.preventDefault();
+            $(this).tab('show');
+        })
+      })
+      </script>
 
+      <script type="text/javascript">
+      $(function () {
           // plot the accuracy graph
           function plot_acc_graph(data) {
               var games = new Array();
@@ -183,45 +192,49 @@ Player Information
 </div>
 
 <div class="row">
-  <div class="span6">
-    <p>
-      Member Since: <small>${player.create_dt.strftime('%m/%d/%Y at %I:%M %p')} </small><br />
+  <div class="tabbable tabs-right">
+      <ul id="gbtab" class="nav nav-tabs">
+      % for g in games_played:
+        <li><a href="#tab-${g.game_type_cd}" data-toggle="tab">${g.game_type_cd} (${g.games})</a></li>
+      % endfor
+      </ul>
 
-      Last Seen: <small><span class="abstime" data-epoch="${recent_games[0][1].epoch()}" title="${recent_games[0][1].create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${recent_games[0][1].fuzzy_date()}</span> </small><br />
+      <div class="tab-content">
+      % for g in games_played:
+        <div class="tab-pane fade in 
+        % if g.game_type_cd == 'overall':
+          active
+        % endif
+        " id="tab-${g.game_type_cd}">
+          <div class="span5">
+            % if g.game_type_cd in overall_stats:
+            Last Played: ${overall_stats[g.game_type_cd].last_played} <br />
+            % endif
 
-      Playing Time: <small>${total_stats['alivetime']} </small><br />
+            Games Played: ${g.games} <br />
 
-      <% games_breakdown_str = ', '.join(["{0} {1}".format(ng, gt) for (gt, ng) in games_breakdown]) %>
-      Games Played: <small>${total_games} (${games_breakdown_str})</small><br />
+            % if g.game_type_cd in fav_maps:
+            Favorite Map: ${fav_maps[g.game_type_cd].map_name} <br />
+            % endif
 
-      % if fav_map is not None:
-      Favorite Map: <small><a href="${request.route_url('map_info', id=fav_map['id'])}" title="view map info">${fav_map['name']}</a></small><br />
-      % endif
-    </p>
-  </div>
-  <div class="span6">
-    <p>
-       % if total_games > 0 and total_stats['wins'] is not None:
-       Win Percentage: <small>${round(float(total_stats['wins'])/total_games * 100, 2)}% (${total_stats['wins']} wins, ${total_games - total_stats['wins']} losses) </small><br />
-       % endif
+            Win Percentage: ${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br />
 
-       % if total_stats['kills'] > 0 and total_stats['deaths'] > 0:
-       Kill Ratio: <small>${round(float(total_stats['kills'])/total_stats['deaths'], 3)} (${total_stats['kills']} kills, ${total_stats['deaths']} deaths) </small><br />
-       % endif
+            % if g.game_type_cd in overall_stats:
+            Kill Ratio: ${round(overall_stats[g.game_type_cd].k_d_ratio,2)} (${overall_stats[g.game_type_cd].total_kills} kills, ${overall_stats[g.game_type_cd].total_deaths} deaths) <br />
+            % endif
 
-       % if elos_display is not None and len(elos_display) > 0:
-       Elo:
-          <small>${', '.join(elos_display)} </small>
-          <br />
-          %if '*' in ', '.join(elos_display):
-              <small><i>*preliminary Elo</i></small><br />
-          %endif
-      % endif
+            % if g.game_type_cd in elos:
+            Elo: ${round(elos[g.game_type_cd].elo,2)} (${elos[g.game_type_cd].games} games) <br />
+            % endif
 
-      % if ranks_display != '':
-      Ranks: <small>${ranks_display}</small><br />
-      % endif
-    </p>
+            % if g.game_type_cd in ranks:
+            Rank: ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} <br />
+            % endif
+
+          </div>
+        </div>
+      % endfor
+      </div>
   </div>
 </div>
 

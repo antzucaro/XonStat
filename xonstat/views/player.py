@@ -102,13 +102,13 @@ def get_games_played(player_id):
         overall_games += games
         overall_wins += row.wins
         overall_losses += row.losses
-        win_pct = float(row.wins)/games
+        win_pct = float(row.wins)/games * 100
 
         games_played.append(GamesPlayed(row.game_type_cd, games, row.wins,
             row.losses, win_pct))
 
     try:
-        overall_win_pct = float(overall_wins)/overall_games
+        overall_win_pct = float(overall_wins)/overall_games * 100
     except:
         overall_win_pct = 0.0
 
@@ -669,63 +669,7 @@ def player_info(request):
     """
     Provides detailed information on a specific player
     """
-    player_info = player_info_data(request)
-
-    player         = player_info['player']
-    games_played   = player_info['games_played']
-    overall_stats  = player_info['overall_stats']
-    fav_maps       = player_info['fav_maps']
-    elos           = player_info['elos']
-    ranks          = player_info['ranks']
-    recent_games   = player_info['recent_games']
-    recent_weapons = player_info['recent_weapons']
-
-    # holds all of the tab content data
-    stat_strings = {}
-    for g in games_played:
-        stat_strings[g.game_type_cd] = []
-
-    # last seen, playing time
-    for k,v in overall_stats.iteritems():
-        stat_strings[k].append({'Last Played':v.last_played})
-        stat_strings[k].\
-                append({'Playing Time':v.total_playing_time})
-
-    # games played, win ratio
-    for g in games_played:
-        stat_strings[g.game_type_cd].append({'Games Played':g.games})
-        stat_strings[g.game_type_cd].\
-                append({'Win Pct':'{0} ({1} wins, {2} losses'.\
-                format(g.win_pct, g.wins, g.losses)})
-
-    # kill ratio
-    for k,v in overall_stats.iteritems():
-        stat_strings[k].\
-                append({'Kill Ratio':'{0} ({1} kills, {2} deaths)'.\
-                format(v.k_d_ratio, v.total_kills, v.total_deaths)})
-
-    # favorite maps
-    for k,v in fav_maps.iteritems():
-        stat_strings[k].append({'Favorite Map':v.map_name})
-
-    # elos
-    for k,v in elos.iteritems():
-        try:
-            stat_strings[k].append({'Elo':v.elo})
-        except:
-            pass
-
-    # ranks
-    for k,v in ranks.iteritems():
-        try:
-            stat_strings[k].append({'Rank':'{0} of {1}'.\
-                    format(v.rank, v.max_rank)})
-        except:
-            pass
-
-    print stat_strings
-
-    return player_info
+    return player_info_data(request)
 
 
 def player_info_json(request):
