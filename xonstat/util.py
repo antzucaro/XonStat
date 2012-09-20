@@ -2,6 +2,7 @@ import re
 from colorsys import rgb_to_hls, hls_to_rgb
 from cgi import escape as html_escape
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 # Map of special chars to ascii from Darkplace's console.c.
 _qfont_table = [
@@ -154,4 +155,23 @@ def pretty_date(time=False):
 
 def datetime_seconds(td):
     return float(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+
+def namedtuple_to_dict(tup):
+    result = {}
+    for key,value in tup._asdict().items():
+        result[key] = value
+    return result
+
+def fix_json_types(data):
+    result = {}
+    for key,value in data.items():
+        if type(value) == Decimal:
+            result[key] = float(value)
+        elif type(value) == datetime:
+            result[key] = value.strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif type(value) == timedelta:
+            result[key] = datetime_seconds(value)
+        else:
+            result[key] = value
+    return result
 
