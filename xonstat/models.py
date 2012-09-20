@@ -37,7 +37,11 @@ class Player(object):
         return "<Player(%s, %s)>" % (self.player_id, self.nick.encode('utf-8'))
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'name':self.nick.encode('utf-8')}
+        return {'player_id':self.player_id, 'name':self.nick.encode('utf-8'),
+            'joined':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'active_ind':self.active_ind, 'location':self.location,
+            'stripped_nick':self.stripped_nick.encode('utf-8'),
+            'nick_html_colors':self.nick_html_colors().encode('utf-8')}
 
     def epoch(self):
         return timegm(self.create_dt.timetuple())
@@ -69,7 +73,8 @@ class Server(object):
         return "<Server(%s, %s)>" % (self.server_id, self.name.encode('utf-8'))
 
     def to_dict(self):
-        return {'server_id':self.server_id, 'name':self.name.encode('utf-8')}
+        return {'server_id':self.server_id, 'name':self.name.encode('utf-8'),
+            'ip_addr':self.ip_addr, 'location':self.location}
 
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
@@ -86,7 +91,8 @@ class Map(object):
         return "<Map(%s, %s, %s)>" % (self.map_id, self.name, self.version)
 
     def to_dict(self):
-        return {'map_id':self.map_id, 'name':self.name, 'version':self.version}
+        return {'map_id':self.map_id, 'name':self.name, 'version':self.version,
+            'pk3_name':self.pk3_name, 'curl_url':self.curl_url}
 
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
@@ -127,7 +133,9 @@ class PlayerGameStat(object):
         return "<PlayerGameStat(%s, %s, %s)>" % (self.player_id, self.game_id, self.create_dt)
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'game_id':self.game_id, 'create_dt':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        return {'player_id':self.player_id, 'game_id':self.game_id,
+            'create_dt':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'alivetime':self.alivetime, 'rank':self.rank, 'score':self.score, 'team':self.team}
 
     def nick_stripped(self):
         if self.nick is None:
@@ -215,10 +223,10 @@ class PlayerElo(object):
         self.games = 0
 
     def __repr__(self):
-        return "<PlayerElo(pid=%s, gametype=%s, elo=%s)>" % (self.player_id, self.game_type_cd, self.elo)
+        return "<PlayerElo(pid=%s, gametype=%s, elo=%s, games=%s)>" % (self.player_id, self.game_type_cd, self.elo, self.games)
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'game_type_cd':self.game_type_cd, 'elo':self.elo}
+        return {'player_id':self.player_id, 'game_type_cd':self.game_type_cd, 'elo':self.elo, 'games':self.games}
 
 
 class PlayerRank(object):

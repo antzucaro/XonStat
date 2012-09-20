@@ -11,7 +11,7 @@ from pyramid.url import current_route_url
 from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
-from xonstat.util import page_url
+from xonstat.util import page_url, namedtuple_to_dict, fix_json_types
 
 log = logging.getLogger(__name__)
 
@@ -250,6 +250,8 @@ def get_fav_maps(player_id, game_type_cd=None):
     defined as the favorite map of the game type you've played the
     most. The input parameter game_type_cd is for this.
     """
+    FavMap = namedtuple('FavMap', ['map_name', 'map_id', 'times_played', 'game_type_cd'])
+
     raw_favs = DBSession.query('game_type_cd', 'map_name',
             'map_id', 'times_played').\
             from_statement(
@@ -281,20 +283,25 @@ def get_fav_maps(player_id, game_type_cd=None):
     fav_maps = {}
     overall_fav = None
     for row in raw_favs:
+        fv = FavMap(map_name=row.map_name,
+            map_id=row.map_id,
+            times_played=row.times_played,
+            game_type_cd=row.game_type_cd)
+    
         # if we aren't given a favorite game_type_cd
         # then the overall favorite is the one we've
         # played the most
         if overall_fav is None:
-            fav_maps['overall'] = row
-            overall_fav = row.game_type_cd
+            fav_maps['overall'] = fv
+            overall_fav = fv.game_type_cd
 
         # otherwise it is the favorite map from the
         # favorite game_type_cd (provided as a param)
         # and we'll overwrite the first dict entry
-        if game_type_cd == row.game_type_cd:
-            fav_maps['overall'] = row
+        if game_type_cd == fv.game_type_cd:
+            fav_maps['overall'] = fv
 
-        fav_maps[row.game_type_cd] = row
+        fav_maps[row.game_type_cd] = fv
 
     return fav_maps
 
@@ -310,7 +317,9 @@ def get_ranks(player_id):
 
     The key to the dictionary is the game type code. There is also an
     "overall" game_type_cd which is the overall best rank.
-    """
+    """    
+    Rank = namedtuple('Rank', ['rank', 'max_rank', 'game_type_cd'])
+
     raw_ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
             from_statement(
                 "select pr.game_type_cd, pr.rank, overall.max_rank "
@@ -326,11 +335,15 @@ def get_ranks(player_id):
     ranks = {}
     found_top_rank = False
     for row in raw_ranks:
+        rank = Rank(rank=row.rank,
+            max_rank=row.max_rank,
+            game_type_cd=row.game_type_cd)
+        
         if not found_top_rank:
-            ranks['overall'] = row
+            ranks['overall'] = rank
             found_top_rank = True
 
-        ranks[row.game_type_cd] = row
+        ranks[row.game_type_cd] = rank
 
     return ranks;
 
@@ -370,6 +383,8 @@ def get_recent_games(player_id):
     Returns the full PlayerGameStat, Game, Server, Map
     objects for all recent games.
     """
+    RecentGame = namedtuple('RecentGame', ['player_stats', 'game', 'server', 'map'])
+
     # recent games table, all data
     recent_games = DBSession.query(PlayerGameStat, Game, Server, Map).\
             filter(PlayerGameStat.player_id == player_id).\
@@ -378,7 +393,12 @@ def get_recent_games(player_id):
             filter(Game.map_id == Map.map_id).\
             order_by(Game.game_id.desc())[0:10]
 
-    return recent_games
+    return [
+        RecentGame(player_stats=row.PlayerGameStat,
+            game=row.Game,
+            server=row.Server,
+            map=row.Map)
+        for row in recent_games ]
 
 
 def get_recent_weapons(player_id):
@@ -529,7 +549,52 @@ def player_info_json(request):
     """
     Provides detailed information on a specific player. JSON.
     """
-    return [{'status':'not implemented'}]
+    
+    # All player_info fields are converted into JSON-formattable dictionaries
+    player_info = player_info_data(request)    
+    
+    player = player_info['player'].to_dict()
+
+    games_played = {}
+    for game in player_info['games_played']:
+        games_played[game.game_type_cd] = namedtuple_to_dict(game)
+    
+    overall_stats = {}
+    for gt,stats in player_info['overall_stats'].items():
+        overall_stats[gt] = fix_json_types(namedtuple_to_dict(stats))
+    
+    elos = {}
+    for gt,elo in player_info['elos'].items():
+        elos[gt] = fix_json_types(elo.to_dict())
+    
+    ranks = {}
+    for gt,rank in player_info['ranks'].items():
+        ranks[gt] = namedtuple_to_dict(rank)
+    
+    fav_maps = {}
+    for gt,stats in player_info['fav_maps'].items():
+        fav_maps[gt] = namedtuple_to_dict(stats)
+     
+    recent_games = []
+    for game in player_info['recent_games']:
+        entry = {}
+        for key,value in namedtuple_to_dict(game).items():
+            entry[key] = fix_json_types(value.to_dict())
+        recent_games.append(entry)
+    
+    recent_weapons = player_info['recent_weapons']
+    
+    return [{
+        'player':           player,
+        'games_played':     games_played,
+        'overall_stats':    overall_stats,
+        'fav_maps':         fav_maps,
+        'elos':             elos,
+        'ranks':            ranks,
+        'recent_games':     recent_games,
+        'recent_weapons':   recent_weapons,
+    }]
+    #return [{'status':'not implemented'}]
 
 
 def player_game_index_data(request):
