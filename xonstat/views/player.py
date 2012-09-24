@@ -11,7 +11,7 @@ from pyramid.url import current_route_url
 from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
-from xonstat.util import page_url, namedtuple_to_dict, fix_json_types
+from xonstat.util import page_url, to_json
 
 log = logging.getLogger(__name__)
 
@@ -557,30 +557,27 @@ def player_info_json(request):
 
     games_played = {}
     for game in player_info['games_played']:
-        games_played[game.game_type_cd] = namedtuple_to_dict(game)
+        games_played[game.game_type_cd] = to_json(game)
     
     overall_stats = {}
     for gt,stats in player_info['overall_stats'].items():
-        overall_stats[gt] = fix_json_types(namedtuple_to_dict(stats))
+        overall_stats[gt] = to_json(stats)
     
     elos = {}
     for gt,elo in player_info['elos'].items():
-        elos[gt] = fix_json_types(elo.to_dict())
+        elos[gt] = to_json(elo.to_dict())
     
     ranks = {}
     for gt,rank in player_info['ranks'].items():
-        ranks[gt] = namedtuple_to_dict(rank)
+        ranks[gt] = to_json(rank)
     
     fav_maps = {}
-    for gt,stats in player_info['fav_maps'].items():
-        fav_maps[gt] = namedtuple_to_dict(stats)
+    for gt,mapinfo in player_info['fav_maps'].items():
+        fav_maps[gt] = to_json(mapinfo)
      
     recent_games = []
     for game in player_info['recent_games']:
-        entry = {}
-        for key,value in namedtuple_to_dict(game).items():
-            entry[key] = fix_json_types(value.to_dict())
-        recent_games.append(entry)
+        recent_games.append(to_json(game))
     
     recent_weapons = player_info['recent_weapons']
     

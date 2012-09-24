@@ -37,11 +37,10 @@ class Player(object):
         return "<Player(%s, %s)>" % (self.player_id, self.nick.encode('utf-8'))
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'name':self.nick.encode('utf-8'),
+        return {'player_id':self.player_id, 'nick':self.nick,
             'joined':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
             'active_ind':self.active_ind, 'location':self.location,
-            'stripped_nick':self.stripped_nick.encode('utf-8'),
-            'nick_html_colors':self.nick_html_colors().encode('utf-8')}
+            'stripped_nick':self.stripped_nick}
 
     def epoch(self):
         return timegm(self.create_dt.timetuple())
@@ -73,7 +72,7 @@ class Server(object):
         return "<Server(%s, %s)>" % (self.server_id, self.name.encode('utf-8'))
 
     def to_dict(self):
-        return {'server_id':self.server_id, 'name':self.name.encode('utf-8'),
+        return {'server_id':self.server_id, 'name':self.name,
             'ip_addr':self.ip_addr, 'location':self.location}
 
     def fuzzy_date(self):
@@ -91,8 +90,7 @@ class Map(object):
         return "<Map(%s, %s, %s)>" % (self.map_id, self.name, self.version)
 
     def to_dict(self):
-        return {'map_id':self.map_id, 'name':self.name, 'version':self.version,
-            'pk3_name':self.pk3_name, 'curl_url':self.curl_url}
+        return {'map_id':self.map_id, 'name':self.name, 'version':self.version,}
 
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
@@ -115,7 +113,8 @@ class Game(object):
         return "<Game(%s, %s, %s, %s)>" % (self.game_id, self.start_dt, self.game_type_cd, self.server_id)
 
     def to_dict(self):
-        return {'game_id':self.game_id, 'start':self.start_dt.strftime('%Y-%m-%dT%H:%M:%SZ'), 'game_type_cd':self.game_type_cd, 'server_id':self.server_id}
+        return {'game_id':self.game_id, 'start':self.start_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                'game_type_cd':self.game_type_cd, 'server_id':self.server_id}
 
     def fuzzy_date(self):
         return pretty_date(self.start_dt)
