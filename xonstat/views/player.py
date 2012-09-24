@@ -579,7 +579,7 @@ def player_info_json(request):
     for game in player_info['recent_games']:
         recent_games.append(to_json(game))
     
-    recent_weapons = player_info['recent_weapons']
+    #recent_weapons = player_info['recent_weapons']
     
     return [{
         'player':           player,
@@ -589,7 +589,8 @@ def player_info_json(request):
         'elos':             elos,
         'ranks':            ranks,
         'recent_games':     recent_games,
-        'recent_weapons':   recent_weapons,
+    #    'recent_weapons':   recent_weapons,
+        'recent_weapons':   ['not implemented'],
     }]
     #return [{'status':'not implemented'}]
 
