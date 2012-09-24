@@ -176,7 +176,6 @@ def to_json(data):
         elif type(value) == timedelta:
             result[key] = datetime_seconds(value)
         else:
-            print key,value
             result[key] = to_json(value.to_dict())
     return result
 
