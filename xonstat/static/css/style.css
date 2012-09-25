@@ -3408,6 +3408,7 @@ table {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5);
   border-radius: 15px 15px 15px 15px;
   margin-bottom: 30px;
+  margin-left: 0px;
   padding: 20px;
 }
 #title {
