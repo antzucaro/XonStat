@@ -226,7 +226,9 @@ Player Information
           <div class="span5">
             <p>
             % if g.game_type_cd in overall_stats:
-            Kill Ratio: <small>${round(overall_stats[g.game_type_cd].k_d_ratio,2)} (${overall_stats[g.game_type_cd].total_kills} kills, ${overall_stats[g.game_type_cd].total_deaths} deaths) <br /></small>
+              % if overall_stats[g.game_type_cd].k_d_ratio is not None:
+              Kill Ratio: <small>${round(overall_stats[g.game_type_cd].k_d_ratio,2)} (${overall_stats[g.game_type_cd].total_kills} kills, ${overall_stats[g.game_type_cd].total_deaths} deaths) <br /></small>
+              % endif
             % endif
 
             % if g.game_type_cd in elos:
@@ -247,7 +249,9 @@ Player Information
             % endif
 
             % if g.game_type_cd == 'ctf':
-            Cap Ratio: <small>${round(overall_stats[g.game_type_cd].cap_ratio,2)} (${overall_stats[g.game_type_cd].total_captures} captures, ${overall_stats[g.game_type_cd].total_pickups} pickups) <br /></small>
+              % if  overall_stats[g.game_type_cd].cap_ratio is not None:
+                Cap Ratio: <small>${round(overall_stats[g.game_type_cd].cap_ratio,2)} (${overall_stats[g.game_type_cd].total_captures} captures, ${overall_stats[g.game_type_cd].total_pickups} pickups) <br /></small>
+              % endif
             % endif
             </p>
           </div>
