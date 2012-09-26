@@ -17,6 +17,8 @@ ${nav.nav('players')}
             e.preventDefault();
             $(this).tab('show');
         })
+
+      $('#gbtab a:first').tab('show');
       })
       </script>
 
@@ -192,7 +194,7 @@ Player Information
 </div>
 
 <div class="row">
-  <div class="tabbable tabs-right">
+  <div id="gbtabcontainer" class="tabbable tabs-right">
       <ul id="gbtab" class="nav nav-tabs">
       % for g in games_played:
         <li><a href="#tab-${g.game_type_cd}" data-toggle="tab">${g.game_type_cd} (${g.games})</a></li>
@@ -207,30 +209,47 @@ Player Information
         % endif
         " id="tab-${g.game_type_cd}">
           <div class="span5">
+            <p>
             % if g.game_type_cd in overall_stats:
-            Last Played: ${overall_stats[g.game_type_cd].last_played} <br />
+            Last Played: <small>${overall_stats[g.game_type_cd].last_played.strftime('%a, %d %b %Y %H:%M UTC')} <br /></small>
             % endif
 
-            Games Played: ${g.games} <br />
+            Games Played: <small>${g.games} <br /></small>
 
             % if g.game_type_cd in fav_maps:
-            Favorite Map: ${fav_maps[g.game_type_cd].map_name} <br />
+            Favorite Map: <small>${fav_maps[g.game_type_cd].map_name} <br /></small>
             % endif
 
-            Win Percentage: ${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br />
-
+            Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
+            </p>
+          </div>
+          <div class="span5">
+            <p>
             % if g.game_type_cd in overall_stats:
-            Kill Ratio: ${round(overall_stats[g.game_type_cd].k_d_ratio,2)} (${overall_stats[g.game_type_cd].total_kills} kills, ${overall_stats[g.game_type_cd].total_deaths} deaths) <br />
+            Kill Ratio: <small>${round(overall_stats[g.game_type_cd].k_d_ratio,2)} (${overall_stats[g.game_type_cd].total_kills} kills, ${overall_stats[g.game_type_cd].total_deaths} deaths) <br /></small>
             % endif
 
             % if g.game_type_cd in elos:
-            Elo: ${round(elos[g.game_type_cd].elo,2)} (${elos[g.game_type_cd].games} games) <br />
+              % if g.game_type_cd == 'overall':
+              Best Elo: <small>${round(elos[g.game_type_cd].elo,2)} (${elos[g.game_type_cd].game_type_cd}, ${elos[g.game_type_cd].games} games) <br /></small>
+              % else:
+              Elo: <small>${round(elos[g.game_type_cd].elo,2)} (${elos[g.game_type_cd].games} games) <br /></small>
+              % endif
             % endif
 
             % if g.game_type_cd in ranks:
-            Rank: ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} <br />
+              % if g.game_type_cd == 'overall':
+              Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd})<br /></small>
+
+              % else:
+              Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} <br /></small>
+              % endif
             % endif
 
+            % if g.game_type_cd == 'ctf':
+            Cap Ratio: <small>${round(overall_stats[g.game_type_cd].cap_ratio,2)} (${overall_stats[g.game_type_cd].total_captures} captures, ${overall_stats[g.game_type_cd].total_pickups} pickups) <br /></small>
+            % endif
+            </p>
           </div>
         </div>
       % endfor

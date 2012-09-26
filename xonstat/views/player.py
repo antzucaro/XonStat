@@ -190,7 +190,7 @@ def get_overall_stats(player_id):
             k_d_ratio = None
 
         try:
-            cap_ratio = float(row.total_pickups)/row.total_captures
+            cap_ratio = float(row.total_captures)/row.total_pickups
         except:
             cap_ratio = None
 

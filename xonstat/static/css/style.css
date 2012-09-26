@@ -3503,4 +3503,13 @@ header h2 { display:none; }
     background-color: black;
 	border: 0;
 }
-
+/* Player Info Tabs */
+#gbtabcontainer { margin-top: 10px; }
+#gbtab { font-size: 12px; }
+.tabs-right .nav-tabs { border: none; }
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover { background-color: #111; color: #aaa;}
+.tabs-right .nav-tabs > li > a { border-radius: 4px 4px 4px 4px; }
+.tabs-right .nav-tabs .active > a, .tabs-right .nav-tabs .active > a:hover { border-color: #222222 #222222 #222222 #222222; }
+.tabs-right .nav-tabs > li > a:hover { border-color: #222222 #222222 #222222 #222222; }
+.nav > li > a:hover { background-color: #333; color: #aaa; }
+.tabbable p { font-size: 14px; }
