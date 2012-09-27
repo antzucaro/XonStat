@@ -5,13 +5,14 @@ import re
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
 import time
+from calendar import timegm
 from collections import namedtuple
 from pyramid.response import Response
 from pyramid.url import current_route_url
 from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
-from xonstat.util import page_url, to_json
+from xonstat.util import page_url, to_json, pretty_date
 
 log = logging.getLogger(__name__)
 
@@ -130,6 +131,8 @@ def get_overall_stats(player_id):
         - total_deaths
         - k_d_ratio
         - last_played (last time the player played the game type)
+        - last_played_epoch (same as above, but in seconds since epoch)
+        - last_played_fuzzy (same as above, but in relative date)
         - total_playing_time (total amount of time played the game type)
         - total_pickups (ctf only)
         - total_captures (ctf only)
@@ -141,8 +144,9 @@ def get_overall_stats(player_id):
     "overall" game_type_cd which sums the totals and computes the total ratios.
     """
     OverallStats = namedtuple('OverallStats', ['total_kills', 'total_deaths',
-        'k_d_ratio', 'last_played', 'total_playing_time', 'total_pickups',
-        'total_captures', 'cap_ratio', 'total_carrier_frags', 'game_type_cd'])
+        'k_d_ratio', 'last_played', 'last_played_epoch', 'last_played_fuzzy',
+        'total_playing_time', 'total_pickups', 'total_captures', 'cap_ratio',
+        'total_carrier_frags', 'game_type_cd'])
 
     raw_stats = DBSession.query('game_type_cd', 'total_kills',
             'total_deaths', 'last_played', 'total_playing_time',
@@ -201,6 +205,8 @@ def get_overall_stats(player_id):
                 total_deaths=row.total_deaths,
                 k_d_ratio=k_d_ratio,
                 last_played=row.last_played,
+                last_played_epoch=timegm(row.last_played.timetuple()),
+                last_played_fuzzy=pretty_date(row.last_played),
                 total_playing_time=row.total_playing_time,
                 total_pickups=row.total_pickups,
                 total_captures=row.total_captures,
@@ -220,6 +226,8 @@ def get_overall_stats(player_id):
             total_deaths=overall_deaths,
             k_d_ratio=overall_k_d_ratio,
             last_played=overall_last_played,
+            last_played_epoch=timegm(overall_last_played.timetuple()),
+            last_played_fuzzy=pretty_date(overall_last_played),
             total_playing_time=overall_playing_time,
             total_pickups=None,
             total_captures=None,

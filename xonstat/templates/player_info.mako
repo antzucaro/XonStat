@@ -211,7 +211,7 @@ Player Information
           <div class="span5">
             <p>
             % if g.game_type_cd in overall_stats:
-            Last Played: <small>${overall_stats[g.game_type_cd].last_played.strftime('%a, %d %b %Y %H:%M UTC')} <br /></small>
+            Last Played: <small><span class="abstime" data-epoch="${overall_stats[g.game_type_cd].last_played_epoch}" title="${overall_stats[g.game_type_cd].last_played.strftime('%a, %d %b %Y %H:%M:%S UTC')}"> ${overall_stats[g.game_type_cd].last_played_fuzzy} </span> <br /></small>
             % endif
 
             Games Played: <small>${g.games} <br /></small>
