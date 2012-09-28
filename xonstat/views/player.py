@@ -347,12 +347,12 @@ def get_ranks(player_id):
             max_rank=row.max_rank,
             game_type_cd=row.game_type_cd)
 
-        percentile = float(row.rank)/row.max_rank
+        percentile = 100 - float(row.rank)/row.max_rank
 
         if not found_top_rank:
             ranks['overall'] = rank
             found_top_rank = True
-        elif percentile < float(ranks['overall'].rank)/ranks['overall'].max_rank:
+        elif percentile > 100 - float(ranks['overall'].rank)/ranks['overall'].max_rank:
             ranks['overall'] = rank
 
         ranks[row.game_type_cd] = rank
