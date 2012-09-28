@@ -243,10 +243,10 @@ Player Information
 
             % if g.game_type_cd in ranks:
               % if g.game_type_cd == 'overall':
-              Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd})<br /></small>
+              Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)})<br /></small>
 
               % else:
-              Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} <br /></small>
+              Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (percentile: ${round(ranks[g.game_type_cd].percentile,2)})<br /></small>
               % endif
             % endif
 

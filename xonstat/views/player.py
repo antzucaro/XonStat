@@ -326,7 +326,7 @@ def get_ranks(player_id):
     The key to the dictionary is the game type code. There is also an
     "overall" game_type_cd which is the overall best rank.
     """    
-    Rank = namedtuple('Rank', ['rank', 'max_rank', 'game_type_cd'])
+    Rank = namedtuple('Rank', ['rank', 'max_rank', 'percentile', 'game_type_cd'])
 
     raw_ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
             from_statement(
@@ -345,14 +345,14 @@ def get_ranks(player_id):
     for row in raw_ranks:
         rank = Rank(rank=row.rank,
             max_rank=row.max_rank,
+            percentile=100 - 100*float(row.rank)/row.max_rank,
             game_type_cd=row.game_type_cd)
 
-        percentile = 100 - float(row.rank)/row.max_rank
 
         if not found_top_rank:
             ranks['overall'] = rank
             found_top_rank = True
-        elif percentile > 100 - float(ranks['overall'].rank)/ranks['overall'].max_rank:
+        elif rank.percentile > ranks['overall'].percentile:
             ranks['overall'] = rank
 
         ranks[row.game_type_cd] = rank
