@@ -216,15 +216,17 @@ Player Information
 
             Games Played: <small>${g.games} <br /></small>
 
+            Playing Time: <small>${overall_stats[g.game_type_cd].total_playing_time} <br /></small>
+
             % if g.game_type_cd in fav_maps:
             Favorite Map: <small>${fav_maps[g.game_type_cd].map_name} <br /></small>
             % endif
-
-            Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
             </p>
           </div>
           <div class="span5">
             <p>
+            Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
+
             % if g.game_type_cd in overall_stats:
               % if overall_stats[g.game_type_cd].k_d_ratio is not None:
               Kill Ratio: <small>${round(overall_stats[g.game_type_cd].k_d_ratio,2)} (${overall_stats[g.game_type_cd].total_kills} kills, ${overall_stats[g.game_type_cd].total_deaths} deaths) <br /></small>
