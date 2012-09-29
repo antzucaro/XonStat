@@ -165,7 +165,7 @@ def register_new_nick(session, player, new_nick):
         if not re.search('^Anonymous Player #\d+$', player.nick):
             player_nick = PlayerNick()
             player_nick.player_id = player.player_id
-            player_nick.stripped_nick = player.stripped_nick
+            player_nick.stripped_nick = stripped_nick
             player_nick.nick = player.nick
             session.add(player_nick)
 
