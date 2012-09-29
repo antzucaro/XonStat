@@ -13,12 +13,12 @@ ${nav.nav('players')}
       <script src="/static/js/bootstrap-tab.js"></script>
       <script type="text/javascript">
       $(function () {
-        $('#gbtab').click(function(e) {
+        $('#gbtab li').click(function(e) {
             e.preventDefault();
             $(this).tab('show');
         })
 
-      $('#gbtab a:first').tab('show');
+        $('#gbtab a:first').tab('show');
       })
       </script>
 
@@ -194,13 +194,7 @@ Player Information
 </div>
 
 <div class="row">
-  <div id="gbtabcontainer" class="tabbable tabs-right">
-      <ul id="gbtab" class="nav nav-tabs">
-      % for g in games_played:
-        <li><a href="#tab-${g.game_type_cd}" data-toggle="tab">${g.game_type_cd} (${g.games})</a></li>
-      % endfor
-      </ul>
-
+  <div id="gbtabcontainer" class="tabbable tabs-below">
       <div class="tab-content">
       % for g in games_played:
         <div class="tab-pane fade in 
@@ -260,6 +254,21 @@ Player Information
         </div>
       % endfor
       </div>
+  </div>
+</div>
+<div class="row">
+  <div class="span12">
+      <ul id="gbtab" class="nav nav-tabs">
+      % for g in games_played:
+        <li>
+          <a href="#tab-${g.game_type_cd}" data-toggle="tab">
+            <img src="/static/images/icons/24x24/${g.game_type_cd}.png"> <br />
+            ${g.game_type_cd} <br />
+            <small>(${g.games})</small>
+          </a>
+        </li>
+      % endfor
+      </ul>
   </div>
 </div>
 
