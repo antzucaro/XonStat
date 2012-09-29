@@ -275,8 +275,13 @@ class Skin:
             break
 
         # determine width of single whitespace for later use
-        xoff, yoff, tw, th = ctx.text_extents("_")[:4]
+        xoff, yoff, tw, th = ctx.text_extents("_ _")[:4]
         space_w = tw
+        xoff, yoff, tw, th = ctx.text_extents("__")[:4]
+        space_w -= tw
+
+        # this hilarious line should determine the spacing between characters
+        sep_w = int(0.25 * space_w)
 
         # split nick into colored segments
         xoffset = 0
@@ -317,7 +322,7 @@ class Skin:
             ctx.show_text(txt)
 
             tw += (len(txt)-len(txt.strip())) * space_w  # account for lost whitespaces
-            xoffset += tw + 2
+            xoffset += tw + sep_w
 
         ## print elos and ranks
         
