@@ -28,8 +28,21 @@ skin_classic = Skin( "",
 
 # more fancy skin [** WIP **]- writes PNGs into "output/archer/###.png"
 skin_archer = Skin( "archer",
-        bg              = "background_archer-v1",
-        overlay         = None,
+        #bg              = "background_archer-v2_full",
+        bg              = "background_archer-v3",
+        overlay         = "",
+        nick_maxwidth	= 265,
+        gametype_pos    = (91,33),
+        nostats_pos    	= (91,59),
+        elo_pos    	= (91,47),
+        rank_pos    	= (91,58),
+        winp_pos	= (509,20),
+        wins_pos	= (508,35),
+        loss_pos	= (508,45),
+        kdr_pos		= (392,20),
+        kills_pos	= (392,35),
+        deaths_pos	= (392,45),
+        ptime_color	= (0.05, 0.05, 0.1),
     )
 
 # minimal skin - writes PNGs into "output/minimal/###.png"
@@ -112,7 +125,7 @@ for arg in sys.argv[1:]:
             skins.append(skin_archer)
 
 if len(skins) == 0:
-    skins = [ skin_classic, skin_minimal ]
+    skins = [ skin_classic, skin_minimal, skin_archer ]
 
 # environment setup
 env = bootstrap('../../../development.ini')

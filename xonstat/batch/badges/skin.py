@@ -280,8 +280,10 @@ class Skin:
         xoff, yoff, tw, th = ctx.text_extents("__")[:4]
         space_w -= tw
 
-        # this hilarious line should determine the spacing between characters
-        sep_w = int(0.25 * space_w)
+        # this hilarious code should determine the spacing between characters
+        sep_w = 0.25*space_w
+        if sep_w <= 0:
+        	sep_w = 1
 
         # split nick into colored segments
         xoffset = 0
@@ -320,7 +322,7 @@ class Skin:
             ctx.set_source_rgb(r, g, b)
             ctx.move_to(self.nick_pos[0] + xoffset - xoff, self.nick_pos[1])
             ctx.show_text(txt)
-
+            
             tw += (len(txt)-len(txt.strip())) * space_w  # account for lost whitespaces
             xoffset += tw + sep_w
 
