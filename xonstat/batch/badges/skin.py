@@ -190,15 +190,29 @@ class Skin:
         """Render an image for the given player id."""
 
         # setup variables
+        
+        player                  = data['player']
+        elos                    = data['elos']
+        ranks                   = data['ranks']
+        games_played            = data['games_played']['overall']
+        overall_stats           = data['overall_stats']['overall']
 
-        player          = data.player
-        elos            = data.elos
-        ranks           = data.ranks
-        #games           = data.total_stats['games']
-        wins, losses    = data.total_stats['wins'], data.total_stats['losses']
-        games           = wins + losses
-        kills, deaths   = data.total_stats['kills'], data.total_stats['deaths']
-        alivetime       = data.total_stats['alivetime']
+        wins, losses, win_pct   = games_played.wins, games_played.losses, games_played.win_pct
+        games                   = games_played.games
+        kills, deaths, kd_ratio = overall_stats.total_kills, overall_stats.total_deaths, overall_stats.k_d_ratio
+        alivetime               = overall_stats.total_playing_time
+
+        # make sorted list of gametypes        
+        game_types = []
+        num_games  = 0
+        for gt,info in data['games_played'].items():
+            if gt == "overall":
+                continue
+            if info.games > num_games:
+                game_types.insert(0, gt)
+            else:
+                game_types.append(gt)
+             
 
 
         # build image
@@ -255,12 +269,12 @@ class Skin:
         
         # deocde nick, strip all weird-looking characters
         qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', '')
-        chars = []
-        for c in qstr:
-            # replace weird characters that make problems - TODO
-            if ord(c) < 128:
-                chars.append(c)
-        qstr = ''.join(chars)
+        #chars = []
+        #for c in qstr:
+        #    # replace weird characters that make problems - TODO
+        #    if ord(c) < 128:
+        #        chars.append(c)
+        #qstr = ''.join(chars)
         stripped_nick = strip_colors(qstr.replace(' ', '_'))
         
         # fontsize is reduced if width gets too large
@@ -283,7 +297,7 @@ class Skin:
         # this hilarious code should determine the spacing between characters
         sep_w = 0.25*space_w
         if sep_w <= 0:
-        	sep_w = 1
+            sep_w = 1
 
         # split nick into colored segments
         xoffset = 0
@@ -321,7 +335,7 @@ class Skin:
             xoff, yoff, tw, th = ctx.text_extents(txt)[:4]
             ctx.set_source_rgb(r, g, b)
             ctx.move_to(self.nick_pos[0] + xoffset - xoff, self.nick_pos[1])
-            ctx.show_text(txt)
+            ctx.show_text(txt.encode("utf-8"))
             
             tw += (len(txt)-len(txt.strip())) * space_w  # account for lost whitespaces
             xoffset += tw + sep_w
@@ -330,7 +344,7 @@ class Skin:
         
         xoffset, yoffset = 0, 0
         count = 0
-        for gt in data.total_stats['gametypes'][:self.num_gametypes]:
+        for gt in game_types[:self.num_gametypes]:
             if not elos.has_key(gt) or not ranks.has_key(gt):
                 continue
             count += 1
@@ -347,7 +361,7 @@ class Skin:
                     yoffset += 0.5 * diff * self.gametype_height
         
             # show a number gametypes the player has participated in
-            for gt in data.total_stats['gametypes'][:self.num_gametypes]:
+            for gt in game_types[:self.num_gametypes]:
                 if not elos.has_key(gt) or not ranks.has_key(gt):
                     continue
 
@@ -391,19 +405,18 @@ class Skin:
 
         txt = "???"
         try:
-            ratio = float(wins)/games
-            txt = "%.2f%%" % round(ratio * 100, 2)
+            txt = "%.2f%%" % round(win_pct * 100, 2)
         except:
-            ratio = 0
+            win_pct = 0
         
         if self.winp_pos:
-            if ratio >= 0.5:
-                nr = 2*(ratio-0.5)
+            if win_pct >= 0.5:
+                nr = 2*(win_pct-0.5)
                 r = nr*self.winp_colortop[0] + (1-nr)*self.winp_colormid[0]
                 g = nr*self.winp_colortop[1] + (1-nr)*self.winp_colormid[1]
                 b = nr*self.winp_colortop[2] + (1-nr)*self.winp_colormid[2]
             else:
-                nr = 2*ratio
+                nr = 2*win_pct
                 r = nr*self.winp_colormid[0] + (1-nr)*self.winp_colorbot[0]
                 g = nr*self.winp_colormid[1] + (1-nr)*self.winp_colorbot[1]
                 b = nr*self.winp_colormid[2] + (1-nr)*self.winp_colorbot[2]
@@ -434,21 +447,20 @@ class Skin:
         
         txt = "???"
         try:
-            ratio = float(kills)/deaths
-            txt = "%.3f" % round(ratio, 3)
+            txt = "%.3f" % round(kd_ratio, 3)
         except:
-            ratio = 0
+            kd_ratio = 0
 
         if self.kdr_pos:
-            if ratio >= 1.0:
-                nr = ratio-1.0
+            if kd_ratio >= 1.0:
+                nr = kd_ratio-1.0
                 if nr > 1:
                     nr = 1
                 r = nr*self.kdr_colortop[0] + (1-nr)*self.kdr_colormid[0]
                 g = nr*self.kdr_colortop[1] + (1-nr)*self.kdr_colormid[1]
                 b = nr*self.kdr_colortop[2] + (1-nr)*self.kdr_colormid[2]
             else:
-                nr = ratio
+                nr = kd_ratio
                 r = nr*self.kdr_colormid[0] + (1-nr)*self.kdr_colorbot[0]
                 g = nr*self.kdr_colormid[1] + (1-nr)*self.kdr_colorbot[1]
                 b = nr*self.kdr_colormid[2] + (1-nr)*self.kdr_colorbot[2]

@@ -19,6 +19,8 @@ NUM_PLAYERS = None
 # we look for players who have activity within the past DELTA hours
 DELTA = 6
 
+VERBOSE = False
+
 
 # classic skin WITHOUT NAME - writes PNGs into "output//###.png"
 skin_classic = Skin( "",
@@ -103,6 +105,8 @@ for arg in sys.argv[1:]:
             DELTA = 2**24   # large enough to enforce update, and doesn't result in errors
         elif arg == "test":
             NUM_PLAYERS = 100
+        elif arg == "verbose":
+            VERBOSE = True
         else:
             print """Usage:  gen_badges.py [options] [skin list]
     Options:
@@ -155,7 +159,7 @@ else:
             filter(Player.active_ind == True).\
             all()
 
-playerdata = PlayerData()
+playerdata = PlayerData
 
 if len(players) > 0:
     stop = datetime.now()
@@ -176,10 +180,13 @@ if len(players) > 0:
 
         sstart = datetime.now()
         for sk in skins:
-            sk.render_image(playerdata, "output/%s/%d.png" % (str(sk), player_id[0]))
+            sk.render_image(playerdata.data, "output/%s/%d.png" % (str(sk), player_id[0]))
         sstop = datetime.now()
         td = sstop-sstart
         render_time += datetime_seconds(td)
+
+        if VERBOSE == True:
+            print player_id, unicode(playerdata.data['player'].nick)
 
     stop = datetime.now()
     td = stop-start
