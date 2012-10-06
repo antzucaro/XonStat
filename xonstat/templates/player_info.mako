@@ -219,7 +219,7 @@ Player Information
           </div>
           <div class="span5">
             <p>
-            Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
+              Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
 
             % if g.game_type_cd in overall_stats:
               % if overall_stats[g.game_type_cd].k_d_ratio is not None:
@@ -430,13 +430,14 @@ Player Information
            <th>Map</th>
            <th>Result</th>
            <th>Played</th>
+           <th>Elo</th>
         </tr>
       </thead>
       <tbody>
       % for (gamestat, game, server, map) in recent_games:
         <tr>
-           <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">view</a></td>
-           <td style="width:20px;"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
+           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">view</a></td>
+           <td class="tdcenter"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
            <td>${server.name}</td>
            <td>${map.name}</td>
            <td>
@@ -455,6 +456,15 @@ Player Information
           % endif
            </td>
            <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
+           <td class="tdcenter">
+             % if round(gamestat.elo_delta,2) > 0:
+             <span title="Elo went up by ${round(gamestat.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
+             % elif round(gamestat.elo_delta,2) < 0:
+             <span title="Elo went down by ${round(gamestat.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+             % else:
+             <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
+             % endif
+           </td>
         </tr>
       % endfor
       </tbody>
