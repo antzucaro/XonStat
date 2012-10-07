@@ -654,7 +654,6 @@ def player_game_index_data(request):
         ) for row in games.items]
 
     except Exception as e:
-        raise e
         player = None
         games = None
 

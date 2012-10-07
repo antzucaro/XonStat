@@ -57,12 +57,16 @@ Recent Games
            </td>
            <td><span class="abstime" data-epoch="${g.game_epoch}" title="${g.game_create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${g.game_fuzzy}</span></td>
            <td class="tdcenter">
-             % if round(g.elo_delta,2) > 0:
-             <span title="Elo went up by ${round(g.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
-             % elif round(g.elo_delta,2) < 0:
-             <span title="Elo went down by ${round(g.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+             % if g.elo_delta is not None:
+               % if round(g.elo_delta,2) > 0:
+               <span title="Elo went up by ${round(g.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
+               % elif round(g.elo_delta,2) < 0:
+               <span title="Elo went down by ${round(g.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+               % else:
+               <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
+               % endif
              % else:
-             <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
+               <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
              % endif
            </td>
         </tr>
