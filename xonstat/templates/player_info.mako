@@ -461,7 +461,7 @@ Player Information
                % if round(gamestat.elo_delta,2) > 0:
                <span title="Elo went up by ${round(gamestat.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
                % elif round(gamestat.elo_delta,2) < 0:
-               <span title="Elo went down by ${round(gamestat.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+               <span title="Elo went down by ${round(-gamestat.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
                % else:
                <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
                % endif
