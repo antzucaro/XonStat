@@ -698,10 +698,10 @@ def stats_submit(request):
                         player_events=player_events, game_meta=game_meta)
 
         # update elos
-        #try:
-            #process_elos(game, session)
-        #except Exception as e:
-            #log.debug('Error (non-fatal): elo processing failed.')
+        try:
+            process_elos(game, session)
+        except Exception as e:
+            log.debug('Error (non-fatal): elo processing failed.')
 
         session.commit()
         log.debug('Success! Stats recorded.')
