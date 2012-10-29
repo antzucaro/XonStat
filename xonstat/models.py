@@ -243,6 +243,18 @@ class PlayerRank(object):
         return {'player_id':self.player_id, 'game_type_cd':self.game_type_cd, 'rank':self.rank}
 
 
+class PlayerCaptime(object):
+    def __init__(self, player_id=None, game_id=None, map_id=None,
+            fastest_cap=None):
+        self.player_id = player_id
+        self.game_id = game_id
+        self.map_id = map_id
+        self.fastest_cap = fastest_cap
+
+    def __repr__(self):
+        return "<PlayerCaptime(pid=%s, map_id=%s)>" % (self.player_id, self.map_id)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -265,6 +277,7 @@ def initialize_db(engine=None):
     player_nicks_table = MetaData.tables['player_nicks']
     player_elos_table = MetaData.tables['player_elos']
     player_ranks_table = MetaData.tables['player_ranks']
+    player_captimes_table = MetaData.tables['player_map_captimes']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -281,3 +294,4 @@ def initialize_db(engine=None):
     mapper(PlayerNick, player_nicks_table)
     mapper(PlayerElo, player_elos_table)
     mapper(PlayerRank, player_ranks_table)
+    mapper(PlayerCaptime, player_captimes_table)
