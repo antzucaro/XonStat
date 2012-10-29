@@ -31,7 +31,7 @@ def is_blank_game(players):
     for events in players:
         if is_real_player(events):
             for (key,value) in events.items():
-                if key == 'scoreboard-score' and value != '0':
+                if key == 'scoreboard-score' and value != 0:
                     flg_nonzero_score = True
                 if r.search(key):
                     flg_acc_events = True
@@ -107,6 +107,22 @@ def has_minimum_real_players(settings, player_events):
     return flg_has_min_real_players
 
 
+def verify_requests(settings):
+    """
+    Determines whether or not to verify requests using the blind_id algorithm
+    """
+    try:
+        val_verify_requests = settings['xonstat.verify_requests']
+        if val_verify_requests == "true":
+            flg_verify_requests = True
+        else:
+            flg_verify_requests = False
+    except:
+        flg_verify_requests = True
+
+    return flg_verify_requests
+
+
 def has_required_metadata(metadata):
     """
     Determines if a give set of metadata has enough data to create a game,
@@ -173,6 +189,36 @@ def register_new_nick(session, player, new_nick):
     player.nick = new_nick
     player.stripped_nick = strip_colors(qfont_decode(new_nick))
     session.add(player)
+
+
+def update_fastest_cap(session, player_id, game_id,  map_id, captime):
+    """
+    Check the fastest cap time for the player and map. If there isn't
+    one, insert one. If there is, check if the passed time is faster.
+    If so, update!
+    """
+    # we don't record fastest cap times for bots or anonymous players
+    if player_id <= 2:
+        return
+
+    # see if a cap entry exists already
+    # then check to see if the new captime is faster
+    try:
+        cur_fastest_cap = session.query(PlayerCaptime).filter_by(
+            player_id=player_id, map_id=map_id).one()
+
+        # current captime is faster, so update
+        if captime < cur_fastest_cap.fastest_cap:
+            cur_fastest_cap.fastest_cap = captime
+            cur_fastest_cap.game_id = game_id
+            cur_fastest_cap.create_dt = datetime.datetime.utcnow()
+            session.add(cur_fastest_cap)
+
+    except NoResultFound, e:
+        # none exists, so insert
+        cur_fastest_cap = PlayerCaptime(player_id, game_id, map_id, captime)
+        session.add(cur_fastest_cap)
+        session.flush()
 
 
 def get_or_create_server(session=None, name=None, hashkey=None, ip_addr=None,
@@ -282,6 +328,7 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
     except NoResultFound, e:
         # server_id/match_id combination not found. game is ok to insert
         session.add(game)
+        session.flush()
         log.debug("Created game id {0} on server {1}, map {2} at \
                 {3}".format(game.game_id, 
                     server_id, map_id, start_dt))
@@ -394,6 +441,9 @@ def create_player_game_stat(session=None, player=None,
         if key == 'scoreboard-deaths': pgstat.deaths = int(value)
         if key == 'scoreboard-kills': pgstat.kills = int(value)
         if key == 'scoreboard-suicides': pgstat.suicides = int(value)
+        if key == 'scoreboard-captime':
+            pgstat.fastest_cap = datetime.timedelta(seconds=float(value)/100)
+        if key == 'avglatency': pgstat.avg_latency = float(value)
 
     # check to see if we had a name, and if
     # not use an anonymous handle
@@ -550,7 +600,12 @@ def create_player_stats(session=None, player=None, game=None,
     pgstat = create_player_game_stat(session=session, 
         player=player, game=game, player_events=player_events)
 
-    #TODO: put this into a config setting in the ini file?
+    # fastest cap "upsert"
+    if game.game_type_cd == 'ctf' and pgstat.fastest_cap is not None:
+        update_fastest_cap(session, pgstat.player_id, game.game_id, 
+                game.map_id, pgstat.fastest_cap)
+
+    # bots don't get weapon stats. sorry, bots!
     if not re.search('^bot#\d+$', player_events['P']):
         create_player_weapon_stats(session=session, 
             player=player, game=game, pgstat=pgstat,
@@ -569,9 +624,10 @@ def stats_submit(request):
                 "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
-        if not idfp:
-            log.debug("ERROR: Unverified request")
-            raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
+        if verify_requests(request.registry.settings):
+            if not idfp:
+                log.debug("ERROR: Unverified request")
+                raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
 
         (game_meta, players) = parse_body(request)
 
@@ -642,10 +698,10 @@ def stats_submit(request):
                         player_events=player_events, game_meta=game_meta)
 
         # update elos
-        try:
-            process_elos(game, session)
-        except Exception as e:
-            log.debug('Error (non-fatal): elo processing failed.')
+        #try:
+            #process_elos(game, session)
+        #except Exception as e:
+            #log.debug('Error (non-fatal): elo processing failed.')
 
         session.commit()
         log.debug('Success! Stats recorded.')
