@@ -69,12 +69,13 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.score).\
                 all()
 
-        # mako is an absolute bastard when dealing with decimals, so...
-        for pgstat in pgstats:
-            try:
-                pgstat.elo_delta = "{0:+4.2f}".format(float(pgstat.elo_delta))
-            except:
-                pgstat.elo_delta = "0.00"
+        captimes = []
+        if game.game_type_cd == 'ctf':
+            for pgstat in pgstats:
+                if pgstat.fastest_cap is not None:
+                    captimes.append(pgstat)
+
+            captimes = sorted(captimes, key=lambda x:x.fastest_cap)
 
         pwstats = {}
         for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
@@ -102,6 +103,7 @@ def _game_info_data(request):
         map = None
         pgstats = None
         pwstats = None
+        captimes = None
         raise inst
 
     return {'game':game,
@@ -109,6 +111,7 @@ def _game_info_data(request):
             'map':map,
             'pgstats':pgstats,
             'pwstats':pwstats,
+            'captimes':captimes,
             }
 
 
