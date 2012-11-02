@@ -14,6 +14,11 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <span class="nick">${pgstat.nick_html_colors()|n}</span>
       % endif
       </td>
+      % if pgstat.avg_latency is not None:
+      <td>
+        ${int(round(pgstat.avg_latency))}
+      </td>
+      % endif
     ${scoreboard_row(game_type_cd, pgstat)}
       <td>${pgstat.score}</td>
     </tr>
@@ -28,6 +33,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead>
     <tr>
       <th class="nick">Nick</th>
+      % if pgstat.avg_latency is not None:
+      <th class="ping">Ping</th>
+      % endif
       <th class="kills">Kills</th>
       <th class="deaths">Deaths</th>
       <th class="suicides">Suicides</th>
@@ -40,6 +48,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead class="ctf ${pgstat.team_html_color()}">
     <tr>
       <th class="nick">Nick</th>
+      % if pgstat.avg_latency is not None:
+      <th class="ping">Ping</th>
+      % endif
       <th class="kills">Kills</th>
       <th class="captures">Captures</th>
       <th class="pickups">Pickups</th>
@@ -54,6 +65,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead class="ca ${pgstat.team_html_color()}">
     <tr>
       <th class="nick">Nick</th>
+      % if pgstat.avg_latency is not None:
+      <th class="ping">Ping</th>
+      % endif
       <th class="kills">Kills</th>
       <th class="score">Score</th>
     </tr>
@@ -64,6 +78,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead class="freezetag ${pgstat.team_html_color()}">
     <tr>
       <th class="nick">Nick</th>
+      % if pgstat.avg_latency is not None:
+      <th class="ping">Ping</th>
+      % endif
       <th class="kills">Kills</th>
       <th class="deaths">Deaths</th>
       <th class="suicides">Suicides</th>
