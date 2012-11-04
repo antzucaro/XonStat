@@ -1,12 +1,13 @@
 import logging
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
+from collections import namedtuple
 from datetime import datetime, timedelta
 from pyramid.response import Response
 from sqlalchemy import desc
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
-from xonstat.util import page_url
+from xonstat.util import page_url, html_colors
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +58,10 @@ def _map_info_data(request):
 
     leaderboard_count = 10
     recent_games_count = 20
+
+    # captime tuples
+    Captime = namedtuple('Captime', ['player_id', 'nick_html_colors',
+        'fastest_cap', 'game_id'])
 
     try:
         gmap = DBSession.query(Map).filter_by(map_id=map_id).one()
@@ -113,6 +118,17 @@ def _map_info_data(request):
                 group_by(Server.name).\
                 group_by(Server.server_id).all()[0:leaderboard_count]
 
+        # top captimes
+        captimes_raw = DBSession.query(Player.player_id, Player.nick,
+            PlayerCaptime.fastest_cap, PlayerCaptime.game_id).\
+                filter(PlayerCaptime.map_id == map_id).\
+                filter(Player.player_id == PlayerCaptime.player_id).\
+                order_by(PlayerCaptime.fastest_cap).\
+                limit(10).all()
+
+        captimes = [Captime(c.player_id, html_colors(c.nick),
+            c.fastest_cap, c.game_id) for c in captimes_raw]
+
     except Exception as e:
         gmap = None
     return {'gmap':gmap,
@@ -120,6 +136,7 @@ def _map_info_data(request):
             'top_scorers':top_scorers,
             'top_players':top_players,
             'top_servers':top_servers,
+            'captimes':captimes,
             }
 
 
