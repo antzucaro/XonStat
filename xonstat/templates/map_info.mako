@@ -131,7 +131,12 @@ ${parent.title()}
             <span class="nick">${c.nick_html_colors|n}</span>
           % endif
           </td>
-          <td>${round(float(c.fastest_cap.seconds) + (c.fastest_cap.microseconds/1000000.0), 2)}</td>
+          <td>
+            <a href="${request.route_url("game_info", id=c.game_id)}"
+             title="View the game in which this cap was made">
+              ${round(float(c.fastest_cap.seconds) + (c.fastest_cap.microseconds/1000000.0), 2)}
+            </a>
+          </td>
         </tr>
       % endfor
       </tbody>
