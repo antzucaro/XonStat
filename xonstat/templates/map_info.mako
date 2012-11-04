@@ -107,6 +107,39 @@ ${parent.title()}
 </div>
 </div> <!-- /row -->
 
+% if len(captimes) > 0:
+<div class="row">
+  <div class="span6">
+    <h3>Best Flag Capture Times</h3>
+    <table class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+           <th>Nick</th>
+           <th>Captime</th>
+        </tr>
+      </thead>
+      <tbody>
+      % for c in captimes:
+        <tr>
+          <td>
+          % if c.player_id > 2:
+            <a href="${request.route_url("player_info", id=c.player_id)}"
+             title="Go to the info page for this player">
+            <span class="nick">${c.nick_html_colors|n}</span>
+            </a>
+          % else:
+            <span class="nick">${c.nick_html_colors|n}</span>
+          % endif
+          </td>
+          <td>${round(float(c.fastest_cap.seconds) + (c.fastest_cap.microseconds/1000000.0), 2)}</td>
+        </tr>
+      % endfor
+      </tbody>
+    </table>
+  </div>
+</div>
+% endif
+
 
 <div class="row">
   <div class="span12">
