@@ -299,7 +299,8 @@ def get_or_create_map(session=None, name=None):
 
 
 def create_game(session=None, start_dt=None, game_type_cd=None, 
-        server_id=None, map_id=None, winner=None, match_id=None):
+        server_id=None, map_id=None, winner=None, match_id=None,
+        duration=None):
     """
     Creates a game. Parameters:
 
@@ -315,6 +316,11 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
     game = Game(game_id=game_id, start_dt=start_dt, game_type_cd=game_type_cd,
                 server_id=server_id, map_id=map_id, winner=winner)
     game.match_id = match_id
+
+    try:
+        game.duration = datetime.timedelta(seconds=int(round(float(duration))))
+    except:
+        pass
 
     try:
         session.query(Game).filter(Game.server_id==server_id).\
@@ -562,7 +568,7 @@ def parse_body(request):
             if key in 'S' 'n':
                 value = unicode(value, 'utf-8')
 
-            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I':
+            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I' 'D':
                 game_meta[key] = value
 
             if key == 'P':
@@ -671,14 +677,19 @@ def stats_submit(request):
 
         gmap = get_or_create_map(session=session, name=game_meta['M'])
 
-        # FIXME: use the gmtime instead of utcnow() when the timezone bug is
-        # fixed
+        # duration is optional
+        if 'D' in game_meta:
+            duration = game_meta['D']
+        else:
+            duration = None
+
         game = create_game(session=session, 
                 start_dt=datetime.datetime.utcnow(),
                 #start_dt=datetime.datetime(
                     #*time.gmtime(float(game_meta['T']))[:6]), 
                 server_id=server.server_id, game_type_cd=game_meta['G'], 
-                   map_id=gmap.map_id, match_id=game_meta['I'])
+                   map_id=gmap.map_id, match_id=game_meta['I'],
+                   duration=duration)
 
         # find or create a record for each player
         # and add stats for each if they were present at the end
