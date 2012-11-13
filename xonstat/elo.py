@@ -66,13 +66,12 @@ def process_elos(game, session, game_type_cd=None):
                 # with a short circuit to handle alivetimes > game
                 # durations, which can happen due to warmup being
                 # included (most often in duels)
-                if game.duration is not None:
-                    if a.seconds > game.duration.seconds:
-                        scores[p] = s/float(game.duration.seconds)
+                if game.duration is not None and a.seconds > game.duration.seconds:
+                    scores[p] = s/float(game.duration.seconds)
+                    alivetimes[p] = game.duration.seconds
                 else:
                     scores[p] = s/float(a.seconds)
-
-                alivetimes[p] = a.seconds
+                    alivetimes[p] = a.seconds
 
     player_ids = scores.keys()
 
