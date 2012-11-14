@@ -55,6 +55,12 @@ def game_index_json(request):
 
 def _game_info_data(request):
     game_id = request.matchdict['id']
+
+    if request.params.has_key('show_elo'):
+        show_elo = True
+    else:
+        show_elo = False
+
     try:
         notfound = False
 
@@ -104,6 +110,7 @@ def _game_info_data(request):
         pgstats = None
         pwstats = None
         captimes = None
+        show_elo = False
         raise inst
 
     return {'game':game,
@@ -112,6 +119,7 @@ def _game_info_data(request):
             'pgstats':pgstats,
             'pwstats':pwstats,
             'captimes':captimes,
+            'show_elo':show_elo,
             }
 
 

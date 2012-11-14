@@ -457,17 +457,19 @@ Player Information
            </td>
            <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
            <td class="tdcenter">
-             % if gamestat.elo_delta is not None:
-               % if round(gamestat.elo_delta,2) > 0:
-               <span title="Elo went up by ${round(gamestat.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
-               % elif round(gamestat.elo_delta,2) < 0:
-               <span title="Elo went down by ${round(-gamestat.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+             <a href="${request.route_url('game_info', id=game.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
+               % if gamestat.elo_delta is not None:
+                 % if round(gamestat.elo_delta,2) > 0:
+                 <span title="Elo went up by ${round(gamestat.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
+                 % elif round(gamestat.elo_delta,2) < 0:
+                 <span title="Elo went down by ${round(-gamestat.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+                 % else:
+                 <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
+                 % endif
                % else:
-               <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
+                 <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
                % endif
-             % else:
-               <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
-             % endif
+             </a>
            </td>
         </tr>
       % endfor
