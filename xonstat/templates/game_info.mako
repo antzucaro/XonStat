@@ -42,7 +42,7 @@ Game Information
 <div class="row">
   <div class="span12 game">
     <h3>Scoreboard</h3>
-    ${scoreboard(game.game_type_cd, pgstats)}
+    ${scoreboard(game.game_type_cd, pgstats, show_elo)}
   </div>
 </div>
 

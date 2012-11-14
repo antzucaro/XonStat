@@ -1,4 +1,4 @@
-<%def name="scoreboard(game_type_cd, pgstats)">
+<%def name="scoreboard(game_type_cd, pgstats, show_elo=False)">
 <table  class="table table-bordered table-condensed">
 ${scoreboard_header(game_type_cd, pgstats[0])}
   <tbody>
@@ -19,8 +19,15 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         ${int(round(pgstat.avg_latency))}
       </td>
       % endif
-    ${scoreboard_row(game_type_cd, pgstat)}
+      ${scoreboard_row(game_type_cd, pgstat)}
       <td>${pgstat.score}</td>
+      % if show_elo:
+        % if pgstat.elo_delta is not None:
+        <td>${round(pgstat.elo_delta,2)}</td>
+        % else:
+        <td>-</td>
+        % endif
+      % endif
     </tr>
   % endfor
   </tbody>
@@ -40,6 +47,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="deaths">Deaths</th>
       <th class="suicides">Suicides</th>
       <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
     </tr>
     </thead>
 % endif
@@ -57,6 +67,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="fck" title="Flag Carrier Kill">FCK</th>
       <th class="returns">Returns</th>
       <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
     </tr>
     </thead>
 % endif
@@ -70,6 +83,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       % endif
       <th class="kills">Kills</th>
       <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
     </tr>
     </thead>
 % endif
@@ -85,6 +101,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="deaths">Deaths</th>
       <th class="suicides">Suicides</th>
       <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
     </tr>
     </thead>
 % endif
