@@ -35,6 +35,9 @@ Game Information
       Game Type: ${game.game_type_cd}<br />
       Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
       Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />
+      % if game.duration is not None:
+        Duration: ${"%s:%02d" % (game.duration.seconds/60, game.duration.seconds%60)}
+      % endif
     </p>
   </div>
 </div>
