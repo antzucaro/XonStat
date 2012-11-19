@@ -133,33 +133,22 @@ Server Information
         </tr>
       </thead>
       <tbody>
-      % for (game, srv, map, pgstat) in recent_games:
-        % if game != '-':
+        % for rg in recent_games:
         <tr>
-          <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">View</a></td>
-          <td class="gt_icon"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
-          <td><a href="${request.route_url('map_info', id=map.map_id)}" title="Go to the map detail page for this map">${map.name}</a></td>
-          <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
+          <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">View</a></td>
+          <td class="gt_icon"><img title="${rg.game_type_cd}" src="/static/images/icons/24x24/${rg.game_type_cd}.png" alt="${rg.game_type_cd}" /></td>
+          <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
+          <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
           <td>
-          % if pgstat.player_id > 2:
-            <a href="${request.route_url('player_info', id=pgstat.player_id)}" title="Go to the player info page for this player">${pgstat.nick_html_colors()|n}</a>
-          </td>
-          % else:
-            ${pgstat.nick_html_colors()|n}
-          </td>
-          % endif
-        </tr>
+            % if rg.player_id > 2:
+            <a href="${request.route_url('player_info', id=rg.player_id)}" title="Go to the player info page for this player">${rg.nick_html_colors|n}</a>
             % else:
-            <tr>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
+            ${rg.nick_html_colors|n}
             % endif
+          </td>
+        </tr>
         % endfor
-        </tbody>
+      </tbody>
     </table>
   </div>
 </div>
