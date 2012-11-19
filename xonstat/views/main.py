@@ -86,9 +86,9 @@ def _main_index_data(request):
             group_by(Map.name).limit(leaderboard_count).all()
 
     # recent games played in descending order
-    #rgs = recent_games_q(cutoff=back_then).limit(recent_games_count).all()
-    #recent_games = [RecentGame(row) for row in rgs]
-    recent_games = [RecentGame(row) for row in recent_games_q(cutoff=back_then).limit(recent_games_count).all()]
+    rgs = recent_games_q(cutoff=back_then).limit(recent_games_count).all()
+    recent_games = [RecentGame(row) for row in rgs]
+
     return {'top_players':top_players,
             'top_servers':top_servers,
             'top_maps':top_maps,
