@@ -5,11 +5,14 @@ from datetime import datetime, timedelta
 from pyramid.response import Response
 from xonstat.models import *
 from xonstat.util import *
+from xonstat.views.helpers import RecentGame, recent_games_q
+
 
 log = logging.getLogger(__name__)
 
+
 def _main_index_data(request):
-    try: 
+    try:
         leaderboard_lifetime = int(
                 request.registry.settings['xonstat.leaderboard_lifetime'])
     except:
@@ -83,14 +86,9 @@ def _main_index_data(request):
             group_by(Map.name).limit(leaderboard_count).all()
 
     # recent games played in descending order
-    recent_games = DBSession.query(Game, Server, Map, PlayerGameStat).\
-            filter(Game.server_id==Server.server_id).\
-            filter(Game.map_id==Map.map_id).\
-            filter(PlayerGameStat.game_id==Game.game_id).\
-            filter(PlayerGameStat.rank==1).\
-            filter(expr.between(Game.create_dt, back_then, right_now)).\
-            order_by(expr.desc(Game.start_dt)).limit(recent_games_count).all()
-
+    #rgs = recent_games_q(cutoff=back_then).limit(recent_games_count).all()
+    #recent_games = [RecentGame(row) for row in rgs]
+    recent_games = [RecentGame(row) for row in recent_games_q(cutoff=back_then).limit(recent_games_count).all()]
     return {'top_players':top_players,
             'top_servers':top_servers,
             'top_maps':top_maps,
