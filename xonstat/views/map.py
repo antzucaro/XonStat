@@ -3,11 +3,11 @@ import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
 from collections import namedtuple
 from datetime import datetime, timedelta
-from pyramid.response import Response
 from sqlalchemy import desc
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url, html_colors
+from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
 
@@ -66,14 +66,9 @@ def _map_info_data(request):
     try:
         gmap = DBSession.query(Map).filter_by(map_id=map_id).one()
 
-        # recent games on this map
-        recent_games = DBSession.query(Game, Server, Map, PlayerGameStat).\
-            filter(Game.server_id==Server.server_id).\
-            filter(Game.map_id==Map.map_id).\
-            filter(Game.map_id==map_id).\
-            filter(PlayerGameStat.game_id==Game.game_id).\
-            filter(PlayerGameStat.rank==1).\
-            order_by(expr.desc(Game.start_dt)).all()[0:recent_games_count]
+        # recent games played in descending order
+        rgs = recent_games_q(map_id=map_id).limit(recent_games_count).all()
+        recent_games = [RecentGame(row) for row in rgs]
 
         # top players by score
         top_scorers = DBSession.query(Player.player_id, Player.nick,
