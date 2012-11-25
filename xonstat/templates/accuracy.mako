@@ -36,7 +36,7 @@ else:
 <tr>
     ## Note: the name of the image must match up with the weapon_cd 
     ## entry of that weapon, else this won't work
-    <td><img src="${request.static_url("xonstat:static/images/%s.png" % weapon_stat[1])}" /></td>
+    <td><span class="sprite sprite-${weapon_stat[1]}"></span></td>
     <td>${weapon_stat[0]}</td>
     <td>${weapon_stat[4]}</td>
     <td>${weapon_stat[5]}</td>

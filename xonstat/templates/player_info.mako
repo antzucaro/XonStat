@@ -6,6 +6,11 @@
 ${nav.nav('players')}
 </%block>
 
+<%block name="css">
+    ${parent.css()}
+    <link href="/static/css/sprites.css" rel="stylesheet">
+</%block>
+
 <%block name="js">
     % if player is not None:
       <script src="/static/js/jquery-1.7.1.min.js"></script>
@@ -262,7 +267,7 @@ Player Information
       % for g in games_played:
         <li>
           <a href="#tab-${g.game_type_cd}" data-toggle="tab">
-            <img src="/static/images/icons/24x24/${g.game_type_cd}.png"> <br />
+            <span class="sprite sprite-${g.game_type_cd}"> </span><br />
             ${g.game_type_cd} <br />
             <small>(${g.games})</small>
           </a>
@@ -285,7 +290,7 @@ Player Information
         % if 'nex' in recent_weapons:
         <li>
           <div class="acc-weap weapon-active">
-            <img src="${request.static_url("xonstat:static/images/nex.png")}" />
+            <span class="sprite sprite-nex"></span>
             <p><small>Nex</small></p>
             <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
           </div>
@@ -295,7 +300,7 @@ Player Information
         % if 'rifle' in recent_weapons:
         <li>
           <div class="acc-weap">
-            <img src="${request.static_url("xonstat:static/images/rifle.png")}" />
+            <span class="sprite sprite-rifle"></span>
             <p><small>Rifle</small></p>
             <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
           </div>
@@ -305,7 +310,7 @@ Player Information
         % if 'minstanex' in recent_weapons:
         <li>
           <div class="acc-weap">
-            <img src="${request.static_url("xonstat:static/images/minstanex.png")}" />
+            <span class="sprite sprite-minstanex"></span>
             <p><small>Minstanex</small></p>
             <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
           </div>
@@ -315,7 +320,7 @@ Player Information
         % if 'uzi' in recent_weapons:
         <li>
           <div class="acc-weap">
-            <img src="${request.static_url("xonstat:static/images/uzi.png")}" />
+            <span class="sprite sprite-uzi"></span>
             <p><small>Uzi</small></p>
             <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
           </div>
@@ -325,7 +330,7 @@ Player Information
         % if 'shotgun' in recent_weapons:
         <li>
           <div class="acc-weap">
-            <img src="${request.static_url("xonstat:static/images/shotgun.png")}" />
+            <span class="sprite sprite-shotgun"></span>
             <p><small>Shotgun</small></p>
             <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
           </div>
@@ -351,7 +356,7 @@ Player Information
         % if 'rocketlauncher' in recent_weapons:
         <li>
           <div class="dmg-weap weapon-active">
-            <img src="${request.static_url("xonstat:static/images/rocketlauncher.png")}" />
+            <span class="sprite sprite-rocketlauncher"></span>
             <p><small>Rocket</small></p>
             <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'rocketlauncher'})}" title="Show rocket launcher efficiency"></a>
           </div>
@@ -361,7 +366,7 @@ Player Information
         % if 'grenadelauncher' in recent_weapons:
         <li>
           <div class="dmg-weap">
-            <img src="${request.static_url("xonstat:static/images/grenadelauncher.png")}" />
+            <span class="sprite sprite-grenadelauncher"></span>
             <p><small>Mortar</small></p>
             <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'grenadelauncher'})}" title="Show mortar damage efficiency"></a>
           </div>
@@ -371,7 +376,7 @@ Player Information
         % if 'electro' in recent_weapons:
         <li>
           <div class="dmg-weap">
-            <img src="${request.static_url("xonstat:static/images/electro.png")}" />
+            <span class="sprite sprite-electro"></span>
             <p><small>Electro</small></p>
             <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'electro'})}" title="Show electro damage efficiency"></a>
           </div>
@@ -381,7 +386,7 @@ Player Information
         % if 'crylink' in recent_weapons:
         <li>
           <div class="dmg-weap">
-            <img src="${request.static_url("xonstat:static/images/crylink.png")}" />
+            <span class="sprite sprite-crylink"></span>
             <p><small>Crylink</small></p>
             <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'crylink'})}" title="Show crylink damage efficiency"></a>
           </div>
@@ -391,7 +396,7 @@ Player Information
         % if 'hagar' in recent_weapons:
         <li>
           <div class="dmg-weap">
-            <img src="${request.static_url("xonstat:static/images/hagar.png")}" />
+            <span class="sprite sprite-hagar"></span>
             <p><small>Hagar</small></p>
             <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'hagar'})}" title="Show hagar damage efficiency"></a>
           </div>
@@ -401,7 +406,7 @@ Player Information
         % if 'laser' in recent_weapons:
         <li>
           <div class="dmg-weap">
-            <img src="${request.static_url("xonstat:static/images/laser.png")}" />
+            <span class="sprite sprite-laser"></span>
             <p><small>Laser</small></p>
             <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'laser'})}" title="Show laser damage efficiency"></a>
           </div>
@@ -437,7 +442,7 @@ Player Information
       % for (gamestat, game, server, map) in recent_games:
         <tr>
            <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">view</a></td>
-           <td class="tdcenter"><img title="${game.game_type_cd}" src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}" /></td>
+           <td class="tdcenter"><span class="sprite sprite-${game.game_type_cd}" alt="${game.game_type_cd}"></span></td>
            <td>${server.name}</td>
            <td>${map.name}</td>
            <td>

@@ -7,8 +7,12 @@
 ${nav.nav('games')}
 </%block>
 
+<%block name="css">
+    ${parent.css()}
+    <link href="/static/css/sprites.css" rel="stylesheet">
+</%block>
+
 <%block name="js">
-      <script src="/static/js/jquery-1.7.1.min.js"></script>
       <script src="/static/js/bootstrap-collapse.min.js"></script>
       <script>
         $(".collapse").collapse();
