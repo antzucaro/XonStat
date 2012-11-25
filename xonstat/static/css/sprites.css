@@ -1,0 +1,46 @@
+.sprite {
+    background-image: url("../images/sprites.png");
+    background-repeat: no-repeat;
+    background-position: top left;
+    display: inline-block;
+}
+.sprite-arena{ background-position: 0 0; width: 24px; height: 24px; } 
+.sprite-as{ background-position: 0 -54px; width: 24px; height: 24px; } 
+.sprite-assault{ background-position: 0 -54px; width: 24px; height: 24px; } 
+.sprite-ca{ background-position: 0 -108px; width: 24px; height: 24px; } 
+.sprite-crylink{ background-position: 0 -162px; width: 77px; height: 38px; } 
+.sprite-ctf{ background-position: 0 -230px; width: 24px; height: 24px; } 
+.sprite-cts{ background-position: 0 -284px; width: 24px; height: 24px; } 
+.sprite-dm{ background-position: 0 -338px; width: 24px; height: 24px; } 
+.sprite-dom{ background-position: 0 -392px; width: 24px; height: 24px; } 
+.sprite-duel{ background-position: 0 -446px; width: 24px; height: 24px; } 
+.sprite-electro{ background-position: 0 -500px; width: 77px; height: 38px; } 
+.sprite-fireball{ background-position: 0 -568px; width: 77px; height: 38px; } 
+.sprite-ft{ background-position: 0 -636px; width: 24px; height: 24px; } 
+.sprite-freezetag{ background-position: 0 -636px; width: 24px; height: 24px; } 
+.sprite-grenadelauncher{ background-position: 0 -690px; width: 77px; height: 38px; } 
+.sprite-hagar{ background-position: 0 -758px; width: 77px; height: 38px; } 
+.sprite-hlac{ background-position: 0 -826px; width: 77px; height: 38px; } 
+.sprite-hook{ background-position: 0 -894px; width: 77px; height: 38px; } 
+.sprite-ka{ background-position: 0 -962px; width: 24px; height: 24px; } 
+.sprite-keepaway{ background-position: 0 -962px; width: 24px; height: 24px; } 
+.sprite-kh{ background-position: 0 -1016px; width: 24px; height: 24px; } 
+.sprite-laser{ background-position: 0 -1070px; width: 77px; height: 38px; } 
+.sprite-lms{ background-position: 0 -1138px; width: 24px; height: 24px; } 
+.sprite-minelayer{ background-position: 0 -1192px; width: 77px; height: 38px; } 
+.sprite-minstanex{ background-position: 0 -1260px; width: 77px; height: 38px; } 
+.sprite-nb{ background-position: 0 -1328px; width: 24px; height: 24px; } 
+.sprite-nexball{ background-position: 0 -1328px; width: 24px; height: 24px; } 
+.sprite-nex{ background-position: 0 -1382px; width: 77px; height: 38px; } 
+.sprite-ons{ background-position: 0 -1450px; width: 24px; height: 24px; } 
+.sprite-overall{ background-position: 0 -1504px; width: 24px; height: 24px; } 
+.sprite-porto{ background-position: 0 -1558px; width: 77px; height: 38px; } 
+.sprite-rc{ background-position: 0 -1626px; width: 24px; height: 24px; } 
+.sprite-rifle{ background-position: 0 -1680px; width: 77px; height: 38px; } 
+.sprite-rocketlauncher{ background-position: 0 -1748px; width: 77px; height: 38px; } 
+.sprite-rune{ background-position: 0 -1816px; width: 24px; height: 24px; } 
+.sprite-seeker{ background-position: 0 -1870px; width: 77px; height: 38px; } 
+.sprite-shotgun{ background-position: 0 -1938px; width: 77px; height: 38px; } 
+.sprite-tdm{ background-position: -107px 0; width: 24px; height: 24px; } 
+.sprite-tuba{ background-position: -107px -54px; width: 77px; height: 38px; } 
+.sprite-uzi{ background-position: -107px -122px; width: 77px; height: 38px; } 
