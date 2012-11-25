@@ -125,7 +125,7 @@ Server Information
 
 <div class="row">
   <div class="span12">
-    <h3>Recent Games</h2>
+    <h3>Most Recent Games</h2>
     <table class="table table-bordered table-condensed">
       <thead>
         <tr>
