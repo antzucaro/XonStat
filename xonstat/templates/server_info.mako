@@ -123,6 +123,7 @@ Server Information
 
 
 
+% if len(recent_games) > 0:
 <div class="row">
   <div class="span12">
     <h3>Most Recent Games</h2>
@@ -156,6 +157,7 @@ Server Information
     </table>
   </div>
 </div>
+% endif
 
 
 % endif
