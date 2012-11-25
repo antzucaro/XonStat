@@ -138,9 +138,6 @@ def server_info(request):
     for i in range(leaderboard_count-len(serverinfo_data['top_players'])):
         serverinfo_data['top_players'].append(('-', '-', '-'))
 
-    for i in range(recent_games_count-len(serverinfo_data['recent_games'])):
-        serverinfo_data['recent_games'].append(('-', '-', '-', '-'))
-
     return serverinfo_data
 
 
