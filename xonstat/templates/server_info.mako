@@ -11,6 +11,10 @@ Server Information
 % endif
 </%block>
 
+<%block name="css">
+    ${parent.css()}
+    <link href="/static/css/sprites.css" rel="stylesheet">
+</%block>
 
 % if server is None:
 <h2>Sorry, that server wasn't found!</h2>
@@ -136,7 +140,7 @@ Server Information
         % for rg in recent_games:
         <tr>
           <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">View</a></td>
-          <td class="gt_icon"><img title="${rg.game_type_cd}" src="/static/images/icons/24x24/${rg.game_type_cd}.png" alt="${rg.game_type_cd}" /></td>
+          <td><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}"></span></td>
           <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
           <td>
