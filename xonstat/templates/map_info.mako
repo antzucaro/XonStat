@@ -152,7 +152,7 @@ ${parent.title()}
 
 <div class="row">
   <div class="span12">
-    <h3>Recent Games</h3>
+    <h3>Most Recent Games</h3>
     <table class="table table-bordered table-condensed">
       <thead>
         <tr>
