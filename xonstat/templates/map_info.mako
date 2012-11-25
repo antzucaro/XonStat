@@ -150,6 +150,7 @@ ${parent.title()}
 % endif
 
 
+% if len(recent_games) > 0:
 <div class="row">
   <div class="span12">
     <h3>Most Recent Games</h3>
@@ -183,6 +184,7 @@ ${parent.title()}
     </table>
   </div>
 </div>
+% endif
 
 
 % endif

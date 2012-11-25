@@ -145,9 +145,6 @@ def map_info(request):
     leaderboard_count = 10
     recent_games_count = 20
 
-    for i in range(recent_games_count-len(mapinfo_data['recent_games'])):
-        mapinfo_data['recent_games'].append(('-', '-', '-', '-'))
-
     for i in range(leaderboard_count-len(mapinfo_data['top_scorers'])):
         mapinfo_data['top_scorers'].append(('-', '-', '-'))
 
