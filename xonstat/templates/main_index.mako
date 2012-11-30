@@ -208,6 +208,7 @@ Leaderboard
   </div> <!-- /span4 -->
 </div> <!-- /row -->
 
+% if len(recent_games) > 0:
 <div class="row">
   <div class="span12">
     <h3>Recent Games</h3>
@@ -243,3 +244,4 @@ Leaderboard
     </table>
   </div> <!-- /span12 -->
 </div> <!-- /row -->
+% endif
