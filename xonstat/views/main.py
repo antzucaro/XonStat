@@ -127,9 +127,6 @@ def main_index(request):
     for i in range(leaderboard_count-len(mainindex_data['top_maps'])):
         mainindex_data['top_maps'].append(('-', '-', '-'))
 
-    for i in range(recent_games_count-len(mainindex_data['recent_games'])):
-        mainindex_data['recent_games'].append(('-', '-', '-', '-'))
-
     return mainindex_data
 
 
