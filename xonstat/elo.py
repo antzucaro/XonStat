@@ -1,3 +1,4 @@
+import datetime
 import logging
 import math
 import random
@@ -185,6 +186,7 @@ def update_elos(game, session, elos, scores, ep):
 
         elos[pid].elo = new_elo
         elos[pid].games += 1
+        elos[pid].update_dt = datetime.datetime.utcnow()
 
         log.debug("Setting Player {0}'s Elo delta to {1}. Elo is now {2} (was {3}).".format(pid, elo_deltas[pid], new_elo, old_elo))
 
