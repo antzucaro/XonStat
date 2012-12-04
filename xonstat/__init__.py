@@ -9,7 +9,7 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     # setup the database engine
-    engine = engine_from_config(settings, 'sqlalchemy.')
+    engine = engine_from_config(settings, 'sqlalchemy.', pool_size=5)
     sqlahelper.add_engine(engine)
 
     # initialize database structures
@@ -39,6 +39,9 @@ def main(global_config, **settings):
     config.add_route("player_info_json", "/player/{id:\d+}.json")
     config.add_view(player_info,      route_name="player_info",      renderer="player_info.mako")
     config.add_view(player_info_json, route_name="player_info_json", renderer="jsonp")
+
+    config.add_route("player_hashkey_info_json", "/hashkey/{hashkey}")
+    config.add_view(player_hashkey_info_json, route_name="player_hashkey_info_json", renderer="jsonp")
 
     config.add_route("player_accuracy",      "/player/{id:\d+}/accuracy")
     config.add_route("player_accuracy_json", "/player/{id:\d+}/accuracy.json")

@@ -787,3 +787,76 @@ def player_damage_json(request):
        games = over how many games to display damage. Can be up to 50.
     """
     return player_damage_data(request)
+
+
+def player_hashkey_info_data(request):
+    hashkey = request.matchdict['hashkey']
+    try:
+        player = DBSession.query(Player).\
+                filter(Player.player_id == Hashkey.player_id).\
+                filter(Player.active_ind == True).\
+                filter(Hashkey.hashkey == hashkey).one()
+
+        games_played   = get_games_played(player.player_id)
+        overall_stats  = get_overall_stats(player.player_id)
+        fav_maps       = get_fav_maps(player.player_id)
+        elos           = get_elos(player.player_id)
+        ranks          = get_ranks(player.player_id)
+
+    except Exception as e:
+        raise e
+        player         = None
+        games_played   = None
+        overall_stats  = None
+        fav_maps       = None
+        elos           = None
+        ranks          = None
+
+    return {'player':player,
+            'games_played':games_played,
+            'overall_stats':overall_stats,
+            'fav_maps':fav_maps,
+            'elos':elos,
+            'ranks':ranks,
+            }
+
+
+def player_hashkey_info_json(request):
+    """
+    Provides detailed information on a specific player. JSON.
+    """
+
+    # All player_info fields are converted into JSON-formattable dictionaries
+    player_info = player_hashkey_info_data(request)
+
+    player = player_info['player'].to_dict()
+
+    games_played = {}
+    for game in player_info['games_played']:
+        games_played[game.game_type_cd] = to_json(game)
+
+    overall_stats = {}
+    for gt,stats in player_info['overall_stats'].items():
+        overall_stats[gt] = to_json(stats)
+
+    elos = {}
+    for gt,elo in player_info['elos'].items():
+        elos[gt] = to_json(elo.to_dict())
+
+    ranks = {}
+    for gt,rank in player_info['ranks'].items():
+        ranks[gt] = to_json(rank)
+
+    fav_maps = {}
+    for gt,mapinfo in player_info['fav_maps'].items():
+        fav_maps[gt] = to_json(mapinfo)
+
+    return [{
+        'version':          1,
+        'player':           player,
+        'games_played':     games_played,
+        'overall_stats':    overall_stats,
+        'fav_maps':         fav_maps,
+        'elos':             elos,
+        'ranks':            ranks,
+    }]
