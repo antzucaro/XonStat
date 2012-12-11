@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import pyramid.httpexceptions
 import re
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
@@ -859,4 +860,40 @@ def player_hashkey_info_json(request):
         'fav_maps':         fav_maps,
         'elos':             elos,
         'ranks':            ranks,
+    }]
+
+
+def player_elo_info_data(request):
+    """
+    Provides elo information on a specific player. Raw data is returned.
+    """
+    hashkey = request.matchdict['hashkey']
+    try:
+        player = DBSession.query(Player).\
+                filter(Player.player_id == Hashkey.player_id).\
+                filter(Player.active_ind == True).\
+                filter(Hashkey.hashkey == hashkey).one()
+
+        elos = get_elos(player.player_id)
+
+    except Exception as e:
+        log.debug(e)
+        raise pyramid.httpexceptions.HTTPNotFound
+
+    return {'elos':elos}
+
+
+def player_elo_info_json(request):
+    """
+    Provides elo information on a specific player. JSON.
+    """
+    elo_info = player_elo_info_data(request)
+
+    elos = {}
+    for gt, elo in elo_info['elos'].items():
+        elos[gt] = to_json(elo.to_dict())
+
+    return [{
+        'version':          1,
+        'elos':             elos,
     }]
