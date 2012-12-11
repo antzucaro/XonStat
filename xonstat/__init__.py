@@ -43,6 +43,9 @@ def main(global_config, **settings):
     config.add_route("player_hashkey_info_json", "/hashkey/{hashkey}")
     config.add_view(player_hashkey_info_json, route_name="player_hashkey_info_json", renderer="jsonp")
 
+    config.add_route("player_elo_info_json", "/elo/{hashkey}")
+    config.add_view(player_elo_info_json, route_name="player_elo_info_json", renderer="jsonp")
+
     config.add_route("player_accuracy",      "/player/{id:\d+}/accuracy")
     config.add_route("player_accuracy_json", "/player/{id:\d+}/accuracy.json")
     config.add_view(player_accuracy_json, route_name="player_accuracy",      renderer="jsonp")
