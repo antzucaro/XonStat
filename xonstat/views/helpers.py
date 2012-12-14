@@ -16,7 +16,7 @@ class RecentGame(object):
     The constructor takes a query row that has been fetched, and
     it requires the following columns to be present in the row:
 
-        game_id, game_type_cd, winner, create_dt, server_id, server_name,
+        game_id, game_type_cd, winner, start_dt, server_id, server_name,
         map_id, map_name, player_id, nick, rank, team
 
     The following columns are optional:
@@ -30,9 +30,9 @@ class RecentGame(object):
         self.game_id = row.game_id
         self.game_type_cd = row.game_type_cd
         self.winner = row.winner
-        self.create_dt = row.create_dt
-        self.fuzzy_date = pretty_date(row.create_dt)
-        self.epoch = timegm(row.create_dt.timetuple())
+        self.start_dt = row.start_dt
+        self.fuzzy_date = pretty_date(row.start_dt)
+        self.epoch = timegm(row.start_dt.timetuple())
         self.server_id = row.server_id
         self.server_name = row.server_name
         self.map_id = row.map_id
@@ -60,7 +60,7 @@ def recent_games_q(server_id=None, map_id=None, player_id=None, cutoff=None):
     cutoff (which is a datetime object) will be returned.
     '''
     recent_games_q = DBSession.query(Game.game_id, Game.game_type_cd,
-            Game.winner, Game.create_dt, Server.server_id,
+            Game.winner, Game.start_dt, Server.server_id,
             Server.name.label('server_name'), Map.map_id,
             Map.name.label('map_name'), PlayerGameStat.player_id,
             PlayerGameStat.nick, PlayerGameStat.rank, PlayerGameStat.team,
@@ -68,7 +68,7 @@ def recent_games_q(server_id=None, map_id=None, player_id=None, cutoff=None):
             filter(Game.server_id==Server.server_id).\
             filter(Game.map_id==Map.map_id).\
             filter(Game.game_id==PlayerGameStat.game_id).\
-            order_by(expr.desc(Game.create_dt))
+            order_by(expr.desc(Game.game_id))
 
     # the various filters provided get tacked on to the query
     if server_id is not None:
