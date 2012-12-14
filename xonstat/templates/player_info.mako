@@ -439,35 +439,35 @@ Player Information
         </tr>
       </thead>
       <tbody>
-      % for (gamestat, game, server, map) in recent_games:
+      % for rg in recent_games:
         <tr>
-           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=game.game_id)}" title="View detailed information about this game">view</a></td>
-           <td class="tdcenter"><span class="sprite sprite-${game.game_type_cd}" alt="${game.game_type_cd}"></span></td>
-           <td>${server.name}</td>
-           <td>${map.name}</td>
+           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
+           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}"></span></td>
+           <td>${rg.server_name}</td>
+           <td>${rg.map_name}</td>
            <td>
-           % if gamestat.team != None:
-             % if gamestat.team == game.winner:
+           % if rg.team != None:
+             % if rg.team == rg.winner:
              Win
              % else:
              Loss
              % endif
           % else:
-            % if gamestat.rank == 1:
+            % if rg.rank == 1:
             Win
             % else:
-            Loss (#${gamestat.rank})
+            Loss (#${rg.rank})
             % endif
           % endif
            </td>
-           <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
+           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
            <td class="tdcenter">
-             <a href="${request.route_url('game_info', id=game.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
-               % if gamestat.elo_delta is not None:
-                 % if round(gamestat.elo_delta,2) > 0:
-                 <span title="Elo went up by ${round(gamestat.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
-                 % elif round(gamestat.elo_delta,2) < 0:
-                 <span title="Elo went down by ${round(-gamestat.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+             <a href="${request.route_url('game_info', id=rg.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
+               % if rg.elo_delta is not None:
+                 % if round(rg.elo_delta,2) > 0:
+                 <span title="Elo went up by ${round(rg.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
+                 % elif round(rg.elo_delta,2) < 0:
+                 <span title="Elo went down by ${round(-rg.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
                  % else:
                  <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
                  % endif

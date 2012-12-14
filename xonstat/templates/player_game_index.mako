@@ -34,34 +34,34 @@ Recent Games
         </tr>
       </thead>
       <tbody>
-      % for g in games.items:
+      % for rg in games.items:
         <tr>
-           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=g.game_id)}" title="View detailed information about this game">view</a></td>
-           <td class="tdcenter"><img title="${g.game_type_cd}" src="/static/images/icons/24x24/${g.game_type_cd}.png" alt="${g.game_type_cd}" /></td>
-           <td>${g.server_name}</td>
-           <td>${g.map_name}</td>
+           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
+           <td class="tdcenter"><img title="${rg.game_type_cd}" src="/static/images/icons/24x24/${rg.game_type_cd}.png" alt="${rg.game_type_cd}" /></td>
+           <td>${rg.server_name}</td>
+           <td>${rg.map_name}</td>
            <td>
-           % if g.team != None:
-             % if g.team == g.winner:
+           % if rg.team != None:
+             % if rg.team == rg.winner:
              Win
              % else:
              Loss
              % endif
           % else:
-            % if g.rank == 1:
+            % if rg.rank == 1:
             Win
             % else:
-            Loss (#${g.rank})
+            Loss (#${rg.rank})
             % endif
           % endif
            </td>
-           <td><span class="abstime" data-epoch="${g.game_epoch}" title="${g.game_create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${g.game_fuzzy}</span></td>
+           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
            <td class="tdcenter">
-             % if g.elo_delta is not None:
-               % if round(g.elo_delta,2) > 0:
-               <span title="Elo went up by ${round(g.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
-               % elif round(g.elo_delta,2) < 0:
-               <span title="Elo went down by ${round(-g.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+             % if rg.elo_delta is not None:
+               % if round(rg.elo_delta,2) > 0:
+               <span title="Elo went up by ${round(rg.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
+               % elif round(rg.elo_delta,2) < 0:
+               <span title="Elo went down by ${round(-rg.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
                % else:
                <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
                % endif

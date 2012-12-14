@@ -8,12 +8,12 @@ import sqlalchemy.sql.functions as func
 import time
 from calendar import timegm
 from collections import namedtuple
-from pyramid.response import Response
 from pyramid.url import current_route_url
 from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url, to_json, pretty_date
+from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
 
@@ -391,27 +391,13 @@ def get_elos(player_id):
 
 def get_recent_games(player_id):
     """
-    Provides a list of recent games.
-
-    Returns the full PlayerGameStat, Game, Server, Map
-    objects for all recent games.
+    Provides a list of recent games for a player. Uses the recent_games_q helper.
     """
-    RecentGame = namedtuple('RecentGame', ['player_stats', 'game', 'server', 'map'])
+    # recent games played in descending order
+    rgs = recent_games_q(player_id=player_id).limit(10).all()
+    recent_games = [RecentGame(row) for row in rgs]
 
-    # recent games table, all data
-    recent_games = DBSession.query(PlayerGameStat, Game, Server, Map).\
-            filter(PlayerGameStat.player_id == player_id).\
-            filter(PlayerGameStat.game_id == Game.game_id).\
-            filter(Game.server_id == Server.server_id).\
-            filter(Game.map_id == Map.map_id).\
-            order_by(Game.game_id.desc())[0:10]
-
-    return [
-        RecentGame(player_stats=row.PlayerGameStat,
-            game=row.Game,
-            server=row.Server,
-            map=row.Map)
-        for row in recent_games ]
+    return recent_games
 
 
 def get_recent_weapons(player_id):
@@ -609,10 +595,6 @@ def player_info_json(request):
 
 
 def player_game_index_data(request):
-    RecentGame = namedtuple('RecentGame', ['game_id', 'game_type_cd', 'winner',
-        'game_create_dt', 'game_epoch', 'game_fuzzy', 'server_id',
-        'server_name', 'map_id', 'map_name', 'team', 'rank', 'elo_delta'])
-
     player_id = request.matchdict['player_id']
 
     if request.params.has_key('page'):
@@ -624,35 +606,12 @@ def player_game_index_data(request):
         player = DBSession.query(Player).filter_by(player_id=player_id).\
                 filter(Player.active_ind == True).one()
 
-        games_q = DBSession.query(Game.game_id, Game.game_type_cd, Game.winner,
-                Game.create_dt, Server.server_id,
-                Server.name.label('server_name'), Map.map_id,
-                Map.name.label('map_name'), PlayerGameStat.team,
-                PlayerGameStat.rank, PlayerGameStat.elo_delta).\
-            filter(PlayerGameStat.game_id == Game.game_id).\
-            filter(PlayerGameStat.player_id == player_id).\
-            filter(Game.server_id == Server.server_id).\
-            filter(Game.map_id == Map.map_id).\
-            order_by(Game.game_id.desc())
+        rgs_q = recent_games_q(player_id=player.player_id)
 
-        games = Page(games_q, current_page, items_per_page=10, url=page_url)
+        games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
 
         # replace the items in the canned pagination class with more rich ones
-        games.items = [RecentGame(
-            game_id        = row.game_id,
-            game_type_cd   = row.game_type_cd,
-            winner         = row.winner,
-            game_create_dt = row.create_dt,
-            game_epoch     = timegm(row.create_dt.timetuple()),
-            game_fuzzy     = pretty_date(row.create_dt),
-            server_id      = row.server_id,
-            server_name    = row.server_name,
-            map_id         = row.map_id,
-            map_name       = row.map_name,
-            team           = row.team,
-            rank           = row.rank,
-            elo_delta      = row.elo_delta
-        ) for row in games.items]
+        games.items = [RecentGame(row) for row in games.items]
 
     except Exception as e:
         player = None
