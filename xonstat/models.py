@@ -255,6 +255,11 @@ class PlayerCaptime(object):
         return "<PlayerCaptime(pid=%s, map_id=%s)>" % (self.player_id, self.map_id)
 
 
+class SummaryStat(object):
+    def __repr__(self):
+        return "<SummaryStat(total_players=%s, total_games=%s, total_servers=%s)>" % (self.total_players, self.total_games, self.total_servers)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -278,6 +283,7 @@ def initialize_db(engine=None):
     player_elos_table = MetaData.tables['player_elos']
     player_ranks_table = MetaData.tables['player_ranks']
     player_captimes_table = MetaData.tables['player_map_captimes']
+    summary_stats_table = MetaData.tables['summary_stats']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -295,3 +301,4 @@ def initialize_db(engine=None):
     mapper(PlayerElo, player_elos_table)
     mapper(PlayerRank, player_ranks_table)
     mapper(PlayerCaptime, player_captimes_table)
+    mapper(SummaryStat, summary_stats_table)
