@@ -1,4 +1,5 @@
 import sqlahelper
+from pyramid_beaker import set_cache_regions_from_settings
 from pyramid.config import Configurator
 from pyramid.renderers import JSONP
 from sqlalchemy import engine_from_config
@@ -14,6 +15,9 @@ def main(global_config, **settings):
 
     # initialize database structures
     initialize_db(engine)
+
+    # set up beaker cache
+    set_cache_regions_from_settings(settings)
 
     config = Configurator(settings=settings)
 
