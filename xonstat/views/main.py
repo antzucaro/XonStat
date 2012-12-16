@@ -1,6 +1,7 @@
 import logging
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
+from beaker.cache import cache_regions, cache_region
 from datetime import datetime, timedelta
 from pyramid.response import Response
 from xonstat.models import *
@@ -9,6 +10,58 @@ from xonstat.views.helpers import RecentGame, recent_games_q
 
 
 log = logging.getLogger(__name__)
+
+
+@cache_region('hourly_term')
+def get_summary_stats():
+    """
+    Gets the following aggregate or "summary" statistics about stats:
+        - the total number of players (total_players)
+        - the total number of servers (total_servers)
+        - the total number of games (total_games)
+        - the total number of dm games (dm_games)
+        - the total number of duel games (duel_games)
+        - the total number of ctf games (ctf_games)
+
+    It is worth noting that there is also a table built to house these
+    stats in case the query in this function becomes too long for the
+    one time it runs per hour. In that case there is a script in the
+    xonstatdb repo - update_summary_stats.sql - that can be used via
+    cron to update the data offline.
+    """
+    summary_stats = DBSession.query("total_players", "total_servers",
+            "total_games", "dm_games", "duel_games", "ctf_games").\
+        from_statement(
+        """
+        with total_games as (
+            select game_type_cd, count(*) total_games
+            from games
+            where game_type_cd in ('duel', 'dm', 'ctf')
+            group by game_type_cd
+        ),
+        total_players as (
+            select count(*) total_players
+            from players
+            where active_ind = true
+        ),
+        total_servers as (
+            select count(*) total_servers
+            from servers
+            where active_ind = true
+        )
+        select tp.total_players, ts.total_servers, dm.total_games+
+               duel.total_games+ctf.total_games total_games,
+               dm.total_games dm_games, duel.total_games duel_games,
+               ctf.total_games ctf_games
+        from   total_games dm, total_games duel, total_games ctf,
+               total_players tp, total_servers ts
+        where  dm.game_type_cd = 'dm'
+        and    ctf.game_type_cd = 'ctf'
+        and    duel.game_type_cd = 'duel'
+        """
+        ).one()
+
+    return summary_stats
 
 
 def _main_index_data(request):
@@ -20,6 +73,12 @@ def _main_index_data(request):
 
     leaderboard_count = 10
     recent_games_count = 20
+
+    # summary statistics for the tagline
+    try:
+        summary_stats = get_summary_stats()
+    except:
+        summary_stats = None
 
     # top ranked duelers
     duel_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
@@ -96,6 +155,7 @@ def _main_index_data(request):
             'duel_ranks':duel_ranks,
             'ctf_ranks':ctf_ranks,
             'dm_ranks':dm_ranks,
+            'summary_stats':summary_stats,
             }
 
 

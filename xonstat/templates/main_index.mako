@@ -12,8 +12,11 @@ Leaderboard
 <%block name="hero_unit">
       <div class="hero-unit">
         <img src="/static/css/img/web_background_l2.png" />
-        #####<p id="statline">Tracking <a href="#">12345</a> players, <a href="#">12345</a> games (<a href="#">123</a> duels, <a href="#">123</a> ctfs, <a href="#">123</a> dms), <a href="#">12345</a> servers, and <a href="#">12345</a> maps since November 2011.</p>
+        % if summary_stats is None:
         <p id="statline">Tracking Xonotic statistics since October 2011.</p>
+        % else:
+        <p id="statline">Tracking <a href="${request.route_url('player_index')}">${summary_stats.total_players}</a> players, <a href="${request.route_url('game_index')}">${summary_stats.total_games}</a> games (${summary_stats.duel_games} duel, ${summary_stats.ctf_games} ctf, ${summary_stats.dm_games} dm), and <a href="${request.route_url('server_index')}">${summary_stats.total_servers}</a> servers since October 2011.</p>
+        % endif
       </div>
 </%block>
 
