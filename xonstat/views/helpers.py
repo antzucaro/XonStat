@@ -48,6 +48,26 @@ class RecentGame(object):
         except:
             self.elo_delta = None
 
+    def _asdict(self):
+        return {
+            "game_id": self.game_id,
+            "game_type_cd": self.game_type_cd,
+            "winner": self.winner,
+            "start_dt": self.start_dt,
+            "fuzzy_dt": self.fuzzy_date,
+            "epoch": self.epoch,
+            "server_id": self.server_id,
+            "server_name": self.server_name,
+            "map_id": self.map_id,
+            "map_name": self.map_name,
+            "player_id": self.player_id,
+            "nick": self.nick,
+            "nick_html_colors": self.nick_html_colors,
+            "rank": self.rank,
+            "team": self.team,
+            "elo_delta": self.elo_delta,
+            }
+
 
 def recent_games_q(server_id=None, map_id=None, player_id=None, cutoff=None):
     '''
