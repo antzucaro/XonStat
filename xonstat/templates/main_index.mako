@@ -20,44 +20,26 @@ Leaderboard
       </div>
 </%block>
 
+% if len(ranks) < 3:
 <div class="row">
+  <div class="span12">
+    <p style="text-align: center;"><i class="icon-white icon-info-sign"> </i> You don't seem to have any ranks yet.</p>
+  </div> <!-- span12 -->
+</div> <!-- row -->
+% else:
+<div class="row">
+% for rs in ranks[:3]:
+  % if len(rs) > 0:
   <div class="span4">
-    ##### DUEL RANKS #####
+
+    % if rs[0].game_type_cd == 'duel':
     <h3>Duel Ranks</h3>
-    <table class="table table-bordered table-condensed">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Nick</th>
-          <th>Elo</th>
-        </tr>
-      </thead>
-      <tbody>
-      <% i = 1 %>
-      % for (player_id, nick, elo) in duel_ranks:
-        <tr>
-          <td>${i}</td>
-          % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
-          % else:
-          <td>${nick|n}</td>
-          % endif
-          % if elo != '-':
-          <td>${round(elo, 3)}</td>
-          % else:
-          <td>${elo}</td>
-          % endif
-        </tr>
-        <% i = i+1 %>
-      % endfor
-      </tbody>
-    </table>
-    <p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='duel')}" title="See more duel rankings">More...</a></p>
-  </div> <!-- /span4 -->
-
-  <div class="span4">
-    ##### CTF RANKS #####
+    % elif rs[0].game_type_cd == 'ctf':
     <h3>CTF Ranks</h3>
+    % elif rs[0].game_type_cd == 'dm':
+    <h3>DM Ranks</h3>
+    % endif
+
     <table class="table table-bordered table-condensed">
       <thead>
         <tr>
@@ -68,61 +50,24 @@ Leaderboard
       </thead>
       <tbody>
       <% i = 1 %>
-      % for (player_id, nick, elo) in ctf_ranks:
+      % for r in rs:
         <tr>
           <td>${i}</td>
-          % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
-          % else:
-          <td>${nick|n}</td>
-          % endif
-          % if elo != '-':
-          <td>${round(elo, 3)}</td>
-          % else:
-          <td>${elo}</td>
-          % endif
+          <td><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
+          <td>${round(r.elo, 3)}</td>
         </tr>
         <% i = i+1 %>
       % endfor
       </tbody>
     </table>
-    <p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='ctf')}" title="See more CTF rankings">More...</a></p>
+    <p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings">More...</a></p>
   </div> <!-- /span4 -->
+  % endif
 
-  <div class="span4">
-    ##### DM RANKS #####
-    <h3>DM Ranks</h3>
-    <table class="table table-bordered table-condensed">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Nick</th>
-          <th>Elo</th>
-        </tr>
-      </thead>
-      <tbody>
-      <% i = 1 %>
-      % for (player_id, nick, elo) in dm_ranks:
-        <tr>
-          <td>${i}</td>
-          % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
-          % else:
-          <td>${nick|n}</td>
-          % endif
-          % if elo != '-':
-          <td>${round(elo, 3)}</td>
-          % else:
-          <td>${elo}</td>
-          % endif
-        </tr>
-        <% i = i+1 %>
-      % endfor
-    </tbody>
-  </table>
-  <p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd='dm')}" title="See more deathmatch rankings">More...</a></p>
-  </div> <!-- /span4 -->
-</div> <!-- /row -->
+% endfor
+</div> <!-- row -->
+% endif
+
 
 <div class="row">
   <div class="span4">

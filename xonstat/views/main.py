@@ -2,6 +2,7 @@ import logging
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
 from beaker.cache import cache_regions, cache_region
+from collections import namedtuple
 from datetime import datetime, timedelta
 from pyramid.response import Response
 from xonstat.models import *
@@ -64,6 +65,24 @@ def get_summary_stats():
     return summary_stats
 
 
+@cache_region('hourly_term')
+def get_ranks(game_type_cd):
+    """
+    """
+    # how many ranks we want to fetch
+    leaderboard_count = 10
+
+    # only a few game modes are actually ranked
+    if game_type_cd not in 'duel' 'dm' 'ctf' 'tdm':
+        return None
+
+    ranks = DBSession.query(PlayerRank).\
+            filter(PlayerRank.game_type_cd==game_type_cd).\
+            order_by(PlayerRank.rank).\
+            limit(leaderboard_count).all()
+
+    return ranks
+
 def _main_index_data(request):
     try:
         leaderboard_lifetime = int(
@@ -80,35 +99,12 @@ def _main_index_data(request):
     except:
         summary_stats = None
 
-    # top ranked duelers
-    duel_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
-            PlayerRank.elo).\
-            filter(PlayerRank.game_type_cd=='duel').\
-            order_by(PlayerRank.rank).\
-            limit(leaderboard_count).all()
-
-    duel_ranks = [(player_id, html_colors(nick), elo) \
-            for (player_id, nick, elo) in duel_ranks]
-
-    # top ranked CTF-ers
-    ctf_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
-            PlayerRank.elo).\
-            filter(PlayerRank.game_type_cd=='ctf').\
-            order_by(PlayerRank.rank).\
-            limit(leaderboard_count).all()
-
-    ctf_ranks = [(player_id, html_colors(nick), elo) \
-            for (player_id, nick, elo) in ctf_ranks]
-
-    # top ranked DM-ers
-    dm_ranks = DBSession.query(PlayerRank.player_id, PlayerRank.nick, 
-            PlayerRank.elo).\
-            filter(PlayerRank.game_type_cd=='dm').\
-            order_by(PlayerRank.rank).\
-            limit(leaderboard_count).all()
-
-    dm_ranks = [(player_id, html_colors(nick), elo) \
-            for (player_id, nick, elo) in dm_ranks]
+    # the three top ranks tables
+    ranks = []
+    for gtc in ['duel', 'ctf', 'dm']:
+        rank = get_ranks(gtc)
+        if len(rank) != 0:
+            ranks.append(rank)
 
     right_now = datetime.utcnow()
     back_then = datetime.utcnow() - timedelta(days=leaderboard_lifetime)
@@ -152,9 +148,7 @@ def _main_index_data(request):
             'top_servers':top_servers,
             'top_maps':top_maps,
             'recent_games':recent_games,
-            'duel_ranks':duel_ranks,
-            'ctf_ranks':ctf_ranks,
-            'dm_ranks':dm_ranks,
+            'ranks':ranks,
             'summary_stats':summary_stats,
             }
 
@@ -168,15 +162,6 @@ def main_index(request):
     # FIXME: code clone, should get these from _main_index_data
     leaderboard_count = 10
     recent_games_count = 20
-
-    for i in range(leaderboard_count-len(mainindex_data['duel_ranks'])):
-        mainindex_data['duel_ranks'].append(('-', '-', '-'))
-
-    for i in range(leaderboard_count-len(mainindex_data['ctf_ranks'])):
-        mainindex_data['ctf_ranks'].append(('-', '-', '-'))
-
-    for i in range(leaderboard_count-len(mainindex_data['dm_ranks'])):
-        mainindex_data['dm_ranks'].append(('-', '-', '-'))
 
     for i in range(leaderboard_count-len(mainindex_data['top_players'])):
         mainindex_data['top_players'].append(('-', '-', '-'))
