@@ -21,6 +21,7 @@ DELTA = 6
 
 VERBOSE = False
 
+INIFILE = None  # keep this set to "None"
 
 # classic skin WITHOUT NAME - writes PNGs into "output//###.png"
 skin_classic = Skin( "",
@@ -108,11 +109,14 @@ for arg in sys.argv[1:]:
         elif arg == "verbose":
             VERBOSE = True
         else:
-            print """Usage:  gen_badges.py [options] [skin list]
+            print """Usage:  gen_badges.py [options] <ini-file> [skin list]
     Options:
         -force      Force updating all badges (delta = 2^24)
         -test       Limit number of players to 100 (for testing)
+        -verbose    Show more verbose output
         -help       Show this help text
+    Ini-File:
+        Name of a Pyramid ini-file to use (e.g. prodution.ini or development.ini).
     Skin list:
         Space-separated list of skins to use when creating badges.
         Available skins:  classic, minimal, archer
@@ -121,18 +125,25 @@ for arg in sys.argv[1:]:
 """
             sys.exit(-1)
     else:
-        if arg == "classic":
-            skins.append(skin_classic)
-        elif arg == "minimal":
-            skins.append(skin_minimal)
-        elif arg == "archer":
-            skins.append(skin_archer)
+        if INIFILE == None:
+            INIFILE = arg
+        else:
+            if arg == "classic":
+                skins.append(skin_classic)
+            elif arg == "minimal":
+                skins.append(skin_minimal)
+            elif arg == "archer":
+		        skins.append(skin_archer)
 
 if len(skins) == 0:
     skins = [ skin_classic, skin_minimal, skin_archer ]
 
+if not INIFILE:
+    print "You must provide the name of an ini-file to use! Type 'gen_badges.py -h' for help."
+    sys.exit(-1)
+
 # environment setup
-env = bootstrap('../../../development.ini')
+env = bootstrap(INIFILE)
 req = env['request']
 req.matchdict = {'id':3}
 
