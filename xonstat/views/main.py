@@ -68,6 +68,10 @@ def get_summary_stats():
 @cache_region('hourly_term')
 def get_ranks(game_type_cd):
     """
+    Gets a set number of the top-ranked people for the specified game_type_cd.
+
+    The game_type_cd parameter is the type to fetch. Currently limited to
+    duel, dm, ctf, and tdm.
     """
     # how many ranks we want to fetch
     leaderboard_count = 10
