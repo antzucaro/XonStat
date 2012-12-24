@@ -80,6 +80,9 @@ def main(global_config, **settings):
     config.add_view(rank_index,      route_name="rank_index",      renderer="rank_index.mako")
     config.add_view(rank_index_json, route_name="rank_index_json", renderer="jsonp")
 
+    config.add_route("game_finder", "/gamefinder")
+    config.add_view(game_finder, route_name="game_finder", renderer="game_finder.mako")
+
     # SERVER ROUTES
     config.add_route("server_index",      "/servers")
     config.add_route("server_index_json", "/servers.json")

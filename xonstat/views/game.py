@@ -7,6 +7,7 @@ from sqlalchemy import desc, func, over
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url
+from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
 
@@ -172,3 +173,53 @@ def rank_index_json(request):
     Provide a list of gametype ranks, paginated. JSON.
     """
     return [{'status':'not implemented'}]
+
+
+def game_finder_data(request):
+    if request.params.has_key('page'):
+        current_page = request.params['page']
+    else:
+        current_page = 1
+
+    query = {}
+
+    server_id, map_id, player_id = None, None, None
+    range_start, range_end = None, None
+    # these become WHERE clauses when present
+    if request.params.has_key('server_id'):
+        server_id = request.params['server_id']
+        query['server_id'] = server_id
+
+    if request.params.has_key('map_id'):
+        map_id = request.params['map_id']
+        query['map_id'] = map_id
+
+    if request.params.has_key('player_id'):
+        player_id = request.params['player_id']
+        query['player_id'] = player_id
+
+    if request.params.has_key('range_start'):
+        range_start = request.params['range_start']
+        query['range_start'] = range_start
+
+    if request.params.has_key('range_end'):
+        range_end = request.params['range_end']
+        query['range_end'] = range_end
+
+    rgs_q = recent_games_q(server_id=server_id, map_id=map_id,
+            player_id=player_id)
+
+    recent_games = Page(rgs_q, current_page, url=page_url)
+
+    recent_games.items = [RecentGame(row) for row in recent_games.items]
+
+    return {
+            'recent_games':recent_games,
+            'query':query,
+           }
+
+def game_finder(request):
+    """
+    Provide a list of recent games with an advanced filter.
+    """
+    return game_finder_data(request)
