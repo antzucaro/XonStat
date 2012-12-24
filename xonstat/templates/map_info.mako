@@ -182,6 +182,7 @@ ${parent.title()}
         % endfor
       </tbody>
     </table>
+    <p><a href="${request.route_url('game_finder', _query={'map_id':gmap.map_id})}">More...</a></p>
   </div>
 </div>
 % endif
