@@ -57,6 +57,7 @@ Recent Games
            </td>
            <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
            <td class="tdcenter">
+             <a href="${request.route_url('game_info', id=rg.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
              % if rg.elo_delta is not None:
                % if round(rg.elo_delta,2) > 0:
                <span title="Elo went up by ${round(rg.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
@@ -68,6 +69,7 @@ Recent Games
              % else:
                <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
              % endif
+             </a>
            </td>
         </tr>
       % endfor
