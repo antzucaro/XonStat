@@ -740,13 +740,7 @@ def player_hashkey_info_data(request):
         ranks          = get_ranks(player.player_id)
 
     except Exception as e:
-        raise e
-        player         = None
-        games_played   = None
-        overall_stats  = None
-        fav_maps       = None
-        elos           = None
-        ranks          = None
+        raise pyramid.httpexceptions.HTTPNotFound
 
     return {'player':player,
             'hashkey':hashkey,
