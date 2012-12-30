@@ -12,7 +12,7 @@ from pyramid.url import current_route_url
 from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
-from xonstat.util import page_url, to_json, pretty_date
+from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
 from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
@@ -135,6 +135,7 @@ def get_overall_stats(player_id):
         - last_played_epoch (same as above, but in seconds since epoch)
         - last_played_fuzzy (same as above, but in relative date)
         - total_playing_time (total amount of time played the game type)
+        - total_playing_time_secs (same as the above, but in seconds)
         - total_pickups (ctf only)
         - total_captures (ctf only)
         - cap_ratio (ctf only)
@@ -146,7 +147,7 @@ def get_overall_stats(player_id):
     """
     OverallStats = namedtuple('OverallStats', ['total_kills', 'total_deaths',
         'k_d_ratio', 'last_played', 'last_played_epoch', 'last_played_fuzzy',
-        'total_playing_time', 'total_pickups', 'total_captures', 'cap_ratio',
+        'total_playing_time', 'total_playing_time_secs', 'total_pickups', 'total_captures', 'cap_ratio',
         'total_carrier_frags', 'game_type_cd'])
 
     raw_stats = DBSession.query('game_type_cd', 'total_kills',
@@ -166,28 +167,25 @@ def get_overall_stats(player_id):
                 "WHERE  g.game_id = pgs.game_id "
                   "AND  pgs.player_id = :player_id "
                 "GROUP  BY g.game_type_cd "
+                "UNION "
+                "SELECT 'overall' game_type_cd, "
+                       "Sum(pgs.kills)         total_kills, "
+                       "Sum(pgs.deaths)        total_deaths, "
+                       "Max(pgs.create_dt)     last_played, "
+                       "Sum(pgs.alivetime)     total_playing_time, "
+                       "Sum(pgs.pickups)       total_pickups, "
+                       "Sum(pgs.captures)      total_captures, "
+                       "Sum(pgs.carrier_frags) total_carrier_frags "
+                "FROM   games g, "
+                       "player_game_stats pgs "
+                "WHERE  g.game_id = pgs.game_id "
+                  "AND  pgs.player_id = :player_id "
             ).params(player_id=player_id).all()
 
     # to be indexed by game_type_cd
     overall_stats = {}
 
-    # sums for the "overall" game type (which is fake)
-    overall_kills = 0
-    overall_deaths = 0
-    overall_last_played = None
-    overall_playing_time = datetime.timedelta(seconds=0)
-    overall_carrier_frags = 0
-
     for row in raw_stats:
-        # running totals or mins
-        overall_kills += row.total_kills or 0
-        overall_deaths += row.total_deaths or 0
-
-        if overall_last_played is None or row.last_played > overall_last_played:
-            overall_last_played = row.last_played
-
-        overall_playing_time += row.total_playing_time
-
         # individual gametype ratio calculations
         try:
             k_d_ratio = float(row.total_kills)/row.total_deaths
@@ -199,8 +197,6 @@ def get_overall_stats(player_id):
         except:
             cap_ratio = None
 
-        overall_carrier_frags += row.total_carrier_frags or 0
-
         # everything else is untouched or "raw"
         os = OverallStats(total_kills=row.total_kills,
                 total_deaths=row.total_deaths,
@@ -209,6 +205,7 @@ def get_overall_stats(player_id):
                 last_played_epoch=timegm(row.last_played.timetuple()),
                 last_played_fuzzy=pretty_date(row.last_played),
                 total_playing_time=row.total_playing_time,
+                total_playing_time_secs=int(datetime_seconds(row.total_playing_time)),
                 total_pickups=row.total_pickups,
                 total_captures=row.total_captures,
                 cap_ratio=cap_ratio,
@@ -216,27 +213,6 @@ def get_overall_stats(player_id):
                 game_type_cd=row.game_type_cd)
 
         overall_stats[row.game_type_cd] = os
-
-    # and lastly, the overall stuff
-    try:
-        overall_k_d_ratio = float(overall_kills)/overall_deaths
-    except:
-        overall_k_d_ratio = None
-
-    os = OverallStats(total_kills=overall_kills,
-            total_deaths=overall_deaths,
-            k_d_ratio=overall_k_d_ratio,
-            last_played=overall_last_played,
-            last_played_epoch=timegm(overall_last_played.timetuple()),
-            last_played_fuzzy=pretty_date(overall_last_played),
-            total_playing_time=overall_playing_time,
-            total_pickups=None,
-            total_captures=None,
-            cap_ratio=None,
-            total_carrier_frags=overall_carrier_frags,
-            game_type_cd='overall')
-
-    overall_stats['overall'] = os
 
     return overall_stats
 
@@ -773,6 +749,7 @@ def player_hashkey_info_data(request):
         ranks          = None
 
     return {'player':player,
+            'hashkey':hashkey,
             'games_played':games_played,
             'overall_stats':overall_stats,
             'fav_maps':fav_maps,
@@ -820,6 +797,47 @@ def player_hashkey_info_json(request):
         'elos':             elos,
         'ranks':            ranks,
     }]
+
+
+def player_hashkey_info_text(request):
+    """
+    Provides detailed information on a specific player. Plain text.
+    """
+    # UTC epoch
+    now = timegm(datetime.datetime.utcnow().timetuple())
+
+    # All player_info fields are converted into JSON-formattable dictionaries
+    player_info = player_hashkey_info_data(request)
+
+    # gather all of the data up into aggregate structures
+    player = player_info['player']
+    games_played = player_info['games_played']
+    overall_stats = player_info['overall_stats']
+    elos = player_info['elos']
+    ranks = player_info['ranks']
+    fav_maps = player_info['fav_maps']
+
+    # one-offs for things needing conversion for text/plain
+    player_joined = timegm(player.create_dt.timetuple())
+    alivetime = int(datetime_seconds(overall_stats['overall'].total_playing_time))
+
+    # this is a plain text response, if we don't do this here then
+    # Pyramid will assume html
+    request.response.content_type = 'text/plain'
+
+    return {
+        'version':          1,
+        'now':              now,
+        'player':           player,
+        'hashkey':          player_info['hashkey'],
+        'player_joined':    player_joined,
+        'games_played':     games_played,
+        'overall_stats':    overall_stats,
+        'alivetime':        alivetime,
+        'fav_maps':         fav_maps,
+        'elos':             elos,
+        'ranks':            ranks,
+    }
 
 
 def player_elo_info_data(request):
