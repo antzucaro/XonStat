@@ -190,6 +190,7 @@ Leaderboard
         % endfor
         </tbody>
     </table>
+    <p><a href="${request.route_url('game_finder')}">More...</a></p>
   </div> <!-- /span12 -->
 </div> <!-- /row -->
 % endif

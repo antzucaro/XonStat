@@ -68,6 +68,9 @@ class RecentGame(object):
             "elo_delta": self.elo_delta,
             }
 
+    def __repr__(self):
+        return "<RecentGame(id=%s, gametype=%s, server=%s, map=%s)>" % (self.game_id, self.game_type_cd, self.server_name, self.map_name)
+
 
 def recent_games_q(server_id=None, map_id=None, player_id=None, cutoff=None):
     '''
