@@ -38,7 +38,7 @@ def map_index(request):
 
 def map_index_json(request):
     """
-    Provides a JSON-serialized list of all the current maps. 
+    Provides a JSON-serialized list of all the current maps.
     """
     view_data = _map_index_data(request)
 
@@ -50,7 +50,7 @@ def map_index_json(request):
 def _map_info_data(request):
     map_id = request.matchdict['id']
 
-    try: 
+    try:
         leaderboard_lifetime = int(
                 request.registry.settings['xonstat.leaderboard_lifetime'])
     except:
@@ -77,7 +77,7 @@ def _map_info_data(request):
                 filter(Game.game_id == PlayerGameStat.game_id).\
                 filter(Game.map_id == map_id).\
                 filter(Player.player_id > 2).\
-                filter(PlayerGameStat.create_dt > 
+                filter(PlayerGameStat.create_dt >
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.score))).\
                 group_by(Player.nick).\
@@ -87,13 +87,13 @@ def _map_info_data(request):
                 for (player_id, nick, score) in top_scorers]
 
         # top players by playing time
-        top_players = DBSession.query(Player.player_id, Player.nick, 
+        top_players = DBSession.query(Player.player_id, Player.nick,
                 func.sum(PlayerGameStat.alivetime)).\
                 filter(Player.player_id == PlayerGameStat.player_id).\
                 filter(Game.game_id == PlayerGameStat.game_id).\
                 filter(Game.map_id == map_id).\
                 filter(Player.player_id > 2).\
-                filter(PlayerGameStat.create_dt > 
+                filter(PlayerGameStat.create_dt >
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.alivetime))).\
                 group_by(Player.nick).\
@@ -103,11 +103,11 @@ def _map_info_data(request):
                 for (player_id, nick, score) in top_players]
 
         # top servers using/playing this map
-        top_servers = DBSession.query(Server.server_id, Server.name, 
+        top_servers = DBSession.query(Server.server_id, Server.name,
                 func.count(Game.game_id)).\
                 filter(Game.server_id == Server.server_id).\
                 filter(Game.map_id == map_id).\
-                filter(Game.create_dt > 
+                filter(Game.create_dt >
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.count(Game.game_id))).\
                 group_by(Server.name).\
@@ -162,3 +162,66 @@ def map_info_json(request):
     List the information stored about a given map. JSON.
     """
     return [{'status':'not implemented'}]
+
+
+def map_captimes_data(request):
+    map_id = int(request.matchdict['id'])
+
+    MapCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap', 'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
+        'player_id', 'player_nick', 'player_nick_stripped', 'player_nick_html',
+        'game_id', 'server_id', 'server_name'])
+
+    dbquery = DBSession.query('fastest_cap', 'create_dt', 'player_id', 'game_id',
+                'server_id', 'server_name', 'player_nick').\
+            from_statement(
+                "SELECT ct.fastest_cap, "
+                       "ct.create_dt, "
+                       "ct.player_id, "
+                       "ct.game_id, "
+                       "g.server_id, "
+                       "s.name server_name, "
+                       "pgs.nick player_nick "
+                "FROM   player_map_captimes ct, "
+                       "games g, "
+                       "maps m, "
+                       "servers s, "
+                       "player_game_stats pgs "
+                "WHERE  ct.map_id = :map_id "
+                  "AND  g.game_id = ct.game_id "
+                  "AND  g.server_id = s.server_id "
+                  "AND  m.map_id = ct.map_id "
+                  "AND  pgs.player_id = ct.player_id "
+                  "AND  pgs.game_id = ct.game_id "
+                "ORDER  BY ct.fastest_cap "
+            ).params(map_id=map_id).all()
+
+    mmap = DBSession.query(Map).filter_by(map_id=map_id).one()
+
+    map_captimes = []
+    for row in dbquery:
+        map_captimes.append(MapCaptimes(
+                fastest_cap=row.fastest_cap,
+                create_dt=row.create_dt,
+                create_dt_epoch=timegm(row.create_dt.timetuple()),
+                create_dt_fuzzy=pretty_date(row.create_dt),
+                player_id=row.player_id,
+                player_nick=row.player_nick,
+                player_nick_stripped=strip_colors(row.player_nick),
+                player_nick_html=html_colors(row.player_nick),
+                game_id=row.game_id,
+                server_id=row.server_id,
+                server_name=row.server_name,
+            ))
+
+    return {
+            'captimes':map_captimes,
+            'map_id':map_id,
+            'map_url':request.route_url('map_info', id=map_id),
+            'map':mmap,
+        }
+
+def map_captimes(request):
+    return map_captimes_data(request)
+
+def map_captimes_json(request):
+    return map_captimes_data(request)

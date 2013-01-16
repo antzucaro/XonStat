@@ -54,9 +54,9 @@ def main(global_config, **settings):
     config.add_view(player_elo_info_json, route_name="player_elo_info_json", renderer="jsonp")
 
     config.add_route("player_accuracy",      "/player/{id:\d+}/accuracy")
-    config.add_route("player_accuracy_json", "/player/{id:\d+}/accuracy.json")
+    #config.add_route("player_accuracy_json", "/player/{id:\d+}/accuracy.json")
     config.add_view(player_accuracy_json, route_name="player_accuracy",      renderer="jsonp")
-    config.add_view(player_accuracy_json, route_name="player_accuracy_json", renderer="jsonp")
+    #config.add_view(player_accuracy_json, route_name="player_accuracy_json", renderer="jsonp")
 
     config.add_route("player_index",      "/players")
     config.add_route("player_index_json", "/players.json")
@@ -64,8 +64,12 @@ def main(global_config, **settings):
     config.add_view(player_index_json, route_name="player_index_json", renderer="jsonp")
 
     config.add_route("player_damage", "/player/{id:\d+}/damage")
-    config.add_view(player_damage_json, route_name="player_damage",
-        renderer="json")
+    config.add_view(player_damage_json, route_name="player_damage", renderer="jsonp")
+
+    config.add_route("player_captimes",      "/player/{id:\d+}/captimes")
+    config.add_route("player_captimes_json", "/player/{id:\d+}/captimes.json")
+    config.add_view(player_captimes,      route_name="player_captimes",      renderer="player_captimes.mako")
+    config.add_view(player_captimes_json, route_name="player_captimes_json", renderer="jsonp")
 
     # GAME ROUTES
     config.add_route("game_index",      "/games")
@@ -112,6 +116,11 @@ def main(global_config, **settings):
     config.add_route("map_info_json", "/map/{id:\d+}.json")
     config.add_view(map_info,      route_name="map_info",      renderer="map_info.mako")
     config.add_view(map_info_json, route_name="map_info_json", renderer="jsonp")
+
+    config.add_route("map_captimes",      "/map/{id:\d+}/captimes")
+    config.add_route("map_captimes_json", "/map/{id:\d+}/captimes.json")
+    config.add_view(map_captimes,      route_name="map_captimes",      renderer="map_captimes.mako")
+    config.add_view(map_captimes_json, route_name="map_captimes_json", renderer="jsonp")
 
     # SEARCH ROUTES
     config.add_route("search",      "search")

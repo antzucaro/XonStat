@@ -12,7 +12,7 @@ from pyramid.url import current_route_url
 from sqlalchemy import desc, distinct
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
-from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
+from xonstat.util import page_url, to_json, pretty_date, datetime_seconds, html_colors
 from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
@@ -272,7 +272,7 @@ def get_fav_maps(player_id, game_type_cd=None):
             map_id=row.map_id,
             times_played=row.times_played,
             game_type_cd=row.game_type_cd)
-    
+
         # if we aren't given a favorite game_type_cd
         # then the overall favorite is the one we've
         # played the most
@@ -302,7 +302,7 @@ def get_ranks(player_id):
 
     The key to the dictionary is the game type code. There is also an
     "overall" game_type_cd which is the overall best rank.
-    """    
+    """
     Rank = namedtuple('Rank', ['rank', 'max_rank', 'percentile', 'game_type_cd'])
 
     raw_ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
@@ -412,7 +412,7 @@ def get_accuracy_stats(player_id, weapon_cd, games):
 
         # Determine the raw accuracy (hit, fired) numbers for $games games
         # This is then enumerated to create parameters for a flot graph
-        raw_accs = DBSession.query(PlayerWeaponStat.game_id, 
+        raw_accs = DBSession.query(PlayerWeaponStat.game_id,
             PlayerWeaponStat.hit, PlayerWeaponStat.fired).\
                 filter(PlayerWeaponStat.player_id == player_id).\
                 filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
@@ -448,7 +448,7 @@ def get_damage_stats(player_id, weapon_cd, games):
 
         # Determine the damage efficiency (hit, fired) numbers for $games games
         # This is then enumerated to create parameters for a flot graph
-        raw_dmgs = DBSession.query(PlayerWeaponStat.game_id, 
+        raw_dmgs = DBSession.query(PlayerWeaponStat.game_id,
             PlayerWeaponStat.actual, PlayerWeaponStat.hit).\
                 filter(PlayerWeaponStat.player_id == player_id).\
                 filter(PlayerWeaponStat.weapon_cd == weapon_cd).\
@@ -526,7 +526,7 @@ def player_info_json(request):
     """
 
     # All player_info fields are converted into JSON-formattable dictionaries
-    player_info = player_info_data(request)    
+    player_info = player_info_data(request)
 
     player = player_info['player'].to_dict()
 
@@ -646,11 +646,11 @@ def player_accuracy_data(request):
         games = len(accs)
 
     return {
-            'player_id':player_id, 
-            'player_url':request.route_url('player_info', id=player_id), 
-            'weapon':weapon_cd, 
-            'games':games, 
-            'avg':avg, 
+            'player_id':player_id,
+            'player_url':request.route_url('player_info', id=player_id),
+            'weapon':weapon_cd,
+            'games':games,
+            'avg':avg,
             'accs':accs
             }
 
@@ -703,11 +703,11 @@ def player_damage_data(request):
         games = len(dmgs)
 
     return {
-            'player_id':player_id, 
-            'player_url':request.route_url('player_info', id=player_id), 
-            'weapon':weapon_cd, 
-            'games':games, 
-            'avg':avg, 
+            'player_id':player_id,
+            'player_url':request.route_url('player_info', id=player_id),
+            'weapon':weapon_cd,
+            'games':games,
+            'avg':avg,
             'dmgs':dmgs
             }
 
@@ -868,3 +868,69 @@ def player_elo_info_json(request):
         'version':          1,
         'elos':             elos,
     }]
+
+def player_captimes_data(request):
+    player_id = int(request.matchdict['id'])
+    if player_id <= 2:
+        player_id = -1;
+
+    #player_captimes = DBSession.query(PlayerCaptime).\
+    #        filter(PlayerCaptime.player_id==player_id).\
+    #        order_by(PlayerCaptime.fastest_cap).\
+    #        all()
+
+    PlayerCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap', 'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
+        'player_id', 'game_id', 'map_id', 'map_name', 'server_id', 'server_name'])
+
+    dbquery = DBSession.query('fastest_cap', 'create_dt', 'player_id', 'game_id', 'map_id',
+                'map_name', 'server_id', 'server_name').\
+            from_statement(
+                "SELECT ct.fastest_cap, "
+                       "ct.create_dt, "
+                       "ct.player_id, "
+                       "ct.game_id, "
+                       "ct.map_id, "
+                       "m.name map_name, "
+                       "g.server_id, "
+                       "s.name server_name "
+                "FROM   player_map_captimes ct, "
+                       "games g, "
+                       "maps m, "
+                       "servers s "
+                "WHERE  ct.player_id = :player_id "
+                  "AND  g.game_id = ct.game_id "
+                  "AND  g.server_id = s.server_id "
+                  "AND  m.map_id = ct.map_id "
+                #"ORDER  BY ct.fastest_cap "
+                "ORDER  BY ct.create_dt desc"
+            ).params(player_id=player_id).all()
+
+    player = DBSession.query(Player).filter_by(player_id=player_id).one()
+
+    player_captimes = []
+    for row in dbquery:
+        player_captimes.append(PlayerCaptimes(
+                fastest_cap=row.fastest_cap,
+                create_dt=row.create_dt,
+                create_dt_epoch=timegm(row.create_dt.timetuple()),
+                create_dt_fuzzy=pretty_date(row.create_dt),
+                player_id=row.player_id,
+                game_id=row.game_id,
+                map_id=row.map_id,
+                map_name=row.map_name,
+                server_id=row.server_id,
+                server_name=row.server_name,
+            ))
+
+    return {
+            'captimes':player_captimes,
+            'player_id':player_id,
+            'player_url':request.route_url('player_info', id=player_id),
+            'player':player,
+        }
+
+def player_captimes(request):
+    return player_captimes_data(request)
+
+def player_captimes_json(request):
+    return player_captimes_data(request)
