@@ -29,7 +29,7 @@ def _game_index_data(request):
     for (game, server, map) in games:
         pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
                 filter(PlayerGameStat.game_id == game.game_id).\
-                order_by(PlayerGameStat.rank).\
+                order_by(PlayerGameStat.scoreboardpos).\
                 order_by(PlayerGameStat.score).all()
 
     return {'games':games,
@@ -72,7 +72,7 @@ def _game_info_data(request):
 
         pgstats = DBSession.query(PlayerGameStat).\
                 filter(PlayerGameStat.game_id == game_id).\
-                order_by(PlayerGameStat.rank).\
+                order_by(PlayerGameStat.scoreboardpos).\
                 order_by(PlayerGameStat.score).\
                 all()
 
@@ -90,7 +90,7 @@ def _game_info_data(request):
                 filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd).\
                 filter(PlayerWeaponStat.player_game_stat_id == \
                     PlayerGameStat.player_game_stat_id).\
-                order_by(PlayerGameStat.rank).\
+                order_by(PlayerGameStat.scoreboardpos).\
                 order_by(PlayerGameStat.score).\
                 order_by(Weapon.descr).\
                 all():
