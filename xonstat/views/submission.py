@@ -435,7 +435,11 @@ def create_player_game_stat(session=None, player=None,
             pgstat.nick = value[:128]
             pgstat.stripped_nick = strip_colors(qfont_decode(pgstat.nick))
         if key == 't': pgstat.team = int(value)
-        if key == 'rank': pgstat.rank = int(value)
+        if key == 'rank': 
+            pgstat.rank = int(value)
+            # to support older servers who don't send scoreboardpos values
+            if pgstat.scoreboardpos is None:
+                pgstat.scoreboardpos = pgstat.rank
         if key == 'alivetime': 
             pgstat.alivetime = datetime.timedelta(seconds=int(round(float(value))))
         if key == 'scoreboard-drops': pgstat.drops = int(value)
@@ -450,6 +454,8 @@ def create_player_game_stat(session=None, player=None,
         if key == 'scoreboard-captime':
             pgstat.fastest_cap = datetime.timedelta(seconds=float(value)/100)
         if key == 'avglatency': pgstat.avg_latency = float(value)
+        if key == 'teamrank': pgstat.teamrank = int(value)
+        if key == 'scoreboardpos': pgstat.scoreboardpos = int(value)
 
     # check to see if we had a name, and if
     # not use an anonymous handle
