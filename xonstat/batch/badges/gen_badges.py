@@ -19,6 +19,9 @@ NUM_PLAYERS = None
 # we look for players who have activity within the past DELTA hours
 DELTA = 6
 
+VERBOSE = False
+
+INIFILE = None  # keep this set to "None"
 
 # classic skin WITHOUT NAME - writes PNGs into "output//###.png"
 skin_classic = Skin( "",
@@ -28,8 +31,21 @@ skin_classic = Skin( "",
 
 # more fancy skin [** WIP **]- writes PNGs into "output/archer/###.png"
 skin_archer = Skin( "archer",
-        bg              = "background_archer-v1",
-        overlay         = None,
+        #bg              = "background_archer-v2_full",
+        bg              = "background_archer-v3",
+        overlay         = "",
+        nick_maxwidth	= 265,
+        gametype_pos    = (91,33),
+        nostats_pos    	= (91,59),
+        elo_pos    	= (91,47),
+        rank_pos    	= (91,58),
+        winp_pos	= (509,20),
+        wins_pos	= (508,35),
+        loss_pos	= (508,45),
+        kdr_pos		= (392,20),
+        kills_pos	= (392,35),
+        deaths_pos	= (392,45),
+        ptime_color	= (0.05, 0.05, 0.1),
     )
 
 # minimal skin - writes PNGs into "output/minimal/###.png"
@@ -90,12 +106,17 @@ for arg in sys.argv[1:]:
             DELTA = 2**24   # large enough to enforce update, and doesn't result in errors
         elif arg == "test":
             NUM_PLAYERS = 100
+        elif arg == "verbose":
+            VERBOSE = True
         else:
-            print """Usage:  gen_badges.py [options] [skin list]
+            print """Usage:  gen_badges.py [options] <ini-file> [skin list]
     Options:
         -force      Force updating all badges (delta = 2^24)
         -test       Limit number of players to 100 (for testing)
+        -verbose    Show more verbose output
         -help       Show this help text
+    Ini-File:
+        Name of a Pyramid ini-file to use (e.g. prodution.ini or development.ini).
     Skin list:
         Space-separated list of skins to use when creating badges.
         Available skins:  classic, minimal, archer
@@ -104,18 +125,25 @@ for arg in sys.argv[1:]:
 """
             sys.exit(-1)
     else:
-        if arg == "classic":
-            skins.append(skin_classic)
-        elif arg == "minimal":
-            skins.append(skin_minimal)
-        elif arg == "archer":
-            skins.append(skin_archer)
+        if INIFILE == None:
+            INIFILE = arg
+        else:
+            if arg == "classic":
+                skins.append(skin_classic)
+            elif arg == "minimal":
+                skins.append(skin_minimal)
+            elif arg == "archer":
+		        skins.append(skin_archer)
 
 if len(skins) == 0:
-    skins = [ skin_classic, skin_minimal ]
+    skins = [ skin_classic, skin_minimal, skin_archer ]
+
+if not INIFILE:
+    print "You must provide the name of an ini-file to use! Type 'gen_badges.py -h' for help."
+    sys.exit(-1)
 
 # environment setup
-env = bootstrap('../../../development.ini')
+env = bootstrap(INIFILE)
 req = env['request']
 req.matchdict = {'id':3}
 
@@ -142,7 +170,7 @@ else:
             filter(Player.active_ind == True).\
             all()
 
-playerdata = PlayerData()
+playerdata = PlayerData
 
 if len(players) > 0:
     stop = datetime.now()
@@ -163,10 +191,13 @@ if len(players) > 0:
 
         sstart = datetime.now()
         for sk in skins:
-            sk.render_image(playerdata, "output/%s/%d.png" % (str(sk), player_id[0]))
+            sk.render_image(playerdata.data, "output/%s/%d.png" % (str(sk), player_id[0]))
         sstop = datetime.now()
         td = sstop-sstart
         render_time += datetime_seconds(td)
+
+        if VERBOSE == True:
+            print player_id, unicode(playerdata.data['player'].nick)
 
     stop = datetime.now()
     td = stop-start

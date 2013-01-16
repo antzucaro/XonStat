@@ -1,6 +1,7 @@
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
 from xonstat.models import *
+from xonstat.views.player import get_games_played, get_overall_stats, get_ranks, get_elos
 
 
 class PlayerData:
@@ -16,6 +17,7 @@ class PlayerData:
             return self.data[key]
         return None
 
+    @classmethod
     def get_data(self, player_id):
         """Return player data as dict.
 
@@ -25,87 +27,34 @@ class PlayerData:
         # total games
         # wins/losses
         # kills/deaths
+        
         # duel/dm/tdm/ctf elo + rank
+        player = DBSession.query(Player).filter_by(player_id=player_id).\
+                filter(Player.active_ind == True).one()
+        games_played    = get_games_played(player_id)
+        overall_stats   = get_overall_stats(player_id)
+        ranks           = get_ranks(player_id)
+        elos            = get_elos(player_id)
 
-        player = DBSession.query(Player).filter(Player.player_id == player_id).one()
-
-        games_played = DBSession.query(
-                Game.game_type_cd, func.count(), func.sum(PlayerGameStat.alivetime)).\
-                filter(Game.game_id == PlayerGameStat.game_id).\
-                filter(PlayerGameStat.player_id == player_id).\
-                group_by(Game.game_type_cd).\
-                order_by(func.count().desc()).\
-                all()
-
-        total_stats = {}
-        total_stats['games'] = 0
-        total_stats['games_breakdown'] = {}  # this is a dictionary inside a dictionary .. dictception?
-        total_stats['games_alivetime'] = {}
-        total_stats['gametypes'] = []
-        for (game_type_cd, games, alivetime) in games_played:
-            total_stats['games'] += games
-            total_stats['gametypes'].append(game_type_cd)
-            total_stats['games_breakdown'][game_type_cd] = games
-            total_stats['games_alivetime'][game_type_cd] = alivetime
-
-        (total_stats['kills'], total_stats['deaths'], total_stats['alivetime'],) = DBSession.query(
-                func.sum(PlayerGameStat.kills),
-                func.sum(PlayerGameStat.deaths),
-                func.sum(PlayerGameStat.alivetime)).\
-                filter(PlayerGameStat.player_id == player_id).\
-                one()
-
-        (total_stats['wins'], total_stats['losses']) = DBSession.\
-                query("wins", "losses").\
-                from_statement(
-                    "SELECT SUM(win) wins, SUM(loss) losses "
-                    "FROM   (SELECT  g.game_id, "
-                    "                CASE "
-                    "                  WHEN g.winner = pgs.team THEN 1 "
-                    "                  WHEN pgs.rank = 1 THEN 1 "
-                    "                  ELSE 0 "
-                    "                END win, "
-                    "                CASE "
-                    "                  WHEN g.winner = pgs.team THEN 0 "
-                    "                  WHEN pgs.rank = 1 THEN 0 "
-                    "                  ELSE 1 "
-                    "                END loss "
-                    "        FROM    games g, "
-                    "                player_game_stats pgs "
-                    "        WHERE   g.game_id = pgs.game_id "
-                    "                AND pgs.player_id = :player_id) win_loss").\
-                params(player_id=player_id).one()
-
-        ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
-                from_statement(
-                    "SELECT  pr.game_type_cd, pr.rank, overall.max_rank "
-                    "FROM    player_ranks pr, "
-                    "        (SELECT  game_type_cd, max(rank) max_rank "
-                    "        FROM     player_ranks "
-                    "        GROUP BY game_type_cd) overall "
-                    "WHERE   pr.game_type_cd = overall.game_type_cd  "
-                    "        AND player_id = :player_id "
-                    "ORDER BY rank").\
-                params(player_id=player_id).all()
+        games_played_dict = {}
+        for game in games_played:
+            games_played_dict[game.game_type_cd] = game
 
         ranks_dict = {}
-        for gtc,rank,max_rank in ranks:
-            ranks_dict[gtc] = (rank, max_rank)
-
-        elos = DBSession.query(PlayerElo).\
-                filter_by(player_id=player_id).\
-                order_by(PlayerElo.elo.desc()).\
-                all()
+        for gt,rank in ranks.items():
+            ranks_dict[gt] = (rank.rank, rank.max_rank)
 
         elos_dict = {}
-        for elo in elos:
+        for gt,elo in elos.items():
             if elo.games >= 32:
-                elos_dict[elo.game_type_cd] = elo.elo
+                elos_dict[gt] = elo.elo
 
         self.data = {
                 'player':player,
-                'total_stats':total_stats,
+                'games_played':games_played_dict,
+                'overall_stats':overall_stats,
                 'ranks':ranks_dict,
                 'elos':elos_dict,
             }
+         
 
