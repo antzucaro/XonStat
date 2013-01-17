@@ -67,8 +67,8 @@ class Skin:
             'width':            560,
             'height':           70,
             'nick_fontsize':    20,
-            'nick_pos':         (56,18),
-            'nick_maxwidth':    280,
+            'nick_pos':         (52,18),
+            'nick_maxwidth':    270,
             'gametype_fontsize':10,
             'gametype_pos':     (101,33),
             'gametype_width':   94,
@@ -140,7 +140,7 @@ class Skin:
             'ptime_text':       "Playing Time: %s",
             'ptime_align':      0,
         }
-        
+
         for k,v in params.items():
             if self.params.has_key(k):
                 self.params[k] = v
@@ -190,7 +190,7 @@ class Skin:
         """Render an image for the given player id."""
 
         # setup variables
-        
+
         player                  = data['player']
         elos                    = data['elos']
         ranks                   = data['ranks']
@@ -202,7 +202,7 @@ class Skin:
         kills, deaths, kd_ratio = overall_stats.total_kills, overall_stats.total_deaths, overall_stats.k_d_ratio
         alivetime               = overall_stats.total_playing_time
 
-        # make sorted list of gametypes        
+        # make sorted list of gametypes
         game_types = []
         num_games  = 0
         for gt,info in data['games_played'].items():
@@ -212,7 +212,7 @@ class Skin:
                 game_types.insert(0, gt)
             else:
                 game_types.append(gt)
-             
+
 
 
         # build image
@@ -221,7 +221,7 @@ class Skin:
         ctx = C.Context(surf)
         self.ctx = ctx
         ctx.set_antialias(C.ANTIALIAS_GRAY)
-        
+
         # draw background
         if self.bg == None:
             if self.bgcolor != None:
@@ -236,7 +236,7 @@ class Skin:
             try:
                 # background texture
                 bg = C.ImageSurface.create_from_png("img/%s.png" % self.bg)
-                
+
                 # tile image
                 if bg:
                     bg_w, bg_h = bg.get_width(), bg.get_height()
@@ -266,7 +266,7 @@ class Skin:
 
 
         ## draw player's nickname with fancy colors
-        
+
         # deocde nick, strip all weird-looking characters
         qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', '')
         #chars = []
@@ -276,7 +276,7 @@ class Skin:
         #        chars.append(c)
         #qstr = ''.join(chars)
         stripped_nick = strip_colors(qstr.replace(' ', '_'))
-        
+
         # fontsize is reduced if width gets too large
         ctx.select_font_face(self.font, C.FONT_SLANT_NORMAL, C.FONT_WEIGHT_NORMAL)
         shrinknick = 0
@@ -313,11 +313,11 @@ class Skin:
                 txt = parts[1]
                 del parts[1]
             del parts[0]
-                
+
             if not txt or len(txt) == 0:
                 # only colorcode and no real text, skip this
                 continue
-            
+
             if tag:
                 if tag.startswith('x'):
                     r = int(tag[1] * 2, 16) / 255.0
@@ -336,19 +336,19 @@ class Skin:
             ctx.set_source_rgb(r, g, b)
             ctx.move_to(self.nick_pos[0] + xoffset - xoff, self.nick_pos[1])
             ctx.show_text(txt.encode("utf-8"))
-            
+
             tw += (len(txt)-len(txt.strip())) * space_w  # account for lost whitespaces
             xoffset += tw + sep_w
 
         ## print elos and ranks
-        
+
         xoffset, yoffset = 0, 0
         count = 0
         for gt in game_types[:self.num_gametypes]:
             if not elos.has_key(gt) or not ranks.has_key(gt):
                 continue
             count += 1
-        
+
         # re-align segments if less than max. gametypes are shown
         if count > 0:
             if count < self.num_gametypes:
@@ -359,7 +359,7 @@ class Skin:
                 else:
                     xoffset += 0.5 * diff * self.gametype_width
                     yoffset += 0.5 * diff * self.gametype_height
-        
+
             # show a number gametypes the player has participated in
             for gt in game_types[:self.num_gametypes]:
                 if not elos.has_key(gt) or not ranks.has_key(gt):
@@ -408,7 +408,7 @@ class Skin:
             txt = "%.2f%%" % round(win_pct * 100, 2)
         except:
             win_pct = 0
-        
+
         if self.winp_pos:
             if win_pct >= 0.5:
                 nr = 2*(win_pct-0.5)
@@ -444,7 +444,7 @@ class Skin:
             txt = self.kdtext_text
             self.set_font(self.kdtext_fontsize, self.kdtext_color)
             self.show_text(txt, self.kdtext_pos, self.kdtext_align)
-        
+
         txt = "???"
         try:
             txt = "%.3f" % round(kd_ratio, 3)
