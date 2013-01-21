@@ -48,12 +48,13 @@ def get_remote_addr(request):
 
 def is_supported_gametype(gametype):
     """Whether a gametype is supported or not"""
-    flg_supported = True
+    supported_game_types = ('duel', 'dm', 'ctf', 'tdm', 'kh',
+            'ka', 'ft', 'freezetag', 'nb', 'nexball')
 
-    if gametype == 'cts' or gametype == 'lms':
-        flg_supported = False
-
-    return flg_supported
+    if gametype in supported_game_types:
+        return True
+    else:
+        return False
 
 
 def verify_request(request):
@@ -71,7 +72,7 @@ def verify_request(request):
     return (idfp, status)
 
 
-def num_real_players(player_events, count_bots=False):
+def num_real_players(player_events):
     """
     Returns the number of real players (those who played 
     and are on the scoreboard).
@@ -79,7 +80,7 @@ def num_real_players(player_events, count_bots=False):
     real_players = 0
 
     for events in player_events:
-        if is_real_player(events, count_bots):
+        if is_real_player(events) and played_in_game(events):
             real_players += 1
 
     return real_players
@@ -140,25 +141,25 @@ def has_required_metadata(metadata):
     return flg_has_req_metadata
 
 
-def is_real_player(events, count_bots=False):
+def is_real_player(events):
+    """
+    Determines if a given set of events correspond with a non-bot
+    """
+    if not events['P'].startswith('bot'):
+        return True
+    else:
+        return False
+
+
+def played_in_game(events):
     """
     Determines if a given set of player events correspond with a player who
-
-    1) is not a bot (P event does not look like a bot)
-    2) played in the game (matches 1)
-    3) was present at the end of the game (scoreboardvalid 1)
-
-    Returns True if the player meets the above conditions, and false otherwise.
+    played in the game (matches 1 and scoreboardvalid 1)
     """
-    flg_is_real = False
-
-    # removing 'joins' here due to bug, but it should be here
     if 'matches' in events and 'scoreboardvalid' in events:
-        if (events['P'].startswith('bot') and count_bots) or \
-            not events['P'].startswith('bot'):
-            flg_is_real = True
-
-    return flg_is_real
+        return True
+    else:
+        return False
 
 
 def register_new_nick(session, player, new_nick):
@@ -660,7 +661,7 @@ def stats_submit(request):
             raise pyramid.httpexceptions.HTTPOk("OK")
 
         # the "duel" gametype is fake
-        if num_real_players(players, count_bots=True) == 2 and \
+        if num_real_players(players) == 2 and \
                 game_meta['G'] == 'dm':
             game_meta['G'] = 'duel'
 
@@ -727,3 +728,215 @@ def stats_submit(request):
         if session:
             session.rollback()
         return e
+
+
+def parse_stats_submission(body):
+    """
+    Parses the POST request body for a stats submission
+    """
+    # storage vars for the request body
+    game_meta = {}
+    events = {}
+    players ={}
+
+    for line in body.split('\n'):
+        try:
+            (key, value) = line.strip().split(' ', 1)
+
+            # Server (S) and Nick (n) fields can have international characters.
+            if key in 'S' 'n':
+                value = unicode(value, 'utf-8')
+
+            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I' 'D' 'O':
+                game_meta[key] = value
+
+            if key == 'P':
+                # if we were working on a player record already, append
+                # it and work on a new one (only set team info)
+                if len(events) > 0:
+                    players[events['P']] = events
+                    events = {}
+
+                events[key] = value
+
+            if key == 'e':
+                (subkey, subvalue) = value.split(' ', 1)
+                events[subkey] = subvalue
+            if key == 'n':
+                events[key] = value
+            if key == 't':
+                events[key] = value
+        except:
+            # no key/value pair - move on to the next line
+            pass
+
+    # add the last player we were working on
+    if len(events) > 0:
+        players[events['P']] = events
+
+    return (game_meta, players)
+
+
+def submit_stats(request):
+    """
+    Entry handler for POST stats submissions.
+    """
+    try:
+        # placeholder for the actual session
+        session = None
+
+        log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
+                "----- END REQUEST BODY -----\n\n")
+
+        (idfp, status) = verify_request(request)
+        if verify_requests(request.registry.settings):
+            if not idfp:
+                log.debug("ERROR: Unverified request")
+                raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
+
+        (game_meta, raw_players) = parse_stats_submission(request.body)
+
+        # only players present at the end of the match are eligible for stats
+        for rp in raw_players.values():
+            if not played_in_game(rp):
+                del raw_players[rp['P']]
+
+        revision = game_meta.get('R', 'unknown')
+        duration = game_meta.get('D', None)
+
+        #----------------------------------------------------------------------
+        # Precondition checks for ALL gametypes. These do not require a
+        # database connection.
+        #----------------------------------------------------------------------
+        if not is_supported_gametype(game_meta['G']):
+            log.debug("ERROR: Unsupported gametype")
+            raise pyramid.httpexceptions.HTTPOk("OK")
+
+        if not has_required_metadata(game_meta):
+            log.debug("ERROR: Required game meta missing")
+            raise pyramid.httpexceptions.HTTPUnprocessableEntity("Missing game meta")
+
+        if not has_minimum_real_players(request.registry.settings, raw_players.values()):
+            log.debug("ERROR: Not enough real players")
+            raise pyramid.httpexceptions.HTTPOk("OK")
+
+        if is_blank_game(raw_players.values()):
+            log.debug("ERROR: Blank game")
+            raise pyramid.httpexceptions.HTTPOk("OK")
+
+        # the "duel" gametype is fake
+        if num_real_players(raw_players.values()) == 2 and game_meta['G'] == 'dm':
+            game_meta['G'] = 'duel'
+
+        #----------------------------------------------------------------------
+        # Actual setup (inserts/updates) below here
+        #----------------------------------------------------------------------
+        session = DBSession()
+
+        game_type_cd = game_meta['G']
+
+        # All game types create Game, Server, Map, and Player records
+        # the same way.
+        server = get_or_create_server(
+                session  = session,
+                hashkey  = idfp,
+                name     = game_meta['S'],
+                revision = revision,
+                ip_addr  = get_remote_addr(request))
+
+        gmap = get_or_create_map(
+                session = session,
+                name    = game_meta['M'])
+
+        game = create_game(
+                session      = session,
+                start_dt     = datetime.datetime.utcnow(),
+                server_id    = server.server_id,
+                game_type_cd = game_type_cd,
+                map_id       = gmap.map_id,
+                match_id     = game_meta['I'],
+                duration     = duration)
+
+        players = {}
+        pgstats = {}
+        for events in raw_players.values():
+            player = get_or_create_player(
+                session = session,
+                hashkey = events['P'],
+                nick    = events.get('n', None))
+
+            pgstat = game_stats_handler(session, game_meta, game, server,
+                    gmap, player, events)
+
+            players[events['P']] = player
+            pgstats[events['P']] = pgstat
+
+        session.commit()
+        log.debug('Success! Stats recorded.')
+        return Response('200 OK')
+    except Exception as e:
+        raise e
+        if session:
+            session.rollback()
+        return e
+
+
+def game_stats_handler(session, game_meta, game, server, gmap, player, events):
+    """Game stats handler for all game types"""
+
+    # this is what we have to do to get partitioned records in - grab the
+    # sequence value first, then insert using the explicit ID (vs autogenerate)
+    seq = Sequence('player_game_stats_player_game_stat_id_seq')
+    pgstat_id = session.execute(seq)
+    pgstat = PlayerGameStat(player_game_stat_id=pgstat_id,
+            create_dt=datetime.datetime.utcnow())
+
+    # these fields should be on every pgstat record
+    pgstat.game_id       = game.game_id
+    pgstat.player_id     = player.player_id
+    pgstat.nick          = events.get('n', 'Anonymous Player')[:128]
+    log.debug(pgstat.nick)
+    pgstat.stripped_nick = strip_colors(qfont_decode(pgstat.nick))
+    log.debug(qfont_decode(pgstat.nick))
+    log.debug(strip_colors(pgstat.nick))
+    pgstat.score         = int(events.get('scoreboard-score', 0))
+    pgstat.alivetime     = datetime.timedelta(seconds=int(round(float(events.get('alivetime', 0.0)))))
+    pgstat.rank          = int(events.get('rank', None))
+    pgstat.scoreboardpos = int(events.get('scoreboardpos', pgstat.rank))
+
+    if pgstat.nick != player.nick \
+            and player.player_id > 2 \
+            and pgstat.nick != 'Anonymous Player':
+        register_new_nick(session, player, pgstat.nick)
+
+    wins = False
+
+    # gametype-specific stuff is handled here. if passed to us, we store it
+    for (key,value) in events.items():
+        if key == 'wins': wins = True
+        if key == 't': pgstat.team = int(value)
+        if key == 'scoreboard-drops': pgstat.drops = int(value)
+        if key == 'scoreboard-returns': pgstat.returns = int(value)
+        if key == 'scoreboard-fckills': pgstat.carrier_frags = int(value)
+        if key == 'scoreboard-pickups': pgstat.pickups = int(value)
+        if key == 'scoreboard-caps': pgstat.captures = int(value)
+        if key == 'scoreboard-score': pgstat.score = int(value)
+        if key == 'scoreboard-deaths': pgstat.deaths = int(value)
+        if key == 'scoreboard-kills': pgstat.kills = int(value)
+        if key == 'scoreboard-suicides': pgstat.suicides = int(value)
+        if key == 'avglatency': pgstat.avg_latency = float(value)
+
+        if key == 'scoreboard-captime':
+            pgstat.fastest_cap = datetime.timedelta(seconds=float(value)/100)
+            if game.game_type_cd == 'ctf':
+                update_fastest_cap(session, player.player_id, game.game_id,
+                        gmap.map_id, pgstat.fastest_cap)
+
+    # there is no "winning team" field, so we have to derive it
+    if wins and pgstat.team is not None and game.winner is None:
+        game.winner = pgstat.team
+        session.add(game)
+
+    session.add(pgstat)
+
+    return pgstat
