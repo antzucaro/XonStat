@@ -12,7 +12,55 @@ from xonstat.elo import process_elos
 from xonstat.models import *
 from xonstat.util import strip_colors, qfont_decode
 
+
 log = logging.getLogger(__name__)
+
+
+def parse_stats_submission(body):
+    """
+    Parses the POST request body for a stats submission
+    """
+    # storage vars for the request body
+    game_meta = {}
+    events = {}
+    players = []
+
+    for line in body.split('\n'):
+        try:
+            (key, value) = line.strip().split(' ', 1)
+
+            # Server (S) and Nick (n) fields can have international characters.
+            if key in 'S' 'n':
+                value = unicode(value, 'utf-8')
+
+            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I' 'D' 'O':
+                game_meta[key] = value
+
+            if key == 'P':
+                # if we were working on a player record already, append
+                # it and work on a new one (only set team info)
+                if len(events) > 0:
+                    players.append(events)
+                    events = {}
+
+                events[key] = value
+
+            if key == 'e':
+                (subkey, subvalue) = value.split(' ', 1)
+                events[subkey] = subvalue
+            if key == 'n':
+                events[key] = value
+            if key == 't':
+                events[key] = value
+        except:
+            # no key/value pair - move on to the next line
+            pass
+
+    # add the last player we were working on
+    if len(events) > 0:
+        players.append(events)
+
+    return (game_meta, players)
 
 
 def is_blank_game(players):
@@ -29,7 +77,7 @@ def is_blank_game(players):
     flg_acc_events = False
 
     for events in players:
-        if is_real_player(events):
+        if is_real_player(events) and played_in_game(events):
             for (key,value) in events.items():
                 if key == 'scoreboard-score' and value != 0:
                     flg_nonzero_score = True
@@ -37,6 +85,7 @@ def is_blank_game(players):
                     flg_acc_events = True
 
     return not (flg_nonzero_score and flg_acc_events)
+
 
 def get_remote_addr(request):
     """Get the Xonotic server's IP address"""
@@ -58,6 +107,15 @@ def is_supported_gametype(gametype):
 
 
 def verify_request(request):
+    """Verify requests using the d0_blind_id library"""
+
+    # first determine if we should be verifying or not
+    val_verify_requests = request.registry.settings.get('xonstat.verify_requests', 'true')
+    if val_verify_requests == "true":
+        flg_verify_requests = True
+    else:
+        flg_verify_requests = False
+
     try:
         (idfp, status) = d0_blind_id_verify(
                 sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
@@ -65,11 +123,56 @@ def verify_request(request):
                 postdata=request.body)
 
         log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
-    except: 
+    except:
         idfp = None
         status = None
 
+    if flg_verify_requests and not idfp:
+        log.debug("ERROR: Unverified request")
+        raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
+
     return (idfp, status)
+
+
+def do_precondition_checks(request, game_meta, raw_players):
+    """Precondition checks for ALL gametypes.
+       These do not require a database connection."""
+    if not is_supported_gametype(game_meta['G']):
+        log.debug("ERROR: Unsupported gametype")
+        raise pyramid.httpexceptions.HTTPOk("OK")
+
+    if not has_required_metadata(game_meta):
+        log.debug("ERROR: Required game meta missing")
+        raise pyramid.httpexceptions.HTTPUnprocessableEntity("Missing game meta")
+
+    if not has_minimum_real_players(request.registry.settings, raw_players):
+        log.debug("ERROR: Not enough real players")
+        raise pyramid.httpexceptions.HTTPOk("OK")
+
+    if is_blank_game(raw_players):
+        log.debug("ERROR: Blank game")
+        raise pyramid.httpexceptions.HTTPOk("OK")
+
+
+def is_real_player(events):
+    """
+    Determines if a given set of events correspond with a non-bot
+    """
+    if not events['P'].startswith('bot'):
+        return True
+    else:
+        return False
+
+
+def played_in_game(events):
+    """
+    Determines if a given set of player events correspond with a player who
+    played in the game (matches 1 and scoreboardvalid 1)
+    """
+    if 'matches' in events and 'scoreboardvalid' in events:
+        return True
+    else:
+        return False
 
 
 def num_real_players(player_events):
@@ -108,22 +211,6 @@ def has_minimum_real_players(settings, player_events):
     return flg_has_min_real_players
 
 
-def verify_requests(settings):
-    """
-    Determines whether or not to verify requests using the blind_id algorithm
-    """
-    try:
-        val_verify_requests = settings['xonstat.verify_requests']
-        if val_verify_requests == "true":
-            flg_verify_requests = True
-        else:
-            flg_verify_requests = False
-    except:
-        flg_verify_requests = True
-
-    return flg_verify_requests
-
-
 def has_required_metadata(metadata):
     """
     Determines if a give set of metadata has enough data to create a game,
@@ -139,27 +226,6 @@ def has_required_metadata(metadata):
             flg_has_req_metadata = False
 
     return flg_has_req_metadata
-
-
-def is_real_player(events):
-    """
-    Determines if a given set of events correspond with a non-bot
-    """
-    if not events['P'].startswith('bot'):
-        return True
-    else:
-        return False
-
-
-def played_in_game(events):
-    """
-    Determines if a given set of player events correspond with a player who
-    played in the game (matches 1 and scoreboardvalid 1)
-    """
-    if 'matches' in events and 'scoreboardvalid' in events:
-        return True
-    else:
-        return False
 
 
 def register_new_nick(session, player, new_nick):
@@ -390,498 +456,8 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
 
     return player
 
-def create_player_game_stat(session=None, player=None, 
-        game=None, player_events=None):
-    """
-    Creates game statistics for a given player in a given game. Parameters:
 
-    session - SQLAlchemy session factory
-    player - Player record of the player who owns the stats
-    game - Game record for the game to which the stats pertain
-    player_events - dictionary for the actual stats that need to be transformed
-    """
-
-    # in here setup default values (e.g. if game type is CTF then
-    # set kills=0, score=0, captures=0, pickups=0, fckills=0, etc
-    # TODO: use game's create date here instead of now()
-    seq = Sequence('player_game_stats_player_game_stat_id_seq')
-    pgstat_id = session.execute(seq)
-    pgstat = PlayerGameStat(player_game_stat_id=pgstat_id, 
-            create_dt=datetime.datetime.utcnow())
-
-    # set player id from player record
-    pgstat.player_id = player.player_id
-
-    #set game id from game record
-    pgstat.game_id = game.game_id
-
-    # all games have a score and every player has an alivetime
-    pgstat.score = 0
-    pgstat.alivetime = datetime.timedelta(seconds=0)
-
-    if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' or game.game_type_cd == 'duel':
-        pgstat.kills = 0
-        pgstat.deaths = 0
-        pgstat.suicides = 0
-    elif game.game_type_cd == 'ctf':
-        pgstat.kills = 0
-        pgstat.captures = 0
-        pgstat.pickups = 0
-        pgstat.drops = 0
-        pgstat.returns = 0
-        pgstat.carrier_frags = 0
-
-    for (key,value) in player_events.items():
-        if key == 'n': 
-            pgstat.nick = value[:128]
-            pgstat.stripped_nick = strip_colors(qfont_decode(pgstat.nick))
-        if key == 't': pgstat.team = int(value)
-        if key == 'rank': 
-            pgstat.rank = int(value)
-            # to support older servers who don't send scoreboardpos values
-            if pgstat.scoreboardpos is None:
-                pgstat.scoreboardpos = pgstat.rank
-        if key == 'alivetime': 
-            pgstat.alivetime = datetime.timedelta(seconds=int(round(float(value))))
-        if key == 'scoreboard-drops': pgstat.drops = int(value)
-        if key == 'scoreboard-returns': pgstat.returns = int(value)
-        if key == 'scoreboard-fckills': pgstat.carrier_frags = int(value)
-        if key == 'scoreboard-pickups': pgstat.pickups = int(value)
-        if key == 'scoreboard-caps': pgstat.captures = int(value)
-        if key == 'scoreboard-score': pgstat.score = int(value)
-        if key == 'scoreboard-deaths': pgstat.deaths = int(value)
-        if key == 'scoreboard-kills': pgstat.kills = int(value)
-        if key == 'scoreboard-suicides': pgstat.suicides = int(value)
-        if key == 'scoreboard-captime':
-            pgstat.fastest_cap = datetime.timedelta(seconds=float(value)/100)
-        if key == 'avglatency': pgstat.avg_latency = float(value)
-        if key == 'teamrank': pgstat.teamrank = int(value)
-        if key == 'scoreboardpos': pgstat.scoreboardpos = int(value)
-
-    # check to see if we had a name, and if
-    # not use an anonymous handle
-    if pgstat.nick == None:
-        pgstat.nick = "Anonymous Player"
-        pgstat.stripped_nick = "Anonymous Player"
-
-    # otherwise process a nick change
-    elif pgstat.nick != player.nick and player.player_id > 2:
-        register_new_nick(session, player, pgstat.nick)
-
-    # if the player is ranked #1 and it is a team game, set the game's winner
-    # to be the team of that player
-    # FIXME: this is a hack, should be using the 'W' field (not present)
-    if pgstat.rank == 1 and pgstat.team:
-        game.winner = pgstat.team
-        session.add(game)
-
-    session.add(pgstat)
-
-    return pgstat
-
-
-def create_player_weapon_stats(session=None, player=None, 
-        game=None, pgstat=None, player_events=None, game_meta=None):
-    """
-    Creates accuracy records for each weapon used by a given player in a
-    given game. Parameters:
-
-    session - SQLAlchemy session factory object
-    player - Player record who owns the weapon stats
-    game - Game record in which the stats were created
-    pgstat - Corresponding PlayerGameStat record for these weapon stats
-    player_events - dictionary containing the raw weapon values that need to be
-        transformed
-    game_meta - dictionary of game metadata (only used for stats version info)
-    """
-    pwstats = []
-
-    # Version 1 of stats submissions doubled the data sent.
-    # To counteract this we divide the data by 2 only for
-    # POSTs coming from version 1.
-    try:
-        version = int(game_meta['V'])
-        if version == 1:
-            is_doubled = True
-            log.debug('NOTICE: found a version 1 request, halving the weapon stats...')
-        else:
-            is_doubled = False
-    except:
-        is_doubled = False
-
-    for (key,value) in player_events.items():
-        matched = re.search("acc-(.*?)-cnt-fired", key)
-        if matched:
-            weapon_cd = matched.group(1)
-            seq = Sequence('player_weapon_stats_player_weapon_stats_id_seq')
-            pwstat_id = session.execute(seq)
-            pwstat = PlayerWeaponStat()
-            pwstat.player_weapon_stats_id = pwstat_id
-            pwstat.player_id = player.player_id
-            pwstat.game_id = game.game_id
-            pwstat.player_game_stat_id = pgstat.player_game_stat_id
-            pwstat.weapon_cd = weapon_cd
-
-            if 'n' in player_events:
-                pwstat.nick = player_events['n']
-            else:
-                pwstat.nick = player_events['P']
-
-            if 'acc-' + weapon_cd + '-cnt-fired' in player_events:
-                pwstat.fired = int(round(float(
-                        player_events['acc-' + weapon_cd + '-cnt-fired'])))
-            if 'acc-' + weapon_cd + '-fired' in player_events:
-                pwstat.max = int(round(float(
-                        player_events['acc-' + weapon_cd + '-fired'])))
-            if 'acc-' + weapon_cd + '-cnt-hit' in player_events:
-                pwstat.hit = int(round(float(
-                        player_events['acc-' + weapon_cd + '-cnt-hit'])))
-            if 'acc-' + weapon_cd + '-hit' in player_events:
-                pwstat.actual = int(round(float(
-                        player_events['acc-' + weapon_cd + '-hit'])))
-            if 'acc-' + weapon_cd + '-frags' in player_events:
-                pwstat.frags = int(round(float(
-                        player_events['acc-' + weapon_cd + '-frags'])))
-
-            if is_doubled:
-                pwstat.fired = pwstat.fired/2
-                pwstat.max = pwstat.max/2
-                pwstat.hit = pwstat.hit/2
-                pwstat.actual = pwstat.actual/2
-                pwstat.frags = pwstat.frags/2
-
-            session.add(pwstat)
-            pwstats.append(pwstat)
-
-    return pwstats
-
-
-def parse_body(request):
-    """
-    Parses the POST request body for a stats submission
-    """
-    # storage vars for the request body
-    game_meta = {}
-    player_events = {}
-    current_team = None
-    players = []
-
-    for line in request.body.split('\n'):
-        try:
-            (key, value) = line.strip().split(' ', 1)
-
-            # Server (S) and Nick (n) fields can have international characters.
-            # We convert to UTF-8.
-            if key in 'S' 'n':
-                value = unicode(value, 'utf-8')
-
-            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I' 'D':
-                game_meta[key] = value
-
-            if key == 'P':
-                # if we were working on a player record already, append
-                # it and work on a new one (only set team info)
-                if len(player_events) != 0:
-                    players.append(player_events)
-                    player_events = {}
-
-                player_events[key] = value
-
-            if key == 'e':
-                (subkey, subvalue) = value.split(' ', 1)
-                player_events[subkey] = subvalue
-            if key == 'n':
-                player_events[key] = value
-            if key == 't':
-                player_events[key] = value
-        except:
-            # no key/value pair - move on to the next line
-            pass
-
-    # add the last player we were working on
-    if len(player_events) > 0:
-        players.append(player_events)
-
-    return (game_meta, players)
-
-
-def create_player_stats(session=None, player=None, game=None, 
-        player_events=None, game_meta=None):
-    """
-    Creates player game and weapon stats according to what type of player
-    """
-    pgstat = create_player_game_stat(session=session, 
-        player=player, game=game, player_events=player_events)
-
-    # fastest cap "upsert"
-    if game.game_type_cd == 'ctf' and pgstat.fastest_cap is not None:
-        update_fastest_cap(session, pgstat.player_id, game.game_id, 
-                game.map_id, pgstat.fastest_cap)
-
-    # bots don't get weapon stats. sorry, bots!
-    if not re.search('^bot#\d+$', player_events['P']):
-        create_player_weapon_stats(session=session, 
-            player=player, game=game, pgstat=pgstat,
-            player_events=player_events, game_meta=game_meta)
-
-
-def stats_submit(request):
-    """
-    Entry handler for POST stats submissions.
-    """
-    try:
-        # placeholder for the actual session
-        session = None
-
-        log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
-                "----- END REQUEST BODY -----\n\n")
-
-        (idfp, status) = verify_request(request)
-        if verify_requests(request.registry.settings):
-            if not idfp:
-                log.debug("ERROR: Unverified request")
-                raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
-
-        (game_meta, players) = parse_body(request)
-
-        if not has_required_metadata(game_meta):
-            log.debug("ERROR: Required game meta missing")
-            raise pyramid.httpexceptions.HTTPUnprocessableEntity("Missing game meta")
-
-        if not is_supported_gametype(game_meta['G']):
-            log.debug("ERROR: Unsupported gametype")
-            raise pyramid.httpexceptions.HTTPOk("OK")
-
-        if not has_minimum_real_players(request.registry.settings, players):
-            log.debug("ERROR: Not enough real players")
-            raise pyramid.httpexceptions.HTTPOk("OK")
-
-        if is_blank_game(players):
-            log.debug("ERROR: Blank game")
-            raise pyramid.httpexceptions.HTTPOk("OK")
-
-        # the "duel" gametype is fake
-        if num_real_players(players) == 2 and \
-                game_meta['G'] == 'dm':
-            game_meta['G'] = 'duel'
-
-
-        # fix for DTG, who didn't #ifdef WATERMARK to set the revision info
-        try:
-            revision = game_meta['R']
-        except:
-            revision = "unknown"
-
-        #----------------------------------------------------------------------
-        # This ends the "precondition" section of sanity checks. All
-        # functions not requiring a database connection go ABOVE HERE.
-        #----------------------------------------------------------------------
-        session = DBSession()
-
-        server = get_or_create_server(session=session, hashkey=idfp, 
-                name=game_meta['S'], revision=revision,
-                ip_addr=get_remote_addr(request))
-
-        gmap = get_or_create_map(session=session, name=game_meta['M'])
-
-        # duration is optional
-        if 'D' in game_meta:
-            duration = game_meta['D']
-        else:
-            duration = None
-
-        game = create_game(session=session, 
-                start_dt=datetime.datetime.utcnow(),
-                #start_dt=datetime.datetime(
-                    #*time.gmtime(float(game_meta['T']))[:6]), 
-                server_id=server.server_id, game_type_cd=game_meta['G'], 
-                   map_id=gmap.map_id, match_id=game_meta['I'],
-                   duration=duration)
-
-        # find or create a record for each player
-        # and add stats for each if they were present at the end
-        # of the game
-        for player_events in players:
-            if 'n' in player_events:
-                nick = player_events['n']
-            else:
-                nick = None
-
-            if 'matches' in player_events and 'scoreboardvalid' \
-                in player_events:
-                player = get_or_create_player(session=session, 
-                    hashkey=player_events['P'], nick=nick)
-                log.debug('Creating stats for %s' % player_events['P'])
-                create_player_stats(session=session, player=player, game=game, 
-                        player_events=player_events, game_meta=game_meta)
-
-        # update elos
-        try:
-            process_elos(game, session)
-        except Exception as e:
-            log.debug('Error (non-fatal): elo processing failed.')
-
-        session.commit()
-        log.debug('Success! Stats recorded.')
-        return Response('200 OK')
-    except Exception as e:
-        if session:
-            session.rollback()
-        return e
-
-
-def parse_stats_submission(body):
-    """
-    Parses the POST request body for a stats submission
-    """
-    # storage vars for the request body
-    game_meta = {}
-    events = {}
-    players ={}
-
-    for line in body.split('\n'):
-        try:
-            (key, value) = line.strip().split(' ', 1)
-
-            # Server (S) and Nick (n) fields can have international characters.
-            if key in 'S' 'n':
-                value = unicode(value, 'utf-8')
-
-            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I' 'D' 'O':
-                game_meta[key] = value
-
-            if key == 'P':
-                # if we were working on a player record already, append
-                # it and work on a new one (only set team info)
-                if len(events) > 0:
-                    players[events['P']] = events
-                    events = {}
-
-                events[key] = value
-
-            if key == 'e':
-                (subkey, subvalue) = value.split(' ', 1)
-                events[subkey] = subvalue
-            if key == 'n':
-                events[key] = value
-            if key == 't':
-                events[key] = value
-        except:
-            # no key/value pair - move on to the next line
-            pass
-
-    # add the last player we were working on
-    if len(events) > 0:
-        players[events['P']] = events
-
-    return (game_meta, players)
-
-
-def submit_stats(request):
-    """
-    Entry handler for POST stats submissions.
-    """
-    try:
-        # placeholder for the actual session
-        session = None
-
-        log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
-                "----- END REQUEST BODY -----\n\n")
-
-        (idfp, status) = verify_request(request)
-        if verify_requests(request.registry.settings):
-            if not idfp:
-                log.debug("ERROR: Unverified request")
-                raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
-
-        (game_meta, raw_players) = parse_stats_submission(request.body)
-
-        # only players present at the end of the match are eligible for stats
-        for rp in raw_players.values():
-            if not played_in_game(rp):
-                del raw_players[rp['P']]
-
-        revision = game_meta.get('R', 'unknown')
-        duration = game_meta.get('D', None)
-
-        #----------------------------------------------------------------------
-        # Precondition checks for ALL gametypes. These do not require a
-        # database connection.
-        #----------------------------------------------------------------------
-        if not is_supported_gametype(game_meta['G']):
-            log.debug("ERROR: Unsupported gametype")
-            raise pyramid.httpexceptions.HTTPOk("OK")
-
-        if not has_required_metadata(game_meta):
-            log.debug("ERROR: Required game meta missing")
-            raise pyramid.httpexceptions.HTTPUnprocessableEntity("Missing game meta")
-
-        if not has_minimum_real_players(request.registry.settings, raw_players.values()):
-            log.debug("ERROR: Not enough real players")
-            raise pyramid.httpexceptions.HTTPOk("OK")
-
-        if is_blank_game(raw_players.values()):
-            log.debug("ERROR: Blank game")
-            raise pyramid.httpexceptions.HTTPOk("OK")
-
-        # the "duel" gametype is fake
-        if num_real_players(raw_players.values()) == 2 and game_meta['G'] == 'dm':
-            game_meta['G'] = 'duel'
-
-        #----------------------------------------------------------------------
-        # Actual setup (inserts/updates) below here
-        #----------------------------------------------------------------------
-        session = DBSession()
-
-        game_type_cd = game_meta['G']
-
-        # All game types create Game, Server, Map, and Player records
-        # the same way.
-        server = get_or_create_server(
-                session  = session,
-                hashkey  = idfp,
-                name     = game_meta['S'],
-                revision = revision,
-                ip_addr  = get_remote_addr(request))
-
-        gmap = get_or_create_map(
-                session = session,
-                name    = game_meta['M'])
-
-        game = create_game(
-                session      = session,
-                start_dt     = datetime.datetime.utcnow(),
-                server_id    = server.server_id,
-                game_type_cd = game_type_cd,
-                map_id       = gmap.map_id,
-                match_id     = game_meta['I'],
-                duration     = duration)
-
-        players = {}
-        pgstats = {}
-        for events in raw_players.values():
-            player = get_or_create_player(
-                session = session,
-                hashkey = events['P'],
-                nick    = events.get('n', None))
-
-            pgstat = game_stats_handler(session, game_meta, game, server,
-                    gmap, player, events)
-
-            players[events['P']] = player
-            pgstats[events['P']] = pgstat
-
-        session.commit()
-        log.debug('Success! Stats recorded.')
-        return Response('200 OK')
-    except Exception as e:
-        raise e
-        if session:
-            session.rollback()
-        return e
-
-
-def game_stats_handler(session, game_meta, game, server, gmap, player, events):
+def create_game_stat(session, game_meta, game, server, gmap, player, events):
     """Game stats handler for all game types"""
 
     # this is what we have to do to get partitioned records in - grab the
@@ -895,14 +471,24 @@ def game_stats_handler(session, game_meta, game, server, gmap, player, events):
     pgstat.game_id       = game.game_id
     pgstat.player_id     = player.player_id
     pgstat.nick          = events.get('n', 'Anonymous Player')[:128]
-    log.debug(pgstat.nick)
     pgstat.stripped_nick = strip_colors(qfont_decode(pgstat.nick))
-    log.debug(qfont_decode(pgstat.nick))
-    log.debug(strip_colors(pgstat.nick))
     pgstat.score         = int(events.get('scoreboard-score', 0))
     pgstat.alivetime     = datetime.timedelta(seconds=int(round(float(events.get('alivetime', 0.0)))))
     pgstat.rank          = int(events.get('rank', None))
     pgstat.scoreboardpos = int(events.get('scoreboardpos', pgstat.rank))
+
+    # defaults for common game types only
+    if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' or game.game_type_cd == 'duel':
+        pgstat.kills = 0
+        pgstat.deaths = 0
+        pgstat.suicides = 0
+    elif game.game_type_cd == 'ctf':
+        pgstat.kills = 0
+        pgstat.captures = 0
+        pgstat.pickups = 0
+        pgstat.drops = 0
+        pgstat.returns = 0
+        pgstat.carrier_frags = 0
 
     if pgstat.nick != player.nick \
             and player.player_id > 2 \
@@ -940,3 +526,160 @@ def game_stats_handler(session, game_meta, game, server, gmap, player, events):
     session.add(pgstat)
 
     return pgstat
+
+
+def create_weapon_stats(session, game_meta, game, player, pgstat, events):
+    """Weapon stats handler for all game types"""
+    if game.game_type_cd in 'cts' or player.player_id == 1:
+        return []
+
+    pwstats = []
+
+    # Version 1 of stats submissions doubled the data sent.
+    # To counteract this we divide the data by 2 only for
+    # POSTs coming from version 1.
+    try:
+        version = int(game_meta['V'])
+        if version == 1:
+            is_doubled = True
+            log.debug('NOTICE: found a version 1 request, halving the weapon stats...')
+        else:
+            is_doubled = False
+    except:
+        is_doubled = False
+
+    for (key,value) in events.items():
+        matched = re.search("acc-(.*?)-cnt-fired", key)
+        if matched:
+            weapon_cd = matched.group(1)
+            seq = Sequence('player_weapon_stats_player_weapon_stats_id_seq')
+            pwstat_id = session.execute(seq)
+            pwstat = PlayerWeaponStat()
+            pwstat.player_weapon_stats_id = pwstat_id
+            pwstat.player_id = player.player_id
+            pwstat.game_id = game.game_id
+            pwstat.player_game_stat_id = pgstat.player_game_stat_id
+            pwstat.weapon_cd = weapon_cd
+
+            if 'n' in events:
+                pwstat.nick = events['n']
+            else:
+                pwstat.nick = events['P']
+
+            if 'acc-' + weapon_cd + '-cnt-fired' in events:
+                pwstat.fired = int(round(float(
+                        events['acc-' + weapon_cd + '-cnt-fired'])))
+            if 'acc-' + weapon_cd + '-fired' in events:
+                pwstat.max = int(round(float(
+                        events['acc-' + weapon_cd + '-fired'])))
+            if 'acc-' + weapon_cd + '-cnt-hit' in events:
+                pwstat.hit = int(round(float(
+                        events['acc-' + weapon_cd + '-cnt-hit'])))
+            if 'acc-' + weapon_cd + '-hit' in events:
+                pwstat.actual = int(round(float(
+                        events['acc-' + weapon_cd + '-hit'])))
+            if 'acc-' + weapon_cd + '-frags' in events:
+                pwstat.frags = int(round(float(
+                        events['acc-' + weapon_cd + '-frags'])))
+
+            if is_doubled:
+                pwstat.fired = pwstat.fired/2
+                pwstat.max = pwstat.max/2
+                pwstat.hit = pwstat.hit/2
+                pwstat.actual = pwstat.actual/2
+                pwstat.frags = pwstat.frags/2
+
+            session.add(pwstat)
+            pwstats.append(pwstat)
+
+    return pwstats
+
+
+def create_elos(session, game):
+    """Elo handler for all game types."""
+
+    # the following game types do not record elo
+    if game.game_type_cd in 'cts':
+        return None
+
+    try:
+        process_elos(game, session)
+    except Exception as e:
+        log.debug('Error (non-fatal): elo processing failed.')
+
+
+def submit_stats(request):
+    """
+    Entry handler for POST stats submissions.
+    """
+    try:
+        # placeholder for the actual session
+        session = None
+
+        log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
+                "----- END REQUEST BODY -----\n\n")
+
+        (idfp, status) = verify_request(request)
+        (game_meta, raw_players) = parse_stats_submission(request.body)
+        revision = game_meta.get('R', 'unknown')
+        duration = game_meta.get('D', None)
+
+        # only players present at the end of the match are eligible for stats
+        raw_players = filter(played_in_game, raw_players)
+
+        do_precondition_checks(request, game_meta, raw_players)
+
+        # the "duel" gametype is fake
+        if num_real_players(raw_players) == 2 and game_meta['G'] == 'dm':
+            game_meta['G'] = 'duel'
+
+        #----------------------------------------------------------------------
+        # Actual setup (inserts/updates) below here
+        #----------------------------------------------------------------------
+        session = DBSession()
+
+        game_type_cd = game_meta['G']
+
+        # All game types create Game, Server, Map, and Player records
+        # the same way.
+        server = get_or_create_server(
+                session  = session,
+                hashkey  = idfp,
+                name     = game_meta['S'],
+                revision = revision,
+                ip_addr  = get_remote_addr(request))
+
+        gmap = get_or_create_map(
+                session = session,
+                name    = game_meta['M'])
+
+        game = create_game(
+                session      = session,
+                start_dt     = datetime.datetime.utcnow(),
+                server_id    = server.server_id,
+                game_type_cd = game_type_cd,
+                map_id       = gmap.map_id,
+                match_id     = game_meta['I'],
+                duration     = duration)
+
+        for events in raw_players:
+            player = get_or_create_player(
+                session = session,
+                hashkey = events['P'],
+                nick    = events.get('n', None))
+
+            pgstat = create_game_stat(session, game_meta, game, server,
+                    gmap, player, events)
+
+            pwstats = create_weapon_stats(session, game_meta, game, player,
+                    pgstat, events)
+
+        create_elos(session, game)
+
+        session.commit()
+        log.debug('Success! Stats recorded.')
+        return Response('200 OK')
+    except Exception as e:
+        if session:
+            session.rollback()
+        return e
