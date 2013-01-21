@@ -228,6 +228,25 @@ def has_required_metadata(metadata):
     return flg_has_req_metadata
 
 
+def should_do_weapon_stats(game_type_cd):
+    """True of the game type should record weapon stats. False otherwise."""
+    if game_type_cd in 'cts':
+        return False
+    else:
+        return True
+
+
+def should_do_elos(game_type_cd):
+    """True of the game type should process Elos. False otherwise."""
+    elo_game_types = ('duel', 'dm', 'ctf', 'tdm', 'kh',
+            'ka', 'ft', 'freezetag')
+
+    if game_type_cd in elo_game_types:
+        return True
+    else:
+        return False
+
+
 def register_new_nick(session, player, new_nick):
     """
     Change the player record's nick to the newly found nick. Store the old
@@ -530,9 +549,6 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
 
 def create_weapon_stats(session, game_meta, game, player, pgstat, events):
     """Weapon stats handler for all game types"""
-    if game.game_type_cd in 'cts' or player.player_id == 1:
-        return []
-
     pwstats = []
 
     # Version 1 of stats submissions doubled the data sent.
@@ -597,11 +613,6 @@ def create_weapon_stats(session, game_meta, game, player, pgstat, events):
 
 def create_elos(session, game):
     """Elo handler for all game types."""
-
-    # the following game types do not record elo
-    if game.game_type_cd in 'cts':
-        return None
-
     try:
         process_elos(game, session)
     except Exception as e:
@@ -630,7 +641,9 @@ def submit_stats(request):
         do_precondition_checks(request, game_meta, raw_players)
 
         # the "duel" gametype is fake
-        if num_real_players(raw_players) == 2 and game_meta['G'] == 'dm':
+        if len(raw_players) == 2 \
+            and num_real_players(raw_players) == 2 \
+            and game_meta['G'] == 'dm':
             game_meta['G'] = 'duel'
 
         #----------------------------------------------------------------------
@@ -671,10 +684,12 @@ def submit_stats(request):
             pgstat = create_game_stat(session, game_meta, game, server,
                     gmap, player, events)
 
-            pwstats = create_weapon_stats(session, game_meta, game, player,
-                    pgstat, events)
+            if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
+                pwstats = create_weapon_stats(session, game_meta, game, player,
+                        pgstat, events)
 
-        create_elos(session, game)
+        if should_do_elos(game_type_cd):
+            create_elos(session, game)
 
         session.commit()
         log.debug('Success! Stats recorded.')
