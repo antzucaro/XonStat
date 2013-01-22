@@ -18,6 +18,8 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <td>
         ${int(round(pgstat.avg_latency))}
       </td>
+      % else:
+      <td></td>
       % endif
       ${scoreboard_row(game_type_cd, pgstat)}
       <td>${pgstat.score}</td>
