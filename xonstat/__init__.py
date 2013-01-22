@@ -30,8 +30,10 @@ def main(global_config, **settings):
     config.add_view(main_index, route_name="main_index", renderer="main_index.mako")
 
     # MAIN SUBMISSION ROUTE
-    config.add_route("stats_submit", "stats/submit")
-    config.add_view(stats_submit, route_name="stats_submit")
+    #config.add_route("stats_submit", "stats/submit")
+    #config.add_view(stats_submit, route_name="stats_submit")
+    config.add_route("submit_stats", "stats/submit")
+    config.add_view(submit_stats, route_name="submit_stats")
 
     # PLAYER ROUTES
     config.add_route("player_game_index",      "/player/{player_id:\d+}/games")

@@ -1,4 +1,4 @@
-from xonstat.views.submission import stats_submit
+from xonstat.views.submission import submit_stats
 from xonstat.views.player import player_index, player_info, player_game_index
 from xonstat.views.player import player_accuracy
 from xonstat.views.player import player_index_json, player_info_json
