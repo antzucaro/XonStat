@@ -97,8 +97,8 @@ def get_remote_addr(request):
 
 def is_supported_gametype(gametype):
     """Whether a gametype is supported or not"""
-    supported_game_types = ('duel', 'dm', 'ctf', 'tdm', 'kh',
-            'ka', 'ft', 'freezetag', 'nb', 'nexball')
+    supported_game_types = ('duel', 'dm', 'ca', 'ctf', 'tdm', 'kh',
+            'ka', 'ft', 'freezetag', 'nb', 'nexball', 'lms')
 
     if gametype in supported_game_types:
         return True
@@ -177,7 +177,7 @@ def played_in_game(events):
 
 def num_real_players(player_events):
     """
-    Returns the number of real players (those who played 
+    Returns the number of real players (those who played
     and are on the scoreboard).
     """
     real_players = 0
@@ -238,7 +238,7 @@ def should_do_weapon_stats(game_type_cd):
 
 def should_do_elos(game_type_cd):
     """True of the game type should process Elos. False otherwise."""
-    elo_game_types = ('duel', 'dm', 'ctf', 'tdm', 'kh',
+    elo_game_types = ('duel', 'dm', 'ca', 'ctf', 'tdm', 'kh',
             'ka', 'ft', 'freezetag')
 
     if game_type_cd in elo_game_types:
@@ -364,7 +364,7 @@ def get_or_create_map(session=None, name=None):
     try:
         # find one by the name, if it exists
         gmap = session.query(Map).filter_by(name=name).one()
-        log.debug("Found map id {0}: {1}".format(gmap.map_id, 
+        log.debug("Found map id {0}: {1}".format(gmap.map_id,
             gmap.name))
     except NoResultFound, e:
         gmap = Map(name=name)
@@ -384,7 +384,7 @@ def get_or_create_map(session=None, name=None):
     return gmap
 
 
-def create_game(session=None, start_dt=None, game_type_cd=None, 
+def create_game(session=None, start_dt=None, game_type_cd=None,
         server_id=None, map_id=None, winner=None, match_id=None,
         duration=None):
     """
@@ -414,7 +414,7 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
 
         log.debug("Error: game with same server and match_id found! Ignoring.")
 
-        # if a game under the same server and match_id found, 
+        # if a game under the same server and match_id found,
         # this is a duplicate game and can be ignored
         raise pyramid.httpexceptions.HTTPOk('OK')
     except NoResultFound, e:
@@ -422,7 +422,7 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
         session.add(game)
         session.flush()
         log.debug("Created game id {0} on server {1}, map {2} at \
-                {3}".format(game.game_id, 
+                {3}".format(game.game_id,
                     server_id, map_id, start_dt))
 
     return game
@@ -491,7 +491,7 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
     pgstat.player_id     = player.player_id
     pgstat.nick          = events.get('n', 'Anonymous Player')[:128]
     pgstat.stripped_nick = strip_colors(qfont_decode(pgstat.nick))
-    pgstat.score         = int(events.get('scoreboard-score', 0))
+    pgstat.score         = int(round(float(events.get('scoreboard-score', 0))))
     pgstat.alivetime     = datetime.timedelta(seconds=int(round(float(events.get('alivetime', 0.0)))))
     pgstat.rank          = int(events.get('rank', None))
     pgstat.scoreboardpos = int(events.get('scoreboardpos', pgstat.rank))
@@ -525,7 +525,7 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
         if key == 'scoreboard-fckills': pgstat.carrier_frags = int(value)
         if key == 'scoreboard-pickups': pgstat.pickups = int(value)
         if key == 'scoreboard-caps': pgstat.captures = int(value)
-        if key == 'scoreboard-score': pgstat.score = int(value)
+        if key == 'scoreboard-score': pgstat.score = int(round(float(value)))
         if key == 'scoreboard-deaths': pgstat.deaths = int(value)
         if key == 'scoreboard-kills': pgstat.kills = int(value)
         if key == 'scoreboard-suicides': pgstat.suicides = int(value)
