@@ -1,6 +1,7 @@
-<%def name="scoreboard(game_type_cd, pgstats, show_elo=False)">
+<%def name="scoreboard(game_type_cd, pgstats, show_elo=False, show_latency=False)">
 <table  class="table table-bordered table-condensed">
 ${scoreboard_header(game_type_cd, pgstats[0])}
+${show_latency}
   <tbody>
   % for pgstat in pgstats:
     <tr class="${pgstat.team_html_color()}">
@@ -14,11 +15,11 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <span class="nick">${pgstat.nick_html_colors()|n}</span>
       % endif
       </td>
-      % if pgstat.avg_latency is not None:
+      % if show_latency and pgstat.avg_latency is not None:
       <td>
         ${int(round(pgstat.avg_latency))}
       </td>
-      % else:
+      % elif show_latency:
       <td></td>
       % endif
       ${scoreboard_row(game_type_cd, pgstat)}
@@ -42,7 +43,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead>
     <tr>
       <th class="nick">Nick</th>
-      % if pgstat.avg_latency is not None:
+      % if show_latency:
       <th class="ping">Ping</th>
       % endif
       <th class="kills">Kills</th>
@@ -60,7 +61,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead class="ctf ${pgstat.team_html_color()}">
     <tr>
       <th class="nick">Nick</th>
-      % if pgstat.avg_latency is not None:
+      % if show_latency:
       <th class="ping">Ping</th>
       % endif
       <th class="kills">Kills</th>
@@ -80,7 +81,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead class="ca ${pgstat.team_html_color()}">
     <tr>
       <th class="nick">Nick</th>
-      % if pgstat.avg_latency is not None:
+      % if show_latency:
       <th class="ping">Ping</th>
       % endif
       <th class="kills">Kills</th>
@@ -96,7 +97,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     <thead class="freezetag ${pgstat.team_html_color()}">
     <tr>
       <th class="nick">Nick</th>
-      % if pgstat.avg_latency is not None:
+      % if show_latency:
       <th class="ping">Ping</th>
       % endif
       <th class="kills">Kills</th>

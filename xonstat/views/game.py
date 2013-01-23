@@ -62,6 +62,11 @@ def _game_info_data(request):
     else:
         show_elo = False
 
+    if request.params.has_key('show_latency'):
+        show_latency = True
+    else:
+        show_latency = False
+
     try:
         notfound = False
 
@@ -112,6 +117,7 @@ def _game_info_data(request):
         pwstats = None
         captimes = None
         show_elo = False
+        show_latency = False
         raise inst
 
     return {'game':game,
@@ -121,6 +127,7 @@ def _game_info_data(request):
             'pwstats':pwstats,
             'captimes':captimes,
             'show_elo':show_elo,
+            'show_latency':show_latency,
             }
 
 
