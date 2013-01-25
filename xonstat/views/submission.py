@@ -95,15 +95,39 @@ def get_remote_addr(request):
         return request.remote_addr
 
 
-def is_supported_gametype(gametype):
+def is_supported_gametype(gametype, version):
     """Whether a gametype is supported or not"""
-    supported_game_types = ('duel', 'dm', 'ca', 'ctf', 'tdm', 'kh',
-            'ka', 'ft', 'freezetag', 'nb', 'nexball', 'lms')
+    is_supported = False
+
+    # if the type can be supported, but with version constraints, uncomment
+    # here and add the restriction for a specific version below
+    supported_game_types = (
+            'as',
+            'ca',
+            # 'cq',
+            # 'cts',
+            'dm',
+            'dom',
+            'ft', 'freezetag',
+            'ka', 'keepaway',
+            'kh',
+            # 'lms',
+            'nb', 'nexball',
+            # 'rc',
+            'rune',
+            'tdm',
+        )
 
     if gametype in supported_game_types:
-        return True
+        is_supported = True
     else:
-        return False
+        is_supported = False
+
+    # some game types were buggy before revisions, thus this additional filter
+    if gametype == 'ca' and version <= 5:
+        is_supported = False
+
+    return is_supported
 
 
 def verify_request(request):
@@ -137,13 +161,19 @@ def verify_request(request):
 def do_precondition_checks(request, game_meta, raw_players):
     """Precondition checks for ALL gametypes.
        These do not require a database connection."""
-    if not is_supported_gametype(game_meta['G']):
-        log.debug("ERROR: Unsupported gametype")
-        raise pyramid.httpexceptions.HTTPOk("OK")
-
     if not has_required_metadata(game_meta):
         log.debug("ERROR: Required game meta missing")
         raise pyramid.httpexceptions.HTTPUnprocessableEntity("Missing game meta")
+
+    try:
+        version = int(game_meta['V'])
+    except:
+        log.debug("ERROR: Required game meta invalid")
+        raise pyramid.httpexceptions.HTTPUnprocessableEntity("Invalid game meta")
+
+    if not is_supported_gametype(game_meta['G'], version):
+        log.debug("ERROR: Unsupported gametype")
+        raise pyramid.httpexceptions.HTTPOk("OK")
 
     if not has_minimum_real_players(request.registry.settings, raw_players):
         log.debug("ERROR: Not enough real players")
