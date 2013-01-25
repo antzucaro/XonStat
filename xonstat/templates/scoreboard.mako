@@ -1,7 +1,6 @@
 <%def name="scoreboard(game_type_cd, pgstats, show_elo=False, show_latency=False)">
 <table  class="table table-bordered table-condensed">
 ${scoreboard_header(game_type_cd, pgstats[0])}
-${show_latency}
   <tbody>
   % for pgstat in pgstats:
     <tr class="${pgstat.team_html_color()}">
