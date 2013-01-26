@@ -63,18 +63,24 @@ def parse_stats_submission(body):
     return (game_meta, players)
 
 
-def is_blank_game(players):
+def is_blank_game(gametype, players):
     """Determine if this is a blank game or not. A blank game is either:
 
     1) a match that ended in the warmup stage, where accuracy events are not
-    present
+    present (for non-CTS games)
 
     2) a match in which no player made a positive or negative score AND was
+    on the scoreboard
+
+    ... or for CTS, which doesn't record accuracy events
+
+    1) a match in which no player made a fastest lap AND was
     on the scoreboard
     """
     r = re.compile(r'acc-.*-cnt-fired')
     flg_nonzero_score = False
     flg_acc_events = False
+    flg_fastest_lap = False
 
     for events in players:
         if is_real_player(events) and played_in_game(events):
@@ -83,8 +89,13 @@ def is_blank_game(players):
                     flg_nonzero_score = True
                 if r.search(key):
                     flg_acc_events = True
+                if key == 'scoreboard-fastest':
+                    flg_fastest_lap = True
 
-    return not (flg_nonzero_score and flg_acc_events)
+    if gametype == 'cts':
+        return not flg_fastest_lap
+    else:
+        return not (flg_nonzero_score and flg_acc_events)
 
 
 def get_remote_addr(request):
@@ -105,7 +116,7 @@ def is_supported_gametype(gametype, version):
             'as',
             'ca',
             # 'cq',
-            # 'cts',
+            'cts',
             'dm',
             'dom',
             'ft', 'freezetag',
@@ -179,7 +190,7 @@ def do_precondition_checks(request, game_meta, raw_players):
         log.debug("ERROR: Not enough real players")
         raise pyramid.httpexceptions.HTTPOk("OK")
 
-    if is_blank_game(raw_players):
+    if is_blank_game(game_meta['G'], raw_players):
         log.debug("ERROR: Blank game")
         raise pyramid.httpexceptions.HTTPOk("OK")
 
