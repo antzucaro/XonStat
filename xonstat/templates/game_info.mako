@@ -87,7 +87,7 @@ Game Information
 % endif
 
 
-% if len(pgstats) > 0:
+% if len(pgstats) > 0 and len(pwstats) > 0:
 <div class="row">
   <div class="span12">
     <h3>Accuracy Information</h3>

@@ -22,7 +22,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <td></td>
       % endif
       ${scoreboard_row(game_type_cd, pgstat)}
+      % if game_type_cd != 'cts':
       <td>${pgstat.score}</td>
+      % endif
       % if show_elo:
         % if pgstat.elo_delta is not None:
         <td>${round(pgstat.elo_delta,2)}</td>
@@ -94,6 +96,19 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
+% if game_type_cd == 'cts':
+    <thead>
+    <tr>
+      <th class="nick">Nick</th>
+      % if show_latency:
+      <th class="ping">Ping</th>
+      % endif
+      <th class="fastest">Fastest Lap</th>
+      <th class="deaths">Deaths</th>
+    </tr>
+    </thead>
+% endif
+
 % if game_type_cd == 'ctf':
     <thead class="ctf ${pgstat.team_html_color()}">
     <tr>
@@ -153,6 +168,11 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.deaths}</td>
         <td>${pgstat.captures}</td>
         <td>${pgstat.drops}</td>
+% endif
+
+% if game_type_cd == 'cts':
+        <td>${pgstat.fastest}</td>
+        <td>${pgstat.deaths}</td>
 % endif
 
 % if game_type_cd == 'ctf':
