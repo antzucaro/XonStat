@@ -103,7 +103,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       % if show_latency:
       <th class="ping">Ping</th>
       % endif
-      <th class="fastest">Fastest Lap</th>
+      <th class="fastest">Fastest Time</th>
       <th class="deaths">Deaths</th>
     </tr>
     </thead>
@@ -171,7 +171,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % endif
 
 % if game_type_cd == 'cts':
-        <td>${pgstat.fastest}</td>
+        <td>${round(float(pgstat.fastest.seconds) + (pgstat.fastest.microseconds/1000000.0), 2)}</td>
         <td>${pgstat.deaths}</td>
 % endif
 
