@@ -506,8 +506,8 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
     return player
 
 
-def create_game_stat(session, game_meta, game, server, gmap, player, events):
-    """Game stats handler for all game types"""
+def create_default_game_stat(session, game_type_cd):
+    """Creates a blanked-out pgstat record for the given game type"""
 
     # this is what we have to do to get partitioned records in - grab the
     # sequence value first, then insert using the explicit ID (vs autogenerate)
@@ -515,6 +515,58 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
     pgstat_id = session.execute(seq)
     pgstat = PlayerGameStat(player_game_stat_id=pgstat_id,
             create_dt=datetime.datetime.utcnow())
+
+    if game_type_cd == 'as':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.collects = 0
+
+    if game_type_cd in 'ca' 'dm' 'duel' 'rune' 'tdm':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = 0
+
+    if game_type_cd == 'cq':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.captures = 0
+        pgstat.drops = 0
+
+    if game_type_cd == 'ctf':
+        pgstat.kills = pgstat.captures = pgstat.pickups = pgstat.drops = 0
+        pgstat.returns = pgstat.carrier_frags = 0
+
+    if game_type_cd == 'cts':
+        pgstat.deaths = 0
+
+    if game_type_cd == 'dom':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.pickups = 0
+        pgstat.drops = 0
+
+    if game_type_cd == 'ft':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.revivals = 0
+
+    if game_type_cd == 'ka':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.pickups = 0
+        pgstat.carrier_frags = 0
+        pgstat.time = datetime.timedelta(seconds=0)
+
+    if game_type_cd == 'kh':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.pickups = 0
+        pgstat.captures = pgstat.drops = pgstat.pushes = pgstat.destroys = 0
+        pgstat.carrier_frags = 0
+
+    if game_type_cd == 'lms':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.lives = 0
+
+    if game_type_cd == 'nb':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.captures = 0
+        pgstat.drops = 0
+
+    if game_type_cd == 'rc':
+        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.laps = 0
+
+    return pgstat
+
+
+def create_game_stat(session, game_meta, game, server, gmap, player, events):
+    """Game stats handler for all game types"""
+
+    pgstat = create_default_game_stat(session, game.game_type_cd)
 
     # these fields should be on every pgstat record
     pgstat.game_id       = game.game_id
@@ -525,19 +577,6 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
     pgstat.alivetime     = datetime.timedelta(seconds=int(round(float(events.get('alivetime', 0.0)))))
     pgstat.rank          = int(events.get('rank', None))
     pgstat.scoreboardpos = int(events.get('scoreboardpos', pgstat.rank))
-
-    # defaults for common game types only
-    if game.game_type_cd == 'dm' or game.game_type_cd == 'tdm' or game.game_type_cd == 'duel':
-        pgstat.kills = 0
-        pgstat.deaths = 0
-        pgstat.suicides = 0
-    elif game.game_type_cd == 'ctf':
-        pgstat.kills = 0
-        pgstat.captures = 0
-        pgstat.pickups = 0
-        pgstat.drops = 0
-        pgstat.returns = 0
-        pgstat.carrier_frags = 0
 
     if pgstat.nick != player.nick \
             and player.player_id > 2 \
@@ -550,6 +589,7 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
     for (key,value) in events.items():
         if key == 'wins': wins = True
         if key == 't': pgstat.team = int(value)
+
         if key == 'scoreboard-drops': pgstat.drops = int(value)
         if key == 'scoreboard-returns': pgstat.returns = int(value)
         if key == 'scoreboard-fckills': pgstat.carrier_frags = int(value)
@@ -559,8 +599,27 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
         if key == 'scoreboard-deaths': pgstat.deaths = int(value)
         if key == 'scoreboard-kills': pgstat.kills = int(value)
         if key == 'scoreboard-suicides': pgstat.suicides = int(value)
-        if key == 'avglatency': pgstat.avg_latency = float(value)
+        if key == 'scoreboard-objectives': pgstat.collects = int(value)
+        if key == 'scoreboard-captured': pgstat.captures = int(value)
+        if key == 'scoreboard-released': pgstat.drops = int(value)
+        if key == 'scoreboard-fastest':
+            pgstat.fastest = datetime.timedelta(seconds=float(value)/100)
+        if key == 'scoreboard-takes': pgstat.pickups = int(value)
+        if key == 'scoreboard-ticks': pgstat.drops = int(value)
+        if key == 'scoreboard-revivals': pgstat.revivals = int(value)
+        if key == 'scoreboard-bctime':
+            pgstat.time = datetime.timedelta(seconds=int(value))
+        if key == 'scoreboard-bckills': pgstat.carrier_frags = int(value)
+        if key == 'scoreboard-losses': pgstat.drops = int(value)
+        if key == 'scoreboard-pushes': pgstat.pushes = int(value)
+        if key == 'scoreboard-destroyed': pgstat.destroys = int(value)
+        if key == 'scoreboard-kckills': pgstat.carrier_frags = int(value)
+        if key == 'scoreboard-lives': pgstat.lives = int(value)
+        if key == 'scoreboard-goals': pgstat.captures = int(value)
+        if key == 'scoreboard-faults': pgstat.drops = int(value)
+        if key == 'scoreboard-laps': pgstat.laps = int(value)
 
+        if key == 'avglatency': pgstat.avg_latency = float(value)
         if key == 'scoreboard-captime':
             pgstat.fastest_cap = datetime.timedelta(seconds=float(value)/100)
             if game.game_type_cd == 'ctf':
