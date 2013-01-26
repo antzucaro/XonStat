@@ -75,6 +75,25 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
+% if game_type_cd == 'cq':
+    <thead>
+    <tr>
+      <th class="nick">Nick</th>
+      % if show_latency:
+      <th class="ping">Ping</th>
+      % endif
+      <th class="kills">Kills</th>
+      <th class="deaths">Deaths</th>
+      <th class="captured">Captured</th>
+      <th class="released">Released</th>
+      <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
+    </tr>
+    </thead>
+% endif
+
 % if game_type_cd == 'ctf':
     <thead class="ctf ${pgstat.team_html_color()}">
     <tr>
@@ -127,6 +146,13 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.kills}</td>
         <td>${pgstat.deaths}</td>
         <td>${pgstat.suicides}</td>
+% endif
+
+% if game_type_cd == 'cq':
+        <td>${pgstat.kills}</td>
+        <td>${pgstat.deaths}</td>
+        <td>${pgstat.captures}</td>
+        <td>${pgstat.drops}</td>
 % endif
 
 % if game_type_cd == 'ctf':
