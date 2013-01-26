@@ -77,7 +77,7 @@ Game Information
             <span class="nick">${pgs.nick_html_colors()|n}</span>
           % endif
           </td>
-          <td>${round(float(pgs.fastest_cap.seconds) + (pgs.fastest_cap.microseconds/1000000.0), 2)}</td>
+          <td>${round(float(pgs.fastest.seconds) + (pgs.fastest.microseconds/1000000.0), 2)}</td>
         </tr>
       % endfor
       </tbody>

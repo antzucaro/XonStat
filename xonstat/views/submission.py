@@ -633,10 +633,10 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
 
         if key == 'avglatency': pgstat.avg_latency = float(value)
         if key == 'scoreboard-captime':
-            pgstat.fastest_cap = datetime.timedelta(seconds=float(value)/100)
+            pgstat.fastest = datetime.timedelta(seconds=float(value)/100)
             if game.game_type_cd == 'ctf':
                 update_fastest_cap(session, player.player_id, game.game_id,
-                        gmap.map_id, pgstat.fastest_cap)
+                        gmap.map_id, pgstat.fastest)
 
     # there is no "winning team" field, so we have to derive it
     if wins and pgstat.team is not None and game.winner is None:

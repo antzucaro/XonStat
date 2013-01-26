@@ -84,10 +84,10 @@ def _game_info_data(request):
         captimes = []
         if game.game_type_cd == 'ctf':
             for pgstat in pgstats:
-                if pgstat.fastest_cap is not None:
+                if pgstat.fastest is not None:
                     captimes.append(pgstat)
 
-            captimes = sorted(captimes, key=lambda x:x.fastest_cap)
+            captimes = sorted(captimes, key=lambda x:x.fastest)
 
         pwstats = {}
         for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
