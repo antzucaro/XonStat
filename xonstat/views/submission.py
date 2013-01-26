@@ -116,6 +116,7 @@ def is_supported_gametype(gametype, version):
             'as',
             'ca',
             # 'cq',
+            'ctf',
             'cts',
             'dm',
             'dom',
