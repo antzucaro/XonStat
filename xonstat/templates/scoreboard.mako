@@ -57,7 +57,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
-% if game_type_cd == 'dm' or game_type_cd == 'tdm' or game_type_cd == 'duel':
+% if game_type_cd in 'ca' 'dm' 'duel' 'tdm':
     <thead>
     <tr>
       <th class="nick">Nick</th>
@@ -95,22 +95,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
-% if game_type_cd == 'ca':
-    <thead class="ca ${pgstat.team_html_color()}">
-    <tr>
-      <th class="nick">Nick</th>
-      % if show_latency:
-      <th class="ping">Ping</th>
-      % endif
-      <th class="kills">Kills</th>
-      <th class="score">Score</th>
-      % if show_elo:
-      <th>Elo Change</th>
-      % endif
-    </tr>
-    </thead>
-% endif
-
 % if game_type_cd == 'freezetag':
     <thead class="freezetag ${pgstat.team_html_color()}">
     <tr>
@@ -139,7 +123,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.collects}</td>
 % endif
 
-% if game_type_cd == 'dm' or game_type_cd == 'tdm' or game_type_cd == 'duel':
+% if game_type_cd in 'ca' 'dm' 'duel' 'tdm':
         <td>${pgstat.kills}</td>
         <td>${pgstat.deaths}</td>
         <td>${pgstat.suicides}</td>
@@ -151,10 +135,6 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.pickups}</td>
         <td>${pgstat.carrier_frags}</td>
         <td>${pgstat.returns}</td>
-% endif
-
-% if game_type_cd == 'ca':
-        <td>${pgstat.kills}</td>
 % endif
 
 % if game_type_cd == 'freezetag':
