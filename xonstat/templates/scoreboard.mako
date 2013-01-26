@@ -38,6 +38,25 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 
 ##### SCOREBOARD HEADER #####
 <%def name="scoreboard_header(game_type_cd, pgstat)">
+% if game_type_cd == 'as':
+    <thead>
+    <tr>
+      <th class="nick">Nick</th>
+      % if show_latency:
+      <th class="ping">Ping</th>
+      % endif
+      <th class="kills">Kills</th>
+      <th class="deaths">Deaths</th>
+      <th class="suicides">Suicides</th>
+      <th class="objectives">Objectives</th>
+      <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
+    </tr>
+    </thead>
+% endif
+
 % if game_type_cd == 'dm' or game_type_cd == 'tdm' or game_type_cd == 'duel':
     <thead>
     <tr>
@@ -113,6 +132,13 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 
 ##### SCOREBOARD ROWS #####
 <%def name="scoreboard_row(game_type_cd, pgstat)">
+% if game_type_cd == 'as':
+        <td>${pgstat.kills}</td>
+        <td>${pgstat.deaths}</td>
+        <td>${pgstat.suicides}</td>
+        <td>${pgstat.collects}</td>
+% endif
+
 % if game_type_cd == 'dm' or game_type_cd == 'tdm' or game_type_cd == 'duel':
         <td>${pgstat.kills}</td>
         <td>${pgstat.deaths}</td>
