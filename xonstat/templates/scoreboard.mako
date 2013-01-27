@@ -129,6 +129,25 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
+% if game_type_cd == 'dom':
+    <thead class="dom ${pgstat.team_html_color()}">
+    <tr>
+      <th class="nick">Nick</th>
+      % if show_latency:
+      <th class="ping">Ping</th>
+      % endif
+      <th class="kills">Kills</th>
+      <th class="deaths">Deaths</th>
+      <th class="takes">Takes</th>
+      <th class="ticks">Ticks</th>
+      <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
+    </tr>
+    </thead>
+% endif
+
 % if game_type_cd == 'freezetag':
     <thead class="freezetag ${pgstat.team_html_color()}">
     <tr>
@@ -181,6 +200,13 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.pickups}</td>
         <td>${pgstat.carrier_frags}</td>
         <td>${pgstat.returns}</td>
+% endif
+
+% if game_type_cd == 'dom':
+        <td>${pgstat.kills}</td>
+        <td>${pgstat.deaths}</td>
+        <td>${pgstat.pickups}</td>
+        <td>${pgstat.drops}</td>
 % endif
 
 % if game_type_cd == 'freezetag':
