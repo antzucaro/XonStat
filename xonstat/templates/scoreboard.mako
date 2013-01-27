@@ -59,7 +59,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
-% if game_type_cd in 'ca' 'dm' 'duel' 'tdm':
+% if game_type_cd in 'ca' 'dm' 'duel' 'rune' 'tdm':
     <thead>
     <tr>
       <th class="nick">Nick</th>
@@ -196,7 +196,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.collects}</td>
 % endif
 
-% if game_type_cd in 'ca' 'dm' 'duel' 'tdm':
+% if game_type_cd in 'ca' 'dm' 'duel' 'rune' 'tdm':
         <td>${pgstat.kills}</td>
         <td>${pgstat.deaths}</td>
         <td>${pgstat.suicides}</td>
