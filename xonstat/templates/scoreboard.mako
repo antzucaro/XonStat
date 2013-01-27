@@ -185,6 +185,29 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
+% if game_type_cd == 'kh':
+    <thead class="kh ${pgstat.team_html_color()}">
+    <tr>
+      <th class="nick">Nick</th>
+      % if show_latency:
+      <th class="ping">Ping</th>
+      % endif
+      <th class="kills">Kills</th>
+      <th class="deaths">Deaths</th>
+      <th class="pickups">Pickups</th>
+      <th class="caps">Captures</th>
+      <th class="losses">Losses</th>
+      <th class="pushes">Pushes</th>
+      <th class="destroys">Destroys</th>
+      <th class="kckills">KC Kills</th>
+      <th class="score">Score</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
+    </tr>
+    </thead>
+% endif
+
 </%def>
 
 ##### SCOREBOARD ROWS #####
@@ -241,6 +264,17 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.pickups}</td>
         <td>${pgstat.time}</td>
         <td>${pgstat.fckills}</td>
+% endif
+
+% if game_type_cd == 'kh':
+        <td>${pgstat.kills}</td>
+        <td>${pgstat.deaths}</td>
+        <td>${pgstat.pickups}</td>
+        <td>${pgstat.captures}</td>
+        <td>${pgstat.drops}</td>
+        <td>${pgstat.pushes}</td>
+        <td>${pgstat.destroys}</td>
+        <td>${pgstat.carrier_kills}</td>
 % endif
 
 </%def>
