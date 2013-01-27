@@ -165,6 +165,26 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </tr>
     </thead>
 % endif
+
+% if game_type_cd in 'ka' 'keepaway':
+    <thead>
+    <tr>
+      <th class="nick">Nick</th>
+      % if show_latency:
+      <th class="ping">Ping</th>
+      % endif
+      <th class="kills">Kills</th>
+      <th class="deaths">Deaths</th>
+      <th class="pickups">Pickups</th>
+      <th class="bctime">BC Time</th>
+      <th class="bckills">BC Kills</th>
+      % if show_elo:
+      <th>Elo Change</th>
+      % endif
+    </tr>
+    </thead>
+% endif
+
 </%def>
 
 ##### SCOREBOARD ROWS #####
@@ -214,4 +234,13 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.deaths}</td>
         <td>${pgstat.revivals}</td>
 % endif
+
+% if game_type_cd in 'ka' 'keepaway':
+        <td>${pgstat.kills}</td>
+        <td>${pgstat.deaths}</td>
+        <td>${pgstat.pickups}</td>
+        <td>${pgstat.time}</td>
+        <td>${pgstat.fckills}</td>
+% endif
+
 </%def>
