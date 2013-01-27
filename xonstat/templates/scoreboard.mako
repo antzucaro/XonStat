@@ -148,7 +148,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
-% if game_type_cd == 'freezetag':
+% if game_type_cd in 'ft' 'freezetag':
     <thead class="freezetag ${pgstat.team_html_color()}">
     <tr>
       <th class="nick">Nick</th>
@@ -157,7 +157,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       % endif
       <th class="kills">Kills</th>
       <th class="deaths">Deaths</th>
-      <th class="suicides">Suicides</th>
+      <th class="revivals">Revivals</th>
       <th class="score">Score</th>
       % if show_elo:
       <th>Elo Change</th>
@@ -209,9 +209,9 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.drops}</td>
 % endif
 
-% if game_type_cd == 'freezetag':
+% if game_type_cd in 'ft' 'freezetag':
         <td>${pgstat.kills}</td>
         <td>${pgstat.deaths}</td>
-        <td>${pgstat.suicides}</td>
+        <td>${pgstat.revivals}</td>
 % endif
 </%def>
