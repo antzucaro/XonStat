@@ -280,8 +280,7 @@ def should_do_weapon_stats(game_type_cd):
 
 def should_do_elos(game_type_cd):
     """True of the game type should process Elos. False otherwise."""
-    elo_game_types = ('duel', 'dm', 'ca', 'ctf', 'tdm', 'kh',
-            'ka', 'ft', 'freezetag')
+    elo_game_types = ('duel', 'dm', 'ca', 'ctf', 'tdm', 'ka', 'ft')
 
     if game_type_cd in elo_game_types:
         return True
