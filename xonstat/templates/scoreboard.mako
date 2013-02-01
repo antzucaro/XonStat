@@ -225,6 +225,20 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
     </thead>
 % endif
 
+% if game_type_cd == 'rc':
+    <thead>
+    <tr>
+      <th class="nick">Nick</th>
+      % if show_latency:
+      <th class="ping">Ping</th>
+      % endif
+      <th class="laps">Laps</th>
+      <th class="fastest">Fastest Lap</th>
+      <th class="time">Time</th>
+    </tr>
+    </thead>
+% endif
+
 </%def>
 
 ##### SCOREBOARD ROWS #####
@@ -297,6 +311,12 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % if game_type_cd in 'nb' 'nexball':
         <td>${pgstat.captures}</td>
         <td>${pgstat.drops}</td>
+% endif
+
+% if game_type_cd == 'rc':
+        <td>${pgstat.laps}</td>
+        <td>${round(float(pgstat.fastest.seconds) + (pgstat.fastest.microseconds/1000000.0), 2)}</td>
+        <td>${round(float(pgstat.time.seconds) + (pgstat.time.microseconds/1000000.0), 2)}</td>
 % endif
 
 </%def>
