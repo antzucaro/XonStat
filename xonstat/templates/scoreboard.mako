@@ -315,7 +315,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.drops}</td>
         <td>${pgstat.pushes}</td>
         <td>${pgstat.destroys}</td>
-        <td>${pgstat.carrier_kills}</td>
+        <td>${pgstat.carrier_frags}</td>
 % endif
 
 % if game_type_cd in 'nb' 'nexball':
