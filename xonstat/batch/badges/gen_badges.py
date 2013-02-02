@@ -16,6 +16,9 @@ from playerdata import PlayerData
 # maximal number of query results (for testing, set to None to get all)
 NUM_PLAYERS = None
 
+# filter by player id (for testing, set to None to disable)
+PLAYER_ID = None
+
 # we look for players who have activity within the past DELTA hours
 DELTA = 6
 
@@ -34,7 +37,7 @@ skin_archer = Skin( "archer",
         #bg              = "background_archer-v2_full",
         bg              = "background_archer-v3",
         overlay         = "",
-        nick_maxwidth	= 265,
+        nick_maxwidth	= 260,
         gametype_pos    = (91,33),
         nostats_pos    	= (91,59),
         elo_pos    	= (91,47),
@@ -101,18 +104,27 @@ skin_minimal = Skin( "minimal",
 skins = []
 for arg in sys.argv[1:]:
     if arg.startswith("-"):
-        arg = arg[1:]
-        if arg == "force":
+        try:
+            key,value = arg[1:].split("=")
+        except:
+            key,value = arg[1:], ""
+        if key == "force":
             DELTA = 2**24   # large enough to enforce update, and doesn't result in errors
-        elif arg == "test":
+        elif key == "delta":
+            DELTA = float(value)
+        elif key == "test":
             NUM_PLAYERS = 100
-        elif arg == "verbose":
+        elif key == "player":
+            PLAYER_ID = int(value)
+        elif key == "verbose":
             VERBOSE = True
         else:
             print """Usage:  gen_badges.py [options] <ini-file> [skin list]
     Options:
         -force      Force updating all badges (delta = 2^24)
+        -delta n    Manually set an update interval (delta)
         -test       Limit number of players to 100 (for testing)
+        -player #   Filter by given player id
         -verbose    Show more verbose output
         -help       Show this help text
     Ini-File:
@@ -158,6 +170,15 @@ if NUM_PLAYERS:
             filter(PlayerGameStat.create_dt > cutoff_dt).\
             filter(Player.nick != None).\
             filter(Player.player_id > 2).\
+            filter(Player.active_ind == True).\
+            limit(NUM_PLAYERS).all()
+elif PLAYER_ID:
+    players = DBSession.query(distinct(Player.player_id)).\
+            filter(Player.player_id == PlayerElo.player_id).\
+            filter(Player.player_id == PlayerGameStat.player_id).\
+            filter(PlayerGameStat.create_dt > cutoff_dt).\
+            filter(Player.nick != None).\
+            filter(Player.player_id == PLAYER_ID).\
             filter(Player.active_ind == True).\
             limit(NUM_PLAYERS).all()
 else:

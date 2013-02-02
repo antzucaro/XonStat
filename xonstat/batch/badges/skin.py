@@ -212,6 +212,9 @@ class Skin:
                 game_types.insert(0, gt)
             else:
                 game_types.append(gt)
+        
+        # make sure gametypes list if sorted correctly (number of games, descending)
+        game_types = sorted(game_types, key=lambda x: data['games_played'][x].games, reverse=True)
 
 
 
@@ -348,7 +351,7 @@ class Skin:
             if not elos.has_key(gt) or not ranks.has_key(gt):
                 continue
             count += 1
-
+            
         # re-align segments if less than max. gametypes are shown
         if count > 0:
             if count < self.num_gametypes:
@@ -405,7 +408,7 @@ class Skin:
 
         txt = "???"
         try:
-            txt = "%.2f%%" % round(win_pct * 100, 2)
+            txt = "%.2f%%" % round(win_pct, 2)
         except:
             win_pct = 0
 
