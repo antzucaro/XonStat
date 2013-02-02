@@ -264,7 +264,11 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 % endif
 
 % if game_type_cd == 'cts':
+        % if pgstat.fastest is not None:
         <td>${round(float(pgstat.fastest.seconds) + (pgstat.fastest.microseconds/1000000.0), 2)}</td>
+        % else:
+        <td>-</td>
+        % endif
         <td>${pgstat.deaths}</td>
 % endif
 
@@ -293,7 +297,13 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.kills}</td>
         <td>${pgstat.deaths}</td>
         <td>${pgstat.pickups}</td>
-        <td>${pgstat.time}</td>
+
+        % if pgstat.time is not None:
+        <td>${round(float(pgstat.time.seconds) + (pgstat.time.microseconds/1000000.0), 2)}</td>
+        % else:
+        <td>-</td>
+        % endif
+
         <td>${pgstat.fckills}</td>
 % endif
 
@@ -305,7 +315,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         <td>${pgstat.drops}</td>
         <td>${pgstat.pushes}</td>
         <td>${pgstat.destroys}</td>
-        <td>${pgstat.carrier_kills}</td>
+        <td>${pgstat.carrier_frags}</td>
 % endif
 
 % if game_type_cd in 'nb' 'nexball':
@@ -315,8 +325,18 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
 
 % if game_type_cd == 'rc':
         <td>${pgstat.laps}</td>
+
+        % if pgstat.fastest is not None:
         <td>${round(float(pgstat.fastest.seconds) + (pgstat.fastest.microseconds/1000000.0), 2)}</td>
+        % else:
+        <td>-</td>
+        % endif
+
+        % if pgstat.time is not None:
         <td>${round(float(pgstat.time.seconds) + (pgstat.time.microseconds/1000000.0), 2)}</td>
+        % else:
+        <td>-</td>
+        % endif
 % endif
 
 </%def>
