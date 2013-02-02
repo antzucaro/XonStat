@@ -3466,10 +3466,16 @@ header h2 { display:none; }
     background-color: #000;
 }
 .game tr.red {
-  background-color: #571612;
+  background-color: #4d0000;
 }
 .game tr.blue {
-  background-color: #000F4C;
+  background-color: #00004d;
+}
+.game tr.yellow {
+  background-color: #4d4d00;
+}
+.game tr.pink {
+  background-color: #4d004d;
 }
 .game tr:hover {
     background-color: #222;
