@@ -32,7 +32,7 @@ Game Information
 
 % else:
 <div class="row">
-  <div class="span6 game-detail">
+  <div class="span10 game-detail">
     <h2>Game Detail</h2>
     <img width="48" height="48" src="/static/images/icons/48x48/${game.game_type_cd}.png" alt="${game.game_type_cd}" title="${game.game_type_cd}"/>
     <p>
