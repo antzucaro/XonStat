@@ -32,8 +32,9 @@ Game Information
 
 % else:
 <div class="row">
-  <div class="span6">
+  <div class="span6 game-detail">
     <h2>Game Detail</h2>
+    <img width="48" height="48" src="/static/images/icons/48x48/${game.game_type_cd}.png" alt="${game.game_type_cd}" title="${game.game_type_cd}"/>
     <p>
       Played: <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span><br />
       Game Type: ${game.game_type_cd}<br />
@@ -43,6 +44,7 @@ Game Information
         Duration: ${"%s:%02d" % (game.duration.seconds/60, game.duration.seconds%60)}
       % endif
     </p>
+    <span class="clear"></span>
   </div>
 </div>
 

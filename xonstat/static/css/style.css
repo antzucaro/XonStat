@@ -3397,6 +3397,9 @@ table {
   background: rgb(0, 0, 0); /* IE Fallback */
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.7);
 }
+.clear {
+  clear: both;
+}
 #statline {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13px;
@@ -3506,9 +3509,10 @@ header h2 { display:none; }
 }
 
 .flot table, .flot td {
-    background-color: black;
+  background-color: black;
 	border: 0;
 }
+
 /* Player Info Tabs */
 #gbtabcontainer { margin-top: 10px; }
 #gbtab { font-size: 12px; }
@@ -3520,3 +3524,14 @@ header h2 { display:none; }
 .nav-tabs { border-bottom: 0px solid #000; }
 
 .table .tdcenter { text-align: center; }
+
+/* Game Info */
+.game-detail img {
+  float: left;
+  margin-right: 10px;
+}
+
+.game-detail p {
+  float: left;
+}
+
