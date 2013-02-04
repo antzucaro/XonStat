@@ -18,15 +18,16 @@ def _game_index_data(request):
     else:
         current_page = 1
 
-    games_q = DBSession.query(Game, Server, Map).\
+    games_q = DBSession.query(Game, Server, Map, GameType).\
             filter(Game.server_id == Server.server_id).\
             filter(Game.map_id == Map.map_id).\
+            filter(Game.game_type_cd == GameType.game_type_cd).\
             order_by(Game.game_id.desc())
 
     games = Page(games_q, current_page, items_per_page=10, url=page_url)
 
     pgstats = {}
-    for (game, server, map) in games:
+    for (game, server, map, gametype) in games:
         pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
                 filter(PlayerGameStat.game_id == game.game_id).\
                 order_by(PlayerGameStat.scoreboardpos).\
@@ -70,10 +71,11 @@ def _game_info_data(request):
     try:
         notfound = False
 
-        (game, server, map) = DBSession.query(Game, Server, Map).\
+        (game, server, map, gametype) = DBSession.query(Game, Server, Map, GameType).\
                 filter(Game.game_id == game_id).\
                 filter(Game.server_id == Server.server_id).\
-                filter(Game.map_id == Map.map_id).one()
+                filter(Game.map_id == Map.map_id).\
+                filter(Game.game_type_cd == GameType.game_type_cd).one()
 
         pgstats = DBSession.query(PlayerGameStat).\
                 filter(PlayerGameStat.game_id == game_id).\
@@ -113,6 +115,7 @@ def _game_info_data(request):
         game = None
         server = None
         map = None
+        gametype = None
         pgstats = None
         pwstats = None
         captimes = None
@@ -123,6 +126,7 @@ def _game_info_data(request):
     return {'game':game,
             'server':server,
             'map':map,
+            'gametype':gametype,
             'pgstats':pgstats,
             'pwstats':pwstats,
             'captimes':captimes,

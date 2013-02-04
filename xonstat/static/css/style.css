@@ -3525,13 +3525,21 @@ header h2 { display:none; }
 
 .table .tdcenter { text-align: center; }
 
-/* Game Info */
+/* Game Info and Game Index*/
 .game-detail img {
   float: left;
   margin-right: 10px;
+  margin-bottom: 5px;
 }
 
-.game-detail p {
+.game img {
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.game-detail p,
+.game h4 {
   float: left;
 }
 

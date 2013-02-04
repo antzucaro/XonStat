@@ -16,8 +16,9 @@ class RecentGame(object):
     The constructor takes a query row that has been fetched, and
     it requires the following columns to be present in the row:
 
-        game_id, game_type_cd, winner, start_dt, server_id, server_name,
-        map_id, map_name, player_id, nick, rank, team
+        game_id, game_type_cd, game_type_descr, winner, start_dt,
+        server_id, server_name, map_id, map_name, player_id, nick,
+        rank, team
 
     The following columns are optional:
 
@@ -29,6 +30,7 @@ class RecentGame(object):
     def __init__(self, row):
         self.game_id = row.game_id
         self.game_type_cd = row.game_type_cd
+        self.game_type_descr = row.game_type_descr
         self.winner = row.winner
         self.start_dt = row.start_dt
         self.fuzzy_date = pretty_date(row.start_dt)
@@ -52,6 +54,7 @@ class RecentGame(object):
         return {
             "game_id": self.game_id,
             "game_type_cd": self.game_type_cd,
+            "game_type_descr": self.game_type_descr,
             "winner": self.winner,
             "start_dt": self.start_dt,
             "fuzzy_dt": self.fuzzy_date,
@@ -82,15 +85,16 @@ def recent_games_q(server_id=None, map_id=None, player_id=None, cutoff=None):
     look when querying. Only games that happened on or after the
     cutoff (which is a datetime object) will be returned.
     '''
-    recent_games_q = DBSession.query(Game.game_id, Game.game_type_cd,
-            Game.winner, Game.start_dt, Server.server_id,
-            Server.name.label('server_name'), Map.map_id,
+    recent_games_q = DBSession.query(Game.game_id, GameType.game_type_cd,
+            Game.winner, Game.start_dt, GameType.descr.label('game_type_descr'),
+            Server.server_id, Server.name.label('server_name'), Map.map_id,
             Map.name.label('map_name'), PlayerGameStat.player_id,
             PlayerGameStat.nick, PlayerGameStat.rank, PlayerGameStat.team,
             PlayerGameStat.elo_delta).\
             filter(Game.server_id==Server.server_id).\
             filter(Game.map_id==Map.map_id).\
             filter(Game.game_id==PlayerGameStat.game_id).\
+            filter(Game.game_type_cd==GameType.game_type_cd).\
             order_by(expr.desc(Game.game_id))
 
     # the various filters provided get tacked on to the query

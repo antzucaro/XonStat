@@ -442,7 +442,7 @@ Player Information
       % for rg in recent_games:
         <tr>
            <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
-           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}"></span></td>
+           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
            <td>${rg.server_name}</td>
            <td>${rg.map_name}</td>
            <td>

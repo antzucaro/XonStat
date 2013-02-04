@@ -18,9 +18,11 @@ Game Index
 <div class="row">
   <div class="span12">
     <h2>Recent Games</h2>
-    % for (game, server, map) in games:
+    % for (game, server, map, gametype) in games:
     <div class="game">
-      <h4><img src="/static/images/icons/48x48/${game.game_type_cd}.png" width="30" height="30" /><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a> <span class="permalink">(<a href="${request.route_url('game_info', id=game.game_id)}" name="Permalink for game #${game.game_id}">permalink</a>)</span></h4>
+      <img src="/static/images/icons/48x48/${game.game_type_cd}.png" width="30" height="30" alt="${game.game_type_cd}" title="${gametype.descr}"/>
+      <h4><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a> <span class="permalink">(<a href="${request.route_url('game_info', id=game.game_id)}" name="Permalink for game #${game.game_id}">permalink</a>)</span></h4>
+      <span class="clear"></span>
       ${scoreboard(game.game_type_cd, pgstats[game.game_id])}
     </div>
     % endfor
