@@ -4,6 +4,7 @@ import math
 import sqlalchemy
 import sqlalchemy.sql.functions as sfunc
 from calendar import timegm
+from datetime import datetime as dt
 from datetime import timedelta
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
@@ -67,6 +68,7 @@ class Server(object):
         self.name = name
         self.hashkey = hashkey
         self.ip_addr = ip_addr
+        self.create_dt = dt.utcnow()
 
     def __repr__(self):
         return "<Server(%s, %s)>" % (self.server_id, self.name.encode('utf-8'))
