@@ -34,7 +34,7 @@ def parse_stats_submission(body):
             if key in 'S' 'n':
                 value = unicode(value, 'utf-8')
 
-            if key in 'V' 'T' 'G' 'M' 'S' 'C' 'R' 'W' 'I' 'D' 'O':
+            if key not in 'P' 'n' 'e' 't' 'i':
                 game_meta[key] = value
 
             if key == 'P':
