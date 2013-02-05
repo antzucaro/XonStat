@@ -446,9 +446,8 @@ def get_or_create_map(session=None, name=None):
     return gmap
 
 
-def create_game(session=None, start_dt=None, game_type_cd=None,
-        server_id=None, map_id=None, winner=None, match_id=None,
-        duration=None):
+def create_game(session, start_dt, game_type_cd, server_id, map_id,
+        match_id, duration, mod, winner=None):
     """
     Creates a game. Parameters:
 
@@ -458,12 +457,15 @@ def create_game(session=None, start_dt=None, game_type_cd=None,
     server_id - server identifier of the server hosting the game
     map_id - map on which the game was played
     winner - the team id of the team that won
+    duration - how long the game lasted
+    mod - mods in use during the game
     """
     seq = Sequence('games_game_id_seq')
     game_id = session.execute(seq)
     game = Game(game_id=game_id, start_dt=start_dt, game_type_cd=game_type_cd,
                 server_id=server_id, map_id=map_id, winner=winner)
     game.match_id = match_id
+    game.mod = mod[:64]
 
     try:
         game.duration = datetime.timedelta(seconds=int(round(float(duration))))
@@ -795,7 +797,8 @@ def submit_stats(request):
                 game_type_cd = game_type_cd,
                 map_id       = gmap.map_id,
                 match_id     = game_meta['I'],
-                duration     = duration)
+                duration     = duration,
+                mod          = game_meta.get('O', None))
 
         for events in raw_players:
             player = get_or_create_player(
