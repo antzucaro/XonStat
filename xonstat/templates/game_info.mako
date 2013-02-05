@@ -37,7 +37,7 @@ Game Information
     <img width="48" height="48" src="/static/images/icons/48x48/${game.game_type_cd}.png" alt="${game.game_type_cd}"/>
     <p>
       Played: <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span><br />
-      Game Type: ${game.game_type_cd} (${gametype.descr})<br />
+      Game Type: ${gametype.descr} (${game.game_type_cd})<br />
       Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
       Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />
       % if game.duration is not None:
