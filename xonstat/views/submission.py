@@ -4,6 +4,7 @@ import os
 import pyramid.httpexceptions
 import re
 import time
+import sqlalchemy.sql.expression as expr
 from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -348,8 +349,7 @@ def update_fastest_cap(session, player_id, game_id,  map_id, captime):
         session.flush()
 
 
-def get_or_create_server(session=None, name=None, hashkey=None, ip_addr=None,
-        revision=None):
+def get_or_create_server(session, name, hashkey, ip_addr, revision):
     """
     Find a server by name or create one if not found. Parameters:
 
@@ -357,40 +357,52 @@ def get_or_create_server(session=None, name=None, hashkey=None, ip_addr=None,
     name - server name of the server to be found or created
     hashkey - server hashkey
     """
-    try:
-        # find one by that name, if it exists
-        server = session.query(Server).filter_by(name=name).one()
+    server = None
 
-        # store new hashkey
-        if server.hashkey != hashkey:
-            server.hashkey = hashkey
-            session.add(server)
+    # finding by hashkey is preferred, but if not we will fall
+    # back to using name only, which can result in dupes
+    if hashkey is not None:
+        servers = session.query(Server).\
+            filter_by(hashkey=hashkey).\
+            order_by(expr.desc(Server.create_dt)).limit(1).all()
 
-        # store new IP address
-        if server.ip_addr != ip_addr:
-            server.ip_addr = ip_addr
-            session.add(server)
+        if len(servers) > 0:
+            server = servers[0]
+            log.debug("Found existing server {0} by hashkey ({1})".format(
+                server.server_id, server.hashkey))
+    else:
+        servers = session.query(Server).\
+            filter_by(name=name).\
+            order_by(expr.desc(Server.create_dt)).limit(1).all()
 
-        # store new revision
-        if server.revision != revision:
-            server.revision = revision
-            session.add(server)
+        if len(servers) > 0:
+            server = servers[0]
+            log.debug("Found existing server {0} by name".format(server.server_id))
 
-        log.debug("Found existing server {0}".format(server.server_id))
-
-    except MultipleResultsFound, e:
-        # multiple found, so also filter by hashkey
-        server = session.query(Server).filter_by(name=name).\
-                filter_by(hashkey=hashkey).one()
-        log.debug("Found existing server {0}".format(server.server_id))
-
-    except NoResultFound, e:
-        # not found, create one
+    # still haven't found a server by hashkey or name, so we need to create one
+    if server is None:
         server = Server(name=name, hashkey=hashkey)
         session.add(server)
         session.flush()
         log.debug("Created server {0} with hashkey {1}".format(
             server.server_id, server.hashkey))
+
+    # detect changed fields
+    if server.name != name:
+        server.name = name
+        session.add(server)
+
+    if server.hashkey != hashkey:
+        server.hashkey = hashkey
+        session.add(server)
+
+    if server.ip_addr != ip_addr:
+        server.ip_addr = ip_addr
+        session.add(server)
+
+    if server.revision != revision:
+        server.revision = revision
+        session.add(server)
 
     return server
 
