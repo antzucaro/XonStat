@@ -349,7 +349,7 @@ def update_fastest_cap(session, player_id, game_id,  map_id, captime):
         session.flush()
 
 
-def get_or_create_server(session, name, hashkey, ip_addr, revision):
+def get_or_create_server(session, name, hashkey, ip_addr, revision, port):
     """
     Find a server by name or create one if not found. Parameters:
 
@@ -358,6 +358,11 @@ def get_or_create_server(session, name, hashkey, ip_addr, revision):
     hashkey - server hashkey
     """
     server = None
+
+    try:
+        port = int(port)
+    except:
+        port = None
 
     # finding by hashkey is preferred, but if not we will fall
     # back to using name only, which can result in dupes
@@ -398,6 +403,10 @@ def get_or_create_server(session, name, hashkey, ip_addr, revision):
 
     if server.ip_addr != ip_addr:
         server.ip_addr = ip_addr
+        session.add(server)
+
+    if server.port != port:
+        server.port = port
         session.add(server)
 
     if server.revision != revision:
@@ -772,7 +781,8 @@ def submit_stats(request):
                 hashkey  = idfp,
                 name     = game_meta['S'],
                 revision = revision,
-                ip_addr  = get_remote_addr(request))
+                ip_addr  = get_remote_addr(request),
+                port     = game_meta.get('U', None))
 
         gmap = get_or_create_map(
                 session = session,
