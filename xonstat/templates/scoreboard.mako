@@ -104,6 +104,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
       <th class="ping">Ping</th>
       % endif
       <th class="fastest">Fastest Time</th>
+      <th class="deaths">Deaths</th>
     </tr>
     </thead>
 % endif
@@ -268,6 +269,7 @@ ${scoreboard_header(game_type_cd, pgstats[0])}
         % else:
         <td>-</td>
         % endif
+        <td>${pgstat.deaths}</td>
 % endif
 
 % if game_type_cd == 'ctf':
