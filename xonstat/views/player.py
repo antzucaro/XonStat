@@ -184,6 +184,7 @@ def get_overall_stats(player_id):
 
     # to be indexed by game_type_cd
     overall_stats = {}
+    raw_overall = None
 
     for row in raw_stats:
         # individual gametype ratio calculations
@@ -213,6 +214,35 @@ def get_overall_stats(player_id):
                 game_type_cd=row.game_type_cd)
 
         overall_stats[row.game_type_cd] = os
+
+    # We have to edit "overall" stats to exclude deaths in CTS.
+    # Although we still want to record deaths, they shouldn't
+    # count towards the overall K:D ratio.
+    if 'cts' in overall_stats:
+        os = overall_stats['overall']
+
+        try:
+            k_d_ratio = float(os.total_kills)/(os.total_deaths - overall_stats['cts'].total_deaths)
+        except:
+            k_d_ratio = None
+
+        non_cts_deaths = os.total_deaths - overall_stats['cts'].total_deaths
+
+
+        overall_stats['overall'] = OverallStats(
+                total_kills             = os.total_kills,
+                total_deaths            = non_cts_deaths,
+                k_d_ratio               = k_d_ratio,
+                last_played             = os.last_played,
+                last_played_epoch       = os.last_played_epoch,
+                last_played_fuzzy       = os.last_played_fuzzy,
+                total_playing_time      = os.total_playing_time,
+                total_playing_time_secs = os.total_playing_time_secs,
+                total_pickups           = os.total_pickups,
+                total_captures          = os.total_captures,
+                cap_ratio               = os.cap_ratio,
+                total_carrier_frags     = os.total_carrier_frags,
+                game_type_cd            = os.game_type_cd)
 
     return overall_stats
 
