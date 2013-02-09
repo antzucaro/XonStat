@@ -600,7 +600,9 @@ def create_default_game_stat(session, game_type_cd):
 def create_game_stat(session, game_meta, game, server, gmap, player, events):
     """Game stats handler for all game types"""
 
-    pgstat = create_default_game_stat(session, game.game_type_cd)
+    game_type_cd = game.game_type_cd
+
+    pgstat = create_default_game_stat(session, game_type_cd)
 
     # these fields should be on every pgstat record
     pgstat.game_id       = game.game_id
@@ -631,7 +633,9 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
         if key == 'scoreboard-caps': pgstat.captures = int(value)
         if key == 'scoreboard-score': pgstat.score = int(round(float(value)))
         if key == 'scoreboard-deaths': pgstat.deaths = int(value)
-        if key == 'scoreboard-kills': pgstat.kills = int(value)
+        if key == 'scoreboard-kills':
+            if game_type_cd != 'cts':
+                pgstat.kills = int(value)
         if key == 'scoreboard-suicides': pgstat.suicides = int(value)
         if key == 'scoreboard-objectives': pgstat.collects = int(value)
         if key == 'scoreboard-captured': pgstat.captures = int(value)
