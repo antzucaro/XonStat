@@ -1,0 +1,14 @@
+body {
+  background-attachment: fixed;
+  background-clip: border-box;
+  background-color: rgb(0,0,0);
+  background-origin: padding-box;
+  background-position: 50% 50%;
+  background-image: url("../img/web_background_3.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.hero-unit {
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5);
+  color: #999;
+}
