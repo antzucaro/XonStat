@@ -15,7 +15,7 @@ var templates = template.Must(template.ParseFiles("templates/landing.html"))
 func main() {
 	port := flag.Int("port", 6543, "Default port on which to accept requests")
 	url := flag.String("url", "http://localhost:6543/stats/submit", "URL to send POST requests against")
-  flag.Usage = usage
+	flag.Usage = usage
 	flag.Parse()
 
 	if len(flag.Args()) < 1 {
@@ -44,17 +44,17 @@ func main() {
 // override the default Usage function to show the different "commands"
 // that are in the switch statement in main()
 func usage() {
-    fmt.Fprintf(os.Stderr, "Usage of xs_interceptor:\n")
-    fmt.Fprintf(os.Stderr, "    xs_interceptor [options] <command>\n\n")
-    fmt.Fprintf(os.Stderr, "Where <command> is one of the following:\n")
-    fmt.Fprintf(os.Stderr, "    create   - create the requests db (sqlite3 db file)\n")
-    fmt.Fprintf(os.Stderr, "    drop     - remove the requests db\n")
-    fmt.Fprintf(os.Stderr, "    list     - lists the requests in the db\n")
-    fmt.Fprintf(os.Stderr, "    serve    - listens for stats requests, storing them if found\n")
-    fmt.Fprintf(os.Stderr, "    resubmit - resubmits the requests to another URL\n\n")
-    fmt.Fprintf(os.Stderr, "Where [options] is one or more of the following:\n")
-    fmt.Fprintf(os.Stderr, "    -port    - port number (int) to listen on for 'serve' command\n")
-    fmt.Fprintf(os.Stderr, "    -url     - url (string) to submit requests\n\n")
+	fmt.Fprintf(os.Stderr, "Usage of xs_interceptor:\n")
+	fmt.Fprintf(os.Stderr, "    xs_interceptor [options] <command>\n\n")
+	fmt.Fprintf(os.Stderr, "Where <command> is one of the following:\n")
+	fmt.Fprintf(os.Stderr, "    create   - create the requests db (sqlite3 db file)\n")
+	fmt.Fprintf(os.Stderr, "    drop     - remove the requests db\n")
+	fmt.Fprintf(os.Stderr, "    list     - lists the requests in the db\n")
+	fmt.Fprintf(os.Stderr, "    serve    - listens for stats requests, storing them if found\n")
+	fmt.Fprintf(os.Stderr, "    resubmit - resubmits the requests to another URL\n\n")
+	fmt.Fprintf(os.Stderr, "Where [options] is one or more of the following:\n")
+	fmt.Fprintf(os.Stderr, "    -port    - port number (int) to listen on for 'serve' command\n")
+	fmt.Fprintf(os.Stderr, "    -url     - url (string) to submit requests\n\n")
 }
 
 // removes the requests database. it is just a file, so this is really easy.
@@ -110,7 +110,7 @@ func serve(port int) {
 	// routing
 	http.HandleFunc("/", defaultHandler)
 	http.HandleFunc("/stats/submit", makeSubmitHandler(requests))
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.Handle("/m/", http.StripPrefix("/m/", http.FileServer(http.Dir("m"))))
 
 	// serving
 	fmt.Printf("Serving on port %d...\n", port)
@@ -153,10 +153,10 @@ func makeSubmitHandler(requests int) http.HandlerFunc {
 		body := make([]byte, r.ContentLength)
 		r.Body.Read(body)
 
-    db := getDBConn()
-    defer db.Close()
+		db := getDBConn()
+		defer db.Close()
 
-    _, err := db.Exec("INSERT INTO requests(blind_id_header, ip_addr, body, bodylength) VALUES(?, ?, ?, ?)", blind_id_header, remoteAddr, string(body), r.ContentLength)
+		_, err := db.Exec("INSERT INTO requests(blind_id_header, ip_addr, body, bodylength) VALUES(?, ?, ?, ?)", blind_id_header, remoteAddr, string(body), r.ContentLength)
 		if err != nil {
 			fmt.Println("Unable to insert request.")
 			fmt.Println(err)
@@ -186,7 +186,7 @@ func getRemoteAddr(r *http.Request) (remoteAddr string) {
 // resubmits stats request to a particular URL. this is intended to be used when
 // you want to write back to the "real" XonStat
 func resubmit(url string) {
-  db := getDBConn()
+	db := getDBConn()
 	defer db.Close()
 
 	rows, err := db.Query("SELECT request_id, ip_addr, blind_id_header, body, bodylength FROM requests ORDER BY request_id")
@@ -196,7 +196,7 @@ func resubmit(url string) {
 	}
 	defer rows.Close()
 
-  successfulRequests := make([]int, 0, 10)
+	successfulRequests := make([]int, 0, 10)
 	for rows.Next() {
 		// could use a struct here, but isntead just a bunch of vars
 		var request_id int
@@ -220,31 +220,31 @@ func resubmit(url string) {
 		req.Header = header
 
 		res, err := http.DefaultClient.Do(req)
-    if err != nil {
-      fmt.Printf("Error submitting request #%d. Continuing...\n", request_id)
-      continue
-    }
+		if err != nil {
+			fmt.Printf("Error submitting request #%d. Continuing...\n", request_id)
+			continue
+		}
 		defer res.Body.Close()
 
 		fmt.Printf("Request #%d: %s\n", request_id, res.Status)
 
-    if res.StatusCode < 500 {
-      successfulRequests = append(successfulRequests, request_id)
-    }
+		if res.StatusCode < 500 {
+			successfulRequests = append(successfulRequests, request_id)
+		}
 	}
 
-  // now that we're done resubmitting, let's clean up the successful requests
-  // by deleting them outright from the database
-  for _, val := range(successfulRequests) {
-    deleteRequest(db, val)
-  }
+	// now that we're done resubmitting, let's clean up the successful requests
+	// by deleting them outright from the database
+	for _, val := range successfulRequests {
+		deleteRequest(db, val)
+	}
 }
 
 // lists all the requests and their information *in the XonStat log format* in
 // order to 1) show what's in the db and 2) to be able to save/parse it (with
 // xs_parse) for later use.
 func list() {
-  db := getDBConn()
+	db := getDBConn()
 	defer db.Close()
 
 	rows, err := db.Query("SELECT request_id, ip_addr, blind_id_header, body FROM requests ORDER BY request_id")
@@ -280,22 +280,22 @@ func list() {
 
 // hard-coded sqlite database connection retriever to keep it simple
 func getDBConn() *sql.DB {
-  conn, err := sql.Open("sqlite3", "./middleman.db")
+	conn, err := sql.Open("sqlite3", "./middleman.db")
 
 	if err != nil {
 		fmt.Println("Error opening middleman.db. Did you create it?")
 		os.Exit(1)
 	}
 
-  return conn
+	return conn
 }
 
 // removes reqeusts from the database by request_id
 func deleteRequest(db *sql.DB, request_id int) {
-  _, err := db.Exec("delete from requests where request_id = ?", request_id)
-  if err != nil {
-    fmt.Printf("Could not remove request_id %d from the database. Reason: %v\n", request_id, err)
-  } else {
-    fmt.Printf("Request #%d removed from the database.\n", request_id)
-  }
+	_, err := db.Exec("delete from requests where request_id = ?", request_id)
+	if err != nil {
+		fmt.Printf("Could not remove request_id %d from the database. Reason: %v\n", request_id, err)
+	} else {
+		fmt.Printf("Request #%d removed from the database.\n", request_id)
+	}
 }
