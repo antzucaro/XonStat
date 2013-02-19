@@ -117,10 +117,7 @@ func serve(port int) {
 	fmt.Printf("Serving on port %d...\n", port)
 	addr := fmt.Sprintf(":%d", port)
   for true {
-    err := http.ListenAndServe(addr, nil)
-    if err == nil {
-      fmt.Println("got it!")
-    }
+    http.ListenAndServe(addr, nil)
     time.Sleep(100*time.Millisecond)
   }
 }
