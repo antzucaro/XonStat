@@ -7,6 +7,7 @@ import "html/template"
 import "net/http"
 import "os"
 import "strings"
+import "time"
 import _ "github.com/mattn/go-sqlite3"
 
 // HTML templates
@@ -115,7 +116,13 @@ func serve(port int) {
 	// serving
 	fmt.Printf("Serving on port %d...\n", port)
 	addr := fmt.Sprintf(":%d", port)
-	http.ListenAndServe(addr, nil)
+  for true {
+    err := http.ListenAndServe(addr, nil)
+    if err == nil {
+      fmt.Println("got it!")
+    }
+    time.Sleep(100*time.Millisecond)
+  }
 }
 
 // intercepts all URLs, displays a landing page
@@ -211,7 +218,9 @@ func resubmit(url string) {
 		}
 
 		req, _ := http.NewRequest("POST", url, strings.NewReader(body))
-		req.ContentLength = int64(bodylength)
+		//req.ContentLength = int64(bodylength)
+    //req.ContentLength = 0
+		req.ContentLength = int64(len([]byte(body)))
 
 		header := map[string][]string{
 			"X-D0-Blind-Id-Detached-Signature": {blind_id_header},
@@ -222,6 +231,7 @@ func resubmit(url string) {
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			fmt.Printf("Error submitting request #%d. Continuing...\n", request_id)
+			fmt.Println(err)
 			continue
 		}
 		defer res.Body.Close()
