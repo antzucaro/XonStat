@@ -235,7 +235,9 @@ func resubmit(url string) {
 
 		fmt.Printf("Request #%d: %s\n", request_id, res.Status)
 
-		if res.StatusCode < 500 {
+    // undeliverables requests will still live in the database,
+    // but we can clear out the 200 ones for sure
+		if res.StatusCode == 200 {
 			successfulRequests = append(successfulRequests, request_id)
 		}
 	}
