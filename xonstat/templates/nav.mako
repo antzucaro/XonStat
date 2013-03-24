@@ -1,19 +1,16 @@
 <%def name="nav(active)">
-    <div class="navbar navbar-top">
+    <div class="navbar navbar-inverse navbar-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="i-bar"></span>
-            <span class="i-bar"></span>
-            <span class="i-bar"></span>
+          <a class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
           </a>
-          <header>
-            <a class="brand" href="${request.route_url('main_index')}">
-             <img src="/static/css/img/Xonotic_icon.png" /><h1>Xonotic Game Statistics</h1>
-            </a>
-            <h2>Xonotic is a fast-paced open-source GPL first person shooter</h2>
-          </header>
-          <div class="nav-collapse">
+          <a class="navbar-brand" href="${request.route_url('main_index')}">
+           <img src="/static/css/img/Xonotic_icon.png" />
+          </a>
+          <div class="nav-collapse collapse">
             <ul class="nav">
               <li 
                 % if active=="leaderboard":
@@ -41,17 +38,19 @@
                 % endif
                 ><a href="${request.route_url('map_index')}" title="Map Index">Maps</a></li>
             </ul>
-            <form id="navsearch" action="${request.route_url('search')}" method="get">
-              <input type="hidden" name="fs" />
-              <input type="search" class="input-small" placeholder="search" name="sval"/>
-              <select name="stype">
-                <option>players</option>
-                <option>servers</option>
-                <option>maps</option>
-              </select>
-            [<a href="${request.route_url('search')}" title="Advanced search">+</a>]
-            </form>
-          </div><!--/.nav-collapse -->
+          </div>
+
+          <form class="navbar-form pull-right" action="${request.route_url('search')}" method="get">
+            <input type="hidden" name="fs" />
+            <input type="search" class="input-small search" placeholder="search" name="sval"/>
+            <select class="search" name="stype">
+              <option>players</option>
+              <option>servers</option>
+              <option>maps</option>
+            </select>
+          [<a href="${request.route_url('search')}" title="Advanced search">+</a>]
+          </form>
+
         </div>
       </div>
     </div>
