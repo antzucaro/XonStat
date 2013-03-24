@@ -11,14 +11,13 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
+    <link rel="shortcut icon" href="/static/favicon.ico">
+
     <%block name="css">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
     <link href="/static/css/app.css" rel="stylesheet">
-    <link rel="shortcut icon" href="/static/favicon.ico">
     </%block>
-
-    <script src="/static/js/jquery-1.7.1.min.js"></script>
   </head>
 
   <body>
@@ -43,7 +42,8 @@
       </%block>
 
       <%block name="js">
-      <script src="/static/js/jquery-1.7.1.min.js"></script>
+      <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>
+      <script type='text/javascript' src='/static/js/bootstrap.min.js'></script>
       </%block>
 
       <!-- RELATIVE TIME CONVERSION -->
