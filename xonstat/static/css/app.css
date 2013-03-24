@@ -1,3 +1,16 @@
+/* Fonts */
+@font-face {
+    font-family: 'XoloniumNormal';
+    src: url('fonts/xolonium-webfont.eot');
+    src: url('fonts/xolonium-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/xolonium-webfont.woff') format('woff'),
+         url('fonts/xolonium-webfont.ttf') format('truetype'),
+         url('fonts/xolonium-webfont.svg#XoloniumNormal') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 /* Primary elements */
 body {
     background: url("img/web_background_4.jpg") no-repeat fixed center center / cover  black;
@@ -6,14 +19,19 @@ body {
 
 /* Navigation bar */
 .navbar-brand {
+    margin-left: 0;
     padding-bottom: 0px;
     padding-top: 10px;
+    text-align: left;
 }
 .navbar-inverse {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
 }
 .navbar-inverse .nav>.active>a, .navbar-inverse .nav>.active>a:hover, .navbar-inverse .nav>.active>a:focus {
     background: none repeat scroll 0 0 rgba(49, 49, 49, 0.6);
+}
+.navbar-inverse .nav>li>a, .navbar-brand {
+    font-family: XoloniumNormal;
 }
 .search, input[type="search"] {
     background-color: #606060;

@@ -2,15 +2,16 @@
     <div class="navbar navbar-inverse navbar-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <a class="navbar-toggle collapsed" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
           <a class="navbar-brand" href="${request.route_url('main_index')}">
            <img src="/static/css/img/Xonotic_icon.png" />
+           XonStat
           </a>
-          <div class="nav-collapse collapse">
+          <nav class="nav-main nav-collapse in collapse" role="navigation" style="height: auto;">
             <ul class="nav">
               <li 
                 % if active=="leaderboard":
@@ -38,18 +39,18 @@
                 % endif
                 ><a href="${request.route_url('map_index')}" title="Map Index">Maps</a></li>
             </ul>
-          </div>
 
-          <form class="navbar-form pull-right" action="${request.route_url('search')}" method="get">
-            <input type="hidden" name="fs" />
-            <input type="search" class="input-small search" placeholder="search" name="sval"/>
-            <select class="search" name="stype">
-              <option>players</option>
-              <option>servers</option>
-              <option>maps</option>
-            </select>
-          [<a href="${request.route_url('search')}" title="Advanced search">+</a>]
-          </form>
+            <form class="navbar-form pull-right" action="${request.route_url('search')}" method="get">
+              <input type="hidden" name="fs" />
+              <input type="search" class="input-small search" placeholder="search" name="sval"/>
+              <select class="search" name="stype">
+                <option>players</option>
+                <option>servers</option>
+                <option>maps</option>
+              </select>
+            [<a href="${request.route_url('search')}" title="Advanced search">+</a>]
+            </form>
+          </nav>
 
         </div>
       </div>
