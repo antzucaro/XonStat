@@ -14,8 +14,7 @@
     <link rel="shortcut icon" href="/static/favicon.ico">
 
     <%block name="css">
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/app.css" rel="stylesheet">
     </%block>
   </head>
