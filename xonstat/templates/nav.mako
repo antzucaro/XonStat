@@ -40,7 +40,7 @@
                 ><a href="${request.route_url('map_index')}" title="Map Index">Maps</a></li>
             </ul>
 
-            <form class="navbar-form pull-right" action="${request.route_url('search')}" method="get">
+            <form class="navbar-form pull-left" action="${request.route_url('search')}" method="get">
               <input type="hidden" name="fs" />
               <input type="search" class="input-small search" placeholder="search" name="sval"/>
               <select class="search" name="stype">

@@ -39,3 +39,10 @@ body {
     color: #AAAAAA;
     width: 100px;
 }
+
+/* Desktop-specific stuff */
+@media (min-width: 768px) {
+    .navbar-form {
+        float: right;
+    }
+}
