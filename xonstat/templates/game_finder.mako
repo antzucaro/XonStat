@@ -1,5 +1,10 @@
 <%inherit file="base.mako"/>
+<%namespace name="nav" file="nav.mako" />
 <%namespace file="navlinks.mako" import="navlinks" />
+
+<%block name="navigation">
+${nav.nav('games')}
+</%block>
 
 <%block name="css">
     ${parent.css()}
@@ -10,7 +15,7 @@
 <div class="row">
   <div class="span12">
     <h3>Recent Games</h3>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
           <th></th>
