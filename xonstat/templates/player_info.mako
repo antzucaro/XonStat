@@ -464,14 +464,14 @@ Player Information
           <a href="${request.route_url('game_info', id=rg.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
             % if rg.elo_delta is not None:
             % if round(rg.elo_delta,2) > 0:
-            <span title="Elo went up by ${round(rg.elo_delta,2)}"><i class="icon-arrow-up icon-white"></i></span>
+            <span title="Elo went up by ${round(rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-up"></i></span>
             % elif round(rg.elo_delta,2) < 0:
-            <span title="Elo went down by ${round(-rg.elo_delta,2)}"><i class="icon-arrow-down icon-white"></i></span>
+            <span title="Elo went down by ${round(-rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-down"></i></span>
             % else:
-            <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
+            <span title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
             % endif
             % else:
-            <span title="Elo did not change"><i class="icon-minus icon-white"></i></span>
+            <span title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
             % endif
           </a>
         </td>
