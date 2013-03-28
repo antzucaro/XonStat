@@ -14,6 +14,7 @@
 /* Primary elements */
 body {
     background: url("img/web_background_4.jpg") no-repeat fixed center center / cover  black;
+    background-color: black;
     color: #D0D0D0;
     font-family: "XoloniumNormal", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
