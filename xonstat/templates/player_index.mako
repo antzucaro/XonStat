@@ -15,13 +15,13 @@ Player Index
 
 % else:
 <div class="row">
-  <div class="span6">
-    <form method="get" action="${request.route_url('search')}">
+  <div class="span6 offset3">
+    <form class="indexform" method="get" action="${request.route_url('search')}">
       <input type="hidden" name="fs" />
-      <input type="text" name="nick" />
+      <input class="indexbox" type="text" name="nick" />
       <input type="submit" value="search" />
     </form>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <tr>
         <th>Nick</th>
         <th class="create-dt">Joined</th>

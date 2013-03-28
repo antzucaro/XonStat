@@ -21,7 +21,7 @@ Recent Games
 </div>
 <div class="row">
   <div class="span12">
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
            <th></th>

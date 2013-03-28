@@ -30,7 +30,7 @@ ${parent.title()}
 <div class="row">
   <div class="span4">
     <h3>Top Scoring Players</h3>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
           <th>#</th>
@@ -59,7 +59,7 @@ ${parent.title()}
 
 <div class="span4">
   <h3>Most Active Players</h3>
-  <table class="table table-bordered table-condensed">
+  <table class="table table-hover table-condensed">
     <thead>
       <tr>
         <th>#</th>
@@ -88,7 +88,7 @@ ${parent.title()}
 
 <div class="span4">
   <h3>Most Active Servers</h3>
-  <table class="table table-bordered table-condensed">
+  <table class="table table-hover table-condensed">
     <thead>
       <tr>
         <th>#</th>
@@ -115,7 +115,7 @@ ${parent.title()}
 <div class="row">
   <div class="span6">
     <h3>Best Flag Capture Times</h3>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
            <th>Nick</th>
@@ -154,7 +154,7 @@ ${parent.title()}
 <div class="row">
   <div class="span12">
     <h3>Most Recent Games</h3>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
           <th></th>

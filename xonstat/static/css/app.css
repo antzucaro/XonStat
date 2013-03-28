@@ -78,11 +78,19 @@ table td {
 .table-hover > tbody > tr:hover > th {
     background-color: #222;
 }
+.table th, .table td {
+    border: 1px solid #436688;
+}
 .table td {
     vertical-align: middle;
 }
 .table .tdcenter { text-align: center; }
-
+.accordion-group {
+    border: 1px solid rgb(39, 37, 37);
+}
+.accordion-inner {
+    border: none;
+}
 
 /* One-off elements */
 #statline {
@@ -106,6 +114,12 @@ table td {
     position: relative;
     text-align: center;
     text-shadow: 2px 2px 3px #333;
+}
+.indexform {
+    margin: 20px 0px 20px 0px;
+}
+.indexbox {
+    width: 250px;
 }
 
 
@@ -132,6 +146,97 @@ table td {
     width: 100px;
 }
 
+/* Game scoreboard */
+.game {
+  float: left;
+  margin-bottom: 30px;
+  min-width: 700px;
+  padding: 10px 7px;
+}
+.game a {
+    color: #CCC;
+}
+.game a:hover {
+    color: #d95f00;
+    text-decoration: none;
+}
+.game tr {
+    background-color: #000;
+}
+.game tr.red {
+  background-color: #4d0000;
+}
+.game tr.blue {
+  background-color: #00004d;
+}
+.game tr.yellow {
+  background-color: #4d4d00;
+}
+.game tr.pink {
+  background-color: #4d004d;
+}
+.game tr:hover {
+    background-color: #222;
+}
+
+/* accuracy and weapon graphs */
+.weapon-nav {
+  height: 70px;
+  margin-bottom: 20px;
+}
+.weapon-nav ul {
+  display: block;
+  list-style: none outside none;
+}
+.weapon-nav li {
+  cursor: pointer;
+  float: left;
+  margin-right: 10px;
+}
+.weapon-nav li:hover {
+  border-bottom: 2px solid #001021;
+}
+.weapon-nav .weapon-active {
+  border-bottom: 2px solid #436688;
+}
+.weapon-nav p {
+  text-align: center;
+}
+
+.flot table, .flot td {
+  background-color: black;
+	border: 0;
+}
+
+/* Player Info Tabs */
+#gbtabcontainer { margin-top: 10px; }
+#gbtab { font-size: 12px; }
+.tabbable p { font-size: 14px; }
+.tabs-below .nav-tabs > li > a { border-radius: 4px 4px 4px 4px; }
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover { background-color: #111; color: #aaa; border-color: #222; }
+.nav-tabs > li > a { border-radius: 4px 4px 4px 4px; text-align: center; }
+.nav-tabs > li > a:hover { background-color: #111; border-color: #333; }
+.nav-tabs { border-bottom: 0px solid #000; }
+
+.table .tdcenter { text-align: center; }
+
+/* Game Info and Game Index*/
+.game-detail img {
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+
+.game img {
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.game-detail p,
+.game h4 {
+  float: left;
+}
 
 /* Desktop-specific stuff */
 @media (min-width: 768px) {

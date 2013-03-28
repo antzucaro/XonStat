@@ -15,13 +15,13 @@ Server Index
 
 % else:
 <div class="row">
-  <div class="span6">
-    <form method="get" action="${request.route_url('search')}">
+  <div class="span6 offset3">
+    <form class="indexform" method="get" action="${request.route_url('search')}">
       <input type="hidden" name="fs" />
-      <input type="text" name="server_name" />
+      <input class="indexbox" type="text" name="server_name" />
       <input type="submit" value="search" />
     </form>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <tr>
         <th>Name</th>
         <th class="create-dt">Added</th>

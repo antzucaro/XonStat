@@ -16,7 +16,7 @@ Game Index
 
 % else:
 <div class="row">
-  <div class="span12">
+  <div class="span10 offset1">
     <h2>Recent Games</h2>
     % for (game, server, map, gametype) in games:
     <div class="game">
@@ -29,7 +29,11 @@ Game Index
   </div>
 </div>
 
-<!-- navigation links -->
-${navlinks("game_index", games.page, games.last_page)}
+<div class="row">
+  <div class="span10 offset1">
+    <!-- navigation links -->
+    ${navlinks("game_index", games.page, games.last_page)}
+  </div>
+</div>
 % endif
 

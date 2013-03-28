@@ -8,18 +8,18 @@ ${nav.nav('games')}
 </%block>
 
 <%block name="css">
-    ${parent.css()}
-    <link href="/static/css/sprites.css" rel="stylesheet">
+${parent.css()}
+<link href="/static/css/sprites.css" rel="stylesheet">
 </%block>
 
 <%block name="js">
-      <script src="/static/js/bootstrap-collapse.min.js"></script>
-      <script>
-        $(".collapse").collapse();
+${parent.js()}
+<script>
+$(".collapse").collapse();
 
-        // show accordion only when loaded to prevent rollup from being seen
-        $("#acc-accordion").css('display', '');
-      </script>
+// show accordion only when loaded to prevent rollup from being seen
+$("#acc-accordion").css('display', '');
+</script>
 </%block>
 
 <%block name="title">
@@ -36,13 +36,13 @@ Game Information
     <h2>Game Detail</h2>
     <img width="48" height="48" src="/static/images/icons/48x48/${game.game_type_cd}.png" alt="${game.game_type_cd}"/>
     <p>
-      Played: <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span><br />
-      Game Type: ${gametype.descr} (${game.game_type_cd})<br />
-      Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
-      Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />
-      % if game.duration is not None:
-        Duration: ${"%s:%02d" % (game.duration.seconds/60, game.duration.seconds%60)}
-      % endif
+    Played: <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span><br />
+    Game Type: ${gametype.descr} (${game.game_type_cd})<br />
+    Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
+    Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />
+    % if game.duration is not None:
+    Duration: ${"%s:%02d" % (game.duration.seconds/60, game.duration.seconds%60)}
+    % endif
     </p>
     <span class="clear"></span>
   </div>
@@ -59,28 +59,28 @@ Game Information
 <div class="row">
   <div class="span6">
     <h3>Best Flag Capture Times</h3>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
-           <th>Nick</th>
-           <th>Captime</th>
+          <th>Nick</th>
+          <th>Captime</th>
         </tr>
       </thead>
       <tbody>
       % for pgs in captimes:
-        <tr>
-          <td>
+      <tr>
+        <td>
           % if pgs.player_id > 2:
-            <a href="${request.route_url("player_info", id=pgs.player_id)}"
-             title="Go to the info page for this player">
+          <a href="${request.route_url("player_info", id=pgs.player_id)}"
+            title="Go to the info page for this player">
             <span class="nick">${pgs.nick_html_colors()|n}</span>
-            </a>
+          </a>
           % else:
-            <span class="nick">${pgs.nick_html_colors()|n}</span>
+          <span class="nick">${pgs.nick_html_colors()|n}</span>
           % endif
-          </td>
-          <td>${round(float(pgs.fastest.seconds) + (pgs.fastest.microseconds/1000000.0), 2)}</td>
-        </tr>
+        </td>
+        <td>${round(float(pgs.fastest.seconds) + (pgs.fastest.microseconds/1000000.0), 2)}</td>
+      </tr>
       % endfor
       </tbody>
     </table>
@@ -94,12 +94,12 @@ Game Information
   <div class="span12">
     <h3>Accuracy Information</h3>
     <div class="accordion" id="acc-accordion" style="display:none;">
-    % for pgstat in pgstats:
-    % if pgstat.player_game_stat_id in pwstats:
+      % for pgstat in pgstats:
+      % if pgstat.player_game_stat_id in pwstats:
       <div class="accordion-group">
         <div class="accordion-heading">
           <a class="accordion-toggle" data-toggle="collapse" data-parent="#acc-accordion" href="#accuracy-${pgstat.player_game_stat_id}">
-          Accuracy for ${pgstat.nick_html_colors()|n}
+            Accuracy for ${pgstat.nick_html_colors()|n}
           </a>
         </div>
         <div id="accuracy-${pgstat.player_game_stat_id}" class="accordion-body collapse in">
@@ -108,11 +108,11 @@ Game Information
           </div>
         </div>
       </div>
-    % endif
-    % endfor
+      % endif
+      % endfor
+    </div>
   </div>
-</div>
-% endif
+  % endif
 
 </div>
 % endif

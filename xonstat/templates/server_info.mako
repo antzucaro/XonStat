@@ -35,7 +35,7 @@ Server Information
 <div class="row">
   <div class="span4">
     <h3>Top Scoring Players</h3>
-      <table class="table table-bordered table-condensed">
+      <table class="table table-hover table-condensed">
         <thead>
           <tr>
             <th>#</th>
@@ -64,7 +64,7 @@ Server Information
 
   <div class="span4">
     <h3>Most Active Players</h3>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
           <th>#</th>
@@ -93,7 +93,7 @@ Server Information
 
   <div class="span4">
     <h3>Most Active Maps</h3>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
           <th>#</th>
@@ -127,7 +127,7 @@ Server Information
 <div class="row">
   <div class="span12">
     <h3>Most Recent Games</h2>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
           <th></th>

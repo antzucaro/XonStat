@@ -13,7 +13,7 @@ Player captimes
 
     <h3>Fastest flag capture times:</h3>
 
-    <table class="table table-bordered table-condensed">
+    <table class="table table-hover table-condensed">
       <thead>
         <tr>
            <th>Game</th>
