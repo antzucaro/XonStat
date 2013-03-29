@@ -3,8 +3,7 @@ import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
 from collections import namedtuple
 from datetime import datetime, timedelta
-from sqlalchemy import desc
-from webhelpers.paginate import Page, PageURL
+from webhelpers.paginate import Page
 from xonstat.models import *
 from xonstat.util import page_url, html_colors
 from xonstat.views.helpers import RecentGame, recent_games_q
@@ -21,7 +20,7 @@ def _map_index_data(request):
         map_q = DBSession.query(Map).\
                 order_by(Map.map_id.desc())
 
-        maps = Page(map_q, current_page, items_per_page=10, url=page_url)
+        maps = Page(map_q, current_page, items_per_page=25, url=page_url)
 
     except Exception as e:
         maps = None
