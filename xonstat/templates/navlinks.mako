@@ -11,9 +11,12 @@ if 'search_query' in kwargs.keys():
 % endif
 
 % if not (curr == last and curr == 1):
+<div class="row">
+<div class="span12 text-center">
+<ul class="pagination">
     % if curr != 1:
             <% kwargs['_query']['page'] = curr-1 %>
-            <a class="pagination" href="${request.route_url(view, **kwargs)}" name="Previous Page">previous</a>
+            <li><a href="${request.route_url(view, **kwargs)}" name="Previous Page"><i class="glyphicon glyphicon-arrow-left"></i></a></li>
     % endif
 
     % if last < 8:
@@ -25,44 +28,47 @@ if 'search_query' in kwargs.keys():
             % for i in range(1,7):
             ${link_page(view, i, curr, **kwargs)}
             % endfor
-            <span class="pagination">...</span>
+            <li><span>...<span></li>
             <% kwargs['_query']['page'] = last %>
-            <a class="pagination" href="${request.route_url(view, **kwargs)}" name="Last Page">${last}</a>
+            <li><a  href="${request.route_url(view, **kwargs)}" name="Last Page">${last}</a></li>
 
         % elif last-curr < 6:
             <% kwargs['_query']['page'] = 1 %>
-            <a class="pagination" href="${request.route_url(view, **kwargs)}" name="First Page">1</a>
-            <span class="pagination">...</span>
+            <li><a  href="${request.route_url(view, **kwargs)}" name="First Page">1</a></li>
+            <li><span >...</span></li>
             % for i in range(last-5, last+1):
             ${link_page(view, i, curr, **kwargs)}
             % endfor
         % else:
             <% kwargs['_query']['page'] = 1 %>
-            <a class="pagination" href="${request.route_url(view, **kwargs)}" name="First Page">1</a>
+            <li><a  href="${request.route_url(view, **kwargs)}" name="First Page">1</a></li>
 
-            <span class="pagination">...</span>
+            <li><span >...</span></li>
             % for i in range(curr-2, curr+3):
             ${link_page(view, i, curr, **kwargs)}
             % endfor
-            <span class="pagination">...</span>
+            <li><span >...</span></li>
             <% kwargs['_query']['page'] = last %>
-            <a class="pagination" href="${request.route_url(view, **kwargs)}" name="Last Page">${last}</a>
+            <li><a  href="${request.route_url(view, **kwargs)}" name="Last Page">${last}</a></li>
 
         % endif
     % endif
 
     % if curr != last:
             <% kwargs['_query']['page'] = curr+1 %>
-        <a class="pagination" href="${request.route_url(view, **kwargs)}" name="Next Page">next</a>
+        <li><a  href="${request.route_url(view, **kwargs)}" name="Next Page"><i class="glyphicon glyphicon-arrow-right"></i></a></li>
     % endif
+</ul>
+</div> <!-- end span12 -->
+</div> <!-- end row -->
 % endif
 </%def>
 
 <%def name="link_page(view, page_num, curr_page, **kwargs)">
 % if page_num == curr_page:
-<span class="pagination" style="color:#d95b00;">${page_num}</span>
+<li><span  style="color:#d95b00;">${page_num}</span></li>
 % else:
     <% kwargs['_query']['page'] = page_num %>
-    <a class="pagination" href="${request.route_url(view, **kwargs)}" name="Go to page ${page_num}">${page_num}</a>
+    <li><a  href="${request.route_url(view, **kwargs)}" name="Go to page ${page_num}">${page_num}</a></li>
 % endif
 </%def>

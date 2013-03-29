@@ -239,6 +239,17 @@ table td {
   float: left;
 }
 
+/* Navigation links */
+.pagination > li > a, .pagination > li > span {
+    background-color: #111111;
+    border-color: rgb(49, 49, 49);
+    color: rgb(121, 121, 121);
+}
+.pagination>li>a:hover, .pagination>li>a:focus, .pagination>.active>a, .pagination>.active>span{
+    background-color: rgb(43, 34, 34);
+}
+
+
 /* Desktop-specific stuff */
 @media (min-width: 768px) {
     .navbar-form {
