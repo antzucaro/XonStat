@@ -279,9 +279,9 @@ Player Information
 
 % if 'nex' in recent_weapons or 'rifle' in recent_weapons or 'minstanex' in recent_weapons or 'uzi' in recent_weapons or 'shotgun' in recent_weapons:
 <div class="row">
-  <div class="span10">
+  <div class="span12">
     <h3>Accuracy</h3>
-    <div id="acc-graph" class="flot" style="width:900px; height:200px;">
+    <div id="acc-graph" class="flot" style="width:100%; height:200px;">
     </div>
 
     <div class="weapon-nav accuracy-nav">
@@ -345,9 +345,9 @@ Player Information
 
 % if 'rocketlauncher' in recent_weapons or 'grenadelauncher' in recent_weapons or 'electro' in recent_weapons or 'crylink' in recent_weapons or 'laser' in recent_weapons:
 <div class="row">
-  <div class="span10">
+  <div class="span12">
     <h3>Damage Efficiency</h3>
-    <div id="dmg-graph" class="flot" style="width:900px; height:200px;">
+    <div id="dmg-graph" class="flot" style="width:100%; height:200px;">
     </div>
 
     <div class="weapon-nav damage-nav">
