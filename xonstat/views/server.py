@@ -1,10 +1,8 @@
 import logging
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
-import time
 from datetime import datetime, timedelta
-from sqlalchemy import desc
-from webhelpers.paginate import Page, PageURL
+from webhelpers.paginate import Page
 from xonstat.models import *
 from xonstat.util import page_url, html_colors
 from xonstat.views.helpers import RecentGame, recent_games_q
@@ -21,9 +19,9 @@ def _server_index_data(request):
         server_q = DBSession.query(Server).\
                 order_by(Server.server_id.desc())
 
-        servers = Page(server_q, current_page, items_per_page=10, url=page_url)
+        servers = Page(server_q, current_page, items_per_page=25, url=page_url)
 
-        
+
     except Exception as e:
         servers = None
 
@@ -47,7 +45,7 @@ def server_index_json(request):
 def _server_info_data(request):
     server_id = request.matchdict['id']
 
-    try: 
+    try:
         leaderboard_lifetime = int(
                 request.registry.settings['xonstat.leaderboard_lifetime'])
     except:
@@ -60,24 +58,24 @@ def _server_info_data(request):
         server = DBSession.query(Server).filter_by(server_id=server_id).one()
 
         # top maps by total times played
-        top_maps = DBSession.query(Game.map_id, Map.name, 
+        top_maps = DBSession.query(Game.map_id, Map.name,
                 func.count()).\
                 filter(Map.map_id==Game.map_id).\
                 filter(Game.server_id==server.server_id).\
-                filter(Game.create_dt > 
+                filter(Game.create_dt >
                     (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.count())).\
                 group_by(Game.map_id).\
                 group_by(Map.name).all()[0:leaderboard_count]
 
         # top players by score
-        top_scorers = DBSession.query(Player.player_id, Player.nick, 
+        top_scorers = DBSession.query(Player.player_id, Player.nick,
                 func.sum(PlayerGameStat.score)).\
                 filter(Player.player_id == PlayerGameStat.player_id).\
                 filter(Game.game_id == PlayerGameStat.game_id).\
                 filter(Game.server_id == server.server_id).\
                 filter(Player.player_id > 2).\
-                filter(PlayerGameStat.create_dt > 
+                filter(PlayerGameStat.create_dt >
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.score))).\
                 group_by(Player.nick).\
@@ -87,13 +85,13 @@ def _server_info_data(request):
                 for (player_id, nick, score) in top_scorers]
 
         # top players by playing time
-        top_players = DBSession.query(Player.player_id, Player.nick, 
+        top_players = DBSession.query(Player.player_id, Player.nick,
                 func.sum(PlayerGameStat.alivetime)).\
                 filter(Player.player_id == PlayerGameStat.player_id).\
                 filter(Game.game_id == PlayerGameStat.game_id).\
                 filter(Game.server_id == server.server_id).\
                 filter(Player.player_id > 2).\
-                filter(PlayerGameStat.create_dt > 
+                filter(PlayerGameStat.create_dt >
                         (datetime.utcnow() - timedelta(days=leaderboard_lifetime))).\
                 order_by(expr.desc(func.sum(PlayerGameStat.alivetime))).\
                 group_by(Player.nick).\
