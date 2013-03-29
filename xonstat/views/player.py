@@ -1,18 +1,13 @@
 import datetime
-import json
 import logging
 import pyramid.httpexceptions
-import re
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
-import time
 from calendar import timegm
 from collections import namedtuple
-from pyramid.url import current_route_url
-from sqlalchemy import desc, distinct
-from webhelpers.paginate import Page, PageURL
+from webhelpers.paginate import Page
 from xonstat.models import *
-from xonstat.util import page_url, to_json, pretty_date, datetime_seconds, html_colors
+from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
 from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
@@ -31,7 +26,7 @@ def player_index_data(request):
                 filter(sa.not_(Player.nick.like('Anonymous Player%'))).\
                 order_by(Player.player_id.desc())
 
-        players = Page(player_q, current_page, items_per_page=10, url=page_url)
+        players = Page(player_q, current_page, items_per_page=25, url=page_url)
 
     except Exception as e:
         players = None
@@ -184,7 +179,6 @@ def get_overall_stats(player_id):
 
     # to be indexed by game_type_cd
     overall_stats = {}
-    raw_overall = None
 
     for row in raw_stats:
         # individual gametype ratio calculations
