@@ -346,7 +346,7 @@ def get_ranks(player_id):
     for row in raw_ranks:
         rank = Rank(rank=row.rank,
             max_rank=row.max_rank,
-            percentile=100 - 100*float(row.rank)/row.max_rank,
+            percentile=100 - 100*float(row.rank-1)/(row.max_rank-1),
             game_type_cd=row.game_type_cd)
 
 
