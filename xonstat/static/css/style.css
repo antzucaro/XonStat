@@ -3525,6 +3525,8 @@ header h2 { display:none; }
 
 .table .tdcenter { text-align: center; }
 
+.game-stats { line-height: 1.5em; height: 9em; }
+
 /* Game Info and Game Index*/
 .game-detail img {
   float: left;
