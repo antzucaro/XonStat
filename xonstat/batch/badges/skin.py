@@ -298,7 +298,7 @@ class Skin:
         space_w -= tw
 
         # this hilarious code should determine the spacing between characters
-        sep_w = 0.25*space_w
+        sep_w = 0.2*space_w
         if sep_w <= 0:
             sep_w = 1
 
@@ -341,14 +341,14 @@ class Skin:
             ctx.show_text(txt.encode("utf-8"))
 
             tw += (len(txt)-len(txt.strip())) * space_w  # account for lost whitespaces
-            xoffset += tw + sep_w
+            xoffset += int(tw + sep_w)
 
         ## print elos and ranks
 
         xoffset, yoffset = 0, 0
         count = 0
         for gt in game_types[:self.num_gametypes]:
-            if not elos.has_key(gt) or not ranks.has_key(gt):
+            if not elos.has_key(gt):
                 continue
             count += 1
             
@@ -365,7 +365,7 @@ class Skin:
 
             # show a number gametypes the player has participated in
             for gt in game_types[:self.num_gametypes]:
-                if not elos.has_key(gt) or not ranks.has_key(gt):
+                if not elos.has_key(gt):  # should not happen
                     continue
 
                 offset = (xoffset, yoffset)
@@ -382,7 +382,10 @@ class Skin:
                     self.set_font(self.elo_fontsize, self.elo_color)
                     self.show_text(txt, self.elo_pos, self.elo_align, offset=offset)
                 if  self.rank_pos:
-                    txt = self.rank_text % ranks[gt]
+                    if ranks.has_key(gt):
+                        txt = self.rank_text % ranks[gt]
+                    else:
+                        txt = "(preliminary)"
                     self.set_font(self.rank_fontsize, self.rank_color)
                     self.show_text(txt, self.rank_pos, self.rank_align, offset=offset)
 
