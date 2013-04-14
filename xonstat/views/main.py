@@ -185,7 +185,7 @@ def _main_index_data(request):
 
     # the three top ranks tables
     ranks = []
-    for gtc in ['duel', 'ctf', 'dm']:
+    for gtc in ['duel', 'ctf', 'dm', 'tdm']:
         rank = get_ranks(gtc)
         if len(rank) != 0:
             ranks.append(rank)
