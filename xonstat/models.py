@@ -10,7 +10,7 @@ from sqlalchemy.orm import mapper
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from xonstat.util import strip_colors, html_colors, pretty_date
+from xonstat.util import qfont_decode, strip_colors, html_colors, pretty_date
 
 log = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class Player(object):
         return {'player_id':self.player_id, 'nick':self.nick,
             'joined':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
             'active_ind':self.active_ind, 'location':self.location,
-            'stripped_nick':self.stripped_nick}
+            'stripped_nick':qfont_decode(self.stripped_nick)}
 
     def epoch(self):
         return timegm(self.create_dt.timetuple())
@@ -206,10 +206,10 @@ class Hashkey(object):
 
 class PlayerNick(object):
     def __repr__(self):
-        return "<PlayerNick(%s, %s)>" % (self.player_id, self.stripped_nick)
+        return "<PlayerNick(%s, %s)>" % (self.player_id, qfont_decode(self.stripped_nick))
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'name':self.stripped_nick}
+        return {'player_id':self.player_id, 'name':qfont_decode(self.stripped_nick)}
 
 
 class PlayerElo(object):
