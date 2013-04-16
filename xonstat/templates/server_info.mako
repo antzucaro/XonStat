@@ -59,6 +59,7 @@ Server Information
         % endfor
         </tbody>
       </table>
+      <p class="note">*Most active stats are from the past 7 days</p>
   </div> <!-- /span4 -->
 
 
