@@ -12,11 +12,13 @@ Recent Games
 
 % if not games:
 <h2>Sorry, no games yet. Get playing!</h2>
+<p><a href="${player_url}">Back to player info page</a></p>
 
 % else:
 <div class="row">
   <div class="span12">
     <h3>Recent Games by ${player.nick_html_colors()|n}</h3>
+    <p><a href="${player_url}">Back to player info page</a></p>
   </div>
 </div>
 <div class="row">
