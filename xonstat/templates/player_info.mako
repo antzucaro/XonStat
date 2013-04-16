@@ -200,7 +200,7 @@ Player Information
 
 <div class="row">
   <div id="gbtabcontainer" class="tabbable tabs-below">
-    <div class="tab-content game-stats">
+    <div class="tab-content">
       % for g in games_played:
       <div class="tab-pane fade in 
         % if g.game_type_cd == 'overall':
