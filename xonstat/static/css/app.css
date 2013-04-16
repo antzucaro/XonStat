@@ -239,6 +239,12 @@ table td {
   float: left;
 }
 
+.player-nick {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Navigation links */
 .pagination > li > a, .pagination > li > span {
     background-color: #111111;

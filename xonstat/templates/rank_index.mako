@@ -29,7 +29,7 @@ Capture The Flag Rank Index
       % for rank in ranks:
       <tr>
         <td>${rank.rank}</td>
-        <td><a href="${request.route_url("player_info", id=rank.player_id)}" title="Go to this player's info page">${rank.nick_html_colors()|n}</a></th>
+        <td class="player-nick"><a href="${request.route_url("player_info", id=rank.player_id)}" title="Go to this player's info page">${rank.nick_html_colors()|n}</a></th>
         <td>${round(rank.elo, 3)}</th>
       </tr>
       <% i += 1 %>

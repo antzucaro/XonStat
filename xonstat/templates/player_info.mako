@@ -282,7 +282,7 @@ Player Information
 <div class="row">
   <div class="span12">
     <h3>Accuracy</h3>
-    <div id="acc-graph" class="flot" style="width:100%; height:200px;">
+    <div id="acc-graph" class="flot" style="width:95%; height:200px;">
     </div>
 
     <div class="weapon-nav accuracy-nav">
@@ -348,7 +348,7 @@ Player Information
 <div class="row">
   <div class="span12">
     <h3>Damage Efficiency</h3>
-    <div id="dmg-graph" class="flot" style="width:100%; height:200px;">
+    <div id="dmg-graph" class="flot" style="width:95%; height:200px;">
     </div>
 
     <div class="weapon-nav damage-nav">

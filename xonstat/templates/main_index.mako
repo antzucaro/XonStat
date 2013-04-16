@@ -56,7 +56,7 @@ Leaderboard
         % for r in rs:
         <tr>
           <td>${i}</td>
-          <td><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
+          <td class="player-nick" style="max-width: 16em;"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
           <td>${round(r.elo, 3)}</td>
         </tr>
         <% i = i+1 %>
@@ -90,7 +90,7 @@ Leaderboard
         <tr>
           <td>${i}</td>
           % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
+          <td class="player-nick"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
           % else:
           <td>${nick|n}</td>
           % endif
@@ -189,7 +189,7 @@ Leaderboard
           <td><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
           <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
-          <td>
+          <td class="player-nick">
             % if rg.player_id > 2:
             <a href="${request.route_url('player_info', id=rg.player_id)}" title="Go to the player info page for this player">${rg.nick_html_colors|n}</a></td>
             % else:

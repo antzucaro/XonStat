@@ -3543,3 +3543,8 @@ header h2 { display:none; }
   float: left;
 }
 
+.player-nick {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
