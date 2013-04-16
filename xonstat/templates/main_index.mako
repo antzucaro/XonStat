@@ -21,7 +21,7 @@ Leaderboard
 </%block>
 
 ##### RANKS #####
-% if len(ranks) < 3:
+% if len(ranks) < 4:
   <div class="row">
     <div class="span12">
       <p style="text-align: center;"><i class="icon-white icon-info-sign"> </i> You don't seem to have any ranks yet.</p>
@@ -30,15 +30,17 @@ Leaderboard
 
 % else:
   <div class="row">
-    % for rs in ranks[:3]:
+    % for rs in ranks[:4]:
     % if len(rs) > 0:
-    <div class="span4">
+    <div class="span3">
       % if rs[0].game_type_cd == 'duel':
       <h3>Duel Ranks</h3>
       % elif rs[0].game_type_cd == 'ctf':
       <h3>CTF Ranks</h3>
       % elif rs[0].game_type_cd == 'dm':
       <h3>DM Ranks</h3>
+      % elif rs[0].game_type_cd == 'tdm':
+      <h3>TDM Ranks</h3>
       % endif
 
       <table class="table table-hover table-condensed">
