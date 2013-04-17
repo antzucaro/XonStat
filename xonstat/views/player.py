@@ -618,10 +618,14 @@ def player_game_index_data(request):
 
         # replace the items in the canned pagination class with more rich ones
         games.items = [RecentGame(row) for row in games.items]
+        
+        games_played = get_games_played(player_id)
 
     except Exception as e:
         player = None
         games = None
+        game_type_cd = None
+        games_played = None
 
     return {
             'player_id':player.player_id,
@@ -629,6 +633,7 @@ def player_game_index_data(request):
             'player':player,
             'games':games,
             'game_type_cd':game_type_cd,
+            'games_played':games_played,
            }
 
 

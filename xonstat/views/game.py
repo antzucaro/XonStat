@@ -22,24 +22,31 @@ def _game_index_data(request):
         current_page = request.params['page']
     else:
         current_page = 1
+    
+    try:
+        rgs_q = recent_games_q(game_type_cd=game_type_cd)
+
+        games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
+
+        # replace the items in the canned pagination class with more rich ones
+        games.items = [RecentGame(row) for row in games.items]
             
-    rgs_q = recent_games_q(game_type_cd=game_type_cd)
-
-    games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
-
-    # replace the items in the canned pagination class with more rich ones
-    games.items = [RecentGame(row) for row in games.items]
-        
-    pgstats = {}
-    for game in games.items:
-        pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
-                filter(PlayerGameStat.game_id == game.game_id).\
-                order_by(PlayerGameStat.scoreboardpos).\
-                order_by(PlayerGameStat.score).all()
+        pgstats = {}
+        for game in games.items:
+            pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
+                    filter(PlayerGameStat.game_id == game.game_id).\
+                    order_by(PlayerGameStat.scoreboardpos).\
+                    order_by(PlayerGameStat.score).all()
+                    
+    except Exception as e:
+        games = None
+        pgstats = None
+        game_type_cd = None
 
     return {'games':games,
             'pgstats':pgstats,
-            'game_type_cd':game_type_cd}
+            'game_type_cd':game_type_cd,
+            }
 
 
 def game_index(request):

@@ -2,6 +2,11 @@
 <%namespace name="nav" file="nav.mako" />
 <%namespace file="navlinks.mako" import="navlinks" />
 
+<%block name="css">
+${parent.css()}
+<link href="/static/css/sprites.css" rel="stylesheet">
+</%block>
+
 <%block name="navigation">
 ${nav.nav('games')}
 </%block>
@@ -11,7 +16,11 @@ Recent Games
 </%block>
 
 % if not games:
+  % if not game_type_cd:
 <h2>Sorry, no games yet. Get playing!</h2>
+  % else:
+<h2>Sorry, no ${game_type_cd.upper()} games yet. Get playing!</h2>
+  % endif
 <p><a href="${player_url}">Back to player info page</a></p>
 
 % else:
@@ -25,8 +34,25 @@ Recent Games
     <p><a href="${player_url}">Back to player info page</a></p>
   </div>
 </div>
+<br/>
 <div class="row">
-  <div class="span12">
+  <div class="span12 tabbable">
+    <ul class="nav nav-tabs">
+      % for game in games_played:
+      <li>
+      % if game.game_type_cd == 'overall':
+      <a href="${request.route_url("player_game_index", player_id=player.player_id)}" alt="${game.game_type_cd}" title="" data-toggle="none">
+      % else:
+      <a href="${request.route_url("player_game_index_filtered", player_id=player.player_id, game_type_cd=game.game_type_cd)}" alt="${game.game_type_cd}" title="" data-toggle="none">
+      % endif
+        <span class="sprite sprite-${game.game_type_cd}"> </span><br />
+        ${game.game_type_cd} <br />
+      </a>
+      </li>
+      % endfor
+    </ul>
+  </div>
+  <div class="span12 tab-content" style="margin-top:10px;">
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -83,6 +109,7 @@ Recent Games
     </table>
   </div>
 </div>
+
 
 <!-- navigation links -->
 ${navlinks("player_game_index", games.page, games.last_page, player_id=player_id)}

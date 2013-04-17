@@ -266,7 +266,7 @@ Player Information
     <ul id="gbtab" class="nav nav-tabs">
       % for g in games_played:
       <li>
-      <a href="#tab-${g.game_type_cd}" data-toggle="tab">
+      <a href="#tab-${g.game_type_cd}" data-toggle="tab" alt="${g.game_type_cd}" title="">
         <span class="sprite sprite-${g.game_type_cd}"> </span><br />
         ${g.game_type_cd} <br />
         <small>(${g.games})</small>
