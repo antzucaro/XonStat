@@ -17,7 +17,11 @@ Recent Games
 % else:
 <div class="row">
   <div class="span12">
+    % if not game_type_cd:
     <h3>Recent Games by ${player.nick_html_colors()|n}</h3>
+    % else:
+    <h3>Recent ${game_type_cd.upper()} Games by ${player.nick_html_colors()|n}</h3>
+    % endif
     <p><a href="${player_url}">Back to player info page</a></p>
   </div>
 </div>

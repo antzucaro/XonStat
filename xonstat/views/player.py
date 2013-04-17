@@ -596,6 +596,10 @@ def player_info_json(request):
 
 def player_game_index_data(request):
     player_id = request.matchdict['player_id']
+    try:
+        game_type_cd  = request.matchdict['game_type_cd']
+    except:
+        game_type_cd  = None
 
     if request.params.has_key('page'):
         current_page = request.params['page']
@@ -603,10 +607,12 @@ def player_game_index_data(request):
         current_page = 1
 
     try:
-        player = DBSession.query(Player).filter_by(player_id=player_id).\
-                filter(Player.active_ind == True).one()
+        player = DBSession.query(Player).\
+                filter_by(player_id=player_id).\
+                filter(Player.active_ind == True).\
+                one()
 
-        rgs_q = recent_games_q(player_id=player.player_id)
+        rgs_q = recent_games_q(player_id=player.player_id, game_type_cd=game_type_cd)
 
         games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
 
@@ -619,8 +625,10 @@ def player_game_index_data(request):
 
     return {
             'player_id':player.player_id,
+            'player_url':request.route_url('player_info', id=player_id),
             'player':player,
             'games':games,
+            'game_type_cd':game_type_cd,
            }
 
 
@@ -640,7 +648,6 @@ def player_game_index_json(request):
     the most recent game_ids first. Paginated. JSON.
     """
     return [{'status':'not implemented'}]
-
 
 def player_accuracy_data(request):
     player_id = request.matchdict['id']

@@ -41,6 +41,11 @@ def main(global_config, **settings):
     config.add_view(player_game_index,      route_name="player_game_index",      renderer="player_game_index.mako")
     config.add_view(player_game_index_json, route_name="player_game_index_json", renderer="jsonp")
 
+    config.add_route("player_game_index_filtered",      "/player/{player_id:\d+}/games/{game_type_cd:\w+}")
+    config.add_route("player_game_index_filtered_json", "/player/{player_id:\d+}/games/{game_type_cd:\w+}.json")
+    config.add_view(player_game_index,      route_name="player_game_index_filtered",      renderer="player_game_index.mako")
+    config.add_view(player_game_index_json, route_name="player_game_index_filtered_json", renderer="jsonp")
+
     config.add_route("player_info",      "/player/{id:\d+}")
     config.add_route("player_info_json", "/player/{id:\d+}.json")
     config.add_view(player_info,      route_name="player_info",      renderer="player_info.mako")
