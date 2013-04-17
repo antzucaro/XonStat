@@ -30,7 +30,7 @@ Capture The Flag Rank Index
       <tr>
         <td>${rank.rank}</td>
         <td><a href="${request.route_url("player_info", id=rank.player_id)}" title="Go to this player's info page">${rank.nick_html_colors()|n}</a></th>
-        <td>${round(rank.elo, 3)}</th>
+        <td>${int(round(rank.elo))}</th>
       </tr>
       <% i += 1 %>
       % endfor
