@@ -5,14 +5,15 @@
 Player captimes
 </%block>
 
+% if len(captimes) == 0:
+  <h2>Sorry, no caps yet. Get playing!</h2>
+% else:
+
 <div class="row">
   <div class="span12">
-
-    <h2><span class="nick">${player.nick_html_colors()|n}</span></h2>
+    <h3>Fastest Flag Captures by ${player.nick_html_colors()|n}</h3>
     <p><a href="${player_url}">Back to player info page</a></p>
-
-    <h3>Fastest flag capture times:</h3>
-
+ 
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -37,3 +38,5 @@ Player captimes
 
   </div>
 </div>
+
+% endif

@@ -220,6 +220,15 @@ Player Information
           % if g.game_type_cd in fav_maps:
           Favorite Map: <small>${fav_maps[g.game_type_cd].map_name} <br /></small>
           % endif
+          
+          % if g.game_type_cd == 'ctf':
+          % if overall_stats[g.game_type_cd].total_captures is not None:
+          <small><a href="${request.route_url("player_captimes", id=player.player_id)}">Fastest flag captures...</a></small>
+          % endif
+          % else:
+          <small><br /></small>
+          % endif
+          
           </p>
         </div>
         <div class="span5">
@@ -253,6 +262,8 @@ Player Information
           % if  overall_stats[g.game_type_cd].cap_ratio is not None:
           Cap Ratio: <small>${round(overall_stats[g.game_type_cd].cap_ratio,2)} (${overall_stats[g.game_type_cd].total_captures} captures, ${overall_stats[g.game_type_cd].total_pickups} pickups) <br /></small>
           % endif
+          % else:
+          <small><br /></small>
           % endif
           </p>
         </div>
