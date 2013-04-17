@@ -13,28 +13,33 @@ log = logging.getLogger(__name__)
 
 
 def _game_index_data(request):
+    if request.matchdict.has_key('game_type_cd'):
+        game_type_cd  = request.matchdict['game_type_cd']
+    else:
+        game_type_cd  = None
+
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
         current_page = 1
+            
+    rgs_q = recent_games_q(game_type_cd=game_type_cd)
 
-    games_q = DBSession.query(Game, Server, Map, GameType).\
-            filter(Game.server_id == Server.server_id).\
-            filter(Game.map_id == Map.map_id).\
-            filter(Game.game_type_cd == GameType.game_type_cd).\
-            order_by(Game.game_id.desc())
+    games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
 
-    games = Page(games_q, current_page, items_per_page=10, url=page_url)
-
+    # replace the items in the canned pagination class with more rich ones
+    games.items = [RecentGame(row) for row in games.items]
+        
     pgstats = {}
-    for (game, server, map, gametype) in games:
+    for game in games.items:
         pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
                 filter(PlayerGameStat.game_id == game.game_id).\
                 order_by(PlayerGameStat.scoreboardpos).\
                 order_by(PlayerGameStat.score).all()
 
     return {'games':games,
-            'pgstats':pgstats}
+            'pgstats':pgstats,
+            'game_type_cd':game_type_cd}
 
 
 def game_index(request):

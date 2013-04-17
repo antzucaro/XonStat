@@ -17,13 +17,17 @@ Game Index
 % else:
 <div class="row">
   <div class="span10 offset1">
+    % if not game_type_cd:
     <h2>Recent Games</h2>
-    % for (game, server, map, gametype) in games:
+    % else:
+    <h2>Recent ${game_type_cd.upper()} Games</h2>
+    % endif
+    % for rg in games.items:
     <div class="game">
-      <img src="/static/images/icons/48x48/${game.game_type_cd}.png" width="30" height="30" alt="${game.game_type_cd}" title="${gametype.descr}"/>
-      <h4><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a> on <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a> <span class="permalink">(<a href="${request.route_url('game_info', id=game.game_id)}" name="Permalink for game #${game.game_id}">permalink</a>)</span></h4>
+      <img src="/static/images/icons/48x48/${rg.game_type_cd}.png" width="30" height="30" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"/>
+      <h4><a href="${request.route_url("map_info", id=rg.map_id)}" name="Map info page for ${rg.map_name}">${rg.map_name}</a> on <a href="${request.route_url("server_info", id=rg.server_id)}" name="Server info page for ${rg.server_name}">${rg.server_name}</a> <span class="permalink">(<a href="${request.route_url('game_info', id=rg.game_id)}" name="Permalink for game #${rg.game_id}">permalink</a>)</span></h4>
       <span class="clear"></span>
-      ${scoreboard(game.game_type_cd, pgstats[game.game_id])}
+      ${scoreboard(rg.game_type_cd, pgstats[rg.game_id])}
     </div>
     % endfor
   </div>

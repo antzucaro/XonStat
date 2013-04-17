@@ -596,9 +596,9 @@ def player_info_json(request):
 
 def player_game_index_data(request):
     player_id = request.matchdict['player_id']
-    try:
+    if request.matchdict.has_key('game_type_cd'):
         game_type_cd  = request.matchdict['game_type_cd']
-    except:
+    else:
         game_type_cd  = None
 
     if request.params.has_key('page'):
@@ -648,6 +648,7 @@ def player_game_index_json(request):
     the most recent game_ids first. Paginated. JSON.
     """
     return [{'status':'not implemented'}]
+
 
 def player_accuracy_data(request):
     player_id = request.matchdict['id']
