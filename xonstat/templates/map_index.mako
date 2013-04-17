@@ -26,12 +26,18 @@ Map Index
         <th style="width:70px;">ID</th>
         <th>Name</th>
         <th>Added</th>
+        <th></th>
       </tr>
     % for map in maps:
       <tr>
         <td>${map.map_id}</td>
         <td><a href="${request.route_url("map_info", id=map.map_id)}" title="Go to this map's info page">${map.name}</a></th>
         <td><span class="abstime" data-epoch="${map.epoch()}" title="${map.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${map.fuzzy_date()}</span></td>
+         <td class="tdcenter">
+          <a href="${request.route_url("game_finder", _query={'map_id':map.map_id})}" title="View recent games on this map">
+            <i class="glyphicon glyphicon-list"></i>
+          </a>
+        </td>
     </td>
       </tr>
     % endfor

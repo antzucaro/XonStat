@@ -26,12 +26,18 @@ Player Index
         <th style="width:100px;">Player ID</th>
         <th>Nick</th>
         <th class="create-dt">Joined</th>
+        <th></th>
       </tr>
     % for player in players:
       <tr>
         <td>${player.player_id}</th>
         <td><a href="${request.route_url("player_info", id=player.player_id)}" title="Go to this player's info page">${player.nick_html_colors()|n}</a></th>
         <td><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${player.joined_pretty_date()}</span></th>
+        <td class="tdcenter">
+          <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="View recent games by this player">
+            <i class="glyphicon glyphicon-list"></i>
+          </a>
+        </td>
       </tr>
     % endfor
     </table>
