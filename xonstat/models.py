@@ -19,11 +19,11 @@ Base = declarative_base()
 
 # define objects for all tables
 class Player(object):
-    def nick_html_colors(self):
+    def nick_html_colors(self, limit=None):
         if self.nick is None:
             return "Anonymous Player"
         else:
-            return html_colors(self.nick)
+            return html_colors(self.nick, limit)
 
     def nick_strip_colors(self):
         if self.nick is None:
@@ -102,7 +102,7 @@ class Map(object):
 
 
 class Game(object):
-    def __init__(self, game_id=None, start_dt=None, game_type_cd=None, 
+    def __init__(self, game_id=None, start_dt=None, game_type_cd=None,
             server_id=None, map_id=None, winner=None):
         self.game_id = game_id
         self.start_dt = start_dt
@@ -144,11 +144,11 @@ class PlayerGameStat(object):
         else:
             return strip_colors(self.nick)
 
-    def nick_html_colors(self):
+    def nick_html_colors(self, limit=None):
         if self.nick is None:
             return "Anonymous Player"
         else:
-            return html_colors(self.nick)
+            return html_colors(self.nick, limit)
 
     def team_html_color(self):
         if self.team == 5:
@@ -230,11 +230,11 @@ class PlayerElo(object):
 
 class PlayerRank(object):
 
-    def nick_html_colors(self):
+    def nick_html_colors(self, limit=None):
         if self.nick is None:
             return "Anonymous Player"
         else:
-            return html_colors(self.nick)
+            return html_colors(self.nick, limit)
 
     def __repr__(self):
         return "<PlayerRank(pid=%s, gametype=%s, rank=%s)>" % (self.player_id, self.game_type_cd, self.rank)
