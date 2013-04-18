@@ -23,7 +23,7 @@ _qfont_table = [
  'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
  'x',  'y',  'z',  '{',  '|',  '}',  '~',  '<',
- 
+
  '<',  '=',  '>',  '#',  '#',  '.',  '#',  '#',
  '#',  '#',  ' ',  '#',  ' ',  '>',  '.',  '.',
  '[',  ']',  '0',  '1',  '2',  '3',  '4',  '5',
@@ -103,11 +103,35 @@ def hex_repl(match):
     return '<span style="color:rgb(%d,%d,%d)">' % (255 * r, 255 * g, 255 * b)
 
 
-def html_colors(qstr=''):
-    qstr = html_escape(qfont_decode(qstr).replace('^^', '^'))
+def html_colors(qstr='', limit=None):
+    qstr = html_escape(qfont_decode(qstr))
+    qstr = qstr.replace('^^', '^')
+
+    if limit is not None and limit > 0:
+        qstr = limit_printable_characters(qstr, limit)
+
     html = _dec_colors.sub(lambda match: _dec_spans[int(match.group(1))], qstr)
     html = _hex_colors.sub(hex_repl, html)
     return html + "</span>" * len(_all_colors.findall(qstr))
+
+
+def limit_printable_characters(qstr, limit):
+    # initialize assuming all printable characters
+    pc = [1 for i in range(len(qstr))]
+
+    groups = _all_colors.finditer(qstr)
+    for g in groups:
+        pc[g.start():g.end()] = [0 for i in range(g.end() - g.start())]
+
+    # printable characters in the string is less than or equal to what was requested
+    if limit >= len(qstr) or sum(pc) <= limit:
+        return qstr
+    else:
+        sumpc = 0
+        for i,v in enumerate(pc):
+            sumpc += v
+            if sumpc == limit:
+                return qstr[0:i+1]
 
 
 def page_url(page):

@@ -292,6 +292,10 @@ table td {
   white-space: nowrap;
 }
 
+.eloup { color: green; }
+.elodown { color: rgb(190,0,0); }
+.eloneutral { color: gray; }
+
 /* Navigation links */
 .pagination > li > a, .pagination > li > span {
     background-color: #111111;

@@ -56,7 +56,7 @@ Leaderboard
         % for r in rs:
         <tr>
           <td>${i}</td>
-          <td class="player-nick" style="max-width: 16em;"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
+          <td class="player-nick"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
           <td>${round(r.elo, 3)}</td>
         </tr>
         <% i = i+1 %>
