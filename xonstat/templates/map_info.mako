@@ -33,9 +33,9 @@ ${parent.title()}
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Nick</th>
-          <th>Score</th>
+          <th style="width:40px;">#</th>
+          <th style="width:150px;">Nick</th>
+          <th style="width:90px;">Score</th>
         </tr>
       </thead>
       <tbody>
@@ -44,9 +44,9 @@ ${parent.title()}
         <tr>
           <td>${i}</td>
           % if score_player_id != '-':
-          <td><a href="${request.route_url('player_info', id=score_player_id)}" title="Go to the player info page for this player">${score_nick|n}</a></td>
+          <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=score_player_id)}" title="Go to the player info page for this player">${score_nick|n}</a></td>
           % else:
-          <td>${score_nick}</td>
+          <td class="nostretch" style="max-width:150px;">${score_nick}</td>
           % endif
           <td>${score_value}</td>
         </tr>
@@ -54,7 +54,6 @@ ${parent.title()}
         % endfor
         </tbody>
     </table>
-    <p class="note">*Most active stats are from the past 7 days</p>
   </div>
 
 
@@ -63,9 +62,9 @@ ${parent.title()}
   <table class="table table-hover table-condensed">
     <thead>
       <tr>
-        <th>#</th>
-        <th>Nick</th>
-        <th>Playing Time</th>
+        <th style="width:40px;">#</th>
+        <th style="width:150px;">Nick</th>
+        <th style="width:90px;">Playing Time</th>
       </tr>
     </thead>
     <tbody>
@@ -74,9 +73,9 @@ ${parent.title()}
       <tr>
         <td>${i}</td>
         % if player_id != '-':
-        <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
+        <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
         % else:
-        <td>${nick}</td>
+        <td class="nostretch" style="max-width:150px;">${nick}</td>
         % endif
         <td>${alivetime}</td>
       </tr>
@@ -92,9 +91,9 @@ ${parent.title()}
   <table class="table table-hover table-condensed">
     <thead>
       <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Times Played</th>
+        <th style="width:40px;">#</th>
+        <th style="width:150px;">Name</th>
+        <th style="width:90px;"># Games</th>
       </tr>
     </thead>
     <tbody>
@@ -102,7 +101,7 @@ ${parent.title()}
     % for (server_id, name, times_played) in top_servers:
       <tr>
         <td>${i}</td>
-        <td><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for this server">${name}</a></td>
+        <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for this server">${name}</a></td>
         <td>${times_played}</td>
       </tr>
       <% i = i+1 %>
@@ -111,6 +110,12 @@ ${parent.title()}
 </table>
 </div>
 </div> <!-- /row -->
+
+<div class="row">
+  <div class="span12">
+    <p class="note">*Most active stats are from the past 7 days</p>
+  </div>
+</div>
 
 % if len(captimes) > 0:
 <div class="row">
