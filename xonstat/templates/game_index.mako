@@ -34,10 +34,11 @@ Game Index
   </div>
 </div>
 <div class="row">
-  <div class="span12 tabbable">
+  <div class="span12 btn-toolbar">
     <ul class="nav nav-tabs">
-      % for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
       ##% for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
+      ##% for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
+      % for gt in ('overall','duel','ctf','dm','tdm'):
       <li>
       % if gt == 'overall':
       <a href="${request.route_url("game_index")}" alt="${gt}" title="" data-toggle="none">
@@ -49,6 +50,24 @@ Game Index
       </a>
       </li>
       % endfor
+      <li>
+        <div class="btn-group nav">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            <span class="caret"> </span><br/>
+            more...
+          </a>
+          <ul class="dropdown-menu nav-tabs">
+            % for gt in ('ca','kh','ft','lms','as','dom','nb','cts','rc'):
+            <li>
+            <a href="${request.route_url("game_index_filtered", game_type_cd=gt)}" alt="${gt}" title="" data-toggle="none">
+              <span class="sprite sprite-${gt}"> </span><br/>
+              ${gt}
+            </a>
+            </li>
+            % endfor
+          </ul>
+        </div>
+      </li>
     </ul>
   </div>
   <div class="span12 offset1 tab-content">
