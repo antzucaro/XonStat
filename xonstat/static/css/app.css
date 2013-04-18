@@ -286,7 +286,7 @@ table td {
 }
 
 /* Player nicknames */
-.player-nick {
+.nostretch {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

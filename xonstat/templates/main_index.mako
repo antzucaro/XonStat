@@ -46,9 +46,9 @@ Leaderboard
       <table class="table table-hover table-condensed">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Nick</th>
-            <th>Elo</th>
+            <th style="width:40px;">#</th>
+            <th style="width:120px;">Nick</th>
+            <th style="width:60px;">Elo</th>
           </tr>
         </thead>
         <tbody>
@@ -56,8 +56,8 @@ Leaderboard
         % for r in rs:
         <tr>
           <td>${i}</td>
-          <td class="player-nick"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
-          <td>${round(r.elo, 3)}</td>
+          <td class="nostretch" style="max-width:120px;"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
+          <td>${int(round(r.elo))}</td>
         </tr>
         <% i = i+1 %>
         % endfor
@@ -79,9 +79,9 @@ Leaderboard
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Nick</th>
-          <th class="play-time">Play Time</th>
+          <th style="width:40px;">#</th>
+          <th style="width:150px;">Nick</th>
+          <th class="play-time" style="width:90px;">Play Time</th>
         </tr>
       </thead>
       <tbody>
@@ -90,9 +90,9 @@ Leaderboard
         <tr>
           <td>${i}</td>
           % if player_id != '-':
-          <td class="player-nick"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
+          <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
           % else:
-          <td>${nick|n}</td>
+          <td class="nostretch" style="max-width:150px;">${nick|n}</td>
           % endif
           <td class="play-time">${alivetime}</td>
         </tr>
@@ -100,7 +100,6 @@ Leaderboard
       % endfor
       </tbody>
     </table>
-    <p class="note">*Most active stats are from the past 7 days</p>
   </div> <!-- /span4 -->
 
 
@@ -110,9 +109,9 @@ Leaderboard
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Server</th>
-          <th>Games</th>
+          <th style="width:40px;">#</th>
+          <th style="width:180px;">Server</th>
+          <th style="width:60px;">Games</th>
         </tr>
       </thead>
       <tbody>
@@ -121,9 +120,9 @@ Leaderboard
         <tr>
           <td>${i}</td>
           % if server_id != '-':
-          <td><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
+          <td class="nostretch" style="max-width:180px;"><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
           % else:
-          <td>${name}</td>
+          <td class="nostretch" style="max-width:180px;">${name}</td>
           % endif
           <td>${count}</td>
         </tr>
@@ -140,9 +139,9 @@ Leaderboard
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Map</th>
-          <th>Games</th>
+          <th style="width:40px;">#</th>
+          <th style="width:180px;">Map</th>
+          <th style="width:60px;">Games</th>
         </tr>
       </thead>
       <tbody>
@@ -151,9 +150,9 @@ Leaderboard
         <tr>
           <td>${i}</td>
           % if map_id != '-':
-          <td><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
+          <td class="nostretch" style="max-width:180px;"><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
           % else:
-          <td>${name}</td>
+          <td class="nostretch" style="max-width:180px;">${name}</td>
           % endif
           <td>${count}</td>
         </tr>
@@ -163,6 +162,9 @@ Leaderboard
     </table>
   </div> <!-- /span4 -->
 </div> <!-- /row -->
+<row class="span12">
+    <p class="note">*Most active stats are from the past 7 days</p>
+</div>
 
 
 ##### RECENT GAMES #####
