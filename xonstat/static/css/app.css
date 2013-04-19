@@ -292,6 +292,7 @@ table td {
   white-space: nowrap;
 }
 
+/* elo colors */
 .eloup { color: green; }
 .elodown { color: rgb(190,0,0); }
 .eloneutral { color: gray; }

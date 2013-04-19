@@ -13,16 +13,23 @@ log = logging.getLogger(__name__)
 
 
 def _game_index_data(request):
-    if request.matchdict.has_key('game_type_cd'):
-        game_type_cd  = request.matchdict['game_type_cd']
-    else:
-        game_type_cd  = None
+    game_type_cd = None
+    game_type_descr = None
+
+    if request.params.has_key('game_type_cd'):
+        game_type_cd = request.params['game_type_cd']
+        try:
+            game_type_descr = DBSession.query(GameType.descr).\
+                filter(GameType.game_type_cd == game_type_cd).\
+                one()[0]
+        except Exception as e:
+            game_type_cd = None
 
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
         current_page = 1
-    
+
     try:
         rgs_q = recent_games_q(game_type_cd=game_type_cd)
 
@@ -30,22 +37,24 @@ def _game_index_data(request):
 
         # replace the items in the canned pagination class with more rich ones
         games.items = [RecentGame(row) for row in games.items]
-            
+
         pgstats = {}
         for game in games.items:
             pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
                     filter(PlayerGameStat.game_id == game.game_id).\
                     order_by(PlayerGameStat.scoreboardpos).\
                     order_by(PlayerGameStat.score).all()
-                    
+
     except Exception as e:
-        games = None
-        pgstats = None
-        game_type_cd = None
+        games           = None
+        pgstats         = None
+        game_type_cd    = None
+        game_type_descr = None
 
     return {'games':games,
             'pgstats':pgstats,
             'game_type_cd':game_type_cd,
+            'game_type_descr':game_type_descr,
             }
 
 
@@ -117,10 +126,10 @@ def _game_info_data(request):
                         pwstats[pgstat.player_game_stat_id] = []
 
                     # NOTE adding pgstat to position 6 in order to display nick.
-                    # You have to use a slice [0:5] to pass to the accuracy 
+                    # You have to use a slice [0:5] to pass to the accuracy
                     # template
-                    pwstats[pgstat.player_game_stat_id].append((weapon.descr, 
-                        weapon.weapon_cd, pwstat.actual, pwstat.max, 
+                    pwstats[pgstat.player_game_stat_id].append((weapon.descr,
+                        weapon.weapon_cd, pwstat.actual, pwstat.max,
                         pwstat.hit, pwstat.fired, pgstat))
 
     except Exception as inst:
