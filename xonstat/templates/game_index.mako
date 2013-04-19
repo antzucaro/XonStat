@@ -17,20 +17,20 @@ Game Index
 </%block>
 
 % if not games:
-  % if not game_type_cd:
-<h2>Sorry, no games yet. Get playing!</h2>
-  % else:
-<h2>Sorry, no ${game_type_cd.upper()} games yet. Get playing!</h2>
+<h2>Sorry, no 
+  % if game_type_descr:
+  ${game_type_descr}
   % endif
+  games yet. Get playing!</h2>
 
 % else:
 <div class="row">
   <div class="span12">
-    % if not game_type_cd:
-    <h2>Recent Games</h2>
-    % else:
-    <h2>Recent ${game_type_cd.upper()} Games</h2>
+    <h2>Recent 
+    % if game_type_descr:
+    ${game_type_descr}
     % endif
+      Games</h2>
   </div>
 </div>
 <div class="row">
@@ -42,7 +42,7 @@ Game Index
       % if gt == 'overall':
       <a href="${request.route_url("game_index")}" alt="${gt}" title="" data-toggle="none">
       % else:
-      <a href="${request.route_url("game_index_filtered", game_type_cd=gt)}" alt="${gt}" title="" data-toggle="none">
+      <a href="${request.route_url("game_index", _query={'game_type_cd':gt})}" alt="${gt}" title="" data-toggle="none">
       % endif
         <span class="sprite sprite-${gt}"> </span><br />
         ${gt} <br />
@@ -66,7 +66,7 @@ Game Index
 <div class="row">
   <div class="span10 offset1">
     <!-- navigation links -->
-    ${navlinks("game_index", games.page, games.last_page)}
+    ${navlinks("game_index", games.page, games.last_page, search_query=request.GET)}
   </div>
 </div>
 % endif
