@@ -596,10 +596,22 @@ def player_info_json(request):
 
 def player_game_index_data(request):
     player_id = request.matchdict['player_id']
-    if request.matchdict.has_key('game_type_cd'):
-        game_type_cd  = request.matchdict['game_type_cd']
+
+    game_type_cd = None
+    game_type_descr = None
+
+    if request.params.has_key('game_type_cd'):
+        game_type_cd = request.params['game_type_cd']
+        try:
+            game_type_descr = DBSession.query(GameType.descr).\
+                filter(GameType.game_type_cd == game_type_cd).\
+                one()[0]
+        except Exception as e:
+            pass
+
     else:
-        game_type_cd  = None
+        game_type_cd = None
+        game_type_descr = None
 
     if request.params.has_key('page'):
         current_page = request.params['page']
@@ -618,21 +630,22 @@ def player_game_index_data(request):
 
         # replace the items in the canned pagination class with more rich ones
         games.items = [RecentGame(row) for row in games.items]
-        
+
         games_played = get_games_played(player_id)
 
     except Exception as e:
         player = None
         games = None
         game_type_cd = None
+        game_type_descr = None
         games_played = None
 
     return {
             'player_id':player.player_id,
-            'player_url':request.route_url('player_info', id=player_id),
             'player':player,
             'games':games,
             'game_type_cd':game_type_cd,
+            'game_type_descr':game_type_descr,
             'games_played':games_played,
            }
 

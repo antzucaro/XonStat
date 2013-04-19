@@ -16,25 +16,30 @@ Recent Games
 </%block>
 
 % if not games:
-  % if not game_type_cd:
-<h2>Sorry, no games yet. Get playing!</h2>
-  % else:
-<h2>Sorry, no ${game_type_cd.upper()} games yet. Get playing!</h2>
-  % endif
+<h2>Sorry, no 
+    % if game_type_descr:
+    ${game_type_descr}
+    % endif
+  games yet for 
+  <a href="${request.route_url('player_info', id=player.player_id)}">${player.nick_html_colors()|n}</a>. Get playing!
+</h2>
 <p><a href="${player_url}">Back to player info page</a></p>
 
 % else:
 <div class="row">
   <div class="span12">
-    % if not game_type_cd:
-    <h3>Recent Games by ${player.nick_html_colors()|n}</h3>
-    % else:
-    <h3>Recent ${game_type_cd.upper()} Games by ${player.nick_html_colors()|n}</h3>
-    % endif
-    <p><a href="${player_url}">Back to player info page</a></p>
+    <h3>Recent 
+      % if game_type_descr:
+      ${game_type_descr}
+      % endif
+      Games by 
+      <a href="${request.route_url('player_info', id=player.player_id)}">
+        ${player.nick_html_colors()|n}
+      </a>
+    </h3>
   </div>
 </div>
-<br/>
+
 <div class="row">
   <div class="span12 tabbable">
     <ul class="nav nav-tabs">
@@ -43,7 +48,7 @@ Recent Games
       % if game.game_type_cd == 'overall':
       <a href="${request.route_url("player_game_index", player_id=player.player_id)}" alt="${game.game_type_cd}" title="" data-toggle="none">
       % else:
-      <a href="${request.route_url("player_game_index_filtered", player_id=player.player_id, game_type_cd=game.game_type_cd)}" alt="${game.game_type_cd}" title="" data-toggle="none">
+      <a href="${request.route_url("player_game_index", player_id=player.player_id, _query={'game_type_cd':game.game_type_cd})}" alt="${game.game_type_cd}" title="" data-toggle="none">
       % endif
         <span class="sprite sprite-${game.game_type_cd}"> </span><br />
         ${game.game_type_cd} <br />
@@ -92,14 +97,14 @@ Recent Games
           <a href="${request.route_url('game_info', id=rg.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
             % if rg.elo_delta is not None:
             % if round(rg.elo_delta,2) > 0:
-            <span title="Elo went up by ${round(rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-up"></i></span>
+            <span class="eloup" title="Elo went up by ${round(rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-up"></i></span>
             % elif round(rg.elo_delta,2) < 0:
-            <span title="Elo went down by ${round(-rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-down"></i></span>
+            <span class="elodown" title="Elo went down by ${round(-rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-down"></i></span>
             % else:
-            <span title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
+            <span class="eloneutral" title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
             % endif
             % else:
-            <span title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
+            <span class="eloneutral" title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
             % endif
           </a>
         </td>
@@ -112,5 +117,5 @@ Recent Games
 
 
 <!-- navigation links -->
-${navlinks("player_game_index", games.page, games.last_page, player_id=player_id)}
+${navlinks("player_game_index", games.page, games.last_page, player_id=player_id, search_query=request.GET)}
 % endif
