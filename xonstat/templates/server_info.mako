@@ -59,7 +59,6 @@ Server Information
         % endfor
         </tbody>
       </table>
-      <p class="note">*Most active stats are from the past 7 days</p>
   </div> <!-- /span4 -->
 
 
@@ -121,7 +120,11 @@ Server Information
   </div> <!-- /span4 -->
 
 </div> <!-- /row -->
-
+<div class="row">
+  <div class="span12">
+    <p class="note">*Most active stats are from the past 7 days</p>
+  </div>
+</div>
 
 
 % if len(recent_games) > 0:
@@ -145,7 +148,7 @@ Server Information
           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
           <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
-          <td>
+          <td class="nostretch">
             % if rg.player_id > 2:
             <a href="${request.route_url('player_info', id=rg.player_id)}" title="Go to the player info page for this player">${rg.nick_html_colors|n}</a>
             % else:

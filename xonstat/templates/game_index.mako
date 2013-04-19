@@ -59,7 +59,7 @@ Game Index
           <ul class="dropdown-menu nav-tabs">
             % for gt in ('ca','kh','ft','lms','as','dom','nb','cts','rc'):
             <li>
-            <a href="${request.route_url("game_index_filtered", game_type_cd=gt)}" alt="${gt}" title="" data-toggle="none">
+            <a href="${request.route_url("game_index", game_type_cd=gt)}" alt="${gt}" title="" data-toggle="none">
               <span class="sprite sprite-${gt}"> </span><br/>
               ${gt}
             </a>
