@@ -239,9 +239,17 @@ table td {
   float: left;
 }
 
+/* elo colors */
 .eloup { color: green; }
 .elodown { color: rgb(190,0,0); }
 .eloneutral { color: gray; }
+
+/* limit player nick lengths */
+.player-nick {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* Navigation links */
 .pagination > li > a, .pagination > li > span {

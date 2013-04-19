@@ -118,7 +118,8 @@ def _map_info_data(request):
                 filter(PlayerCaptime.map_id == map_id).\
                 filter(Player.player_id == PlayerCaptime.player_id).\
                 order_by(PlayerCaptime.fastest_cap).\
-                limit(10).all()
+                limit(25).\
+                all()
 
         captimes = [Captime(c.player_id, html_colors(c.nick),
             c.fastest_cap, c.game_id) for c in captimes_raw]

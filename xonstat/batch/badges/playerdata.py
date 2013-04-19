@@ -46,7 +46,7 @@ class PlayerData:
 
         elos_dict = {}
         for gt,elo in elos.items():
-            if elo.games >= 32:
+            if elo.games > 0:
                 elos_dict[gt] = elo.elo
 
         self.data = {

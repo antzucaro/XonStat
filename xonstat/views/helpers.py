@@ -75,7 +75,7 @@ class RecentGame(object):
         return "<RecentGame(id=%s, gametype=%s, server=%s, map=%s)>" % (self.game_id, self.game_type_cd, self.server_name, self.map_name)
 
 
-def recent_games_q(server_id=None, map_id=None, player_id=None, cutoff=None):
+def recent_games_q(server_id=None, map_id=None, player_id=None, game_type_cd=None, cutoff=None):
     '''
     Returns a SQLA query of recent game data. Parameters filter
     the results returned if they are provided. If not, it is
@@ -112,6 +112,10 @@ def recent_games_q(server_id=None, map_id=None, player_id=None, cutoff=None):
     else:
         recent_games_q = recent_games_q.\
             filter(PlayerGameStat.rank==1)
+
+    if game_type_cd is not None:
+        recent_games_q = recent_games_q.\
+            filter(Game.game_type_cd==game_type_cd.lower())
 
     if cutoff is not None:
         right_now = datetime.utcnow()

@@ -4,7 +4,7 @@
   <tbody>
   % for pgstat in pgstats:
   <tr class="${pgstat.team_html_color()}">
-    <td>
+    <td class="player-nick">
       % if pgstat.player_id > 2:
       <a href="${request.route_url("player_info", id=pgstat.player_id)}"
         title="Go to the info page for this player">

@@ -29,7 +29,13 @@ Map captimes
         <tr>
           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
           <td>${ct.fastest_cap.total_seconds()} seconds</td>
-          <td><span class="nick">${ct.player_nick_html|n}</span></td>
+          <td class="player-nick">
+            % if rg.player_id > 2:
+            <a href="${request.route_url('player_info', id=rg.player_id)}" title="Go to the player info page for this player">${rg.nick_html_colors|n}</a>
+            % else:
+            ${rg.nick_html_colors|n}
+            % endif
+          </td>
           <td><a href="${request.route_url('server_info', id=ct.server_id)}" title="Go to the detail page for this server">${ct.server_name}</a></td>
           <td><span class="abstime" data-epoch="${ct.create_dt_epoch}" title="${ct.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${ct.create_dt_fuzzy}</span></td>
       % endfor

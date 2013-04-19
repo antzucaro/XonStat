@@ -13,28 +13,49 @@ log = logging.getLogger(__name__)
 
 
 def _game_index_data(request):
+    game_type_cd = None
+    game_type_descr = None
+
+    if request.params.has_key('game_type_cd'):
+        game_type_cd = request.params['game_type_cd']
+        try:
+            game_type_descr = DBSession.query(GameType.descr).\
+                filter(GameType.game_type_cd == game_type_cd).\
+                one()[0]
+        except Exception as e:
+            game_type_cd = None
+
     if request.params.has_key('page'):
         current_page = request.params['page']
     else:
         current_page = 1
 
-    games_q = DBSession.query(Game, Server, Map, GameType).\
-            filter(Game.server_id == Server.server_id).\
-            filter(Game.map_id == Map.map_id).\
-            filter(Game.game_type_cd == GameType.game_type_cd).\
-            order_by(Game.game_id.desc())
+    try:
+        rgs_q = recent_games_q(game_type_cd=game_type_cd)
 
-    games = Page(games_q, current_page, items_per_page=10, url=page_url)
+        games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
 
-    pgstats = {}
-    for (game, server, map, gametype) in games:
-        pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
-                filter(PlayerGameStat.game_id == game.game_id).\
-                order_by(PlayerGameStat.scoreboardpos).\
-                order_by(PlayerGameStat.score).all()
+        # replace the items in the canned pagination class with more rich ones
+        games.items = [RecentGame(row) for row in games.items]
+
+        pgstats = {}
+        for game in games.items:
+            pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
+                    filter(PlayerGameStat.game_id == game.game_id).\
+                    order_by(PlayerGameStat.scoreboardpos).\
+                    order_by(PlayerGameStat.score).all()
+
+    except Exception as e:
+        games           = None
+        pgstats         = None
+        game_type_cd    = None
+        game_type_descr = None
 
     return {'games':games,
-            'pgstats':pgstats}
+            'pgstats':pgstats,
+            'game_type_cd':game_type_cd,
+            'game_type_descr':game_type_descr,
+            }
 
 
 def game_index(request):
@@ -105,10 +126,10 @@ def _game_info_data(request):
                         pwstats[pgstat.player_game_stat_id] = []
 
                     # NOTE adding pgstat to position 6 in order to display nick.
-                    # You have to use a slice [0:5] to pass to the accuracy 
+                    # You have to use a slice [0:5] to pass to the accuracy
                     # template
-                    pwstats[pgstat.player_game_stat_id].append((weapon.descr, 
-                        weapon.weapon_cd, pwstat.actual, pwstat.max, 
+                    pwstats[pgstat.player_game_stat_id].append((weapon.descr,
+                        weapon.weapon_cd, pwstat.actual, pwstat.max,
                         pwstat.hit, pwstat.fired, pgstat))
 
     except Exception as inst:

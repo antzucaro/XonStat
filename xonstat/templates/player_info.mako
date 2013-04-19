@@ -220,6 +220,15 @@ Player Information
           % if g.game_type_cd in fav_maps:
           Favorite Map: <small>${fav_maps[g.game_type_cd].map_name} <br /></small>
           % endif
+          
+          % if g.game_type_cd == 'ctf':
+          % if overall_stats[g.game_type_cd].total_captures is not None:
+          <small><a href="${request.route_url("player_captimes", id=player.player_id)}">Fastest flag captures...</a></small>
+          % endif
+          % else:
+          <small><br /></small>
+          % endif
+          
           </p>
         </div>
         <div class="span5">
@@ -253,6 +262,8 @@ Player Information
           % if  overall_stats[g.game_type_cd].cap_ratio is not None:
           Cap Ratio: <small>${round(overall_stats[g.game_type_cd].cap_ratio,2)} (${overall_stats[g.game_type_cd].total_captures} captures, ${overall_stats[g.game_type_cd].total_pickups} pickups) <br /></small>
           % endif
+          % else:
+          <small><br /></small>
           % endif
           </p>
         </div>
@@ -266,7 +277,7 @@ Player Information
     <ul id="gbtab" class="nav nav-tabs">
       % for g in games_played:
       <li>
-      <a href="#tab-${g.game_type_cd}" data-toggle="tab">
+      <a href="#tab-${g.game_type_cd}" data-toggle="tab" alt="${g.game_type_cd}" title="">
         <span class="sprite sprite-${g.game_type_cd}"> </span><br />
         ${g.game_type_cd} <br />
         <small>(${g.games})</small>
@@ -282,7 +293,7 @@ Player Information
 <div class="row">
   <div class="span12">
     <h3>Accuracy</h3>
-    <div id="acc-graph" class="flot" style="width:100%; height:200px;">
+    <div id="acc-graph" class="flot" style="width:95%; height:200px;">
     </div>
 
     <div class="weapon-nav accuracy-nav">
@@ -348,7 +359,7 @@ Player Information
 <div class="row">
   <div class="span12">
     <h3>Damage Efficiency</h3>
-    <div id="dmg-graph" class="flot" style="width:100%; height:200px;">
+    <div id="dmg-graph" class="flot" style="width:95%; height:200px;">
     </div>
 
     <div class="weapon-nav damage-nav">
@@ -443,8 +454,8 @@ Player Information
       <tr>
         <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
         <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
-        <td>${rg.server_name}</td>
-        <td>${rg.map_name}</td>
+        <td><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
+        <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the detail page for this map">${rg.map_name}</a></td>
         <td>
           % if rg.team != None:
           % if rg.team == rg.winner:
