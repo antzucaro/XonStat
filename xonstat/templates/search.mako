@@ -95,80 +95,110 @@ Advanced Search
 </div>
     % else:
 
-<div class="row">
-  <div class="span8 offset2">
 
 ##### player-only results #####
 % if result_type == "player":
-<table class="table table-hover table-condensed">
-  <tr>
-    <th>Player</th>
-    <th>Joined</th>
-  </tr>
-  % for player in results:
-  <tr>
-    <td><a href="${request.route_url("player_info", id=player.player_id)}" name="Player info page for player #${player.player_id}">${player.nick_html_colors()|n}</a></td>
-    <td><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${player.joined_pretty_date()}</span></td>
-  </tr>
-  % endfor
-</table>
+<div class="row">
+  <div class="span6 offset3">
+    <table class="table table-hover table-condensed">
+      <tr>
+        <th style="width:100px;">Player ID</th>
+        <th>Nick</th>
+        <th class="create-dt">Joined</th>
+        <th></th>
+      </tr>
+      % for player in results:
+      <tr>
+        <td>${player.player_id}</th>
+        <td class="player-nick"><a href="${request.route_url("player_info", id=player.player_id)}" title="Go to this player's info page">${player.nick_html_colors()|n}</a></th>
+        <td><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${player.joined_pretty_date()}</span></th>
+        <td class="tdcenter">
+          <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="View recent games by this player">
+            <i class="glyphicon glyphicon-list"></i>
+          </a>
+        </td>
+      </tr>
+      % endfor
+    </table>
 % endif
 
 ##### server-only results #####
 % if result_type == "server":
-<table class="table table-hover table-condensed">
-  <tr>
-    <th>Server</th>
-    <th>Created</th>
-  </tr>
-  % for server in results:
-  <tr>
-    <td><a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for server #${server.server_id}">${server.name}</a></td>
-    <td><span class="abstime" data-epoch="${server.epoch()}" title="${server.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${server.fuzzy_date()}</span></td>
-  </tr>
-  % endfor
-</table>
+<div class="row">
+  <div class="span8 offset2">
+    <table class="table table-hover table-condensed">
+      <tr>
+        <th style="width:60px;">ID</th>
+        <th>Name</th>
+        <th class="create-dt">Added</th>
+        <th></th>
+      </tr>
+      % for server in results:
+      <tr>
+        <td>${server.server_id}</td>
+        <td><a href="${request.route_url("server_info", id=server.server_id)}" title="Go to this server's info page">${server.name}</a></th>
+        <td><span class="abstime" data-epoch="${server.epoch()}" title="${server.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${server.fuzzy_date()}</span></td>
+        <td class="tdcenter">
+          <a href="${request.route_url("game_finder", _query={'server_id':server.server_id})}" title="View recent games on this server">
+            <i class="glyphicon glyphicon-list"></i>
+          </a>
+        </td>
+      </tr>
+      % endfor
+    </table>
 % endif
 
 ##### map-only results #####
 % if result_type == "map":
-<table class="table table-hover table-condensed">
-  <tr>
-    <th>Map</th>
-    <th>Added</th>
-  </tr>
-  % for map in results:
-  <tr>
-    <td><a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for map #${map.map_id}">${map.name}</a></td>
-    <td><span class="abstime" data-epoch="${map.epoch()}" title="${map.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${map.fuzzy_date()}</span></td>
-  </tr>
-  % endfor
-</table>
+<div class="row">
+  <div class="span6 offset3">
+      <table class="table table-hover table-condensed">
+        <tr>
+          <th style="width:70px;">ID</th>
+          <th>Name</th>
+          <th>Added</th>
+          <th></th>
+        </tr>
+        % for map in results:
+        <tr>
+          <td>${map.map_id}</td>
+          <td><a href="${request.route_url("map_info", id=map.map_id)}" title="Go to this map's info page">${map.name}</a></th>
+          <td><span class="abstime" data-epoch="${map.epoch()}" title="${map.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${map.fuzzy_date()}</span></td>
+           <td class="tdcenter">
+            <a href="${request.route_url("game_finder", _query={'map_id':map.map_id})}" title="View recent games on this map">
+              <i class="glyphicon glyphicon-list"></i>
+            </a>
+          </td>
+        </tr>
+        % endfor
+      </table>
 % endif
 
 ##### game results #####
 % if result_type == "game":
-<table class="table table-hover table-condensed">
-  <tr>
-    <th></th>
-    <th>Map</th>
-    <th>Server</th>
-    <th>Time</th>
-  </tr>
-  % for (game, server, gmap) in results:
-  <tr>
-    <td><a class="btn btn-primary btn-small" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
-    <td><a href="${request.route_url("map_info", id=gmap.map_id)}" name="Map info page for map #${gmap.map_id}">${gmap.name}</a></td>
-    <td><a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for server #${server.server_id}">${server.name}</a></td>
-    <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
-  </tr>
-  % endfor
-</table>
+<div class="row">
+  <div class="span12">
+    <table class="table table-hover table-condensed">
+      <tr>
+        <th></th>
+        <th>Map</th>
+        <th>Server</th>
+        <th>Time</th>
+      </tr>
+      % for (game, server, gmap) in results:
+      <tr>
+        <td><a class="btn btn-primary btn-small" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
+        <td><a href="${request.route_url("map_info", id=gmap.map_id)}" name="Map info page for map #${gmap.map_id}">${gmap.name}</a></td>
+        <td><a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for server #${server.server_id}">${server.name}</a></td>
+        <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>
+      </tr>
+      % endfor
+    </table>
 % endif
 
 <!-- navigation links -->
 ${navlinks("search", results.page, results.last_page, search_query=query)}
-</div>
+  </div>
 </div>
 % endif
 
