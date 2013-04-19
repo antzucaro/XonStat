@@ -18,7 +18,7 @@ Recent Games
 % if not games:
 <h2>Sorry, no 
     % if game_type_descr:
-    ${game_type_descr}
+    ${game_type_descr.lower()}
     % endif
   games yet for 
   <a href="${request.route_url('player_info', id=player.player_id)}">${player.nick_html_colors()|n}</a>. Get playing!

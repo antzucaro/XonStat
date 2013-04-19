@@ -19,7 +19,7 @@ Game Index
 % if not games:
 <h2>Sorry, no 
   % if game_type_descr:
-  ${game_type_descr}
+  ${game_type_descr.lower()}
   % endif
   games yet. Get playing!</h2>
 
