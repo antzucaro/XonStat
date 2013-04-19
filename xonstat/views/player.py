@@ -600,8 +600,8 @@ def player_game_index_data(request):
     game_type_cd = None
     game_type_descr = None
 
-    if request.params.has_key('game_type_cd'):
-        game_type_cd = request.params['game_type_cd']
+    if request.params.has_key('type'):
+        game_type_cd = request.params['type']
         try:
             game_type_descr = DBSession.query(GameType.descr).\
                 filter(GameType.game_type_cd == game_type_cd).\
