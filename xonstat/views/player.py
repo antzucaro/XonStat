@@ -624,7 +624,8 @@ def player_game_index_data(request):
                 filter(Player.active_ind == True).\
                 one()
 
-        rgs_q = recent_games_q(player_id=player.player_id, game_type_cd=game_type_cd)
+        rgs_q = recent_games_q(player_id=player.player_id,
+            force_player_id=True, game_type_cd=game_type_cd)
 
         games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
 

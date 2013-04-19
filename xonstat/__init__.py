@@ -74,10 +74,10 @@ def main(global_config, **settings):
     config.add_view(player_captimes_json, route_name="player_captimes_json", renderer="jsonp")
 
     # GAME ROUTES
-    config.add_route("game_index",      "/games")
-    config.add_route("game_index_json", "/games.json")
-    config.add_view(game_index,      route_name="game_index",      renderer="game_index.mako")
-    config.add_view(game_index_json, route_name="game_index_json", renderer="jsonp")
+    # config.add_route("game_index",      "/games")
+    # config.add_route("game_index_json", "/games.json")
+    # config.add_view(game_index,      route_name="game_index",      renderer="game_index.mako")
+    # config.add_view(game_index_json, route_name="game_index_json", renderer="jsonp")
 
     config.add_route("game_info",      "/game/{id:\d+}")
     config.add_route("game_info_json", "/game/{id:\d+}.json")
@@ -89,8 +89,8 @@ def main(global_config, **settings):
     config.add_view(rank_index,      route_name="rank_index",      renderer="rank_index.mako")
     config.add_view(rank_index_json, route_name="rank_index_json", renderer="jsonp")
 
-    config.add_route("game_finder", "/gamefinder")
-    config.add_view(game_finder, route_name="game_finder", renderer="game_finder.mako")
+    config.add_route("game_index", "/games")
+    config.add_view(game_finder, route_name="game_index", renderer="game_finder.mako")
 
     # SERVER ROUTES
     config.add_route("server_index",      "/servers")

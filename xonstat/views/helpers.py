@@ -1,6 +1,7 @@
 import logging
 import sqlalchemy.sql.expression as expr
 from datetime import datetime
+from sqlalchemy.orm import aliased
 from xonstat.models import *
 from xonstat.util import *
 
@@ -75,7 +76,8 @@ class RecentGame(object):
         return "<RecentGame(id=%s, gametype=%s, server=%s, map=%s)>" % (self.game_id, self.game_type_cd, self.server_name, self.map_name)
 
 
-def recent_games_q(server_id=None, map_id=None, player_id=None, game_type_cd=None, cutoff=None):
+def recent_games_q(server_id=None, map_id=None, player_id=None,
+        game_type_cd=None, cutoff=None, force_player_id=False):
     '''
     Returns a SQLA query of recent game data. Parameters filter
     the results returned if they are provided. If not, it is
@@ -85,6 +87,8 @@ def recent_games_q(server_id=None, map_id=None, player_id=None, game_type_cd=Non
     look when querying. Only games that happened on or after the
     cutoff (which is a datetime object) will be returned.
     '''
+    pgstat_alias = aliased(PlayerGameStat, name='pgstat_alias')
+
     recent_games_q = DBSession.query(Game.game_id, GameType.game_type_cd,
             Game.winner, Game.start_dt, GameType.descr.label('game_type_descr'),
             Server.server_id, Server.name.label('server_name'), Map.map_id,
@@ -106,9 +110,18 @@ def recent_games_q(server_id=None, map_id=None, player_id=None, game_type_cd=Non
         recent_games_q = recent_games_q.\
             filter(Map.map_id==map_id)
 
+    # Note: force_player_id makes the pgstat row returned be from the
+    # specified player_id. Otherwise it will just look for a game
+    # *having* that player_id, but returning the #1 player's pgstat row
     if player_id is not None:
-        recent_games_q = recent_games_q.\
-            filter(PlayerGameStat.player_id==player_id)
+        if force_player_id:
+            recent_games_q = recent_games_q.\
+                filter(PlayerGameStat.player_id==player_id)
+        else:
+            recent_games_q = recent_games_q.\
+                filter(PlayerGameStat.rank==1).\
+                filter(Game.game_id==pgstat_alias.game_id).\
+                filter(pgstat_alias.player_id==player_id)
     else:
         recent_games_q = recent_games_q.\
             filter(PlayerGameStat.rank==1)
