@@ -49,6 +49,7 @@ Recent Games
       class="active"
       % endif
       >
+
       % if game.game_type_cd == 'overall':
       <a href="${request.route_url("player_game_index", player_id=player.player_id)}" alt="${game.game_type_cd}" title="" data-toggle="none">
       % else:
