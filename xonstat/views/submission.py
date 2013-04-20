@@ -632,6 +632,7 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
         if key == 'scoreboard-pickups': pgstat.pickups = int(value)
         if key == 'scoreboard-caps': pgstat.captures = int(value)
         if key == 'scoreboard-score': pgstat.score = int(round(float(value)))
+        if key == 'scoreboard-teamscore': pgstat.teamscore = int(round(float(value)))
         if key == 'scoreboard-deaths': pgstat.deaths = int(value)
         if key == 'scoreboard-kills': pgstat.kills = int(value)
         if key == 'scoreboard-suicides': pgstat.suicides = int(value)

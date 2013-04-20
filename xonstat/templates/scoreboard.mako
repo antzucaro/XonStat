@@ -1,5 +1,17 @@
 <%def name="scoreboard(game_type_cd, pgstats, show_elo=False, show_latency=False)">
-<table  class="table table-hover table-condensed">
+% if teamscores:
+<table class="table table-condensed">
+<!--<thead><tr>
+  <td class="teamscore" colspan="${len(teamscores)}">Teamscores</td>
+</tr></thead>-->
+<tbody><tr class="teamscores">
+% for team,score in sorted(teamscores.items(), key=lambda x:x[1], reverse=True):
+    <td class="${team}">${score}</td>
+% endfor
+  </tr></tbody>
+</table>
+% endif
+<table class="table table-hover table-condensed">
   ${scoreboard_header(game_type_cd, pgstats[0])}
   <tbody>
   % for pgstat in pgstats:

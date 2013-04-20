@@ -113,6 +113,19 @@ def _game_info_data(request):
 
             captimes = sorted(captimes, key=lambda x:x.fastest)
 
+        teamscores = {}
+        for pgstat in pgstats:
+            if pgstat.team in [5,14,13,10]:
+                team = pgstat.team_html_color()
+                if pgstat.teamscore is not None:
+                    if not teamscores.has_key(team):
+                        teamscores[team] = pgstat.teamscore
+                    else:
+                        if teamscores[team] != pgstat.teamscore:  # this should not happen!
+                            teamscores[team] = None
+        if len(teamscores) == 0:
+            teamscores = None
+
         pwstats = {}
         for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
                 filter(PlayerWeaponStat.game_id == game_id).\
@@ -141,6 +154,7 @@ def _game_info_data(request):
         pgstats = None
         pwstats = None
         captimes = None
+        teamscores = None
         show_elo = False
         show_latency = False
         raise inst
@@ -152,6 +166,7 @@ def _game_info_data(request):
             'pgstats':pgstats,
             'pwstats':pwstats,
             'captimes':captimes,
+            'teamscores':teamscores,
             'show_elo':show_elo,
             'show_latency':show_latency,
             }

@@ -180,6 +180,25 @@ table td {
     background-color: #222;
 }
 
+.teamscores td {
+    background-color: #000;
+    text-align: center;
+    padding: 4px;
+    font-size: 18px;
+}
+.teamscores td.red {
+  background-color: #4d0000;
+}
+.teamscores td.blue {
+  background-color: #00004d;
+}
+.teamscores td.yellow {
+  background-color: #4d4d00;
+}
+.teamscores td.pink {
+  background-color: #4d004d;
+}
+
 /* accuracy and weapon graphs */
 .weapon-nav {
   height: 70px;
@@ -245,7 +264,7 @@ table td {
 .eloneutral { color: gray; }
 
 /* limit player nick lengths */
-.player-nick {
+.nostretch {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
