@@ -45,11 +45,15 @@ Recent Games
     <ul class="nav nav-tabs">
       % for game in games_played:
       % if not game.game_type_cd in ['cq']:
-      <li>
+      <li 
+      % if game.game_type_cd == game_type_cd or (game.game_type_cd == 'overall' and game_type_cd is None):
+      class="active"
+      % endif
+      >
       % if game.game_type_cd == 'overall':
       <a href="${request.route_url("player_game_index", player_id=player.player_id)}" alt="${game.game_type_cd}" title="" data-toggle="none">
       % else:
-      <a href="${request.route_url("player_game_index", player_id=player.player_id, _query={'game_type_cd':game.game_type_cd})}" alt="${game.game_type_cd}" title="" data-toggle="none">
+      <a href="${request.route_url("player_game_index", player_id=player.player_id, _query={'type':game.game_type_cd})}" alt="${game.game_type_cd}" title="" data-toggle="none">
       % endif
         <span class="sprite sprite-${game.game_type_cd}"> </span><br />
         ${game.game_type_cd} <br />

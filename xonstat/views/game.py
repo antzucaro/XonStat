@@ -12,6 +12,7 @@ from xonstat.views.helpers import RecentGame, recent_games_q
 log = logging.getLogger(__name__)
 
 
+# DEPRECATED
 def _game_index_data(request):
     game_type_cd = None
     game_type_descr = None
@@ -216,7 +217,9 @@ def game_finder_data(request):
     query = {}
 
     server_id, map_id, player_id = None, None, None
-    range_start, range_end = None, None
+    range_start, range_end, game_type_cd = None, None, None
+    game_type_descr = None
+
     # these become WHERE clauses when present
     if request.params.has_key('server_id'):
         server_id = request.params['server_id']
@@ -238,8 +241,18 @@ def game_finder_data(request):
         range_end = request.params['range_end']
         query['range_end'] = range_end
 
+    if request.params.has_key('type'):
+        game_type_cd = request.params['type']
+        query['type'] = game_type_cd
+        try:
+            game_type_descr = DBSession.query(GameType.descr).\
+                filter(GameType.game_type_cd == game_type_cd).\
+                one()[0]
+        except Exception as e:
+            game_type_cd = None
+
     rgs_q = recent_games_q(server_id=server_id, map_id=map_id,
-            player_id=player_id)
+            player_id=player_id, game_type_cd=game_type_cd)
 
     recent_games = Page(rgs_q, current_page, url=page_url)
 
@@ -248,6 +261,7 @@ def game_finder_data(request):
     return {
             'recent_games':recent_games,
             'query':query,
+            'game_type_cd':game_type_cd,
            }
 
 def game_finder(request):

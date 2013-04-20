@@ -600,8 +600,8 @@ def player_game_index_data(request):
     game_type_cd = None
     game_type_descr = None
 
-    if request.params.has_key('game_type_cd'):
-        game_type_cd = request.params['game_type_cd']
+    if request.params.has_key('type'):
+        game_type_cd = request.params['type']
         try:
             game_type_descr = DBSession.query(GameType.descr).\
                 filter(GameType.game_type_cd == game_type_cd).\
@@ -624,7 +624,8 @@ def player_game_index_data(request):
                 filter(Player.active_ind == True).\
                 one()
 
-        rgs_q = recent_games_q(player_id=player.player_id, game_type_cd=game_type_cd)
+        rgs_q = recent_games_q(player_id=player.player_id,
+            force_player_id=True, game_type_cd=game_type_cd)
 
         games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
 
