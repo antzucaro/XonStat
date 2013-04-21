@@ -51,7 +51,7 @@ Game Information
 <div class="row">
   <div class="span12 game">
     <h3>Scoreboard</h3>
-    ${scoreboard(game.game_type_cd, pgstats, show_elo, show_latency)}
+    ${scoreboard(game.game_type_cd, pgstats, teams, show_elo, show_latency)}
   </div>
 </div>
 
