@@ -34,7 +34,7 @@ Server Index
         <td><a href="${request.route_url("server_info", id=server.server_id)}" title="Go to this server's info page">${server.name}</a></th>
         <td><span class="abstime" data-epoch="${server.epoch()}" title="${server.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${server.fuzzy_date()}</span></td>
         <td class="tdcenter">
-          <a href="${request.route_url("game_finder", _query={'server_id':server.server_id})}" title="View recent games on this server">
+          <a href="${request.route_url("game_index", _query={'server_id':server.server_id})}" title="View recent games on this server">
             <i class="glyphicon glyphicon-list"></i>
           </a>
         </td>
