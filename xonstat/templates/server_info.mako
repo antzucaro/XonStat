@@ -156,7 +156,7 @@ Server Information
         % endfor
       </tbody>
     </table>
-    <p><a href="${request.route_url('game_finder', _query={'server_id':server.server_id})}">More...</a></p>
+    <p><a href="${request.route_url('game_index', _query={'server_id':server.server_id})}">More...</a></p>
   </div>
 </div>
 % endif
