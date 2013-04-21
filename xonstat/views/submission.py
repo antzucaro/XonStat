@@ -8,6 +8,7 @@ import sqlalchemy.sql.expression as expr
 from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from collections import namedtuple
 from xonstat.d0_blind_id import d0_blind_id_verify
 from xonstat.elo import process_elos
 from xonstat.models import *
@@ -25,7 +26,9 @@ def parse_stats_submission(body):
     game_meta = {}
     events = {}
     players = []
+    teams = []
 
+    last_key = None
     for line in body.split('\n'):
         try:
             (key, value) = line.strip().split(' ', 1)
@@ -33,18 +36,24 @@ def parse_stats_submission(body):
             # Server (S) and Nick (n) fields can have international characters.
             if key in 'S' 'n':
                 value = unicode(value, 'utf-8')
+                last_key = key
 
-            if key not in 'P' 'n' 'e' 't' 'i':
+            if key not in 'Q' 'P' 'n' 'e' 't' 'i':
                 game_meta[key] = value
+                last_key = key
 
-            if key == 'P':
-                # if we were working on a player record already, append
-                # it and work on a new one (only set team info)
+            if key in 'P' 'Q':
+                # if we were working on a player or team record already,
+                # append it and work on a new one (only set team info)
                 if len(events) > 0:
-                    players.append(events)
+                    if last_key == 'P':
+                        players.append(events)
+                    elif last_key == 'Q':
+                        teams.append(events)
                     events = {}
 
                 events[key] = value
+                last_key = key
 
             if key == 'e':
                 (subkey, subvalue) = value.split(' ', 1)
@@ -59,9 +68,12 @@ def parse_stats_submission(body):
 
     # add the last player we were working on
     if len(events) > 0:
-        players.append(events)
+        if last_key == 'P':
+            players.append(events)
+        elif last_key == 'Q':
+            teams.append(events)
 
-    return (game_meta, players)
+    return (game_meta, players, teams)
 
 
 def is_blank_game(gametype, players):
@@ -597,7 +609,7 @@ def create_default_game_stat(session, game_type_cd):
     return pgstat
 
 
-def create_game_stat(session, game_meta, game, server, gmap, player, events):
+def create_game_stat(session, game_meta, game, server, gmap, player, teams, events):
     """Game stats handler for all game types"""
 
     game_type_cd = game.game_type_cd
@@ -661,6 +673,8 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
             if game.game_type_cd == 'ctf':
                 update_fastest_cap(session, player.player_id, game.game_id,
                         gmap.map_id, pgstat.fastest)
+
+    pgstat.teamscore = teams[pgstat.team].score
 
     # there is no "winning team" field, so we have to derive it
     if wins and pgstat.team is not None and game.winner is None:
@@ -756,7 +770,7 @@ def submit_stats(request):
                 "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
-        (game_meta, raw_players) = parse_stats_submission(request.body)
+        (game_meta, raw_players, raw_teams) = parse_stats_submission(request.body)
         revision = game_meta.get('R', 'unknown')
         duration = game_meta.get('D', None)
 
@@ -802,6 +816,16 @@ def submit_stats(request):
                 duration     = duration,
                 mod          = game_meta.get('O', None))
 
+        TeamInfo = namedtuple("TeamInfo", ['team','score'])
+        teams = {}
+        for events in raw_teams:
+            team = events['Q']
+            if team.startswith("team#"):
+                t = int(team[5:])
+                for (key,value) in events.items():
+                    if key == 'scoreboard-teamscore':
+                        teams[t] = TeamInfo(team=t, score=int(value))
+
         for events in raw_players:
             player = get_or_create_player(
                 session = session,
@@ -809,7 +833,7 @@ def submit_stats(request):
                 nick    = events.get('n', None))
 
             pgstat = create_game_stat(session, game_meta, game, server,
-                    gmap, player, events)
+                    gmap, player, teams, events)
 
             if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
                 pwstats = create_weapon_stats(session, game_meta, game, player,
