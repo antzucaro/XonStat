@@ -394,7 +394,7 @@ def get_recent_games(player_id):
     Provides a list of recent games for a player. Uses the recent_games_q helper.
     """
     # recent games played in descending order
-    rgs = recent_games_q(player_id=player_id).limit(10).all()
+    rgs = recent_games_q(player_id=player_id, force_player_id=True).limit(10).all()
     recent_games = [RecentGame(row) for row in rgs]
 
     return recent_games
