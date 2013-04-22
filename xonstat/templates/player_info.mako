@@ -513,7 +513,7 @@ Player Information
       </tbody>
     </table>
     % if total_games > 10:
-    <p><a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More...</a></p>
+    <p><a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.stripped_nick}">More...</a></p>
     % endif
   </div>
 </div>
