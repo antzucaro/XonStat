@@ -136,6 +136,7 @@ def get_overall_stats(player_id):
         - cap_ratio (ctf only)
         - total_carrier_frags (ctf only)
         - game_type_cd
+        - game_type_descr
 
     The key to the dictionary is the game type code. There is also an
     "overall" game_type_cd which sums the totals and computes the total ratios.
@@ -143,13 +144,14 @@ def get_overall_stats(player_id):
     OverallStats = namedtuple('OverallStats', ['total_kills', 'total_deaths',
         'k_d_ratio', 'last_played', 'last_played_epoch', 'last_played_fuzzy',
         'total_playing_time', 'total_playing_time_secs', 'total_pickups', 'total_captures', 'cap_ratio',
-        'total_carrier_frags', 'game_type_cd'])
+        'total_carrier_frags', 'game_type_cd', 'game_type_descr'])
 
-    raw_stats = DBSession.query('game_type_cd', 'total_kills',
-            'total_deaths', 'last_played', 'total_playing_time',
+    raw_stats = DBSession.query('game_type_cd', 'game_type_descr',
+            'total_kills', 'total_deaths', 'last_played', 'total_playing_time',
             'total_pickups', 'total_captures', 'total_carrier_frags').\
             from_statement(
                 "SELECT g.game_type_cd, "
+                       "gt.descr game_type_descr, "
                        "Sum(pgs.kills)         total_kills, "
                        "Sum(pgs.deaths)        total_deaths, "
                        "Max(pgs.create_dt)     last_played, "
@@ -158,12 +160,15 @@ def get_overall_stats(player_id):
                        "Sum(pgs.captures)      total_captures, "
                        "Sum(pgs.carrier_frags) total_carrier_frags "
                 "FROM   games g, "
+                       "cd_game_type gt, "
                        "player_game_stats pgs "
                 "WHERE  g.game_id = pgs.game_id "
+                  "AND  g.game_type_cd = gt.game_type_cd "
                   "AND  pgs.player_id = :player_id "
-                "GROUP  BY g.game_type_cd "
+                "GROUP  BY g.game_type_cd, game_type_descr "
                 "UNION "
-                "SELECT 'overall' game_type_cd, "
+                "SELECT 'overall'              game_type_cd, "
+                       "'Overall'              game_type_descr, "
                        "Sum(pgs.kills)         total_kills, "
                        "Sum(pgs.deaths)        total_deaths, "
                        "Max(pgs.create_dt)     last_played, "
@@ -171,15 +176,13 @@ def get_overall_stats(player_id):
                        "Sum(pgs.pickups)       total_pickups, "
                        "Sum(pgs.captures)      total_captures, "
                        "Sum(pgs.carrier_frags) total_carrier_frags "
-                "FROM   games g, "
-                       "player_game_stats pgs "
-                "WHERE  g.game_id = pgs.game_id "
-                  "AND  pgs.player_id = :player_id "
+                "FROM   player_game_stats pgs "
+                "WHERE  pgs.player_id = :player_id "
             ).params(player_id=player_id).all()
-
+    
     # to be indexed by game_type_cd
     overall_stats = {}
-
+    
     for row in raw_stats:
         # individual gametype ratio calculations
         try:
@@ -205,7 +208,8 @@ def get_overall_stats(player_id):
                 total_captures=row.total_captures,
                 cap_ratio=cap_ratio,
                 total_carrier_frags=row.total_carrier_frags,
-                game_type_cd=row.game_type_cd)
+                game_type_cd=row.game_type_cd,
+                game_type_descr=row.game_type_descr)
 
         overall_stats[row.game_type_cd] = os
 
@@ -525,6 +529,8 @@ def player_info_data(request):
         ranks          = None
         recent_games   = None
         recent_weapons = []
+        ## do not raise exceptions here (only for debugging)
+        #raise e
 
     return {'player':player,
             'games_played':games_played,
@@ -924,11 +930,6 @@ def player_captimes_data(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
         player_id = -1;
-
-    #player_captimes = DBSession.query(PlayerCaptime).\
-    #        filter(PlayerCaptime.player_id==player_id).\
-    #        order_by(PlayerCaptime.fastest_cap).\
-    #        all()
 
     PlayerCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap', 'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
         'player_id', 'game_id', 'map_id', 'map_name', 'server_id', 'server_name'])
