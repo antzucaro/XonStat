@@ -202,6 +202,7 @@ Player Information
   <div id="gbtabcontainer" class="tabbable tabs-below">
     <div class="tab-content">
       % for g in games_played:
+      % if not g.game_type_cd in ['cq']:
       <div class="tab-pane fade in 
         % if g.game_type_cd == 'overall':
         active
@@ -211,19 +212,31 @@ Player Information
           <p>
           % if g.game_type_cd in overall_stats:
           Last Played: <small><span class="abstime" data-epoch="${overall_stats[g.game_type_cd].last_played_epoch}" title="${overall_stats[g.game_type_cd].last_played.strftime('%a, %d %b %Y %H:%M:%S UTC')}"> ${overall_stats[g.game_type_cd].last_played_fuzzy} </span> <br /></small>
+          % else:
+          <small><br /></small>
           % endif
 
-          Games Played: <small>${g.games} <br /></small>
+          Games Played: 
+          % if g.game_type_cd == 'overall':
+          <small><a href="${request.route_url("player_game_index", player_id=player.player_id)}" title="View recent games">
+          % else:
+          <small><a href="${request.route_url("player_game_index", player_id=player.player_id, _query={'type':g.game_type_cd})}" title="View recent ${overall_stats[g.game_type_cd].game_type_descr} games">
+          % endif
+          ${g.games}</a> <br /></small>
 
           Playing Time: <small>${overall_stats[g.game_type_cd].total_playing_time} <br /></small>
 
           % if g.game_type_cd in fav_maps:
-          Favorite Map: <small>${fav_maps[g.game_type_cd].map_name} <br /></small>
+          Favorite Map: <small><a href="${request.route_url("map_info", id=fav_maps[g.game_type_cd].map_id)}" title="Go to the detail page for this map">${fav_maps[g.game_type_cd].map_name}</a> <br /></small>
+          % else:
+          <small><br /></small>
           % endif
           
           % if g.game_type_cd == 'ctf':
           % if overall_stats[g.game_type_cd].total_captures is not None:
-          <small><a href="${request.route_url("player_captimes", id=player.player_id)}">Fastest flag captures...</a></small>
+          <small><a href="${request.route_url("player_captimes", id=player.player_id)}">Fastest flag captures...</a> <br /></small>
+          % else:
+          <small><br /></small>
           % endif
           % else:
           <small><br /></small>
@@ -239,6 +252,8 @@ Player Information
           % if overall_stats[g.game_type_cd].k_d_ratio is not None:
           Kill Ratio: <small>${round(overall_stats[g.game_type_cd].k_d_ratio,2)} (${overall_stats[g.game_type_cd].total_kills} kills, ${overall_stats[g.game_type_cd].total_deaths} deaths) <br /></small>
           % endif
+          % else:
+          <small><br /></small>
           % endif
 
           % if g.game_type_cd in elos:
@@ -247,20 +262,25 @@ Player Information
           % else:
           Elo: <small>${round(elos[g.game_type_cd].elo,2)} (${elos[g.game_type_cd].games} games) <br /></small>
           % endif
+          % else:
+          <small><br /></small>
           % endif
 
           % if g.game_type_cd in ranks:
           % if g.game_type_cd == 'overall':
-          Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)})<br /></small>
-
+          Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)}) <br /></small>
           % else:
-          Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (percentile: ${round(ranks[g.game_type_cd].percentile,2)})<br /></small>
+          Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (percentile: ${round(ranks[g.game_type_cd].percentile,2)}) <br /></small>
           % endif
+          % else:
+          <small><br /></small>
           % endif
 
           % if g.game_type_cd == 'ctf':
-          % if  overall_stats[g.game_type_cd].cap_ratio is not None:
+          % if overall_stats[g.game_type_cd].cap_ratio is not None:
           Cap Ratio: <small>${round(overall_stats[g.game_type_cd].cap_ratio,2)} (${overall_stats[g.game_type_cd].total_captures} captures, ${overall_stats[g.game_type_cd].total_pickups} pickups) <br /></small>
+          % else:
+          <small><br /></small>
           % endif
           % else:
           <small><br /></small>
@@ -268,6 +288,7 @@ Player Information
           </p>
         </div>
       </div>
+      % endif
       % endfor
     </div>
   </div>
@@ -277,7 +298,7 @@ Player Information
     <ul id="gbtab" class="nav nav-tabs">
       % for g in games_played:
       <li>
-      <a href="#tab-${g.game_type_cd}" data-toggle="tab" alt="${g.game_type_cd}" title="">
+      <a href="#tab-${g.game_type_cd}" data-toggle="tab" alt="${g.game_type_cd}" title="${overall_stats[g.game_type_cd].game_type_descr}">
         <span class="sprite sprite-${g.game_type_cd}"> </span><br />
         ${g.game_type_cd} <br />
         <small>(${g.games})</small>
@@ -492,7 +513,7 @@ Player Information
       </tbody>
     </table>
     % if total_games > 10:
-    <p><a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.nick}">More...</a></p>
+    <p><a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.stripped_nick}">More...</a></p>
     % endif
   </div>
 </div>

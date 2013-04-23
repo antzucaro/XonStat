@@ -21,15 +21,15 @@ Capture The Flag Rank Index
     % else:
     <table id="rank-index-table" class="table table-hover table-condensed" border="1">
       <tr>
-        <th>Rank</th>
-        <th>Nick</th>
-        <th>Elo</th>
+        <th style="width:40px;">Rank</th>
+        <th style="width:420px;">Nick</th>
+        <th style="width:90px;">Elo</th>
       </tr>
       <% i = 1 %>
       % for rank in ranks:
       <tr>
         <td>${rank.rank}</td>
-        <td><a href="${request.route_url("player_info", id=rank.player_id)}" title="Go to this player's info page">${rank.nick_html_colors()|n}</a></th>
+        <td class="nostretch" style="max-width:420px;"><a href="${request.route_url("player_info", id=rank.player_id)}" title="Go to this player's info page">${rank.nick_html_colors()|n}</a></th>
         <td>${int(round(rank.elo))}</th>
       </tr>
       <% i += 1 %>

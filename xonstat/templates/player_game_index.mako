@@ -44,12 +44,12 @@ Recent Games
   <div class="span12 tabbable">
     <ul class="nav nav-tabs">
       % for game in games_played:
+      % if not game.game_type_cd in ['cq']:
       <li 
       % if game.game_type_cd == game_type_cd or (game.game_type_cd == 'overall' and game_type_cd is None):
       class="active"
       % endif
       >
-
       % if game.game_type_cd == 'overall':
       <a href="${request.route_url("player_game_index", player_id=player.player_id)}" alt="${game.game_type_cd}" title="" data-toggle="none">
       % else:
@@ -59,6 +59,7 @@ Recent Games
         ${game.game_type_cd} <br />
       </a>
       </li>
+      % endif
       % endfor
     </ul>
   </div>

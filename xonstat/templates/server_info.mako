@@ -38,9 +38,9 @@ Server Information
       <table class="table table-hover table-condensed">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Nick</th>
-            <th>Score</th>
+            <th style="width:40px;">#</th>
+            <th style="width:150px;">Nick</th>
+            <th style="width:90px;">Score</th>
           </tr>
         </thead>
         <tbody>
@@ -49,9 +49,9 @@ Server Information
           <tr>
             <td>${i}</td>
             % if score_player_id != '-':
-            <td><a href="${request.route_url('player_info', id=score_player_id)}" title="Go to the player info page for this player">${score_nick|n}</a></td>
+            <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=score_player_id)}" title="Go to the player info page for this player">${score_nick|n}</a></td>
             % else:
-            <td>${score_nick}</td>
+            <td class="nostretch" style="max-width:150px;">${score_nick}</td>
             % endif
             <td>${score_value}</td>
           </tr>
@@ -59,7 +59,6 @@ Server Information
         % endfor
         </tbody>
       </table>
-      <p class="note">*Most active stats are from the past 7 days</p>
   </div> <!-- /span4 -->
 
 
@@ -68,9 +67,9 @@ Server Information
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Nick</th>
-          <th>Playing Time</th>
+          <th style="width:40px;">#</th>
+          <th style="width:150px;">Nick</th>
+          <th style="width:90px;">Playing Time</th>
         </tr>
       </thead>
       <tbody>
@@ -79,9 +78,9 @@ Server Information
         <tr>
           <td>${i}</td>
           % if player_id != '-':
-          <td><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
+          <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
           % else:
-          <td>${nick}</td>
+          <td class="nostretch" style="max-width:150px;">${nick}</td>
           % endif
           <td>${alivetime}</td>
         </tr>
@@ -97,9 +96,9 @@ Server Information
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Map</th>
-          <th># Games</th>
+          <th style="width:40px;">#</th>
+          <th style="width:150px;">Map</th>
+          <th style="width:120px;"># Games</th>
         </tr>
       </thead>
       <tbody>
@@ -108,9 +107,9 @@ Server Information
         <tr>
           <td>${i}</td>
           % if map_id != '-':
-          <td><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
+          <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
           % else:
-          <td>${name}</td>
+          <td class="nostretch" style="max-width:150px;">${name}</td>
           % endif
           <td>${count}</td>
         </tr>
@@ -121,7 +120,11 @@ Server Information
   </div> <!-- /span4 -->
 
 </div> <!-- /row -->
-
+<div class="row">
+  <div class="span12">
+    <p class="note">*Most active stats are from the past 7 days</p>
+  </div>
+</div>
 
 
 % if len(recent_games) > 0:
@@ -145,7 +148,7 @@ Server Information
           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
           <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
-          <td>
+          <td class="nostretch">
             % if rg.player_id > 2:
             <a href="${request.route_url('player_info', id=rg.player_id)}" title="Go to the player info page for this player">${rg.nick_html_colors|n}</a>
             % else:

@@ -239,17 +239,63 @@ table td {
   float: left;
 }
 
-/* elo colors */
-.eloup { color: green; }
-.elodown { color: rgb(190,0,0); }
-.eloneutral { color: gray; }
+/* Gametype filters */
+.btn-toolbar .nav > li a {
+    width: 80px;
+} 
 
-/* limit player nick lengths */
-.player-nick {
+.btn.dropdown-toggle, .btn.dropdown-toggle:active {
+    background: none;
+    border: 1px solid transparent;
+    border-radius:4px 4px 4px 4px;
+    line-height:20px;
+    color: #428bca;
+    padding: 10px 0px 10px 0px;
+    font-size: 14px;
+    outline: 0;
+}
+.btn.dropdown-toggle:hover, .btn.dropdown-toggle:focus {
+    background-color:#111;
+    color:#2a6496;
+    border-color:#333;
+}
+
+.btn.dropdown-toggle > .caret {
+  height: 21px;
+  border-top-color: #428bca;
+  border-top-width: 8px;
+  border-left-width: 8px;
+  border-right-width: 8px;
+}
+
+.dropdown-menu {
+  width: 100px;
+}
+
+.dropdown-menu.nav-tabs {
+    padding:4px;
+    background-color: #111;
+    border: 1px solid #333;
+    width: 256px; }
+.dropdown-menu.nav-tabs > li > a {
+    width:80px;
+    color:inherit;
+}
+.dropdown-menu.nav-tabs > li > a:hover {
+    color:#222;
+}
+
+/* Player nicknames */
+.nostretch {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* elo colors */
+.eloup { color: green; }
+.elodown { color: rgb(190,0,0); }
+.eloneutral { color: gray; }
 
 /* Navigation links */
 .pagination > li > a, .pagination > li > span {

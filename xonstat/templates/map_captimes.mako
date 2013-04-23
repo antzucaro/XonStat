@@ -12,7 +12,7 @@ Map captimes
     <h2>${map.name}</h2>
     <p><a href="${map_url}">Back to map info page</a></p>
 
-    <h3>Fastest flag capture times:</h3>
+    <h3>Fastest Flag Captures:</h3>
 
     <table class="table table-bordered table-condensed">
       <thead>
@@ -30,8 +30,8 @@ Map captimes
           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
           <td>${ct.fastest_cap.total_seconds()} seconds</td>
           <td class="player-nick">
-            % if rg.player_id > 2:
-            <a href="${request.route_url('player_info', id=rg.player_id)}" title="Go to the player info page for this player">${rg.nick_html_colors|n}</a>
+            % if ct.player_id > 2:
+            <a href="${request.route_url('player_info', id=ct.player_id)}" title="Go to the player info page for this player">${ct.player_nick_html|n}</a>
             % else:
             ${rg.nick_html_colors|n}
             % endif
@@ -44,3 +44,4 @@ Map captimes
 
   </div>
 </div>
+
