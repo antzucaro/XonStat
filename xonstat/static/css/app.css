@@ -215,6 +215,7 @@ table td {
 .tabbable p { font-size: 14px; }
 .tabs-below .nav-tabs > li > a { border-radius: 4px 4px 4px 4px; }
 .nav-tabs > .active > a, .nav-tabs > .active > a:hover { background-color: #111; color: #aaa; border-color: #222; }
+.nav-tabs > .active > a, .nav-tabs > .active > a:focus { background-color: #111; color: #aaa; border-color: #222; }
 .nav-tabs > li > a { border-radius: 4px 4px 4px 4px; text-align: center; }
 .nav-tabs > li > a:hover { background-color: #111; border-color: #333; }
 .nav-tabs { border-bottom: 0px solid #000; }
