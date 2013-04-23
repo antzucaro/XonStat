@@ -179,10 +179,10 @@ def get_overall_stats(player_id):
                 "FROM   player_game_stats pgs "
                 "WHERE  pgs.player_id = :player_id "
             ).params(player_id=player_id).all()
-    
+
     # to be indexed by game_type_cd
     overall_stats = {}
-    
+
     for row in raw_stats:
         # individual gametype ratio calculations
         try:
@@ -633,7 +633,7 @@ def player_game_index_data(request):
         rgs_q = recent_games_q(player_id=player.player_id,
             force_player_id=True, game_type_cd=game_type_cd)
 
-        games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
+        games = Page(rgs_q, current_page, items_per_page=20, url=page_url)
 
         # replace the items in the canned pagination class with more rich ones
         games.items = [RecentGame(row) for row in games.items]
