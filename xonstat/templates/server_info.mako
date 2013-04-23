@@ -24,7 +24,13 @@ Server Information
   <div class="span12">
     <h2>${server.name}</h2>
     <p>
-      IP Address: ${server.ip_addr} <br />
+      IP Address: 
+      % if server.port is not None:
+      ${server.ip_addr}:${server.port}
+      % else:
+      ${server.ip_addr}
+      % endif
+      <br />
       Revision: ${server.revision} <br />
       Added <span class="abstime" data-epoch="${server.epoch()}" title="${server.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${server.fuzzy_date()}</span> <br />
     </p>
