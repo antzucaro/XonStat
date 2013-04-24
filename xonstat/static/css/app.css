@@ -240,6 +240,31 @@ table td {
   float: left;
 }
 
+
+/* Teamscores */
+.teamscores tr {
+  background-color: #000;
+}
+.teamscores td {
+  padding: 3px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+.teamscores tr.red {
+  background-color: #4d0000;
+}
+.teamscores tr.blue {
+  background-color: #00004d;
+}
+.teamscores tr.yellow {
+  background-color: #4d4d00;
+}
+.teamscores tr.pink {
+  background-color: #4d004d;
+}
+
+
 /* Gametype filters */
 .btn-toolbar .nav > li a {
     width: 80px;
