@@ -25,6 +25,10 @@ def parse_stats_submission(body):
     game_meta = {}
     events = {}
     players = []
+    teams = []
+
+    # we're not in either stanza to start
+    in_P = in_Q = False
 
     for line in body.split('\n'):
         try:
@@ -34,15 +38,33 @@ def parse_stats_submission(body):
             if key in 'S' 'n':
                 value = unicode(value, 'utf-8')
 
-            if key not in 'P' 'n' 'e' 't' 'i':
+            if key not in 'P' 'Q' 'n' 'e' 't' 'i':
                 game_meta[key] = value
 
-            if key == 'P':
-                # if we were working on a player record already, append
-                # it and work on a new one (only set team info)
-                if len(events) > 0:
+            if key == 'Q' or key == 'P':
+                #log.debug('Found a {0}'.format(key))
+                #log.debug('in_Q: {0}'.format(in_Q))
+                #log.debug('in_P: {0}'.format(in_P))
+                #log.debug('events: {0}'.format(events))
+
+                # check where we were before and append events accordingly
+                if in_Q and len(events) > 0:
+                    #log.debug('creating a team (Q) entry')
+                    teams.append(events)
+                    events = {}
+                elif in_P and len(events) > 0:
+                    #log.debug('creating a player (P) entry')
                     players.append(events)
                     events = {}
+
+                if key == 'P':
+                    #log.debug('key == P')
+                    in_P = True
+                    in_Q = False
+                elif key == 'Q':
+                    #log.debug('key == Q')
+                    in_P = False
+                    in_Q = True
 
                 events[key] = value
 
@@ -57,11 +79,13 @@ def parse_stats_submission(body):
             # no key/value pair - move on to the next line
             pass
 
-    # add the last player we were working on
-    if len(events) > 0:
+    # add the last entity we were working on
+    if in_P and len(events) > 0:
         players.append(events)
+    elif in_Q and len(events) > 0:
+        teams.append(events)
 
-    return (game_meta, players)
+    return (game_meta, players, teams)
 
 
 def is_blank_game(gametype, players):
@@ -756,7 +780,7 @@ def submit_stats(request):
                 "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
-        (game_meta, raw_players) = parse_stats_submission(request.body)
+        (game_meta, raw_players, raw_teams) = parse_stats_submission(request.body)
         revision = game_meta.get('R', 'unknown')
         duration = game_meta.get('D', None)
 
