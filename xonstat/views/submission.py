@@ -696,6 +696,53 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
     return pgstat
 
 
+def create_default_team_stat(session, game_type_cd):
+    """Creates a blanked-out teamstat record for the given game type"""
+
+    # this is what we have to do to get partitioned records in - grab the
+    # sequence value first, then insert using the explicit ID (vs autogenerate)
+    seq = Sequence('team_game_stats_team_game_stat_id_seq')
+    teamstat_id = session.execute(seq)
+    teamstat = TeamGameStat(team_game_stat_id=teamstat_id,
+            create_dt=datetime.datetime.utcnow())
+
+    # all team game modes have a score, so we'll zero that out always
+    teamstat.score = 0
+
+    if game_type_cd in 'ca' 'ft' 'lms' 'ka':
+        teamstat.rounds = 0
+
+    if game_type_cd == 'ctf':
+        teamstat.caps = 0
+
+    return teamstat
+
+
+def create_team_stat(session, game, events):
+    """Team stats handler for all game types"""
+
+    try:
+        teamstat = create_default_team_stat(session, game.game_type_cd)
+        teamstat.game_id = game.game_id
+
+        # we should have a team ID if we have a 'Q' event
+        if re.match(r'^team#\d+$', events.get('Q', '')):
+            team = int(events.get('Q').replace('team#', ''))
+            teamstat.team = team
+
+        # gametype-specific stuff is handled here. if passed to us, we store it
+        for (key,value) in events.items():
+            if key == 'scoreboard-score': teamstat.score = int(round(float(value)))
+            if key == 'scoreboard-caps': teamstat.caps = int(value)
+            if key == 'scoreboard-rounds': teamstat.rounds = int(value)
+
+        session.add(teamstat)
+    except Exception as e:
+        raise e
+
+    return teamstat
+
+
 def create_weapon_stats(session, game_meta, game, player, pgstat, events):
     """Weapon stats handler for all game types"""
     pwstats = []
@@ -839,6 +886,12 @@ def submit_stats(request):
                 pwstats = create_weapon_stats(session, game_meta, game, player,
                         pgstat, events)
 
+        for events in raw_teams:
+            try:
+                teamstat = create_team_stat(session, game, events)
+            except Exception as e:
+                raise e
+
         if should_do_elos(game_type_cd):
             create_elos(session, game)
 
@@ -848,4 +901,4 @@ def submit_stats(request):
     except Exception as e:
         if session:
             session.rollback()
-        return e
+        raise e
