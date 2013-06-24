@@ -241,7 +241,8 @@ def get_overall_stats(player_id):
                 total_captures          = os.total_captures,
                 cap_ratio               = os.cap_ratio,
                 total_carrier_frags     = os.total_carrier_frags,
-                game_type_cd            = os.game_type_cd)
+                game_type_cd            = os.game_type_cd,
+                game_type_descr         = os.game_type_descr)
 
     return overall_stats
 
