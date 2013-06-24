@@ -203,3 +203,37 @@ def to_json(data):
             result[key] = to_json(value.to_dict())
     return result
 
+
+def is_leap_year(today_dt=None):
+    if today_dt is None:
+        today_dt = datetime.utcnow()
+
+    if today_dt.year % 400 == 0:
+       leap_year = True
+    elif today_dt.year % 100 == 0:
+       leap_year = False
+    elif today_dt.year % 4 == 0:
+       leap_year = True
+    else:
+       leap_year = False
+
+    return leap_year
+
+
+def is_cake_day(create_dt, today_dt=None):
+    cake_day = False
+
+    if today_dt is None:
+        today_dt = datetime.utcnow()
+
+    # cakes are given on the first anniversary, not the actual create date!
+    if datetime.date(today_dt) != datetime.date(create_dt):
+        if today_dt.day == create_dt.day and today_dt.month == create_dt.month:
+            cake_day = True
+
+        # leap year people get their cakes on March 1
+        if not is_leap_year(today_dt) and create_dt.month == 2 and create_dt.day == 29:
+            if today_dt.month == 3 and today_dt.day == 1:
+                cake_day = True
+
+    return cake_day

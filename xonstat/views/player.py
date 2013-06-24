@@ -8,6 +8,7 @@ from collections import namedtuple
 from webhelpers.paginate import Page
 from xonstat.models import *
 from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
+from xonstat.util import is_cake_day
 from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
@@ -519,6 +520,7 @@ def player_info_data(request):
         ranks          = get_ranks(player_id)
         recent_games   = get_recent_games(player_id)
         recent_weapons = get_recent_weapons(player_id)
+        cake_day       = is_cake_day(player.create_dt)
 
     except Exception as e:
         player         = None
@@ -529,8 +531,9 @@ def player_info_data(request):
         ranks          = None
         recent_games   = None
         recent_weapons = []
+        cake_day       = False
         ## do not raise exceptions here (only for debugging)
-        #raise e
+        # raise e
 
     return {'player':player,
             'games_played':games_played,
@@ -539,7 +542,8 @@ def player_info_data(request):
             'elos':elos,
             'ranks':ranks,
             'recent_games':recent_games,
-            'recent_weapons':recent_weapons
+            'recent_weapons':recent_weapons,
+            'cake_day':cake_day,
             }
 
 
