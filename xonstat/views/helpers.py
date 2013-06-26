@@ -119,12 +119,12 @@ def recent_games_q(server_id=None, map_id=None, player_id=None,
                 filter(PlayerGameStat.player_id==player_id)
         else:
             recent_games_q = recent_games_q.\
-                filter(PlayerGameStat.rank==1).\
+                filter(PlayerGameStat.scoreboardpos==1).\
                 filter(Game.game_id==pgstat_alias.game_id).\
                 filter(pgstat_alias.player_id==player_id)
     else:
         recent_games_q = recent_games_q.\
-            filter(PlayerGameStat.rank==1)
+            filter(PlayerGameStat.scoreboardpos==1)
 
     if game_type_cd is not None:
         recent_games_q = recent_games_q.\
