@@ -106,12 +106,16 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.score).\
                 all()
 
+        tgstats = DBSession.query(TeamGameStat).\
+                filter(TeamGameStat.game_id == game_id).\
+                order_by(TeamGameStat.score).\
+                all()
+
         stats_by_team = OrderedDict()
         for pgstat in pgstats:
             if pgstat.team not in stats_by_team.keys():
                 stats_by_team[pgstat.team] = []
             stats_by_team[pgstat.team].append(pgstat)
-
         log.debug(stats_by_team)
 
         captimes = []
@@ -119,7 +123,6 @@ def _game_info_data(request):
             for pgstat in pgstats:
                 if pgstat.fastest is not None:
                     captimes.append(pgstat)
-
             captimes = sorted(captimes, key=lambda x:x.fastest)
 
         pwstats = {}
@@ -148,10 +151,12 @@ def _game_info_data(request):
         map = None
         gametype = None
         pgstats = None
+        tgstats = None
         pwstats = None
         captimes = None
         show_elo = False
         show_latency = False
+        stats_by_team = None
         raise inst
 
     return {'game':game,
@@ -159,6 +164,7 @@ def _game_info_data(request):
             'map':map,
             'gametype':gametype,
             'pgstats':pgstats,
+            'tgstats':tgstats,
             'pwstats':pwstats,
             'captimes':captimes,
             'show_elo':show_elo,

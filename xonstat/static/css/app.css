@@ -179,6 +179,28 @@ table td {
     background-color: #222;
 }
 
+.teamscore {
+  text-align: right;
+  text-shadow: -1px -1px 0 #222;
+  font-size: 200%;
+  font-weight: bold;
+  padding: 10px 7px;
+  margin-right: 10px;
+  margin-top: 20px;
+}
+.teamscore .red {
+  color: #ad0000;
+}
+.teamscore .blue {
+  color: #0000ad;
+}
+.teamscore .yellow {
+  color: #adad00;
+}
+.teamscore .pink {
+  color: #ad00ad;
+}
+
 /* accuracy and weapon graphs */
 .weapon-nav {
   height: 70px;
@@ -267,7 +289,7 @@ table td {
 /* Gametype filters */
 .btn-toolbar .nav > li a {
     width: 80px;
-} 
+}
 
 .btn.dropdown-toggle, .btn.dropdown-toggle:active {
     background: none;

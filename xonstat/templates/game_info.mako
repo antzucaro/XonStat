@@ -63,13 +63,36 @@ Game Information
   % endif
 </div>
 
+% if len(tgstats) == len(stats_by_team):
+## if we have teamscores in the db
+% for tgstat in tgstats:
+<div class="row">
+  <div class="span1 teamscore">
+  <span class="${tgstat.team_html_color()}">
+  % if game.game_type_cd == 'ctf':
+  ${tgstat.caps}
+  % elif game.game_type_cd == 'ca':
+  ${tgstat.rounds}
+  % else:
+  ${tgstat.score}
+  % endif
+  </span>
+  </div>
+  <div class="span10 game">
+  ${scoreboard(game.game_type_cd, stats_by_team[tgstat.team], show_elo, show_latency)}
+  </div>
+</div>
+% endfor
+% else:
 % for team in stats_by_team.keys():
 <div class="row">
-  <div class="span12 game">
+  <div class="span1 teamscore">&nbsp;</div>
+  <div class="span10 game">
   ${scoreboard(game.game_type_cd, stats_by_team[team], show_elo, show_latency)}
   </div>
 </div>
 % endfor
+% endif
 
 % if len(captimes) > 0:
 <div class="row">
