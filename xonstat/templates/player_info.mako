@@ -193,8 +193,15 @@ Player Information
 % else:
 <div class="row">
   <div class="span12">
-    <h2>${player.nick_html_colors()|n}</h2>
-    <h4><i><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">Joined ${player.joined_pretty_date()}</span> (player #${player.player_id})</i></h4>
+    <h2>
+      ${player.nick_html_colors()|n}
+    </h2>
+    <h4>
+      <i><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">Joined ${player.joined_pretty_date()}</span> (player #${player.player_id})</i>
+      % if cake_day:
+      <img src="/static/images/icons/24x24/cake.png" title="Happy cake day!" />
+      % endif
+    </h4>
   </div>
 </div>
 

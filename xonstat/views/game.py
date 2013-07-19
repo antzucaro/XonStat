@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 import time
+from collections import OrderedDict
 from pyramid.response import Response
 from sqlalchemy import desc, func, over
 from webhelpers.paginate import Page, PageURL
@@ -105,6 +106,14 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.score).\
                 all()
 
+        stats_by_team = OrderedDict()
+        for pgstat in pgstats:
+            if pgstat.team not in stats_by_team.keys():
+                stats_by_team[pgstat.team] = []
+            stats_by_team[pgstat.team].append(pgstat)
+
+        log.debug(stats_by_team)
+
         captimes = []
         if game.game_type_cd == 'ctf':
             for pgstat in pgstats:
@@ -154,6 +163,7 @@ def _game_info_data(request):
             'captimes':captimes,
             'show_elo':show_elo,
             'show_latency':show_latency,
+            'stats_by_team':stats_by_team,
             }
 
 

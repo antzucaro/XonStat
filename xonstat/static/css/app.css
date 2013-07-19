@@ -150,7 +150,6 @@ table td {
 /* Game scoreboard */
 .game {
   float: left;
-  margin-bottom: 30px;
   min-width: 700px;
   padding: 10px 7px;
 }
@@ -316,6 +315,10 @@ table td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.player-nick {
+    width: 25%;
 }
 
 /* elo colors */

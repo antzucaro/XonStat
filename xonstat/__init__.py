@@ -84,8 +84,8 @@ def main(global_config, **settings):
     config.add_view(game_info,      route_name="game_info",      renderer="game_info.mako")
     config.add_view(game_info_json, route_name="game_info_json", renderer="jsonp")
 
-    config.add_route("rank_index",      "/ranks/{game_type_cd:ctf|dm|tdm|duel}")
-    config.add_route("rank_index_json", "/ranks/{game_type_cd:ctf|dm|tdm|duel}.json")
+    config.add_route("rank_index",      "/ranks/{game_type_cd:ctf|dm|tdm|duel|ca|ft}")
+    config.add_route("rank_index_json", "/ranks/{game_type_cd:ctf|dm|tdm|duel|ca|ft}.json")
     config.add_view(rank_index,      route_name="rank_index",      renderer="rank_index.mako")
     config.add_view(rank_index_json, route_name="rank_index_json", renderer="jsonp")
 
