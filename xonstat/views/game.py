@@ -106,9 +106,14 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.score).\
                 all()
 
-        tgstats = DBSession.query(TeamGameStat).\
-                filter(TeamGameStat.game_id == game_id).\
-                order_by(TeamGameStat.score).\
+        q = DBSession.query(TeamGameStat).\
+                filter(TeamGameStat.game_id == game_id)
+        if game.game_type_cd == 'ctf':
+            q = q.order_by(TeamGameStat.caps.desc())
+        elif game.game_type_cd == 'ca':
+            q = q.order_by(TeamGameStat.rounds.desc())
+
+        tgstats = q.order_by(TeamGameStat.score.desc()).\
                 all()
 
         stats_by_team = OrderedDict()
