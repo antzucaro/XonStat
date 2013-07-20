@@ -121,7 +121,6 @@ def _game_info_data(request):
             if pgstat.team not in stats_by_team.keys():
                 stats_by_team[pgstat.team] = []
             stats_by_team[pgstat.team].append(pgstat)
-        log.debug(stats_by_team)
 
         captimes = []
         if game.game_type_cd == 'ctf':
