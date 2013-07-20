@@ -110,7 +110,7 @@ def _game_info_data(request):
                 filter(TeamGameStat.game_id == game_id)
         if game.game_type_cd == 'ctf':
             q = q.order_by(TeamGameStat.caps.desc())
-        elif game.game_type_cd in 'ca' 'ft' 'lms' 'ka':
+        elif game.game_type_cd in 'ca' 'lms' 'ka':
             q = q.order_by(TeamGameStat.rounds.desc())
 
         q = q.order_by(TeamGameStat.score.desc())

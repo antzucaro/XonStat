@@ -71,7 +71,7 @@ Game Information
   <span class="${tgstat.team_html_color()}">
   % if game.game_type_cd == 'ctf':
   ${tgstat.caps}
-  % elif game.game_type_cd in 'ca' 'ft' 'lms' 'ka':
+  % elif game.game_type_cd in 'ca' 'lms' 'ka':
   ${tgstat.rounds}
   % else:
   ${tgstat.score}
