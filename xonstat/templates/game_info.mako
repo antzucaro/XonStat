@@ -71,7 +71,7 @@ Game Information
   <span class="${tgstat.team_html_color()}">
   % if game.game_type_cd == 'ctf':
   ${tgstat.caps}
-  % elif game.game_type_cd == 'ca':
+  % elif game.game_type_cd in 'ca' 'ft' 'lms' 'ka':
   ${tgstat.rounds}
   % else:
   ${tgstat.score}
@@ -86,8 +86,7 @@ Game Information
 % else:
 % for team in stats_by_team.keys():
 <div class="row">
-  <div class="span1 teamscore">&nbsp;</div>
-  <div class="span10 game">
+  <div class="span12 game">
   ${scoreboard(game.game_type_cd, stats_by_team[team], show_elo, show_latency)}
   </div>
 </div>
