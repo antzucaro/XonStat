@@ -112,8 +112,8 @@ def _game_info_data(request):
             q = q.order_by(TeamGameStat.caps.desc())
         elif game.game_type_cd in 'ca' 'ft' 'lms' 'ka':
             q = q.order_by(TeamGameStat.rounds.desc())
-        else:
-            q = q.order_by(TeamGameStat.score.desc())
+
+        q = q.order_by(TeamGameStat.score.desc())
 
         tgstats = q.all()
 
