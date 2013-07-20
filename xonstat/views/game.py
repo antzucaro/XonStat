@@ -110,11 +110,12 @@ def _game_info_data(request):
                 filter(TeamGameStat.game_id == game_id)
         if game.game_type_cd == 'ctf':
             q = q.order_by(TeamGameStat.caps.desc())
-        elif game.game_type_cd == 'ca':
+        elif game.game_type_cd in 'ca' 'ft' 'lms' 'ka':
             q = q.order_by(TeamGameStat.rounds.desc())
+        else:
+            q = q.order_by(TeamGameStat.score.desc())
 
-        tgstats = q.order_by(TeamGameStat.score.desc()).\
-                all()
+        tgstats = q.all()
 
         stats_by_team = OrderedDict()
         for pgstat in pgstats:
