@@ -25,7 +25,7 @@
       ${scoreboard_row(game_type_cd, pgstat)}
 
       % if game_type_cd != 'cts':
-        <td>${pgstat.score}</td>
+        <td class="player-score">${pgstat.score}</td>
       % endif
 
       % if show_elo:

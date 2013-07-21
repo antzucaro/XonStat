@@ -200,6 +200,7 @@ table td {
 .teamscore .pink {
   color: #ad00ad;
 }
+.player-score { color: #FEFF3A; }
 
 /* accuracy and weapon graphs */
 .weapon-nav {
