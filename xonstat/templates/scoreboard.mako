@@ -4,6 +4,14 @@
   <tbody>
   % for pgstat in pgstats:
     <tr class="${pgstat.team_html_color()}">
+      % if show_latency and pgstat.avg_latency is not None:
+        <td class="tdcenter">
+          ${int(round(pgstat.avg_latency))}
+        </td>
+      % elif show_latency:
+        <td class="tdcenter">-</td>
+      % endif
+
       <td class="player-nick">
         % if pgstat.player_id > 2:
           <a href="${request.route_url("player_info", id=pgstat.player_id)}"
@@ -14,13 +22,6 @@
           <span class="nick">${pgstat.nick_html_colors()|n}</span>
         % endif
       </td>
-      % if show_latency and pgstat.avg_latency is not None:
-        <td>
-          ${int(round(pgstat.avg_latency))}
-        </td>
-      % elif show_latency:
-        <td></td>
-      % endif
 
       ${scoreboard_row(game_type_cd, pgstat)}
 
@@ -46,10 +47,10 @@
 % if game_type_cd == 'as':
 <thead>
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="deaths">Deaths</th>
     <th class="suicides">Suicides</th>
@@ -65,10 +66,10 @@
 % if game_type_cd in 'ca' 'dm' 'duel' 'rune' 'tdm':
 <thead>
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="deaths">Deaths</th>
     <th class="suicides">Suicides</th>
@@ -83,10 +84,10 @@
 % if game_type_cd == 'cq':
 <thead>
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="deaths">Deaths</th>
     <th class="captured">Captured</th>
@@ -102,10 +103,10 @@
 % if game_type_cd == 'cts':
 <thead>
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="fastest">Fastest Time</th>
     <th class="deaths">Deaths</th>
   </tr>
@@ -115,10 +116,10 @@
 % if game_type_cd == 'ctf':
 <thead class="ctf ${pgstat.team_html_color()}">
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="captures">Captures</th>
     <th class="pickups">Pickups</th>
@@ -135,10 +136,10 @@
 % if game_type_cd == 'dom':
 <thead class="dom ${pgstat.team_html_color()}">
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="deaths">Deaths</th>
     <th class="takes">Takes</th>
@@ -154,10 +155,10 @@
 % if game_type_cd in 'ft' 'freezetag':
 <thead class="freezetag ${pgstat.team_html_color()}">
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="deaths">Deaths</th>
     <th class="revivals">Revivals</th>
@@ -172,10 +173,10 @@
 % if game_type_cd in 'ka' 'keepaway':
 <thead>
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="deaths">Deaths</th>
     <th class="pickups">Pickups</th>
@@ -192,10 +193,10 @@
 % if game_type_cd == 'kh':
 <thead class="kh ${pgstat.team_html_color()}">
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="kills">Kills</th>
     <th class="deaths">Deaths</th>
     <th class="pickups">Pickups</th>
@@ -215,10 +216,10 @@
 % if game_type_cd in 'nb' 'nexball':
 <thead class="nb ${pgstat.team_html_color()}">
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="goals">Goals</th>
     <th class="faults">Faults</th>
     <th class="score">Score</th>
@@ -232,10 +233,10 @@
 % if game_type_cd == 'rc':
 <thead>
   <tr>
-    <th class="nick">Nick</th>
     % if show_latency:
     <th class="ping">Ping</th>
     % endif
+    <th class="nick">Nick</th>
     <th class="laps">Laps</th>
     <th class="fastest">Fastest Lap</th>
     <th class="time">Time</th>

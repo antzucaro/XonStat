@@ -201,6 +201,7 @@ table td {
   color: #ad00ad;
 }
 .player-score { color: #FEFF3A; }
+.ping { width: 50px; }
 
 /* accuracy and weapon graphs */
 .weapon-nav {

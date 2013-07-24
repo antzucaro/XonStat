@@ -86,10 +86,7 @@ def _game_info_data(request):
     else:
         show_elo = False
 
-    if request.params.has_key('show_latency'):
-        show_latency = True
-    else:
-        show_latency = False
+    show_latency = False
 
     try:
         notfound = False
@@ -105,6 +102,11 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.scoreboardpos).\
                 order_by(PlayerGameStat.score).\
                 all()
+
+        # if at least one player has a valid latency, we'll show the column
+        for pgstat in pgstats:
+            if pgstat.avg_latency is not None:
+                show_latency = True
 
         q = DBSession.query(TeamGameStat).\
                 filter(TeamGameStat.game_id == game_id)
