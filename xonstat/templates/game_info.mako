@@ -33,7 +33,7 @@ Game Information
 % else:
 <div class="row">
   <h2>Game Detail</h2>
-  <div class="span6 game-detail">
+  <div class="span8 game-detail">
     <img width="64" height="64" src="/static/images/icons/48x48/${game.game_type_cd}.png" alt="${game.game_type_cd}"/>
     <p>
     Played: <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span><br />
@@ -68,15 +68,19 @@ Game Information
 % for tgstat in tgstats:
 <div class="row">
   <div class="span1 teamscore">
-  <span class="${tgstat.team_html_color()}">
+  <div class="teamname ${tgstat.team_html_color()}">
+  ${tgstat.team_html_color().capitalize()}
+  </div>
+  <div class="${tgstat.team_html_color()}">
   % if game.game_type_cd == 'ctf':
   ${tgstat.caps}
-  % elif game.game_type_cd in 'ca' 'lms' 'ka':
+  % elif game.game_type_cd == 'ca':
   ${tgstat.rounds}
+## dom -> ticks, rc -> laps, nb -> goals, as -> objectives
   % else:
   ${tgstat.score}
   % endif
-  </span>
+  </div>
   </div>
   <div class="span10 game">
   ${scoreboard(game.game_type_cd, stats_by_team[tgstat.team], show_elo, show_latency)}

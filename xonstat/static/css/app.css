@@ -182,11 +182,14 @@ table td {
 .teamscore {
   text-align: right;
   text-shadow: -1px -1px 0 #222;
-  font-size: 200%;
+  font-size: 20px;
   font-weight: bold;
   padding: 10px 7px;
   margin-right: 10px;
   margin-top: 20px;
+}
+.teamscore teamname {
+  font-size: 10px;
 }
 .teamscore .red {
   color: #ad0000;
@@ -261,30 +264,6 @@ table td {
 .game-detail p,
 .game h4 {
   float: left;
-}
-
-
-/* Teamscores */
-.teamscores tr {
-  background-color: #000;
-}
-.teamscores td {
-  padding: 3px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: bold;
-}
-.teamscores tr.red {
-  background-color: #4d0000;
-}
-.teamscores tr.blue {
-  background-color: #00004d;
-}
-.teamscores tr.yellow {
-  background-color: #4d4d00;
-}
-.teamscores tr.pink {
-  background-color: #4d004d;
 }
 
 
