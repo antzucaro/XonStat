@@ -1,6 +1,7 @@
 import sqlahelper
 from pyramid_beaker import set_cache_regions_from_settings
 from pyramid.config import Configurator
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.renderers import JSONP
 from sqlalchemy import engine_from_config
 from xonstat.models import initialize_db
@@ -21,9 +22,13 @@ def main(global_config, **settings):
 
     config = Configurator(settings=settings)
 
+    config.add_renderer('jsonp', JSONP(param_name='callback'))
+
+    # for static assets
     config.add_static_view('static', 'xonstat:static')
 
-    config.add_renderer('jsonp', JSONP(param_name='callback'))
+    # for 404s
+    config.add_view(notfound, context=HTTPNotFound, renderer="404.mako")
 
     # ROOT ROUTE
     config.add_route("main_index", "/")
