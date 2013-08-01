@@ -277,7 +277,21 @@ Player Information
           % if g.game_type_cd == 'overall':
           Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)}) <br /></small>
           % else:
-          Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (percentile: ${round(ranks[g.game_type_cd].percentile,2)}) <br /></small>
+          Rank: 
+          <small>
+            <a href="
+              % if ranks[g.game_type_cd].rank % 20 == 0:
+                ${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':ranks[g.game_type_cd].rank/20})}
+
+              % else:
+                ${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':ranks[g.game_type_cd].rank/20+1})}
+
+              % endif
+            " title="Player rank page for this player">
+            ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}</a>
+            (percentile: ${round(ranks[g.game_type_cd].percentile,2)})
+            <br />
+          </small>
           % endif
           % else:
           <small><br /></small>
