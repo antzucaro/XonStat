@@ -42,17 +42,17 @@ def main(global_config, **settings):
     config.add_route("player_game_index",      "/player/{player_id:\d+}/games")
     config.add_view(player_game_index,      route_name="player_game_index",      renderer="player_game_index.mako")
 
-    config.add_view(player_game_index_json, route_name="player_game_index_json", renderer="jsonp")
     config.add_route("player_game_index_json", "/player/{player_id:\d+}/games.json")
+    config.add_view(player_game_index_json, route_name="player_game_index_json", renderer="jsonp")
+
+    config.add_route("player_hashkey_info_text", "/player/me")
+    config.add_view(player_hashkey_info_text, route_name="player_hashkey_info_text", renderer="player_hashkey_info_text.mako")
 
     config.add_route("player_info",      "/player/{id:\d+}")
     config.add_view(player_info,      route_name="player_info",      renderer="player_info.mako")
 
-    config.add_view(player_info_json, route_name="player_info_json", renderer="jsonp")
     config.add_route("player_info_json", "/player/{id:\d+}.json")
-
-    config.add_route("player_hashkey_info_text", "/hashkey/{hashkey}")
-    config.add_view(player_hashkey_info_text, route_name="player_hashkey_info_text", renderer="player_hashkey_info_text.mako")
+    config.add_view(player_info_json, route_name="player_info_json", renderer="jsonp")
 
     config.add_route("player_elo_info_json", "/elo/{hashkey}")
     config.add_view(player_elo_info_json, route_name="player_elo_info_json", renderer="jsonp")
