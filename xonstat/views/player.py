@@ -8,7 +8,7 @@ from collections import namedtuple
 from webhelpers.paginate import Page
 from xonstat.models import *
 from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
-from xonstat.util import is_cake_day
+from xonstat.util import is_cake_day, verify_request
 from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
@@ -788,12 +788,15 @@ def player_damage_json(request):
 
 
 def player_hashkey_info_data(request):
-    hashkey = request.matchdict['hashkey']
+    (idfp, status) = verify_request(request)
+
+    # if config is to *not* verify requests and we get nothing back, this
+    # query will return nothing and we'll 404.
     try:
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
                 filter(Player.active_ind == True).\
-                filter(Hashkey.hashkey == hashkey).one()
+                filter(Hashkey.hashkey == idfp).one()
 
         games_played   = get_games_played(player.player_id)
         overall_stats  = get_overall_stats(player.player_id)
