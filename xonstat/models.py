@@ -294,7 +294,8 @@ def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
-    MetaData = sqlalchemy.MetaData(bind=engine, reflect=True)
+    MetaData = sqlalchemy.MetaData(bind=engine)
+    MetaData.reflect()
 
     # assign all those tables to an object
     achievements_table = MetaData.tables['achievements']
