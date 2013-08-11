@@ -8,10 +8,9 @@ import sqlalchemy.sql.expression as expr
 from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-from xonstat.d0_blind_id import d0_blind_id_verify
 from xonstat.elo import process_elos
 from xonstat.models import *
-from xonstat.util import strip_colors, qfont_decode
+from xonstat.util import strip_colors, qfont_decode, verify_request
 
 
 log = logging.getLogger(__name__)
@@ -165,34 +164,6 @@ def is_supported_gametype(gametype, version):
         is_supported = False
 
     return is_supported
-
-
-def verify_request(request):
-    """Verify requests using the d0_blind_id library"""
-
-    # first determine if we should be verifying or not
-    val_verify_requests = request.registry.settings.get('xonstat.verify_requests', 'true')
-    if val_verify_requests == "true":
-        flg_verify_requests = True
-    else:
-        flg_verify_requests = False
-
-    try:
-        (idfp, status) = d0_blind_id_verify(
-                sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
-                querystring='',
-                postdata=request.body)
-
-        log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
-    except:
-        idfp = None
-        status = None
-
-    if flg_verify_requests and not idfp:
-        log.debug("ERROR: Unverified request")
-        raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
-
-    return (idfp, status)
 
 
 def do_precondition_checks(request, game_meta, raw_players):
