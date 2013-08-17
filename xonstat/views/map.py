@@ -166,7 +166,7 @@ def map_info_json(request):
 
 def map_captimes_data(request):
     map_id = int(request.matchdict['id'])
-
+        
     MapCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap', 'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
         'player_id', 'player_nick', 'player_nick_stripped', 'player_nick_html',
         'game_id', 'server_id', 'server_name'])
@@ -193,6 +193,7 @@ def map_captimes_data(request):
                   "AND  pgs.player_id = ct.player_id "
                   "AND  pgs.game_id = ct.game_id "
                 "ORDER  BY ct.fastest_cap "
+                "LIMIT  25"
             ).params(map_id=map_id).all()
 
     mmap = DBSession.query(Map).filter_by(map_id=map_id).one()

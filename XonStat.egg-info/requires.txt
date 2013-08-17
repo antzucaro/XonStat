@@ -1,4 +1,4 @@
-pyramid>=1.1
+pyramid
 SQLAlchemy
 transaction
 repoze.tm2>=1.0b1
@@ -7,4 +7,3 @@ WebError
 sqlahelper
 webhelpers
 psycopg2
-PasteScript

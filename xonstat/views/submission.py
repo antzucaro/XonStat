@@ -8,11 +8,9 @@ import sqlalchemy.sql.expression as expr
 from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-from collections import namedtuple
-from xonstat.d0_blind_id import d0_blind_id_verify
 from xonstat.elo import process_elos
 from xonstat.models import *
-from xonstat.util import strip_colors, qfont_decode
+from xonstat.util import strip_colors, qfont_decode, verify_request
 
 
 log = logging.getLogger(__name__)
@@ -28,7 +26,9 @@ def parse_stats_submission(body):
     players = []
     teams = []
 
-    last_key = None
+    # we're not in either stanza to start
+    in_P = in_Q = False
+
     for line in body.split('\n'):
         try:
             (key, value) = line.strip().split(' ', 1)
@@ -36,24 +36,36 @@ def parse_stats_submission(body):
             # Server (S) and Nick (n) fields can have international characters.
             if key in 'S' 'n':
                 value = unicode(value, 'utf-8')
-                last_key = key
 
-            if key not in 'Q' 'P' 'n' 'e' 't' 'i':
+            if key not in 'P' 'Q' 'n' 'e' 't' 'i':
                 game_meta[key] = value
-                last_key = key
 
-            if key in 'P' 'Q':
-                # if we were working on a player or team record already,
-                # append it and work on a new one (only set team info)
-                if len(events) > 0:
-                    if last_key == 'P':
-                        players.append(events)
-                    elif last_key == 'Q':
-                        teams.append(events)
+            if key == 'Q' or key == 'P':
+                #log.debug('Found a {0}'.format(key))
+                #log.debug('in_Q: {0}'.format(in_Q))
+                #log.debug('in_P: {0}'.format(in_P))
+                #log.debug('events: {0}'.format(events))
+
+                # check where we were before and append events accordingly
+                if in_Q and len(events) > 0:
+                    #log.debug('creating a team (Q) entry')
+                    teams.append(events)
+                    events = {}
+                elif in_P and len(events) > 0:
+                    #log.debug('creating a player (P) entry')
+                    players.append(events)
                     events = {}
 
+                if key == 'P':
+                    #log.debug('key == P')
+                    in_P = True
+                    in_Q = False
+                elif key == 'Q':
+                    #log.debug('key == Q')
+                    in_P = False
+                    in_Q = True
+
                 events[key] = value
-                last_key = key
 
             if key == 'e':
                 (subkey, subvalue) = value.split(' ', 1)
@@ -66,12 +78,11 @@ def parse_stats_submission(body):
             # no key/value pair - move on to the next line
             pass
 
-    # add the last player we were working on
-    if len(events) > 0:
-        if last_key == 'P':
-            players.append(events)
-        elif last_key == 'Q':
-            teams.append(events)
+    # add the last entity we were working on
+    if in_P and len(events) > 0:
+        players.append(events)
+    elif in_Q and len(events) > 0:
+        teams.append(events)
 
     return (game_meta, players, teams)
 
@@ -155,34 +166,6 @@ def is_supported_gametype(gametype, version):
     return is_supported
 
 
-def verify_request(request):
-    """Verify requests using the d0_blind_id library"""
-
-    # first determine if we should be verifying or not
-    val_verify_requests = request.registry.settings.get('xonstat.verify_requests', 'true')
-    if val_verify_requests == "true":
-        flg_verify_requests = True
-    else:
-        flg_verify_requests = False
-
-    try:
-        (idfp, status) = d0_blind_id_verify(
-                sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
-                querystring='',
-                postdata=request.body)
-
-        log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
-    except:
-        idfp = None
-        status = None
-
-    if flg_verify_requests and not idfp:
-        log.debug("ERROR: Unverified request")
-        raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
-
-    return (idfp, status)
-
-
 def do_precondition_checks(request, game_meta, raw_players):
     """Precondition checks for ALL gametypes.
        These do not require a database connection."""
@@ -213,7 +196,7 @@ def is_real_player(events):
     """
     Determines if a given set of events correspond with a non-bot
     """
-    if not events['P'].startswith('bot#'):
+    if not events['P'].startswith('bot'):
         return True
     else:
         return False
@@ -609,7 +592,7 @@ def create_default_game_stat(session, game_type_cd):
     return pgstat
 
 
-def create_game_stat(session, game_meta, game, server, gmap, player, teams, events):
+def create_game_stat(session, game_meta, game, server, gmap, player, events):
     """Game stats handler for all game types"""
 
     game_type_cd = game.game_type_cd
@@ -674,8 +657,6 @@ def create_game_stat(session, game_meta, game, server, gmap, player, teams, even
                 update_fastest_cap(session, player.player_id, game.game_id,
                         gmap.map_id, pgstat.fastest)
 
-    pgstat.teamscore = teams[pgstat.team].score
-
     # there is no "winning team" field, so we have to derive it
     if wins and pgstat.team is not None and game.winner is None:
         game.winner = pgstat.team
@@ -684,6 +665,53 @@ def create_game_stat(session, game_meta, game, server, gmap, player, teams, even
     session.add(pgstat)
 
     return pgstat
+
+
+def create_default_team_stat(session, game_type_cd):
+    """Creates a blanked-out teamstat record for the given game type"""
+
+    # this is what we have to do to get partitioned records in - grab the
+    # sequence value first, then insert using the explicit ID (vs autogenerate)
+    seq = Sequence('team_game_stats_team_game_stat_id_seq')
+    teamstat_id = session.execute(seq)
+    teamstat = TeamGameStat(team_game_stat_id=teamstat_id,
+            create_dt=datetime.datetime.utcnow())
+
+    # all team game modes have a score, so we'll zero that out always
+    teamstat.score = 0
+
+    if game_type_cd in 'ca' 'ft' 'lms' 'ka':
+        teamstat.rounds = 0
+
+    if game_type_cd == 'ctf':
+        teamstat.caps = 0
+
+    return teamstat
+
+
+def create_team_stat(session, game, events):
+    """Team stats handler for all game types"""
+
+    try:
+        teamstat = create_default_team_stat(session, game.game_type_cd)
+        teamstat.game_id = game.game_id
+
+        # we should have a team ID if we have a 'Q' event
+        if re.match(r'^team#\d+$', events.get('Q', '')):
+            team = int(events.get('Q').replace('team#', ''))
+            teamstat.team = team
+
+        # gametype-specific stuff is handled here. if passed to us, we store it
+        for (key,value) in events.items():
+            if key == 'scoreboard-score': teamstat.score = int(round(float(value)))
+            if key == 'scoreboard-caps': teamstat.caps = int(value)
+            if key == 'scoreboard-rounds': teamstat.rounds = int(value)
+
+        session.add(teamstat)
+    except Exception as e:
+        raise e
+
+    return teamstat
 
 
 def create_weapon_stats(session, game_meta, game, player, pgstat, events):
@@ -816,16 +844,6 @@ def submit_stats(request):
                 duration     = duration,
                 mod          = game_meta.get('O', None))
 
-        TeamInfo = namedtuple("TeamInfo", ['team','score'])
-        teams = {}
-        for events in raw_teams:
-            team = events['Q']
-            if team.startswith("team#"):
-                t = int(team[5:])
-                for (key,value) in events.items():
-                    if key == 'scoreboard-teamscore':
-                        teams[t] = TeamInfo(team=t, score=int(value))
-
         for events in raw_players:
             player = get_or_create_player(
                 session = session,
@@ -833,11 +851,17 @@ def submit_stats(request):
                 nick    = events.get('n', None))
 
             pgstat = create_game_stat(session, game_meta, game, server,
-                    gmap, player, teams, events)
+                    gmap, player, events)
 
             if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
                 pwstats = create_weapon_stats(session, game_meta, game, player,
                         pgstat, events)
+
+        for events in raw_teams:
+            try:
+                teamstat = create_team_stat(session, game, events)
+            except Exception as e:
+                raise e
 
         if should_do_elos(game_type_cd):
             create_elos(session, game)
@@ -848,4 +872,4 @@ def submit_stats(request):
     except Exception as e:
         if session:
             session.rollback()
-        return e
+        raise e

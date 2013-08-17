@@ -21,7 +21,7 @@ e wins ${games_played[0].wins}
 e favorite-map ${fav_maps['overall'].map_name} ${fav_maps['overall'].times_played} ${fav_maps['overall'].game_type_cd}
 % for game_type_cd in overall_stats.keys():
 % if game_type_cd != 'overall':
-{ G ${game_type_cd}
+G ${game_type_cd}
 % if game_type_cd in elos.keys():
 e elo ${elos[game_type_cd].elo}
 % endif
@@ -45,6 +45,5 @@ e wins ${gp.wins}
 % endif
 % endfor
 e favorite-map ${fav_maps[game_type_cd].map_name} ${fav_maps[game_type_cd].times_played}
-}
 % endif
 % endfor

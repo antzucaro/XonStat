@@ -413,16 +413,16 @@ class Skin:
         try:
             txt = "%.2f%%" % round(win_pct, 2)
         except:
-            win_pct = 0
+            win_pct = 0.
 
         if self.winp_pos:
-            if win_pct >= 0.5:
-                nr = 2*(win_pct-0.5)
+            if win_pct >= 50.0:
+                nr = 2*(win_pct/100-0.5)
                 r = nr*self.winp_colortop[0] + (1-nr)*self.winp_colormid[0]
                 g = nr*self.winp_colortop[1] + (1-nr)*self.winp_colormid[1]
                 b = nr*self.winp_colortop[2] + (1-nr)*self.winp_colormid[2]
             else:
-                nr = 2*win_pct
+                nr = 2*(win_pct/100)
                 r = nr*self.winp_colormid[0] + (1-nr)*self.winp_colorbot[0]
                 g = nr*self.winp_colormid[1] + (1-nr)*self.winp_colorbot[1]
                 b = nr*self.winp_colormid[2] + (1-nr)*self.winp_colorbot[2]

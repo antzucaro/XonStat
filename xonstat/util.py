@@ -1,9 +1,16 @@
+import logging
+import pyramid.httpexceptions
 import re
 from colorsys import rgb_to_hls, hls_to_rgb
 from cgi import escape as html_escape
 from datetime import datetime, timedelta
 from decimal import Decimal
 from collections import namedtuple
+from xonstat.d0_blind_id import d0_blind_id_verify
+
+
+log = logging.getLogger(__name__)
+
 
 # Map of special chars to ascii from Darkplace's console.c.
 _qfont_table = [
@@ -203,3 +210,65 @@ def to_json(data):
             result[key] = to_json(value.to_dict())
     return result
 
+
+def is_leap_year(today_dt=None):
+    if today_dt is None:
+        today_dt = datetime.utcnow()
+
+    if today_dt.year % 400 == 0:
+       leap_year = True
+    elif today_dt.year % 100 == 0:
+       leap_year = False
+    elif today_dt.year % 4 == 0:
+       leap_year = True
+    else:
+       leap_year = False
+
+    return leap_year
+
+
+def is_cake_day(create_dt, today_dt=None):
+    cake_day = False
+
+    if today_dt is None:
+        today_dt = datetime.utcnow()
+
+    # cakes are given on the first anniversary, not the actual create date!
+    if datetime.date(today_dt) != datetime.date(create_dt):
+        if today_dt.day == create_dt.day and today_dt.month == create_dt.month:
+            cake_day = True
+
+        # leap year people get their cakes on March 1
+        if not is_leap_year(today_dt) and create_dt.month == 2 and create_dt.day == 29:
+            if today_dt.month == 3 and today_dt.day == 1:
+                cake_day = True
+
+    return cake_day
+
+
+def verify_request(request):
+    """Verify requests using the d0_blind_id library"""
+
+    # first determine if we should be verifying or not
+    val_verify_requests = request.registry.settings.get('xonstat.verify_requests', 'true')
+    if val_verify_requests == "true":
+        flg_verify_requests = True
+    else:
+        flg_verify_requests = False
+
+    try:
+        (idfp, status) = d0_blind_id_verify(
+                sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
+                querystring='',
+                postdata=request.body)
+
+        log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
+    except:
+        idfp = None
+        status = None
+
+    if flg_verify_requests and not idfp:
+        log.debug("ERROR: Unverified request")
+        raise pyramid.httpexceptions.HTTPUnauthorized("Unverified request")
+
+    return (idfp, status)

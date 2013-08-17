@@ -8,6 +8,7 @@ from collections import namedtuple
 from webhelpers.paginate import Page
 from xonstat.models import *
 from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
+from xonstat.util import is_cake_day, verify_request
 from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
@@ -136,6 +137,7 @@ def get_overall_stats(player_id):
         - cap_ratio (ctf only)
         - total_carrier_frags (ctf only)
         - game_type_cd
+        - game_type_descr
 
     The key to the dictionary is the game type code. There is also an
     "overall" game_type_cd which sums the totals and computes the total ratios.
@@ -143,13 +145,14 @@ def get_overall_stats(player_id):
     OverallStats = namedtuple('OverallStats', ['total_kills', 'total_deaths',
         'k_d_ratio', 'last_played', 'last_played_epoch', 'last_played_fuzzy',
         'total_playing_time', 'total_playing_time_secs', 'total_pickups', 'total_captures', 'cap_ratio',
-        'total_carrier_frags', 'game_type_cd'])
+        'total_carrier_frags', 'game_type_cd', 'game_type_descr'])
 
-    raw_stats = DBSession.query('game_type_cd', 'total_kills',
-            'total_deaths', 'last_played', 'total_playing_time',
+    raw_stats = DBSession.query('game_type_cd', 'game_type_descr',
+            'total_kills', 'total_deaths', 'last_played', 'total_playing_time',
             'total_pickups', 'total_captures', 'total_carrier_frags').\
             from_statement(
                 "SELECT g.game_type_cd, "
+                       "gt.descr game_type_descr, "
                        "Sum(pgs.kills)         total_kills, "
                        "Sum(pgs.deaths)        total_deaths, "
                        "Max(pgs.create_dt)     last_played, "
@@ -158,12 +161,15 @@ def get_overall_stats(player_id):
                        "Sum(pgs.captures)      total_captures, "
                        "Sum(pgs.carrier_frags) total_carrier_frags "
                 "FROM   games g, "
+                       "cd_game_type gt, "
                        "player_game_stats pgs "
                 "WHERE  g.game_id = pgs.game_id "
+                  "AND  g.game_type_cd = gt.game_type_cd "
                   "AND  pgs.player_id = :player_id "
-                "GROUP  BY g.game_type_cd "
+                "GROUP  BY g.game_type_cd, game_type_descr "
                 "UNION "
-                "SELECT 'overall' game_type_cd, "
+                "SELECT 'overall'              game_type_cd, "
+                       "'Overall'              game_type_descr, "
                        "Sum(pgs.kills)         total_kills, "
                        "Sum(pgs.deaths)        total_deaths, "
                        "Max(pgs.create_dt)     last_played, "
@@ -171,10 +177,8 @@ def get_overall_stats(player_id):
                        "Sum(pgs.pickups)       total_pickups, "
                        "Sum(pgs.captures)      total_captures, "
                        "Sum(pgs.carrier_frags) total_carrier_frags "
-                "FROM   games g, "
-                       "player_game_stats pgs "
-                "WHERE  g.game_id = pgs.game_id "
-                  "AND  pgs.player_id = :player_id "
+                "FROM   player_game_stats pgs "
+                "WHERE  pgs.player_id = :player_id "
             ).params(player_id=player_id).all()
 
     # to be indexed by game_type_cd
@@ -205,7 +209,8 @@ def get_overall_stats(player_id):
                 total_captures=row.total_captures,
                 cap_ratio=cap_ratio,
                 total_carrier_frags=row.total_carrier_frags,
-                game_type_cd=row.game_type_cd)
+                game_type_cd=row.game_type_cd,
+                game_type_descr=row.game_type_descr)
 
         overall_stats[row.game_type_cd] = os
 
@@ -236,7 +241,8 @@ def get_overall_stats(player_id):
                 total_captures          = os.total_captures,
                 cap_ratio               = os.cap_ratio,
                 total_carrier_frags     = os.total_carrier_frags,
-                game_type_cd            = os.game_type_cd)
+                game_type_cd            = os.game_type_cd,
+                game_type_descr         = os.game_type_descr)
 
     return overall_stats
 
@@ -394,7 +400,7 @@ def get_recent_games(player_id):
     Provides a list of recent games for a player. Uses the recent_games_q helper.
     """
     # recent games played in descending order
-    rgs = recent_games_q(player_id=player_id).limit(10).all()
+    rgs = recent_games_q(player_id=player_id, force_player_id=True).limit(10).all()
     recent_games = [RecentGame(row) for row in rgs]
 
     return recent_games
@@ -515,6 +521,7 @@ def player_info_data(request):
         ranks          = get_ranks(player_id)
         recent_games   = get_recent_games(player_id)
         recent_weapons = get_recent_weapons(player_id)
+        cake_day       = is_cake_day(player.create_dt)
 
     except Exception as e:
         player         = None
@@ -525,6 +532,9 @@ def player_info_data(request):
         ranks          = None
         recent_games   = None
         recent_weapons = []
+        cake_day       = False
+        ## do not raise exceptions here (only for debugging)
+        # raise e
 
     return {'player':player,
             'games_played':games_played,
@@ -533,7 +543,8 @@ def player_info_data(request):
             'elos':elos,
             'ranks':ranks,
             'recent_games':recent_games,
-            'recent_weapons':recent_weapons
+            'recent_weapons':recent_weapons,
+            'cake_day':cake_day,
             }
 
 
@@ -627,7 +638,7 @@ def player_game_index_data(request):
         rgs_q = recent_games_q(player_id=player.player_id,
             force_player_id=True, game_type_cd=game_type_cd)
 
-        games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
+        games = Page(rgs_q, current_page, items_per_page=20, url=page_url)
 
         # replace the items in the canned pagination class with more rich ones
         games.items = [RecentGame(row) for row in games.items]
@@ -777,12 +788,15 @@ def player_damage_json(request):
 
 
 def player_hashkey_info_data(request):
-    hashkey = request.matchdict['hashkey']
+    (idfp, status) = verify_request(request)
+
+    # if config is to *not* verify requests and we get nothing back, this
+    # query will return nothing and we'll 404.
     try:
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
                 filter(Player.active_ind == True).\
-                filter(Hashkey.hashkey == hashkey).one()
+                filter(Hashkey.hashkey == idfp).one()
 
         games_played   = get_games_played(player.player_id)
         overall_stats  = get_overall_stats(player.player_id)
@@ -924,11 +938,6 @@ def player_captimes_data(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
         player_id = -1;
-
-    #player_captimes = DBSession.query(PlayerCaptime).\
-    #        filter(PlayerCaptime.player_id==player_id).\
-    #        order_by(PlayerCaptime.fastest_cap).\
-    #        all()
 
     PlayerCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap', 'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
         'player_id', 'game_id', 'map_id', 'map_name', 'server_id', 'server_name'])

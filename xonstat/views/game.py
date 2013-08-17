@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 import time
+from collections import OrderedDict
 from pyramid.response import Response
 from sqlalchemy import desc, func, over
 from collections import namedtuple
@@ -88,10 +89,7 @@ def _game_info_data(request):
     else:
         show_elo = False
 
-    if request.params.has_key('show_latency'):
-        show_latency = True
-    else:
-        show_latency = False
+    show_latency = False
 
     try:
         notfound = False
@@ -108,12 +106,34 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.score).\
                 all()
 
+        # if at least one player has a valid latency, we'll show the column
+        for pgstat in pgstats:
+            if pgstat.avg_latency is not None:
+                show_latency = True
+
+        q = DBSession.query(TeamGameStat).\
+                filter(TeamGameStat.game_id == game_id)
+        if game.game_type_cd == 'ctf':
+            q = q.order_by(TeamGameStat.caps.desc())
+        elif game.game_type_cd == 'ca':
+            q = q.order_by(TeamGameStat.rounds.desc())
+        # dom -> ticks, rc -> laps, nb -> goals, as -> objectives
+
+        q = q.order_by(TeamGameStat.score.desc())
+
+        tgstats = q.all()
+
+        stats_by_team = OrderedDict()
+        for pgstat in pgstats:
+            if pgstat.team not in stats_by_team.keys():
+                stats_by_team[pgstat.team] = []
+            stats_by_team[pgstat.team].append(pgstat)
+
         captimes = []
         if game.game_type_cd == 'ctf':
             for pgstat in pgstats:
                 if pgstat.fastest is not None:
                     captimes.append(pgstat)
-
             captimes = sorted(captimes, key=lambda x:x.fastest)
 
         teamscores = {}
@@ -183,11 +203,13 @@ def _game_info_data(request):
         map = None
         gametype = None
         pgstats = None
+        tgstats = None
         pwstats = None
         captimes = None
         teams = None
         show_elo = False
         show_latency = False
+        stats_by_team = None
         raise inst
 
     return {'game':game,
@@ -195,12 +217,14 @@ def _game_info_data(request):
             'map':map,
             'gametype':gametype,
             'pgstats':pgstats,
+            'tgstats':tgstats,
             'pwstats':pwstats,
             'captimes':captimes,
             'teams':teams,
             'teamscores':teamscores,
             'show_elo':show_elo,
             'show_latency':show_latency,
+            'stats_by_team':stats_by_team,
             }
 
 

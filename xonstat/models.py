@@ -260,11 +260,42 @@ class SummaryStat(object):
         return "<SummaryStat(total_players=%s, total_games=%s, total_servers=%s)>" % (self.total_players, self.total_games, self.total_servers)
 
 
+class TeamGameStat(object):
+    def __init__(self, team_game_stat_id=None, create_dt=None):
+        self.team_game_stat_id = team_game_stat_id
+        self.create_dt = create_dt
+
+    def __repr__(self):
+        return "<TeamGameStat(%s, %s, %s)>" % (self.team_game_stat_id, self.game_id, self.team)
+
+    def to_dict(self):
+        return {
+            'team_game_stat_id':self.team_game_stat_id,
+            'game_id':self.game_id,
+            'team':self.team,
+            'score':self.score,
+            'rounds':self.rounds,
+            'caps':self.caps,
+            'create_dt':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        }
+
+    def team_html_color(self):
+        if self.team == 5:
+            return "red"
+        if self.team == 14:
+            return "blue"
+        if self.team == 13:
+            return "yellow"
+        if self.team == 10:
+            return "pink"
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
-    MetaData = sqlalchemy.MetaData(bind=engine, reflect=True)
+    MetaData = sqlalchemy.MetaData(bind=engine)
+    MetaData.reflect()
 
     # assign all those tables to an object
     achievements_table = MetaData.tables['achievements']
@@ -284,6 +315,7 @@ def initialize_db(engine=None):
     player_ranks_table = MetaData.tables['player_ranks']
     player_captimes_table = MetaData.tables['player_map_captimes']
     summary_stats_table = MetaData.tables['summary_stats']
+    team_game_stats_table = MetaData.tables['team_game_stats']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -302,3 +334,4 @@ def initialize_db(engine=None):
     mapper(PlayerRank, player_ranks_table)
     mapper(PlayerCaptime, player_captimes_table)
     mapper(SummaryStat, summary_stats_table)
+    mapper(TeamGameStat, team_game_stats_table)

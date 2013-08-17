@@ -150,7 +150,6 @@ table td {
 /* Game scoreboard */
 .game {
   float: left;
-  margin-bottom: 30px;
   min-width: 700px;
   padding: 10px 7px;
 }
@@ -180,24 +179,32 @@ table td {
     background-color: #222;
 }
 
-.teamscores td {
-    background-color: #000;
-    text-align: center;
-    padding: 4px;
-    font-size: 18px;
+.teamscore {
+  text-align: right;
+  text-shadow: -1px -1px 0 #222;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 7px;
+  margin-right: 5px;
+  margin-top: 12px;
 }
-.teamscores td.red {
-  background-color: #4d0000;
+.teamscore .teamname {
+  font-size: 12px;
 }
-.teamscores td.blue {
-  background-color: #00004d;
+.teamscore .red {
+  color: #ad0000;
 }
-.teamscores td.yellow {
-  background-color: #4d4d00;
+.teamscore .blue {
+  color: #0000ad;
 }
-.teamscores td.pink {
-  background-color: #4d004d;
+.teamscore .yellow {
+  color: #adad00;
 }
+.teamscore .pink {
+  color: #ad00ad;
+}
+.player-score { color: #FEFF3A; }
+.ping { width: 50px; }
 
 /* accuracy and weapon graphs */
 .weapon-nav {
@@ -234,6 +241,7 @@ table td {
 .tabbable p { font-size: 14px; }
 .tabs-below .nav-tabs > li > a { border-radius: 4px 4px 4px 4px; }
 .nav-tabs > .active > a, .nav-tabs > .active > a:hover { background-color: #111; color: #aaa; border-color: #222; }
+.nav-tabs > .active > a, .nav-tabs > .active > a:focus { background-color: #111; color: #aaa; border-color: #222; }
 .nav-tabs > li > a { border-radius: 4px 4px 4px 4px; text-align: center; }
 .nav-tabs > li > a:hover { background-color: #111; border-color: #333; }
 .nav-tabs { border-bottom: 0px solid #000; }
@@ -258,17 +266,68 @@ table td {
   float: left;
 }
 
-/* elo colors */
-.eloup { color: green; }
-.elodown { color: rgb(190,0,0); }
-.eloneutral { color: gray; }
 
-/* limit player nick lengths */
+/* Gametype filters */
+.btn-toolbar .nav > li a {
+    width: 80px;
+}
+
+.btn.dropdown-toggle, .btn.dropdown-toggle:active {
+    background: none;
+    border: 1px solid transparent;
+    border-radius:4px 4px 4px 4px;
+    line-height:20px;
+    color: #428bca;
+    padding: 10px 0px 10px 0px;
+    font-size: 14px;
+    outline: 0;
+}
+.btn.dropdown-toggle:hover, .btn.dropdown-toggle:focus {
+    background-color:#111;
+    color:#2a6496;
+    border-color:#333;
+}
+
+.btn.dropdown-toggle > .caret {
+  height: 21px;
+  border-top-color: #428bca;
+  border-top-width: 8px;
+  border-left-width: 8px;
+  border-right-width: 8px;
+}
+
+.dropdown-menu {
+  width: 100px;
+}
+
+.dropdown-menu.nav-tabs {
+    padding:4px;
+    background-color: #111;
+    border: 1px solid #333;
+    width: 256px; }
+.dropdown-menu.nav-tabs > li > a {
+    width:80px;
+    color:inherit;
+}
+.dropdown-menu.nav-tabs > li > a:hover {
+    color:#222;
+}
+
+/* Player nicknames */
 .nostretch {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.player-nick {
+    width: 25%;
+}
+
+/* elo colors */
+.eloup { color: green; }
+.elodown { color: rgb(190,0,0); }
+.eloneutral { color: gray; }
 
 /* Navigation links */
 .pagination > li > a, .pagination > li > span {

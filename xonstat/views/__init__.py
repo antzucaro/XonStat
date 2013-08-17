@@ -22,4 +22,6 @@ from xonstat.views.server import server_index_json
 from xonstat.views.search import search_q, search
 from xonstat.views.search import search_json
 
+from xonstat.views.exceptions   import notfound
+
 from xonstat.views.main   import main_index
