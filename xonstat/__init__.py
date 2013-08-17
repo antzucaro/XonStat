@@ -54,10 +54,10 @@ def main(global_config, **settings):
     config.add_route("player_info_json", "/player/{id:\d+}.json")
     config.add_view(player_info_json, route_name="player_info_json", renderer="jsonp")
 
-    config.add_route("player_elo_info_text", "/elo/{hashkey}")
+    config.add_route("player_elo_info_text", "/player/{hashkey}/elo.txt")
     config.add_view(player_elo_info_text, route_name="player_elo_info_text", renderer="player_elo_info_text.mako")
 
-    config.add_route("player_elo_info_json", "/elo/{hashkey}.json") ## FIXME - doesn't seem to work?
+    config.add_route("player_elo_info_json", "/player/{hashkey}/elo.json") ## FIXME - doesn't seem to work?
     config.add_view(player_elo_info_json, route_name="player_elo_info_json", renderer="jsonp")
 
     config.add_route("player_accuracy",      "/player/{id:\d+}/accuracy")
