@@ -789,6 +789,7 @@ def player_damage_json(request):
 
 def player_hashkey_info_data(request):
     (idfp, status) = verify_request(request)
+    print "player_hashkey_info_data [idfp={0} status={1}]".format(idfp, status)
 
     # if config is to *not* verify requests and we get nothing back, this
     # query will return nothing and we'll 404.
@@ -904,6 +905,7 @@ def player_elo_info_data(request):
     Provides elo information on a specific player. Raw data is returned.
     """
     hashkey = request.matchdict['hashkey']
+    print "player_elo_info_data [hashkey={0}]".format(hashkey)
     try:
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
@@ -916,7 +918,11 @@ def player_elo_info_data(request):
         log.debug(e)
         raise pyramid.httpexceptions.HTTPNotFound
 
-    return {'elos':elos}
+    return {
+        'hashkey':hashkey,
+        'player':player,
+        'elos':elos,
+    }
 
 
 def player_elo_info_json(request):
@@ -925,14 +931,41 @@ def player_elo_info_json(request):
     """
     elo_info = player_elo_info_data(request)
 
+    player = player_info['player'].to_dict()
+
     elos = {}
     for gt, elo in elo_info['elos'].items():
         elos[gt] = to_json(elo.to_dict())
 
     return [{
         'version':          1,
+        'player':           player,
         'elos':             elos,
     }]
+
+
+def player_elo_info_text(request):
+    """
+    Provides elo information on a specific player. Plain text.
+    """
+    # UTC epoch
+    now = timegm(datetime.datetime.utcnow().timetuple())
+
+    # All player_info fields are converted into JSON-formattable dictionaries
+    elo_info = player_elo_info_data(request)
+
+    # this is a plain text response, if we don't do this here then
+    # Pyramid will assume html
+    request.response.content_type = 'text/plain'
+
+    return {
+        'version':          1,
+        'now':              now,
+        'hashkey':          elo_info['hashkey'],
+        'player':           elo_info['player'],
+        'elos':             elo_info['elos'],
+    }
+
 
 def player_captimes_data(request):
     player_id = int(request.matchdict['id'])
