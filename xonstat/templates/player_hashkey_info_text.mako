@@ -5,9 +5,7 @@ S ${request.route_url('player_info', id=player.player_id)}
 P ${hashkey}
 n ${player.nick}
 i ${player.player_id}
-e joined ${player_joined}
 e joined_dt ${player_joined_dt}
-e last_seen ${most_recent_game.epoch}
 e last_seen_dt ${most_recent_game.start_dt}
 % if player.active_ind == True:
 e active-ind 1
