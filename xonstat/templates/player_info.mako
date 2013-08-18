@@ -1,6 +1,7 @@
 <%inherit file="base.mako"/>
 <%namespace name="nav" file="nav.mako" />
 <%namespace file="accuracy.mako" import="accuracy" />
+<%namespace file="accuracy_graph.mako" import="accuracy_graph" />
 
 <%block name="navigation">
 ${nav.nav('players')}
@@ -331,71 +332,8 @@ Player Information
 </div>
 
 
-% if 'nex' in recent_weapons or 'rifle' in recent_weapons or 'minstanex' in recent_weapons or 'uzi' in recent_weapons or 'shotgun' in recent_weapons:
-<div class="row">
-  <div class="span12">
-    <h3>Accuracy</h3>
-    <div id="acc-graph" class="flot" style="width:95%; height:200px;">
-    </div>
-
-    <div class="weapon-nav accuracy-nav">
-      <ul>
-        % if 'nex' in recent_weapons:
-        <li>
-        <div class="acc-weap weapon-active">
-          <span class="sprite sprite-nex"></span>
-          <p><small>Nex</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'rifle' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-rifle"></span>
-          <p><small>Rifle</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'minstanex' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-minstanex"></span>
-          <p><small>Minstanex</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'uzi' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-uzi"></span>
-          <p><small>Uzi</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'shotgun' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-shotgun"></span>
-          <p><small>Shotgun</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
-        </div>
-        </li>
-        % endif
-      </ul>
-    </div>
-
-  </div>
-</div>
-% endif
-
+### ACCURACY GRAPH
+${accuracy_graph(recent_weapons)}
 
 % if 'rocketlauncher' in recent_weapons or 'grenadelauncher' in recent_weapons or 'electro' in recent_weapons or 'crylink' in recent_weapons or 'laser' in recent_weapons:
 <div class="row">
