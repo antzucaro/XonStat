@@ -395,12 +395,12 @@ def get_elos(player_id):
     return elos
 
 
-def get_recent_games(player_id):
+def get_recent_games(player_id, limit=10):
     """
     Provides a list of recent games for a player. Uses the recent_games_q helper.
     """
     # recent games played in descending order
-    rgs = recent_games_q(player_id=player_id, force_player_id=True).limit(10).all()
+    rgs = recent_games_q(player_id=player_id, force_player_id=True).limit(limit).all()
     recent_games = [RecentGame(row) for row in rgs]
 
     return recent_games
@@ -788,8 +788,8 @@ def player_damage_json(request):
 
 
 def player_hashkey_info_data(request):
-    (idfp, status) = verify_request(request)
-    print "player_hashkey_info_data [idfp={0} status={1}]".format(idfp, status)
+    #(idfp, status) = verify_request(request)
+    #print "player_hashkey_info_data [idfp={0} status={1}]".format(idfp, status)
 
     hashkey = request.matchdict['hashkey']
 
@@ -801,11 +801,12 @@ def player_hashkey_info_data(request):
                 filter(Player.active_ind == True).\
                 filter(Hashkey.hashkey == hashkey).one()
 
-        games_played   = get_games_played(player.player_id)
-        overall_stats  = get_overall_stats(player.player_id)
-        fav_maps       = get_fav_maps(player.player_id)
-        elos           = get_elos(player.player_id)
-        ranks          = get_ranks(player.player_id)
+        games_played      = get_games_played(player.player_id)
+        overall_stats     = get_overall_stats(player.player_id)
+        fav_maps          = get_fav_maps(player.player_id)
+        elos              = get_elos(player.player_id)
+        ranks             = get_ranks(player.player_id)
+        most_recent_game  = get_recent_games(player.player_id, 1)[0]
 
     except Exception as e:
         raise pyramid.httpexceptions.HTTPNotFound
@@ -817,6 +818,7 @@ def player_hashkey_info_data(request):
             'fav_maps':fav_maps,
             'elos':elos,
             'ranks':ranks,
+            'most_recent_game':most_recent_game,
             }
 
 
@@ -878,6 +880,7 @@ def player_hashkey_info_text(request):
     elos = player_info['elos']
     ranks = player_info['ranks']
     fav_maps = player_info['fav_maps']
+    most_recent_game = player_info['most_recent_game']
 
     # one-offs for things needing conversion for text/plain
     player_joined = timegm(player.create_dt.timetuple())
@@ -901,6 +904,7 @@ def player_hashkey_info_text(request):
         'fav_maps':         fav_maps,
         'elos':             elos,
         'ranks':            ranks,
+        'most_recent_game': most_recent_game,
     }
 
 
