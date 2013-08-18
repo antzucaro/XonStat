@@ -6,6 +6,7 @@ P ${hashkey}
 n ${player.nick}
 i ${player.player_id}
 e joined ${player_joined}
+e joined_dt ${player_joined_dt}
 % if player.active_ind == True:
 e active-ind 1
 % else:

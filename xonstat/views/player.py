@@ -791,13 +791,15 @@ def player_hashkey_info_data(request):
     (idfp, status) = verify_request(request)
     print "player_hashkey_info_data [idfp={0} status={1}]".format(idfp, status)
 
+    hashkey = request.matchdict['hashkey']
+
     # if config is to *not* verify requests and we get nothing back, this
     # query will return nothing and we'll 404.
     try:
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
                 filter(Player.active_ind == True).\
-                filter(Hashkey.hashkey == idfp).one()
+                filter(Hashkey.hashkey == hashkey).one()
 
         games_played   = get_games_played(player.player_id)
         overall_stats  = get_overall_stats(player.player_id)
@@ -879,6 +881,7 @@ def player_hashkey_info_text(request):
 
     # one-offs for things needing conversion for text/plain
     player_joined = timegm(player.create_dt.timetuple())
+    player_joined_dt = player.create_dt.strftime('%Y-%m-%d %H:%M:%SZ')
     alivetime = int(datetime_seconds(overall_stats['overall'].total_playing_time))
 
     # this is a plain text response, if we don't do this here then
@@ -891,6 +894,7 @@ def player_hashkey_info_text(request):
         'player':           player,
         'hashkey':          player_info['hashkey'],
         'player_joined':    player_joined,
+        'player_joined_dt': player_joined_dt,
         'games_played':     games_played,
         'overall_stats':    overall_stats,
         'alivetime':        alivetime,
