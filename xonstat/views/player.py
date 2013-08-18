@@ -884,7 +884,7 @@ def player_hashkey_info_text(request):
 
     # one-offs for things needing conversion for text/plain
     player_joined = timegm(player.create_dt.timetuple())
-    player_joined_dt = player.create_dt.strftime('%Y-%m-%d %H:%M:%SZ')
+    player_joined_dt = player.create_dt
     alivetime = int(datetime_seconds(overall_stats['overall'].total_playing_time))
 
     # this is a plain text response, if we don't do this here then
