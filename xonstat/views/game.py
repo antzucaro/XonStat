@@ -10,72 +10,8 @@ from xonstat.models import *
 from xonstat.util import page_url
 from xonstat.views.helpers import RecentGame, recent_games_q
 
+
 log = logging.getLogger(__name__)
-
-
-# DEPRECATED
-def _game_index_data(request):
-    game_type_cd = None
-    game_type_descr = None
-
-    if request.params.has_key('game_type_cd'):
-        game_type_cd = request.params['game_type_cd']
-        try:
-            game_type_descr = DBSession.query(GameType.descr).\
-                filter(GameType.game_type_cd == game_type_cd).\
-                one()[0]
-        except Exception as e:
-            game_type_cd = None
-
-    if request.params.has_key('page'):
-        current_page = request.params['page']
-    else:
-        current_page = 1
-
-    try:
-        rgs_q = recent_games_q(game_type_cd=game_type_cd)
-
-        games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
-
-        # replace the items in the canned pagination class with more rich ones
-        games.items = [RecentGame(row) for row in games.items]
-
-        pgstats = {}
-        for game in games.items:
-            pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
-                    filter(PlayerGameStat.game_id == game.game_id).\
-                    order_by(PlayerGameStat.scoreboardpos).\
-                    order_by(PlayerGameStat.score).all()
-
-    except Exception as e:
-        games           = None
-        pgstats         = None
-        game_type_cd    = None
-        game_type_descr = None
-
-    return {'games':games,
-            'pgstats':pgstats,
-            'game_type_cd':game_type_cd,
-            'game_type_descr':game_type_descr,
-            }
-
-
-def game_index(request):
-    """
-    Provides a list of current games, with the associated game stats.
-    These games are ordered by game_id, with the most current ones first.
-    Paginated.
-    """
-    return _game_index_data(request)
-
-
-def game_index_json(request):
-    """
-    Provides a list of current games, with the associated game stats.
-    These games are ordered by game_id, with the most current ones first.
-    Paginated. JSON.
-    """
-    return [{'status':'not implemented'}]
 
 
 def _game_info_data(request):
