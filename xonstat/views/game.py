@@ -5,13 +5,10 @@ import time
 from collections import OrderedDict
 from pyramid.response import Response
 from sqlalchemy import desc, func, over
-from collections import namedtuple
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url
 from xonstat.views.helpers import RecentGame, recent_games_q
-
-import random
 
 log = logging.getLogger(__name__)
 
@@ -136,47 +133,6 @@ def _game_info_data(request):
                     captimes.append(pgstat)
             captimes = sorted(captimes, key=lambda x:x.fastest)
 
-        teamscores = {}
-        for pgstat in pgstats:
-            if pgstat.team in [5,14,13,10]:
-                team = pgstat.team_html_color()
-                if pgstat.teamscore is not None:
-                    if not teamscores.has_key(team):
-                        teamscores[team] = pgstat.teamscore
-                    else:
-                        if teamscores[team] != pgstat.teamscore:  # this should not happen!
-                            teamscores[team] = None
-        if len(teamscores) == 0:
-            teamscores = None
-            
-        ### RANDOM SCORES FOR TESTING
-        teams = ["red","blue","yellow","pink"]
-        random.shuffle(teams)
-        teamscores = {}
-        for k in range(random.randint(2,4)):
-            team = teams[k-1]
-            teamscores[team] = random.randint(-5,150)
-        ### END
-        
-        #TeamInfo = namedtuple('TeamInfo', ['team','scoreboardpos','playercount','teamscore'])
-        #
-        #teams = {}
-        #last_pgs = pgstats[0]
-        #for pgstat in pgstats:
-        #    if pgstat.team != last_pgs.team:
-        #        teams[last_pgs.scoreboardpos] = TeamInfo(
-        #                team=last_pgs.team,
-        #                scoreboardpos=last_pgs.scoreboardpos,
-        #                playercount=pgstat.scoreboardpos-last_pgs.scoreboardpos,
-        #                teamscore=last_pgs.teamscore)
-        #        last_pgs = pgstat
-        #teams[last_pgs.scoreboardpos] = TeamInfo(
-        #        team=last_pgs.team,
-        #        scoreboardpos=last_pgs.scoreboardpos,
-        #        playercount=pgstat.scoreboardpos-last_pgs.scoreboardpos,
-        #        teamscore=last_pgs.teamscore)
-        #print teams
-
         pwstats = {}
         for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
                 filter(PlayerWeaponStat.game_id == game_id).\
@@ -206,7 +162,6 @@ def _game_info_data(request):
         tgstats = None
         pwstats = None
         captimes = None
-        teams = None
         show_elo = False
         show_latency = False
         stats_by_team = None
@@ -220,8 +175,6 @@ def _game_info_data(request):
             'tgstats':tgstats,
             'pwstats':pwstats,
             'captimes':captimes,
-            'teams':teams,
-            'teamscores':teamscores,
             'show_elo':show_elo,
             'show_latency':show_latency,
             'stats_by_team':stats_by_team,
