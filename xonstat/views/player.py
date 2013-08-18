@@ -852,6 +852,8 @@ def player_hashkey_info_json(request):
     for gt,mapinfo in player_info['fav_maps'].items():
         fav_maps[gt] = to_json(mapinfo)
 
+    most_recent_game = to_json(player_info['most_recent_game'])
+
     return [{
         'version':          1,
         'player':           player,
@@ -860,6 +862,7 @@ def player_hashkey_info_json(request):
         'fav_maps':         fav_maps,
         'elos':             elos,
         'ranks':            ranks,
+        'most_recent_game': most_recent_game,
     }]
 
 
