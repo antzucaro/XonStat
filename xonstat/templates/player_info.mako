@@ -2,6 +2,7 @@
 <%namespace name="nav" file="nav.mako" />
 <%namespace file="accuracy.mako" import="accuracy" />
 <%namespace file="accuracy_graph.mako" import="accuracy_graph" />
+<%namespace file="damage_graph.mako" import="damage_graph" />
 
 <%block name="navigation">
 ${nav.nav('players')}
@@ -331,86 +332,11 @@ Player Information
   </div>
 </div>
 
-
 ### ACCURACY GRAPH
 ${accuracy_graph(recent_weapons)}
 
-% if 'rocketlauncher' in recent_weapons or 'grenadelauncher' in recent_weapons or 'electro' in recent_weapons or 'crylink' in recent_weapons or 'laser' in recent_weapons:
-<div class="row">
-  <div class="span12">
-    <h3>Damage Efficiency</h3>
-    <div id="dmg-graph" class="flot" style="width:95%; height:200px;">
-    </div>
-
-    <div class="weapon-nav damage-nav">
-      <ul>
-        % if 'rocketlauncher' in recent_weapons:
-        <li>
-        <div class="dmg-weap weapon-active">
-          <span class="sprite sprite-rocketlauncher"></span>
-          <p><small>Rocket</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'rocketlauncher'})}" title="Show rocket launcher efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'grenadelauncher' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-grenadelauncher"></span>
-          <p><small>Mortar</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'grenadelauncher'})}" title="Show mortar damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'electro' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-electro"></span>
-          <p><small>Electro</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'electro'})}" title="Show electro damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'crylink' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-crylink"></span>
-          <p><small>Crylink</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'crylink'})}" title="Show crylink damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'hagar' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-hagar"></span>
-          <p><small>Hagar</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'hagar'})}" title="Show hagar damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'laser' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-laser"></span>
-          <p><small>Laser</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'laser'})}" title="Show laser damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-      </ul>
-    </div>
-
-  </div>
-</div>
-% endif
-
+### DAMAGE GRAPH
+${damage_graph(recent_weapons)}
 
 ##### RECENT GAMES (v2) ####
 % if recent_games:
