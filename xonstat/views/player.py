@@ -788,10 +788,7 @@ def player_damage_json(request):
 
 
 def player_hashkey_info_data(request):
-    #(idfp, status) = verify_request(request)
-    #print "player_hashkey_info_data [idfp={0} status={1}]".format(idfp, status)
-
-    hashkey = request.matchdict['hashkey']
+    (idfp, status) = verify_request(request)
 
     # if config is to *not* verify requests and we get nothing back, this
     # query will return nothing and we'll 404.
@@ -799,7 +796,7 @@ def player_hashkey_info_data(request):
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
                 filter(Player.active_ind == True).\
-                filter(Hashkey.hashkey == hashkey).one()
+                filter(Hashkey.hashkey == idfp).one()
 
         games_played      = get_games_played(player.player_id)
         overall_stats     = get_overall_stats(player.player_id)
