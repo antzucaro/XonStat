@@ -256,8 +256,7 @@ def has_required_metadata(metadata):
     """
     flg_has_req_metadata = True
 
-    if 'T' not in metadata or\
-        'G' not in metadata or\
+    if 'G' not in metadata or\
         'M' not in metadata or\
         'I' not in metadata or\
         'S' not in metadata:
