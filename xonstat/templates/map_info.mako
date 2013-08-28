@@ -28,7 +28,7 @@ ${parent.title()}
   Added <span class="abstime" data-epoch="${gmap.epoch()}" title="${gmap.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${gmap.fuzzy_date()}</span>
 </p>
 <div class="row">
-  <div class="span4">
+  <div class="col-md-4">
     <h3>Top Scoring Players</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -57,7 +57,7 @@ ${parent.title()}
   </div>
 
 
-<div class="span4">
+<div class="col-md-4">
   <h3>Most Active Players</h3>
   <table class="table table-hover table-condensed">
     <thead>
@@ -86,7 +86,7 @@ ${parent.title()}
 </div>
 
 
-<div class="span4">
+<div class="col-md-4">
   <h3>Most Active Servers</h3>
   <table class="table table-hover table-condensed">
     <thead>
@@ -112,14 +112,14 @@ ${parent.title()}
 </div> <!-- /row -->
 
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <p class="note">*Most active stats are from the past 7 days</p>
   </div>
 </div>
 
 % if len(captimes) > 0:
 <div class="row">
-  <div class="span6">
+  <div class="col-md-6">
     <h3>Best Flag Capture Times</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -158,7 +158,7 @@ ${parent.title()}
 
 % if len(recent_games) > 0:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Most Recent Games</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -173,7 +173,7 @@ ${parent.title()}
       <tbody>
         % for rg in recent_games:
         <tr>
-          <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">View</a></td>
+          <td class="tdcenter"><a class="btn btn-primary btn-sm" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">View</a></td>
           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
           <td><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>

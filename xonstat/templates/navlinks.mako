@@ -12,7 +12,7 @@ if 'search_query' in kwargs.keys():
 
 % if not (curr == last and curr == 1):
 <div class="row">
-<div class="span12 text-center">
+<div class="col-md-12 text-center">
 <ul class="pagination">
     % if curr != 1:
             <% kwargs['_query']['page'] = curr-1 %>
@@ -59,7 +59,7 @@ if 'search_query' in kwargs.keys():
         <li><a  href="${request.route_url(view, **kwargs)}" name="Next Page"><i class="glyphicon glyphicon-arrow-right"></i></a></li>
     % endif
 </ul>
-</div> <!-- end span12 -->
+</div> <!-- end col-md-12 -->
 </div> <!-- end row -->
 % endif
 </%def>

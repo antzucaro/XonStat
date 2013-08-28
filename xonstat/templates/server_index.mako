@@ -15,7 +15,7 @@ Server Index
 
 % else:
 <div class="row">
-  <div class="span8 offset2">
+  <div class="col-md-8 col-md-offset-2">
     <form class="indexform" method="get" action="${request.route_url('search')}">
       <input type="hidden" name="fs" />
       <input class="indexbox" type="text" name="server_name" />
@@ -44,5 +44,5 @@ Server Index
     % endif
 
     ${navlinks("server_index", servers.page, servers.last_page)}
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 </div> <!-- /row -->

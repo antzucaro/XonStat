@@ -2,7 +2,7 @@
     <div class="navbar navbar-inverse navbar-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="navbar-toggle collapsed" data-toggle="collapse" data-target=".nav-collapse">
+          <a class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -11,7 +11,7 @@
            <img src="/static/css/img/Xonotic_icon.png" />
            XonStat
           </a>
-          <nav class="nav-main nav-collapse in collapse" role="navigation" style="height: auto;">
+          <nav class="nav-main navbar-collapse in collapse" role="navigation" style="height: auto;">
             <ul class="nav">
               <li 
                 % if active=="leaderboard":
@@ -42,7 +42,7 @@
 
             <form class="navbar-form pull-left" action="${request.route_url('search')}" method="get">
               <input type="hidden" name="fs" />
-              <input type="search" class="input-small search" placeholder="search" name="sval"/>
+              <input type="search" class="input-sm search" placeholder="search" name="sval"/>
               <select class="search" name="stype">
                 <option>players</option>
                 <option>servers</option>

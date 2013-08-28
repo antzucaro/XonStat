@@ -7,7 +7,7 @@ Map captimes
 
 
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
 
     <h2>${map.name}</h2>
     <p><a href="${map_url}">Back to map info page</a></p>
@@ -27,7 +27,7 @@ Map captimes
       <tbody>
       % for ct in captimes:
         <tr>
-          <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
+          <td class="tdcenter"><a class="btn btn-primary btn-sm" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
           <td>${ct.fastest_cap.total_seconds()} seconds</td>
           <td class="player-nick">
             % if ct.player_id > 2:

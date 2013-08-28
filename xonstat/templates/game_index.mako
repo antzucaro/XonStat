@@ -25,7 +25,7 @@ Game Index
 
 % else:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h2>Recent 
     % if game_type_descr:
     ${game_type_descr}
@@ -34,7 +34,7 @@ Game Index
   </div>
 </div>
 <div class="row">
-  <div class="span12 btn-toolbar">
+  <div class="col-md-12 btn-toolbar">
     <ul class="nav nav-tabs">
       ##% for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
       ##% for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
@@ -70,7 +70,7 @@ Game Index
       </li>
     </ul>
   </div>
-  <div class="span12 offset1 tab-content">
+  <div class="col-md-12 col-md-offset-1 tab-content">
     % for rg in games.items:
     <div class="game">
       <img src="/static/images/icons/48x48/${rg.game_type_cd}.png" width="30" height="30" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"/>
@@ -83,7 +83,7 @@ Game Index
 </div>
 
 <div class="row">
-  <div class="span10 offset1">
+  <div class="col-md-10 col-md-offset-1">
     <!-- navigation links -->
     ${navlinks("game_index", games.page, games.last_page, search_query=request.GET)}
   </div>

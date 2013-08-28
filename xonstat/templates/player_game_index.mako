@@ -27,7 +27,7 @@ Recent Games
 
 % else:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Recent 
       % if game_type_descr:
       ${game_type_descr}
@@ -41,7 +41,7 @@ Recent Games
 </div>
 
 <div class="row">
-  <div class="span12 tabbable">
+  <div class="col-md-12 tabbable">
     <ul class="nav nav-tabs">
       % for game in games_played:
       % if not game.game_type_cd in ['cq']:
@@ -63,7 +63,7 @@ Recent Games
       % endfor
     </ul>
   </div>
-  <div class="span12 tab-content" style="margin-top:10px;">
+  <div class="col-md-12 tab-content" style="margin-top:10px;">
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -79,7 +79,7 @@ Recent Games
       <tbody>
       % for rg in games.items:
       <tr>
-        <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
+        <td class="tdcenter"><a class="btn btn-primary btn-sm" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
         <td class="tdcenter"><img title="${rg.game_type_cd}" src="/static/images/icons/24x24/${rg.game_type_cd}.png" alt="${rg.game_type_cd}" /></td>
         <td><a href="${request.route_url("server_info", id=rg.server_id)}" name="Server info page for ${rg.server_name}">${rg.server_name}</a></td>
         <td><a href="${request.route_url("map_info", id=rg.map_id)}" name="Map info page for ${rg.map_name}">${rg.map_name}</a></td>

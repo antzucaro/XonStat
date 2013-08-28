@@ -13,7 +13,7 @@ Advanced Search
 </%block>
 
 <div class="row">
-  <div class="span6 offset3">
+  <div class="col-md-6 col-md-offset-3">
 
 
     <form style="margin-top: 20px;" class="form-horizontal">
@@ -89,7 +89,7 @@ Advanced Search
 
     % elif len(results) == 0:
 <div class="row">
-  <div class="span6 offset3">
+  <div class="col-md-6 col-md-offset-3">
     <h1 class="text-center">Sorry, nothing found!</h1>
   </div>
 </div>
@@ -99,7 +99,7 @@ Advanced Search
 ##### player-only results #####
 % if result_type == "player":
 <div class="row">
-  <div class="span6 offset3">
+  <div class="col-md-6 col-md-offset-3">
     <table class="table table-hover table-condensed">
       <tr>
         <th style="width:100px;">Player ID</th>
@@ -125,7 +125,7 @@ Advanced Search
 ##### server-only results #####
 % if result_type == "server":
 <div class="row">
-  <div class="span8 offset2">
+  <div class="col-md-8 col-md-offset-2">
     <table class="table table-hover table-condensed">
       <tr>
         <th style="width:60px;">ID</th>
@@ -151,7 +151,7 @@ Advanced Search
 ##### map-only results #####
 % if result_type == "map":
 <div class="row">
-  <div class="span6 offset3">
+  <div class="col-md-6 col-md-offset-3">
       <table class="table table-hover table-condensed">
         <tr>
           <th style="width:70px;">ID</th>
@@ -177,7 +177,7 @@ Advanced Search
 ##### game results #####
 % if result_type == "game":
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <table class="table table-hover table-condensed">
       <tr>
         <th></th>
@@ -187,7 +187,7 @@ Advanced Search
       </tr>
       % for (game, server, gmap) in results:
       <tr>
-        <td><a class="btn btn-primary btn-small" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
+        <td><a class="btn btn-primary btn-sm" href="${request.route_url("game_info", id=game.game_id)}" name="Game info page for game #${game.game_id}">View</a></td>
         <td><a href="${request.route_url("map_info", id=gmap.map_id)}" name="Map info page for map #${gmap.map_id}">${gmap.name}</a></td>
         <td><a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for server #${server.server_id}">${server.name}</a></td>
         <td><span class="abstime" data-epoch="${game.epoch()}" title="${game.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span></td>

@@ -2,7 +2,7 @@
 ### hitscan weapon data is available
 % if 'nex' in recent_weapons or 'rifle' in recent_weapons or 'minstanex' in recent_weapons or 'uzi' in recent_weapons or 'shotgun' in recent_weapons:
 <div class="row">
-  <div class="span12">
+  <div class="col-dm-12">
     <h3>Accuracy</h3>
 
     <div id="acc-graph" class="flot" style="width:95%; height:200px;">
@@ -29,7 +29,7 @@
       </ul>
     </div>
 
-  </div> <!-- END SPAN12 -->
+  </div> <!-- END col-dm-12 -->
 </div> <!-- END ROW -->
 % endif
 </%def>

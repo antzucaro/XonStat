@@ -23,16 +23,16 @@ Leaderboard
 ##### RANKS #####
 % if len(ranks) < 4:
   <div class="row">
-    <div class="span12">
-      <p style="text-align: center;"><i class="icon-white icon-info-sign"> </i> You don't seem to have any ranks yet.</p>
-    </div> <!-- span12 -->
+    <div class="col-md-12">
+      <p style="text-align: center;"><i class="glyphicon-white glyphicon-info-sign"> </i> You don't seem to have any ranks yet.</p>
+    </div> <!-- col-md-12 -->
   </div> <!-- row -->
 
 % else:
   <div class="row">
     % for rs in ranks[:4]:
     % if len(rs) > 0:
-    <div class="span3">
+    <div class="col-md-3">
       % if rs[0].game_type_cd == 'duel':
       <h3>Duel Ranks</h3>
       % elif rs[0].game_type_cd == 'ctf':
@@ -64,7 +64,7 @@ Leaderboard
         </tbody>
       </table>
       <p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings">More...</a></p>
-    </div> <!-- /span4 -->
+    </div> <!-- /col-md-4 -->
   % endif
 
   % endfor
@@ -74,7 +74,7 @@ Leaderboard
 
 ##### ACTIVE PLAYERS #####
 <div class="row">
-  <div class="span4">
+  <div class="col-md-4">
     <h3>Most Active Players</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -100,11 +100,11 @@ Leaderboard
       % endfor
       </tbody>
     </table>
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 
 
 ##### ACTIVE SERVERS #####
-  <div class="span4">
+  <div class="col-md-4">
     <h3>Most Active Servers</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -130,11 +130,11 @@ Leaderboard
       % endfor
       </tbody>
     </table>
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 
 
 ##### ACTIVE MAPS #####
-  <div class="span4">
+  <div class="col-md-4">
     <h3>Most Active Maps</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -160,9 +160,9 @@ Leaderboard
       % endfor
       </tbody>
     </table>
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 </div> <!-- /row -->
-<row class="span12">
+<row class="col-md-12">
     <p class="note">*Most active stats are from the past 7 days</p>
 </div>
 
@@ -170,7 +170,7 @@ Leaderboard
 ##### RECENT GAMES #####
 % if len(recent_games) > 0:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Recent Games</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -186,7 +186,7 @@ Leaderboard
       <tbody>
       % for rg in recent_games:
         <tr>
-          <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
+          <td class="tdcenter"><a class="btn btn-primary btn-sm" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
           <td><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
           <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>

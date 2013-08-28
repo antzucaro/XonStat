@@ -30,7 +30,7 @@
       </%block>
 
       <div class="row">
-        <div class="span12" id="xonborder">
+        <div class="col-md-12" id="xonborder">
           <div id="title"><%block name="title"></%block></div>
             ${self.body()}
         </div> <!-- /xonborder -->
@@ -38,7 +38,7 @@
 
       <%block name="footer">
       <div class="row">
-        <div class="span10 offset1">
+        <div class="col-md-10 col-md-offset1">
           <p class="text-center" >XonStat is an open source (GPLv2) project created by Antibody. Fork it <a href="https://github.com/antzucaro/XonStat" title="Go to the project page">on Github!</a> <br />Questions? Check the <a href="https://github.com/antzucaro/XonStat/wiki/FAQ" title="FAQ">FAQ</a> first. <br />Issues? Log them either <a href="http://dev.xonotic.org/projects/xonstat" title="Xonotic Redmin Issue Tracker">here</a> or <a href="https://github.com/antzucaro/XonStat/issues" title="GitHub issue tracker">here</a> - I check both!</p>
         </div>
       </div>

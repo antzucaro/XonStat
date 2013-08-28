@@ -11,7 +11,7 @@ Player captimes
 % else:
 
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Fastest Flag Captures by
       <a href="${request.route_url('player_info', id=player.player_id)}">
         ${player.nick_html_colors()|n}
@@ -31,7 +31,7 @@ Player captimes
       <tbody>
       % for ct in captimes:
         <tr>
-          <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
+          <td class="tdcenter"><a class="btn btn-primary btn-sm" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
           <td>${ct.fastest_cap.total_seconds()} seconds</td>
           <td><a href="${request.route_url('map_info', id=ct.map_id)}" title="Go to the detail page for this map">${ct.map_name}</a></td>
           <td><a href="${request.route_url('server_info', id=ct.server_id)}" title="Go to the detail page for this server">${ct.server_name}</a></td>

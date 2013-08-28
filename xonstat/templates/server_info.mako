@@ -21,7 +21,7 @@ Server Information
 
 % else:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h2>${server.name}</h2>
     <p>
       IP Address: 
@@ -39,7 +39,7 @@ Server Information
 
 
 <div class="row">
-  <div class="span4">
+  <div class="col-md-4">
     <h3>Top Scoring Players</h3>
       <table class="table table-hover table-condensed">
         <thead>
@@ -65,10 +65,10 @@ Server Information
         % endfor
         </tbody>
       </table>
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 
 
-  <div class="span4">
+  <div class="col-md-4">
     <h3>Most Active Players</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -94,10 +94,10 @@ Server Information
       % endfor
       </tbody>
     </table>
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 
 
-  <div class="span4">
+  <div class="col-md-4">
     <h3>Most Active Maps</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -123,11 +123,11 @@ Server Information
       % endfor
       </tbody>
     </table>
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 
 </div> <!-- /row -->
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <p class="note">*Most active stats are from the past 7 days</p>
   </div>
 </div>
@@ -135,7 +135,7 @@ Server Information
 
 % if len(recent_games) > 0:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Most Recent Games</h2>
     <table class="table table-hover table-condensed">
       <thead>
@@ -150,7 +150,7 @@ Server Information
       <tbody>
         % for rg in recent_games:
         <tr>
-          <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">View</a></td>
+          <td class="tdcenter"><a class="btn btn-primary btn-sm" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">View</a></td>
           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
           <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
           <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>

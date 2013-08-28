@@ -14,7 +14,7 @@ Capture The Flag Rank Index
 </%block>
 
 <div class="row">
-  <div class="span6 offset3">
+  <div class="col-md-6 col-md-offset-3">
     % if not ranks:
     <h2>Sorry, no ranks yet. Get some buddies together and start playing!</h2>
 
@@ -35,13 +35,13 @@ Capture The Flag Rank Index
       <% i += 1 %>
       % endfor
     </table>
-  </div> <!-- /span6 -->
+  </div> <!-- /col-md-6 -->
 </div> <!-- /row -->
 
 <div class="row">
-  <div class="span6 offset3">
+  <div class="col-md-6 col-md-offset-3">
     <!-- navigation links -->
     ${navlinks("rank_index", ranks.page, ranks.last_page, game_type_cd=game_type_cd)}
-  </div> <!-- /span6 -->
+  </div> <!-- /col-md-6 -->
 </div> <!-- /row -->
 % endif

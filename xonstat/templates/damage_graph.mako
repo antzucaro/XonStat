@@ -2,7 +2,7 @@
 ### splash weapon info is available
 % if 'rocketlauncher' in recent_weapons or 'grenadelauncher' in recent_weapons or 'electro' in recent_weapons or 'crylink' in recent_weapons or 'laser' in recent_weapons:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Damage Efficiency</h3>
 
     <div id="dmg-graph" class="flot" style="width:95%; height:200px;">
@@ -29,7 +29,7 @@
       </ul>
     </div>
 
-  </div> <!-- END SPAN12 -->
+  </div> <!-- END col-md-12 -->
 </div> <!-- END ROW -->
 % endif
 </%def>

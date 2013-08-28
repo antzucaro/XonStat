@@ -194,7 +194,7 @@ Player Information
 
 % else:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h2>
       ${player.nick_html_colors()|n}
     </h2>
@@ -217,7 +217,7 @@ Player Information
         active
         % endif
         " id="tab-${g.game_type_cd}">
-        <div class="span5">
+        <div class="col-md-5">
           <p>
           % if g.game_type_cd in overall_stats:
           Last Played: <small><span class="abstime" data-epoch="${overall_stats[g.game_type_cd].last_played_epoch}" title="${overall_stats[g.game_type_cd].last_played.strftime('%a, %d %b %Y %H:%M:%S UTC')}"> ${overall_stats[g.game_type_cd].last_played_fuzzy} </span> <br /></small>
@@ -253,7 +253,7 @@ Player Information
           
           </p>
         </div>
-        <div class="span5">
+        <div class="col-md-5">
           <p>
           Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
 
@@ -317,7 +317,7 @@ Player Information
   </div>
 </div>
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <ul id="gbtab" class="nav nav-tabs">
       % for g in games_played:
       <li>
@@ -341,7 +341,7 @@ ${damage_graph(recent_weapons)}
 ##### RECENT GAMES (v2) ####
 % if recent_games:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Recent Games</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -358,7 +358,7 @@ ${damage_graph(recent_weapons)}
       <tbody>
       % for rg in recent_games:
       <tr>
-        <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
+        <td class="tdcenter"><a class="btn btn-primary btn-sm" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
         <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
         <td><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
         <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the detail page for this map">${rg.map_name}</a></td>

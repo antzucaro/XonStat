@@ -33,7 +33,7 @@ Game Information
 % else:
 <div class="row">
   <h2>Game Detail</h2>
-  <div class="span8 game-detail">
+  <div class="col-md-8 game-detail">
     <img width="64" height="64" src="/static/images/icons/48x48/${game.game_type_cd}.png" alt="${game.game_type_cd}"/>
     <p>
     Played: <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${game.fuzzy_date()}</span><br />
@@ -47,7 +47,7 @@ Game Information
     <span class="clear"></span>
   </div>
   % if teamscores:
-  <div class="span3 teamscores">
+  <div class="col-md-3 teamscores">
     <table class="table table-condensed">
     <thead>
       <th>Team</th>
@@ -67,7 +67,7 @@ Game Information
 ## if we have teamscores in the db
 % for tgstat in tgstats:
 <div class="row">
-  <div class="span1 teamscore">
+  <div class="col-md-1 teamscore">
   <div class="teamname ${tgstat.team_html_color()}">
   ${tgstat.team_html_color().capitalize()}
   </div>
@@ -82,7 +82,7 @@ Game Information
   % endif
   </div>
   </div>
-  <div class="span10 game">
+  <div class="col-md-10 game">
   ${scoreboard(game.game_type_cd, stats_by_team[tgstat.team], show_elo, show_latency)}
   </div>
 </div>
@@ -90,7 +90,7 @@ Game Information
 % else:
 % for team in stats_by_team.keys():
 <div class="row">
-  <div class="span12 game">
+  <div class="col-md-12 game">
   ${scoreboard(game.game_type_cd, stats_by_team[team], show_elo, show_latency)}
   </div>
 </div>
@@ -99,7 +99,7 @@ Game Information
 
 % if len(captimes) > 0:
 <div class="row">
-  <div class="span6">
+  <div class="col-md-6">
     <h3>Best Flag Capture Times</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -133,7 +133,7 @@ Game Information
 
 % if len(pgstats) > 0 and len(pwstats) > 0:
 <div class="row">
-  <div class="span12">
+  <div class="col-md-12">
     <h3>Accuracy Information</h3>
     <div class="accordion" id="acc-accordion" style="display:none;">
       % for pgstat in pgstats:

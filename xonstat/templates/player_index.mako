@@ -15,7 +15,7 @@ Player Index
 
 % else:
 <div class="row">
-  <div class="span6 offset3">
+  <div class="col-md-6 col-md-offset-3">
     <form class="indexform" method="get" action="${request.route_url('search')}">
       <input type="hidden" name="fs" />
       <input class="indexbox" type="text" name="nick" />
@@ -44,5 +44,5 @@ Player Index
 % endif
 
     ${navlinks("player_index", players.page, players.last_page)}
-  </div> <!-- /span4 -->
+  </div> <!-- /col-md-4 -->
 </div> <!-- /row -->
