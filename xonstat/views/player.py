@@ -1035,3 +1035,59 @@ def player_captimes(request):
 
 def player_captimes_json(request):
     return player_captimes_data(request)
+
+def player_nvd3_damage(request):
+    player_id = int(request.matchdict['id'])
+    if player_id <= 2:
+        player_id = -1;
+
+    return {}
+
+def player_damage_data_v2(request):
+    player_id = request.matchdict["id"]
+    if player_id <= 2:
+        player_id = -1;
+
+    game_type_cd = "dm"
+    if request.params.has_key("game_type"):
+        game_type_cd = request.params["game_type"]
+
+    limit = 20
+    if request.params.has_key("limit"):
+        limit = int(request.params["limit"])
+
+        if limit < 0:
+            limit = 20
+        if limit > 50:
+            limit = 50
+
+    weapon_stats_raw = DBSession.query(PlayerWeaponStat).\
+        from_statement(
+            "SELECT * "
+            "FROM player_weapon_stats "
+            "WHERE player_id = :player_id "
+            "AND game_id IN ("
+                "SELECT distinct g.game_id "
+                "FROM player_weapon_stats pws, games g "
+                "WHERE pws.game_id = g.game_id "
+                "AND g.game_type_cd = :game_type_cd "
+                "AND pws.player_id = :player_id "
+                "ORDER BY g.game_id desc "
+                "LIMIT :limit "
+            ") "
+            "ORDER BY game_id"
+            ).params(player_id=player_id,
+                game_type_cd=game_type_cd, limit=limit).all()
+
+    weapon_stats = [ws.to_dict() for ws in weapon_stats_raw]
+
+    games = []
+    for ws in weapon_stats_raw:
+        if ws.game_id not in games:
+            games.append(ws.game_id)
+
+    return {
+        "weapon_stats": weapon_stats,
+        "games": games,
+    }
+
