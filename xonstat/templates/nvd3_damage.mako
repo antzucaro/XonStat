@@ -13,23 +13,23 @@ text {
   font: 12px sans-serif;
 }
 
-#chart1, #chart2 {
+#damageChartSVG, #chart2 {
   height: 500px;
 }
 
 </style>
 <body>
 
-  <div id="damageGraph">
-    <svg id="chart1"></svg>
+  <div id="damageChart">
+    <svg id="damageChartSVG"></svg>
   </div>
 
-<script src="/static/js/d3.v3.js"></script>
+<script src="/static/js/d3.v3.min.js"></script>
 <script src="/static/js/nv.d3.min.js"></script>
 <script>
     var doDamageGraph = function(data){
-        // the chart should fill the "damageGraph" div
-        var width = document.getElementById("damageGraph").offsetWidth;
+        // the chart should fill the "damageChart" div
+        var width = document.getElementById("damageChart").offsetWidth;
 
         // transform the dataset into something nvd3 can use
         var transformedData = d3.nest()
@@ -68,7 +68,7 @@ text {
           chart.yAxis
               .tickFormat(d3.format(',02d'));
 
-          d3.select('#chart1')
+          d3.select('#damageChartSVG')
             .datum(transformedData)
               .transition().duration(500).call(chart);
 
