@@ -1036,12 +1036,29 @@ def player_captimes(request):
 def player_captimes_json(request):
     return player_captimes_data(request)
 
+
 def player_nvd3_damage(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
         player_id = -1;
 
-    return {}
+    game_type_cd = None
+    if request.params.has_key("game_type"):
+        game_type_cd = request.params["game_type"]
+
+    limit = 20
+    if request.params.has_key("limit"):
+        limit = int(request.params["limit"])
+
+        if limit < 0:
+            limit = 20
+        if limit > 50:
+            limit = 50
+
+    return { "player_id": player_id,
+        "game_type_cd": game_type_cd,
+        "limit": limit,
+    }
 
 def player_damage_data_v2(request):
     player_id = request.matchdict["id"]
