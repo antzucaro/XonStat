@@ -178,7 +178,10 @@ class PlayerAchievement(object):
 
 
 class PlayerWeaponStat(object):
-    def __init__(self):
+    def __init__(self, player_id=None, game_id=None, weapon_cd=None):
+        self.player_id = player_id
+        self.game_id = game_id
+        self.weapon_cd = weapon_cd
         self.fired = 0
         self.max = 0
         self.hit = 0

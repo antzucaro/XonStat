@@ -1063,7 +1063,7 @@ def player_damage_data_v2(request):
 
     games_raw = DBSession.query(sa.distinct(Game.game_id)).\
         filter(Game.game_id == PlayerWeaponStat.game_id).\
-        filter(PlayerWeaponStat.player_id == 6)
+        filter(PlayerWeaponStat.player_id == player_id)
 
     if game_type_cd is not None:
         games_raw = games_raw.filter(Game.game_type_cd == game_type_cd)
@@ -1071,10 +1071,8 @@ def player_damage_data_v2(request):
     games_raw = games_raw.order_by(Game.game_id.desc()).limit(limit).all()
 
     weapon_stats_raw = DBSession.query(PlayerWeaponStat).\
-        filter(PlayerWeaponStat.player_id == 6).\
+        filter(PlayerWeaponStat.player_id == player_id).\
         filter(PlayerWeaponStat.game_id.in_(games_raw)).all()
-
-    weapon_stats = [ws.to_dict() for ws in weapon_stats_raw]
 
     # NVD3 expects data points for all weapons used across the
     # set of games *for each* point on the x axis. This means populating
@@ -1091,7 +1089,16 @@ def player_damage_data_v2(request):
         if ws.weapon_cd not in weapons_used:
             weapons_used.append(ws.weapon_cd)
 
-    games = sorted(games_to_weapons.keys())
+    for game_id in games_to_weapons.keys():
+        for weapon_cd in set(weapons_used) - set(games_to_weapons[game_id]):
+            log.debug("Inserting zero value for game_id {0} weapon {1}".format(game_id, weapon_cd))
+            weapon_stats_raw.append(PlayerWeaponStat(player_id=player_id,
+                game_id=game_id, weapon_cd=weapon_cd))
+
+
+    weapon_stats_raw = sorted(weapon_stats_raw, key=lambda x: x.game_id)
+    games        = sorted(games_to_weapons.keys())
+    weapon_stats = [ws.to_dict() for ws in weapon_stats_raw]
 
     log.debug(games_to_weapons)
     log.debug(weapons_used)
@@ -1099,7 +1106,7 @@ def player_damage_data_v2(request):
 
     return {
         "weapon_stats": weapon_stats,
-        "weapons_used": weapon_stats,
+        "weapons_used": weapons_used,
         "games": games,
     }
 
