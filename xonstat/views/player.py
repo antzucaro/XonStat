@@ -1048,7 +1048,7 @@ def player_damage_data_v2(request):
     if player_id <= 2:
         player_id = -1;
 
-    game_type_cd = "dm"
+    game_type_cd = None
     if request.params.has_key("game_type"):
         game_type_cd = request.params["game_type"]
 
@@ -1061,33 +1061,45 @@ def player_damage_data_v2(request):
         if limit > 50:
             limit = 50
 
+    games_raw = DBSession.query(sa.distinct(Game.game_id)).\
+        filter(Game.game_id == PlayerWeaponStat.game_id).\
+        filter(PlayerWeaponStat.player_id == 6)
+
+    if game_type_cd is not None:
+        games_raw = games_raw.filter(Game.game_type_cd == game_type_cd)
+
+    games_raw = games_raw.order_by(Game.game_id.desc()).limit(limit).all()
+
     weapon_stats_raw = DBSession.query(PlayerWeaponStat).\
-        from_statement(
-            "SELECT * "
-            "FROM player_weapon_stats "
-            "WHERE player_id = :player_id "
-            "AND game_id IN ("
-                "SELECT distinct g.game_id "
-                "FROM player_weapon_stats pws, games g "
-                "WHERE pws.game_id = g.game_id "
-                "AND g.game_type_cd = :game_type_cd "
-                "AND pws.player_id = :player_id "
-                "ORDER BY g.game_id desc "
-                "LIMIT :limit "
-            ") "
-            "ORDER BY game_id"
-            ).params(player_id=player_id,
-                game_type_cd=game_type_cd, limit=limit).all()
+        filter(PlayerWeaponStat.player_id == 6).\
+        filter(PlayerWeaponStat.game_id.in_(games_raw)).all()
 
     weapon_stats = [ws.to_dict() for ws in weapon_stats_raw]
 
-    games = []
+    # NVD3 expects data points for all weapons used across the
+    # set of games *for each* point on the x axis. This means populating
+    # zero-valued weapon stat entries for games where a weapon was not
+    # used in that game, but was used in another game for the set
+    games_to_weapons = {}
+    weapons_used = []
     for ws in weapon_stats_raw:
-        if ws.game_id not in games:
-            games.append(ws.game_id)
+        if ws.game_id not in games_to_weapons:
+            games_to_weapons[ws.game_id] = [ws.weapon_cd]
+        else:
+            games_to_weapons[ws.game_id].append(ws.weapon_cd)
+
+        if ws.weapon_cd not in weapons_used:
+            weapons_used.append(ws.weapon_cd)
+
+    games = sorted(games_to_weapons.keys())
+
+    log.debug(games_to_weapons)
+    log.debug(weapons_used)
+    log.debug(games)
 
     return {
         "weapon_stats": weapon_stats,
+        "weapons_used": weapon_stats,
         "games": games,
     }
 
