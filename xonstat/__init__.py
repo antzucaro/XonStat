@@ -84,8 +84,8 @@ def main(global_config, **settings):
     config.add_route("nvd3_damage", "/player/{id:\d+}/nvd3-damage")
     config.add_view(player_nvd3_damage, route_name="nvd3_damage", renderer="nvd3_damage.mako")
 
-    config.add_route("player_damage_data_v2", "/player/{id:\d+}/damage-v2")
-    config.add_view(player_damage_data_v2, route_name="player_damage_data_v2", renderer="jsonp")
+    config.add_route("player_weaponstats_data_json", "/player/{id:\d+}/weaponstats.json")
+    config.add_view(player_weaponstats_data_json, route_name="player_weaponstats_data_json", renderer="jsonp")
 
     # GAME ROUTES
     config.add_route("game_info",      "/game/{id:\d+}")
