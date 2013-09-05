@@ -1060,7 +1060,7 @@ def player_nvd3_damage(request):
         "limit": limit,
     }
 
-def player_damage_data_v2(request):
+def player_weaponstats_data_json(request):
     player_id = request.matchdict["id"]
     if player_id <= 2:
         player_id = -1;
@@ -1113,13 +1113,9 @@ def player_damage_data_v2(request):
                 game_id=game_id, weapon_cd=weapon_cd))
 
 
-    weapon_stats_raw = sorted(weapon_stats_raw, key=lambda x: x.game_id)
-    games        = sorted(games_to_weapons.keys())
-    weapon_stats = [ws.to_dict() for ws in weapon_stats_raw]
-
-    log.debug(games_to_weapons)
-    log.debug(weapons_used)
-    log.debug(games)
+    weapon_stats_raw = sorted(weapon_stats_raw, key              = lambda x: x.game_id)
+    games            = sorted(games_to_weapons.keys())
+    weapon_stats     = [ws.to_dict() for ws in weapon_stats_raw]
 
     return {
         "weapon_stats": weapon_stats,
