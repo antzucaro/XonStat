@@ -29,12 +29,12 @@
 
 .nvtooltip {
   position: absolute;
-  background-color: rgba(255,255,255,1.0);
+  background-color: rgba(50,50,50,1.0);
   padding: 1px;
   border: 1px solid rgba(0,0,0,.2);
   z-index: 10000;
 
-  font-family: Arial;
+  font-family: sans-serif;
   font-size: 13px;
   text-align: left;
   pointer-events: none;
@@ -72,10 +72,10 @@
   padding: 4px 14px;
   line-height: 18px;
   font-weight: normal;
-  background-color: rgba(247,247,247,0.75);
+  background-color: rgba(100,100,100,0.75);
   text-align: center;
 
-  border-bottom: 1px solid #ebebeb;
+  border-bottom: 1px solid #gray;
 
   -webkit-border-radius: 5px 5px 0 0;
   -moz-border-radius: 5px 5px 0 0;
@@ -142,7 +142,8 @@ svg {
 
 
 svg text {
-  font: normal 12px Arial;
+  font: normal 12px sans-serif;
+  fill: rgb(200, 200, 200);
 }
 
 svg .title {
@@ -187,7 +188,6 @@ svg .title {
 }
 
 
-
 /**********
 *  Axes
 */
@@ -197,7 +197,7 @@ svg .title {
 
 .nvd3 .nv-axis path {
   fill: none;
-  stroke: #000;
+  stroke: rgb(200, 200, 200);
   stroke-opacity: .75;
   shape-rendering: crispEdges;
 }
@@ -212,7 +212,9 @@ svg .title {
 
 .nvd3 .nv-axis line {
   fill: none;
-  stroke: #e5e5e5;
+  //stroke: #e5e5e5;
+  stroke: rgb(50, 50, 50);
+  stroke-opacity: .65;
   shape-rendering: crispEdges;
 }
 
@@ -228,7 +230,7 @@ svg .title {
 .nvd3 .x  .nv-axis .nv-axisMaxMin text,
 .nvd3 .x2 .nv-axis .nv-axisMaxMin text,
 .nvd3 .x3 .nv-axis .nv-axisMaxMin text {
-  text-anchor: middle
+  text-anchor: middle;
 }
 
 
@@ -644,6 +646,8 @@ svg .title {
 .nvd3.nv-historicalStockChart .nv-axis .nv-axislabel {
   font-weight: bold;
 }
+
+.nv-axislabel { font-weight: bold; }
 
 .nvd3.nv-historicalStockChart .nv-dragTarget {
   fill-opacity: 0;
