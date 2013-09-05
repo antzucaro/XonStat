@@ -80,8 +80,8 @@ text {
     }
 
     % if game_type_cd is not None:
-        d3.json("${request.route_url('player_damage_data_v2', id=player_id, _query={'limit':limit, 'game_type':game_type_cd})}", doDamageGraph);
+        d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit, 'game_type':game_type_cd})}", doDamageGraph);
     % else:
-        d3.json("${request.route_url('player_damage_data_v2', id=player_id, _query={'limit':limit})}", doDamageGraph);
+        d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit})}", doDamageGraph);
     % endif
 </script>
