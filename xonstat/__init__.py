@@ -72,16 +72,13 @@ def main(global_config, **settings):
     config.add_route("player_index_json", "/players.json")
     config.add_view(player_index_json, route_name="player_index_json", renderer="jsonp")
 
-    config.add_route("player_damage", "/player/{id:\d+}/damage")
-    config.add_view(player_damage_json, route_name="player_damage", renderer="jsonp")
-
     config.add_route("player_captimes",      "/player/{id:\d+}/captimes")
     config.add_view(player_captimes,      route_name="player_captimes",      renderer="player_captimes.mako")
 
     config.add_route("player_captimes_json", "/player/{id:\d+}/captimes.json")
     config.add_view(player_captimes_json, route_name="player_captimes_json", renderer="jsonp")
 
-    config.add_route("nvd3_damage", "/player/{id:\d+}/nvd3-damage")
+    config.add_route("nvd3_damage", "/player/{id:\d+}/damage")
     config.add_view(player_nvd3_damage, route_name="nvd3_damage", renderer="nvd3_damage.mako")
 
     config.add_route("player_weaponstats_data_json", "/player/{id:\d+}/weaponstats.json")
