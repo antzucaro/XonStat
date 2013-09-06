@@ -11,17 +11,10 @@ Player Damage
 
 <%block name="css">
 ${parent.css()}
+<link href="/static/css/sprites.css" rel="stylesheet">
 <link href="/static/css/nv.d3.css" rel="stylesheet" type="text/css">
 
 <style>
-body {
-  overflow-y:scroll;
-}
-
-text {
-  font: 12px sans-serif;
-}
-
 #damageChartSVG {
   height: 500px;
 }
@@ -41,6 +34,13 @@ ${parent.js()}
 % else:
     d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit})}", drawDamageChart);
 % endif
+
+% for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
+d3.select('.sprite-${gt}').on("click", function() {
+  d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit, 'game_type':gt})}", drawDamageChart);
+});
+% endfor
+
 </script>
 </%block>
 
@@ -51,5 +51,24 @@ ${parent.js()}
       <svg id="damageChartSVG"></svg>
     </div>
 
+  </div> <!-- end span12 -->
+</div> <!-- end row -->
+
+##### ROW OF GAME TYPE ICONS #####
+<div class="row">
+  <div class="span12 tabbable">
+    <ul class="nav nav-tabs">
+      % for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
+      <li 
+      % if game_type_cd == gt or (game_type_cd is None and gt == 'overall'):
+      class="active"
+      % endif
+      >
+        <span class="sprite sprite-${gt}"> </span><br />
+        ${gt} <br />
+      </li>
+      % endfor
+    </ul>
+    <br />
   </div>
 </div>
