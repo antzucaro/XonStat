@@ -37,6 +37,8 @@ ${parent.js()}
 
 % for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
 d3.select('.sprite-${gt}').on("click", function() {
+  // have to remove the chart each time
+  d3.select('#damageChartSVG .nvd3').remove();
   d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit, 'game_type':gt})}", drawDamageChart);
 });
 % endfor
