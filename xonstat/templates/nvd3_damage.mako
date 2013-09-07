@@ -21,8 +21,6 @@ ${parent.css()}
 </style>
 </%block>
 
-<script src="/static/js/d3.v3.min.js"></script>
-
 <%block name="js">
 ${parent.js()}
 <script src="/static/js/d3.v3.js"></script>
