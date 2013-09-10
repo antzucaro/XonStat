@@ -1042,9 +1042,9 @@ def player_nvd3_damage(request):
     if player_id <= 2:
         player_id = -1;
 
-    game_type_cd = None
-    if request.params.has_key("game_type"):
-        game_type_cd = request.params["game_type"]
+    game_type_cd = request.params.get("game_type", None)
+    if game_type_cd == "overall":
+        game_type_cd = None
 
     limit = 20
     if request.params.has_key("limit"):
@@ -1065,9 +1065,9 @@ def player_weaponstats_data_json(request):
     if player_id <= 2:
         player_id = -1;
 
-    game_type_cd = None
-    if request.params.has_key("game_type"):
-        game_type_cd = request.params["game_type"]
+    game_type_cd = request.params.get("game_type", None)
+    if game_type_cd == "overall":
+        game_type_cd = None
 
     limit = 20
     if request.params.has_key("limit"):
@@ -1108,7 +1108,6 @@ def player_weaponstats_data_json(request):
 
     for game_id in games_to_weapons.keys():
         for weapon_cd in set(weapons_used) - set(games_to_weapons[game_id]):
-            log.debug("Inserting zero value for game_id {0} weapon {1}".format(game_id, weapon_cd))
             weapon_stats_raw.append(PlayerWeaponStat(player_id=player_id,
                 game_id=game_id, weapon_cd=weapon_cd))
 
