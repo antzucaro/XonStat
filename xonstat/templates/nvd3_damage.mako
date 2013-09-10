@@ -22,25 +22,29 @@ ${parent.css()}
 </%block>
 
 <%block name="js">
-${parent.js()}
 <script src="/static/js/d3.v3.js"></script>
 <script src="/static/js/nv.d3.min.js"></script>
 <script src="/static/js/weaponCharts.js"></script>
 <script>
+// request initial weaponstats data
 % if game_type_cd is not None:
     d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit, 'game_type':game_type_cd})}", drawDamageChart);
 % else:
     d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit})}", drawDamageChart);
 % endif
 
+// redraw the SVG charts on a gametype icon click
 % for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
-d3.select('.sprite-${gt}').on("click", function() {
+d3.select('.${gt}').on("click", function() {
+  // set class to active
+  d3.select('.game_type.active').classed('active', false);
+  this.className = "game_type ${gt} active";
+
   // have to remove the chart each time
   d3.select('#damageChartSVG .nvd3').remove();
   d3.json("${request.route_url('player_weaponstats_data_json', id=player_id, _query={'limit':limit, 'game_type':gt})}", drawDamageChart);
 });
 % endfor
-
 </script>
 </%block>
 
@@ -57,15 +61,15 @@ d3.select('.sprite-${gt}').on("click", function() {
 ##### ROW OF GAME TYPE ICONS #####
 <div class="row">
   <div class="span12 tabbable">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs gametype-nav">
       % for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
-      <li 
+      <li class="game_type ${gt}
       % if game_type_cd == gt or (game_type_cd is None and gt == 'overall'):
-      class="active"
+      active
       % endif
-      >
-        <span class="sprite sprite-${gt}"> </span><br />
-        ${gt} <br />
+      ">
+        <a href="#${gt}"><span class="sprite sprite-${gt}"> </span><br />
+        ${gt} <br /></a>
       </li>
       % endfor
     </ul>
