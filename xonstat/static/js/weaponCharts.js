@@ -60,6 +60,9 @@ var drawAccuracyChart = function(data) {
   // the chart should fill the "accuracyChart" div
   var width = document.getElementById("accuracyChart").offsetWidth;
 
+  // get rid of empty values
+  data.weapon_stats = data.weapon_stats.filter(function(e){ return e.fired > 0; });
+
   // transform the dataset into something nvd3 can use
   var transformedData = d3.nest()
     .key(function(d) { return d.weapon_cd; }).entries(data.weapon_stats);
@@ -84,6 +87,7 @@ var drawAccuracyChart = function(data) {
       .margin(margin)
       .width(width)
       .height(height)
+      .forceY([0,1])
       .x(function(d) { return games[d.game_id] })
       .y(function(d) {
         if(d.fired > 0) {
@@ -100,6 +104,7 @@ var drawAccuracyChart = function(data) {
       .ticks(5)
       .tickFormat(function(d) { return data.games[d]; });
 
+    var yScale = d3.scale.linear().domain([0,1]).range([0,height]);
     chart.yAxis
       .axisLabel('% Accuracy')
       .tickFormat(d3.format('2%'));

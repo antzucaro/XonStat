@@ -34,6 +34,10 @@ $(function () {
 
 // weapon accuracy and damage charts
 d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id)}", function(err, data) {
+  if(data.games.length < 5) {
+    d3.select(".row #damageChartRow").remove();
+    d3.select(".row #accuracyChartRow").remove();
+  }
   drawDamageChart(data);
   drawAccuracyChart(data);
 });
@@ -198,7 +202,7 @@ Player Information
 
 
 ##### Weapon Accuracy Chart ####
-<div class="row">
+<div class="row" id="accuracyChartRow">
   <div class="span12">
     <h3>Weapon Accuracy</h3>
     <div id="accuracyChart">
@@ -209,7 +213,7 @@ Player Information
 
 
 ##### Weapon Damage Chart ####
-<div class="row">
+<div class="row" id="damageChartRow">
   <div class="span12">
     <h3>Weapon Damage</h3>
     <div id="damageChart">
