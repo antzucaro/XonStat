@@ -15,7 +15,7 @@ var drawDamageChart = function(data) {
   data.games.forEach(function(v,i){ games[v] = i; });
 
   // margin model
-  var margin = {top: 20, right: 30, bottom: 30, left: 40},
+  var margin = {top: 20, right: 30, bottom: 30, left: 60},
       height = 300 - margin.top - margin.bottom;
 
   width -= margin.left - margin.right;
