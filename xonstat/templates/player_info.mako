@@ -1,8 +1,5 @@
 <%inherit file="base.mako"/>
 <%namespace name="nav" file="nav.mako" />
-<%namespace file="accuracy.mako" import="accuracy" />
-<%namespace file="accuracy_graph.mako" import="accuracy_graph" />
-<%namespace file="damage_graph.mako" import="damage_graph" />
 
 <%block name="navigation">
 ${nav.nav('players')}
