@@ -205,6 +205,9 @@ Player Information
 <div class="row" id="accuracyChartRow">
   <div class="span12">
     <h3>Weapon Accuracy</h3>
+    <noscript>
+      Sorry, but you've disabled JavaScript! It is required to draw the accuracy chart.
+    </noscript>
     <div id="accuracyChart">
       <svg id="accuracyChartSVG"></svg>
     </div>
@@ -216,6 +219,9 @@ Player Information
 <div class="row" id="damageChartRow">
   <div class="span12">
     <h3>Weapon Damage</h3>
+    <noscript>
+      Sorry, but you've disabled JavaScript! It is required to draw the damage chart.
+    </noscript>
     <div id="damageChart">
       <svg id="damageChartSVG"></svg>
     </div>
