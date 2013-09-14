@@ -96,6 +96,9 @@ var drawAccuracyChart = function(data) {
           return 0;
         }
       })
+      .tooltip(function(key, x, y, e, graph) {
+        return '<h3>' + key + '</h3>' + '<p>' +  y + ' accuracy in game #' + x + ' <br /> ' + data.averages[key]  + '% average</p>';
+      })
       .color(keyColor);
 
     chart.xAxis

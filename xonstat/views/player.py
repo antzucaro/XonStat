@@ -1096,29 +1096,35 @@ def player_weaponstats_data_json(request):
     # zero-valued weapon stat entries for games where a weapon was not
     # used in that game, but was used in another game for the set
     games_to_weapons = {}
-    weapons_used = []
+    weapons_used = {}
+    sum_avgs = {}
     for ws in weapon_stats_raw:
         if ws.game_id not in games_to_weapons:
             games_to_weapons[ws.game_id] = [ws.weapon_cd]
         else:
             games_to_weapons[ws.game_id].append(ws.weapon_cd)
 
-        if ws.weapon_cd not in weapons_used:
-            weapons_used.append(ws.weapon_cd)
+        weapons_used[ws.weapon_cd] = weapons_used.get(ws.weapon_cd, 0) + 1
+        sum_avgs[ws.weapon_cd] = sum_avgs.get(ws.weapon_cd, 0) + float(ws.hit)/float(ws.fired)
 
     for game_id in games_to_weapons.keys():
-        for weapon_cd in set(weapons_used) - set(games_to_weapons[game_id]):
+        for weapon_cd in set(weapons_used.keys()) - set(games_to_weapons[game_id]):
             weapon_stats_raw.append(PlayerWeaponStat(player_id=player_id,
                 game_id=game_id, weapon_cd=weapon_cd))
 
+    # averages for the weapons used in the range
+    avgs = {}
+    for w in weapons_used.keys():
+        avgs[w] = round(sum_avgs[w]/float(weapons_used[w])*100, 2)
 
-    weapon_stats_raw = sorted(weapon_stats_raw, key              = lambda x: x.game_id)
+    weapon_stats_raw = sorted(weapon_stats_raw, key = lambda x: x.game_id)
     games            = sorted(games_to_weapons.keys())
     weapon_stats     = [ws.to_dict() for ws in weapon_stats_raw]
 
     return {
         "weapon_stats": weapon_stats,
-        "weapons_used": weapons_used,
+        "weapons_used": weapons_used.keys(),
         "games": games,
+        "averages": avgs,
     }
 
