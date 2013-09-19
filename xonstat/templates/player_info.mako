@@ -33,7 +33,7 @@ $(function () {
 })
 
 // weapon accuracy and damage charts
-d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id)}", function(err, data) {
+d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':30})}", function(err, data) {
   if(data.games.length < 5) {
     d3.select(".row #damageChartRow").remove();
     d3.select(".row #accuracyChartRow").remove();
@@ -47,7 +47,7 @@ d3.select('.tab-${g.game_type_cd}').on("click", function() {
   // have to remove the chart each time
   d3.select('#damageChartSVG .nvd3').remove();
   d3.select('#accuracyChartSVG .nvd3').remove();
-  d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':20, 'game_type':g.game_type_cd})}", function(err, data) {
+  d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':30, 'game_type':g.game_type_cd})}", function(err, data) {
     drawDamageChart(data);
     drawAccuracyChart(data);
   });
@@ -145,23 +145,23 @@ Player Information
 
           % if g.game_type_cd in ranks:
           % if g.game_type_cd == 'overall':
-          Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)}) <br /></small>
+            Best Rank: 
+            <small>
+              <a href="${request.route_url('rank_index', game_type_cd=ranks[g.game_type_cd].game_type_cd, _query={'page':(ranks[g.game_type_cd].rank-1)/20+1})}" title="Player rank page for this player">
+                ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}
+              </a>
+              (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)}) 
+              <br />
+            </small>
           % else:
           Rank: 
-          <small>
-            <a href="
-              % if ranks[g.game_type_cd].rank % 20 == 0:
-                ${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':ranks[g.game_type_cd].rank/20})}
-
-              % else:
-                ${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':ranks[g.game_type_cd].rank/20+1})}
-
-              % endif
-            " title="Player rank page for this player">
-            ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}</a>
-            (percentile: ${round(ranks[g.game_type_cd].percentile,2)})
-            <br />
-          </small>
+            <small>
+              <a href="${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':(ranks[g.game_type_cd].rank-1)/20+1})}" title="Player rank page for this player">
+                ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}
+              </a>
+              (percentile: ${round(ranks[g.game_type_cd].percentile,2)})
+              <br />
+            </small>
           % endif
           % else:
           <small><br /></small>
