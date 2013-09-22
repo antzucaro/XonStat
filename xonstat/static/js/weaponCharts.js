@@ -1,4 +1,3 @@
-// weapons and their corresponding colors
 var weapons = ["laser", "shotgun", "uzi", "grenadelauncher", "minelayer", "electro",
     "crylink", "nex", "hagar", "rocketlauncher", "porto", "minstanex", "hook", "hlac",
     "seeker", "rifle", "tuba", "fireball"];
@@ -73,6 +72,15 @@ var drawAccuracyChart = function(data) {
   var transformedData = d3.nest()
     .key(function(d) { return d.weapon_cd; }).entries(data.weapon_stats);
 
+  var findNumGames = function(weapon) {
+    var numGames = transformedData.filter(function(e){return e.key == weapon})[0].values.length;
+    if(numGames !== undefined) {
+        return numGames;
+    } else {
+        return 0;
+    }
+  };
+
   // transform games list into a map such that games[game_id] = linear sequence
   var games = {};
   data.games.forEach(function(v,i){ games[v] = i; });
@@ -102,7 +110,7 @@ var drawAccuracyChart = function(data) {
         }
       })
       .tooltip(function(key, x, y, e, graph) {
-        return '<h3>' + key + '</h3>' + '<p>' +  y + ' accuracy in game #' + x + ' <br /> ' + data.averages[key]  + '% average</p>';
+        return '<h3>' + key + '</h3>' + '<p>' +  y + ' accuracy in game #' + x + ' <br /> ' + data.averages[key]  + '% average over ' + findNumGames(key) + ' games</p>';
       })
       .color(keyColor);
 
