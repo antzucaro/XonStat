@@ -1,6 +1,13 @@
-var weapons = ["laser", "shotgun", "uzi", "grenadelauncher", "electro", "crylink",
-               "nex", "hagar", "rocketlauncher", "minstanex", "rifle",  "fireball",
-               "minelayer", "seeker", "tuba", "hlac", "hook", "porto"];
+// weapons and their corresponding colors
+var weapons = ["laser", "shotgun", "uzi", "grenadelauncher", "minelayer", "electro",
+    "crylink", "nex", "hagar", "rocketlauncher", "porto", "minstanex", "hook", "hlac",
+    "seeker", "rifle", "tuba", "fireball"];
+
+var weaponColors = ["#ff5933", "#b2b2b2", "#66e559", "#ff2600", "#bfbf00", "#597fff",
+    "#d83fff", "#00e5ff", "#d87f59", "#ffbf33", "#7fff7f", "#a5a5ff", "#a5ffd8",
+    "#ffa533", "#ff5959", "#d87f3f", "#d87f3f", "#33ff33"];
+
+var colorScale = d3.scale.ordinal().domain(weapons).range(weaponColors);
 
 var drawDamageChart = function(data) {
   // the chart should fill the "damageChart" div
@@ -21,8 +28,7 @@ var drawDamageChart = function(data) {
   width -= margin.left - margin.right;
 
   // colors
-  var colors = d3.scale.category20().domain(weapons);
-  keyColor = function(d, i) {return colors(d.key)};
+  keyColor = function(d, i) {return colorScale(d.key)};
 
   var chart;
   nv.addGraph(function() {
@@ -78,8 +84,7 @@ var drawAccuracyChart = function(data) {
   width -= margin.left - margin.right;
 
   // colors
-  var colors = d3.scale.category20().domain(weapons);
-  keyColor = function(d, i) {return colors(d.key)};
+  keyColor = function(d, i) {return colorScale(d.key)};
 
   var chart;
   nv.addGraph(function() {
