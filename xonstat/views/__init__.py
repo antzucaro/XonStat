@@ -7,7 +7,7 @@ from xonstat.views.player import player_damage_json
 from xonstat.views.player import player_elo_info_text, player_elo_info_json
 from xonstat.views.player import player_hashkey_info_text, player_hashkey_info_json
 from xonstat.views.player import player_captimes, player_captimes_json
-from xonstat.views.player import player_nvd3_damage, player_weaponstats_data_json
+from xonstat.views.player import player_weaponstats_data_json
 
 from xonstat.views.game   import game_info, rank_index
 from xonstat.views.game   import game_info_json, rank_index_json
