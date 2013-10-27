@@ -26,4 +26,5 @@ from xonstat.views.search import search_json
 
 from xonstat.views.exceptions   import notfound
 
-from xonstat.views.main   import main_index, top_players_by_time
+from xonstat.views.main   import main_index, top_players_by_time, top_servers_by_players
+from xonstat.views.main   import top_servers_by_players

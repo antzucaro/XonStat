@@ -136,8 +136,30 @@ def get_top_players_by_time(cutoff_days):
     return top_players
 
 
+def top_servers_by_players_q(cutoff_days):
+    """
+    Query to get the top servers by the amount of players active
+    during a date range.
+
+    Games older than cutoff_days days old are ignored.
+    """
+    # only games played during this range are considered
+    right_now = datetime.utcnow()
+    cutoff_dt = right_now - timedelta(days=cutoff_days)
+
+    top_servers_q = DBSession.query(Server.server_id, Server.name,
+        func.count()).\
+        filter(Game.server_id==Server.server_id).\
+        filter(expr.between(Game.create_dt, cutoff_dt, right_now)).\
+        order_by(expr.desc(func.count(Game.game_id))).\
+        group_by(Server.server_id).\
+        group_by(Server.name)
+
+    return top_servers_q
+
+
 @cache_region('hourly_term')
-def top_servers_by_players(cutoff_days):
+def get_top_servers_by_players(cutoff_days):
     """
     The top servers by the amount of players active during a date range.
 
@@ -146,17 +168,7 @@ def top_servers_by_players(cutoff_days):
     # how many to retrieve
     count = 10
 
-    # only games played during this range are considered
-    right_now = datetime.utcnow()
-    cutoff_dt = right_now - timedelta(days=cutoff_days)
-
-    top_servers = DBSession.query(Server.server_id, Server.name,
-        func.count()).\
-        filter(Game.server_id==Server.server_id).\
-        filter(expr.between(Game.create_dt, cutoff_dt, right_now)).\
-        order_by(expr.desc(func.count(Game.game_id))).\
-        group_by(Server.server_id).\
-        group_by(Server.name).limit(count).all()
+    top_servers = top_servers_by_players_q(cutoff_days).limit(count).all()
 
     return top_servers
 
@@ -216,7 +228,7 @@ def _main_index_data(request):
     top_players = get_top_players_by_time(leaderboard_lifetime)
 
     # top servers by number of total players played
-    top_servers = top_servers_by_players(leaderboard_lifetime)
+    top_servers = get_top_servers_by_players(leaderboard_lifetime)
 
     # top maps by total times played
     top_maps = top_maps_by_times_played(leaderboard_lifetime)
@@ -277,3 +289,16 @@ def top_players_by_time(request):
             for (player_id, nick, score) in top_players.items]
 
     return {'top_players':top_players}
+
+
+def top_servers_by_players(request):
+    current_page = request.params.get('page', 1)
+
+    cutoff_days = int(request.registry.settings.\
+        get('xonstat.leaderboard_lifetime', 30))
+
+    top_servers_q = top_servers_by_players_q(cutoff_days)
+
+    top_servers = Page(top_servers_q, current_page, items_per_page=25, url=page_url)
+
+    return {'top_servers':top_servers}
