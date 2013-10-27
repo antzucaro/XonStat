@@ -100,6 +100,7 @@ Leaderboard
       % endfor
       </tbody>
     </table>
+    <p class="note"><a href="${request.route_url('top_players_by_time', page=1)}" title="See more player activity">More...</a></p>
   </div> <!-- /span4 -->
 
 
@@ -130,6 +131,7 @@ Leaderboard
       % endfor
       </tbody>
     </table>
+    <p class="note"><a href="${request.route_url('top_servers_by_players', page=1)}" title="See more server activity">More...</a></p>
   </div> <!-- /span4 -->
 
 
@@ -160,6 +162,7 @@ Leaderboard
       % endfor
       </tbody>
     </table>
+    <p class="note"><a href="${request.route_url('top_maps_by_times_played', page=1)}" title="See more map activity">More...</a></p>
   </div> <!-- /span4 -->
 </div> <!-- /row -->
 <row class="span12">
