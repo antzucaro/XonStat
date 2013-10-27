@@ -81,6 +81,9 @@ def main(global_config, **settings):
     config.add_route("player_weaponstats_data_json", "/player/{id:\d+}/weaponstats.json")
     config.add_view(player_weaponstats_data_json, route_name="player_weaponstats_data_json", renderer="jsonp")
 
+    config.add_route("top_players_by_time", "/topactive")
+    config.add_view(top_players_by_time, route_name="top_players_by_time", renderer="top_players_by_time.mako")
+
     # GAME ROUTES
     config.add_route("game_info",      "/game/{id:\d+}")
     config.add_view(game_info,      route_name="game_info",      renderer="game_info.mako")
