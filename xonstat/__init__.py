@@ -87,6 +87,9 @@ def main(global_config, **settings):
     config.add_route("top_servers_by_players", "/topservers")
     config.add_view(top_servers_by_players, route_name="top_servers_by_players", renderer="top_servers_by_players.mako")
 
+    config.add_route("top_maps_by_times_played", "/topmaps")
+    config.add_view(top_maps_by_times_played, route_name="top_maps_by_times_played", renderer="top_maps_by_times_played.mako")
+
     # GAME ROUTES
     config.add_route("game_info",      "/game/{id:\d+}")
     config.add_view(game_info,      route_name="game_info",      renderer="game_info.mako")
