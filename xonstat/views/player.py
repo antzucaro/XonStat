@@ -10,6 +10,7 @@ from xonstat.models import *
 from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
 from xonstat.util import is_cake_day, verify_request
 from xonstat.views.helpers import RecentGame, recent_games_q
+from urllib import unquote
 
 log = logging.getLogger(__name__)
 
@@ -788,7 +789,13 @@ def player_damage_json(request):
 
 
 def player_hashkey_info_data(request):
-    (idfp, status) = verify_request(request)
+    # hashkey = request.matchdict['hashkey']
+
+    # the incoming hashkey is double quoted, and WSGI unquotes once...
+    # hashkey = unquote(hashkey)
+
+    # if using request verification to obtain the hashkey
+    (hashkey, status) = verify_request(request)
 
     # if config is to *not* verify requests and we get nothing back, this
     # query will return nothing and we'll 404.
@@ -796,7 +803,7 @@ def player_hashkey_info_data(request):
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
                 filter(Player.active_ind == True).\
-                filter(Hashkey.hashkey == idfp).one()
+                filter(Hashkey.hashkey == hashkey).one()
 
         games_played      = get_games_played(player.player_id)
         overall_stats     = get_overall_stats(player.player_id)
@@ -913,7 +920,10 @@ def player_elo_info_data(request):
     Provides elo information on a specific player. Raw data is returned.
     """
     hashkey = request.matchdict['hashkey']
-    print "player_elo_info_data [hashkey={0}]".format(hashkey)
+
+    # the incoming hashkey is double quoted, and WSGI unquotes once...
+    hashkey = unquote(hashkey)
+
     try:
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
