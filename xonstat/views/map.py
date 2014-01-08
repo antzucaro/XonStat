@@ -166,59 +166,83 @@ def map_info_json(request):
 
 def map_captimes_data(request):
     map_id = int(request.matchdict['id'])
-        
-    MapCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap', 'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
+
+    if request.params.has_key('page'):
+        current_page = request.params['page']
+    else:
+        current_page = 1
+
+    MapCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap',
+        'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
         'player_id', 'player_nick', 'player_nick_stripped', 'player_nick_html',
         'game_id', 'server_id', 'server_name'])
 
-    dbquery = DBSession.query('fastest_cap', 'create_dt', 'player_id', 'game_id',
-                'server_id', 'server_name', 'player_nick').\
-            from_statement(
-                "SELECT ct.fastest_cap, "
-                       "ct.create_dt, "
-                       "ct.player_id, "
-                       "ct.game_id, "
-                       "g.server_id, "
-                       "s.name server_name, "
-                       "pgs.nick player_nick "
-                "FROM   player_map_captimes ct, "
-                       "games g, "
-                       "maps m, "
-                       "servers s, "
-                       "player_game_stats pgs "
-                "WHERE  ct.map_id = :map_id "
-                  "AND  g.game_id = ct.game_id "
-                  "AND  g.server_id = s.server_id "
-                  "AND  m.map_id = ct.map_id "
-                  "AND  pgs.player_id = ct.player_id "
-                  "AND  pgs.game_id = ct.game_id "
-                "ORDER  BY ct.fastest_cap "
-                "LIMIT  25"
-            ).params(map_id=map_id).all()
-
     mmap = DBSession.query(Map).filter_by(map_id=map_id).one()
 
-    map_captimes = []
-    for row in dbquery:
-        map_captimes.append(MapCaptimes(
-                fastest_cap=row.fastest_cap,
-                create_dt=row.create_dt,
-                create_dt_epoch=timegm(row.create_dt.timetuple()),
-                create_dt_fuzzy=pretty_date(row.create_dt),
-                player_id=row.player_id,
-                player_nick=row.player_nick,
-                player_nick_stripped=strip_colors(row.player_nick),
-                player_nick_html=html_colors(row.player_nick),
-                game_id=row.game_id,
-                server_id=row.server_id,
-                server_name=row.server_name,
-            ))
+    #mct_q = DBSession.query('fastest_cap', 'create_dt', 'player_id', 'game_id',
+    #            'server_id', 'server_name', 'player_nick').\
+    #        from_statement(
+    #            "SELECT ct.fastest_cap, "
+    #                   "ct.create_dt, "
+    #                   "ct.player_id, "
+    #                   "ct.game_id, "
+    #                   "g.server_id, "
+    #                   "s.name server_name, "
+    #                   "pgs.nick player_nick "
+    #            "FROM   player_map_captimes ct, "
+    #                   "games g, "
+    #                   "maps m, "
+    #                   "servers s, "
+    #                   "player_game_stats pgs "
+    #            "WHERE  ct.map_id = :map_id "
+    #              "AND  g.game_id = ct.game_id "
+    #              "AND  g.server_id = s.server_id "
+    #              "AND  m.map_id = ct.map_id "
+    #              "AND  pgs.player_id = ct.player_id "
+    #              "AND  pgs.game_id = ct.game_id "
+    #            "ORDER  BY ct.fastest_cap "
+    #            "LIMIT  25"
+    #        ).params(map_id=map_id)
+
+    #try:
+    if True:
+        mct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
+                PlayerCaptime.player_id, PlayerCaptime.game_id,
+                Game.server_id, Server.name.label('server_name'),
+                PlayerGameStat.nick.label('player_nick')).\
+                filter(PlayerCaptime.map_id==map_id).\
+                filter(PlayerCaptime.game_id==Game.game_id).\
+                filter(PlayerCaptime.map_id==Map.map_id).\
+                filter(Game.server_id==Server.server_id).\
+                filter(PlayerCaptime.player_id==PlayerGameStat.player_id).\
+                filter(PlayerCaptime.game_id==PlayerGameStat.game_id).\
+                order_by(expr.asc(PlayerCaptime.fastest_cap))
+
+        map_captimes = Page(mct_q, current_page, items_per_page=20, url=page_url)
+
+        map_captimes.items = [MapCaptimes(
+                        fastest_cap=row.fastest_cap,
+                        create_dt=row.create_dt,
+                        create_dt_epoch=timegm(row.create_dt.timetuple()),
+                        create_dt_fuzzy=pretty_date(row.create_dt),
+                        player_id=row.player_id,
+                        player_nick=row.player_nick,
+                        player_nick_stripped=strip_colors(row.player_nick),
+                        player_nick_html=html_colors(row.player_nick),
+                        game_id=row.game_id,
+                        server_id=row.server_id,
+                        server_name=row.server_name,
+                ) for row in map_captimes.items]
+
+    #except Exception as e:
+    else:
+        map = None
+        map_captimes = None
 
     return {
-            'captimes':map_captimes,
             'map_id':map_id,
-            'map_url':request.route_url('map_info', id=map_id),
             'map':mmap,
+            'captimes':map_captimes,
         }
 
 def map_captimes(request):

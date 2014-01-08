@@ -3,6 +3,7 @@ import logging
 import pyramid.httpexceptions
 import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
+import sqlalchemy.sql.expression as expr
 from calendar import timegm
 from collections import namedtuple
 from webhelpers.paginate import Page
@@ -926,15 +927,13 @@ def player_elo_info_data(request):
     (idfp, status) = verify_request(request)
     log.debug("d0_blind_id verification: idfp={0} status={1}\n".format(idfp, status))
 
-    hashkey = request.matchdict['hashkey']
-<<<<<<< HEAD
     log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
             "----- END REQUEST BODY -----\n\n")
-=======
+
+    hashkey = request.matchdict['hashkey']
 
     # the incoming hashkey is double quoted, and WSGI unquotes once...
     hashkey = unquote(hashkey)
->>>>>>> master
 
     try:
         player = DBSession.query(Player).\
@@ -998,41 +997,58 @@ def player_elo_info_text(request):
 
 
 def player_captimes_data(request):
-    player_id = int(request.matchdict['id'])
+    player_id = int(request.matchdict['player_id'])
     if player_id <= 2:
         player_id = -1;
 
-    PlayerCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap', 'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
-        'player_id', 'game_id', 'map_id', 'map_name', 'server_id', 'server_name'])
+    if request.params.has_key('page'):
+        current_page = request.params['page']
+    else:
+        current_page = 1
 
-    dbquery = DBSession.query('fastest_cap', 'create_dt', 'player_id', 'game_id', 'map_id',
-                'map_name', 'server_id', 'server_name').\
-            from_statement(
-                "SELECT ct.fastest_cap, "
-                       "ct.create_dt, "
-                       "ct.player_id, "
-                       "ct.game_id, "
-                       "ct.map_id, "
-                       "m.name map_name, "
-                       "g.server_id, "
-                       "s.name server_name "
-                "FROM   player_map_captimes ct, "
-                       "games g, "
-                       "maps m, "
-                       "servers s "
-                "WHERE  ct.player_id = :player_id "
-                  "AND  g.game_id = ct.game_id "
-                  "AND  g.server_id = s.server_id "
-                  "AND  m.map_id = ct.map_id "
-                #"ORDER  BY ct.fastest_cap "
-                "ORDER  BY ct.create_dt desc"
-            ).params(player_id=player_id).all()
+    PlayerCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap',
+            'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
+            'player_id', 'game_id', 'map_id', 'map_name', 'server_id', 'server_name'])
 
     player = DBSession.query(Player).filter_by(player_id=player_id).one()
 
-    player_captimes = []
-    for row in dbquery:
-        player_captimes.append(PlayerCaptimes(
+    #pct_q = DBSession.query('fastest_cap', 'create_dt', 'player_id', 'game_id', 'map_id',
+    #            'map_name', 'server_id', 'server_name').\
+    #        from_statement(
+    #            "SELECT ct.fastest_cap, "
+    #                   "ct.create_dt, "
+    #                   "ct.player_id, "
+    #                   "ct.game_id, "
+    #                   "ct.map_id, "
+    #                   "m.name map_name, "
+    #                   "g.server_id, "
+    #                   "s.name server_name "
+    #            "FROM   player_map_captimes ct, "
+    #                   "games g, "
+    #                   "maps m, "
+    #                   "servers s "
+    #            "WHERE  ct.player_id = :player_id "
+    #              "AND  g.game_id = ct.game_id "
+    #              "AND  g.server_id = s.server_id "
+    #              "AND  m.map_id = ct.map_id "
+    #            #"ORDER  BY ct.fastest_cap "
+    #            "ORDER  BY ct.create_dt desc"
+    #        ).params(player_id=player_id)
+
+    try:
+        pct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
+                PlayerCaptime.player_id, PlayerCaptime.game_id, PlayerCaptime.map_id,
+                Map.name.label('map_name'), Game.server_id, Server.name.label('server_name')).\
+                filter(PlayerCaptime.player_id==player_id).\
+                filter(PlayerCaptime.game_id==Game.game_id).\
+                filter(PlayerCaptime.map_id==Map.map_id).\
+                filter(Game.server_id==Server.server_id).\
+                order_by(expr.asc(PlayerCaptime.fastest_cap))  # or PlayerCaptime.create_dt
+
+        player_captimes = Page(pct_q, current_page, items_per_page=20, url=page_url)
+
+        # replace the items in the canned pagination class with more rich ones
+        player_captimes.items = [PlayerCaptimes(
                 fastest_cap=row.fastest_cap,
                 create_dt=row.create_dt,
                 create_dt_epoch=timegm(row.create_dt.timetuple()),
@@ -1042,14 +1058,18 @@ def player_captimes_data(request):
                 map_id=row.map_id,
                 map_name=row.map_name,
                 server_id=row.server_id,
-                server_name=row.server_name,
-            ))
+                server_name=row.server_name
+                ) for row in player_captimes.items]
+
+    except Exception as e:
+        player = None
+        player_captimes = None
 
     return {
-            'captimes':player_captimes,
             'player_id':player_id,
-            'player_url':request.route_url('player_info', id=player_id),
             'player':player,
+            'captimes':player_captimes,
+            #'player_url':request.route_url('player_info', id=player_id),
         }
 
 

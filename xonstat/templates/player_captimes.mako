@@ -1,5 +1,10 @@
 <%inherit file="base.mako"/>
 <%namespace name="nav" file="nav.mako" />
+<%namespace file="navlinks.mako" import="navlinks" />
+
+<%block name="navigation">
+${nav.nav('players')}
+</%block>
 
 <%block name="title">
 Player captimes
@@ -29,7 +34,7 @@ Player captimes
         </tr>
       </thead>
       <tbody>
-      % for ct in captimes:
+      % for ct in captimes.items:
         <tr>
           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
           <td>${ct.fastest_cap.total_seconds()} seconds</td>
@@ -43,4 +48,6 @@ Player captimes
   </div>
 </div>
 
+<!-- navigation links -->
+${navlinks("player_captimes", captimes.page, captimes.last_page, player_id=player_id, search_query=request.GET)}
 % endif

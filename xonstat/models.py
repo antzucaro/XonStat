@@ -267,6 +267,12 @@ class PlayerCaptime(object):
     def __repr__(self):
         return "<PlayerCaptime(pid=%s, map_id=%s)>" % (self.player_id, self.map_id)
 
+    def fuzzy_date(self):
+        return pretty_date(self.create_dt)
+
+    def epoch(self):
+        return timegm(self.create_dt.timetuple())
+
 
 class SummaryStat(object):
     def __repr__(self):

@@ -1,16 +1,25 @@
 <%inherit file="base.mako"/>
 <%namespace name="nav" file="nav.mako" />
+<%namespace file="navlinks.mako" import="navlinks" />
+
+<%block name="navigation">
+${nav.nav('maps')}
+</%block>
 
 <%block name="title">
 Map captimes
 </%block>
 
+% if len(captimes) == 0:
+<h2>Sorry, no caps yet. Get playing!</h2>
+<p><a href="${map_url}">Back to map info page</a></p>
+% else:
 
 <div class="row">
   <div class="span12">
 
     <h2>${map.name}</h2>
-    <p><a href="${map_url}">Back to map info page</a></p>
+    <p><a href="${request.route_url('map_info', id=map.map_id)}">Back to map info page</a></p>
 
     <h3>Fastest Flag Captures:</h3>
 
@@ -25,7 +34,7 @@ Map captimes
         </tr>
       </thead>
       <tbody>
-      % for ct in captimes:
+      % for ct in captimes.items:
         <tr>
           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=ct.game_id)}" title="View detailed information about this game">view</a></td>
           <td>${ct.fastest_cap.total_seconds()} seconds</td>
@@ -45,3 +54,6 @@ Map captimes
   </div>
 </div>
 
+<!-- navigation links -->
+${navlinks("map_captimes", captimes.page, captimes.last_page, id=map_id, search_query=request.GET)}
+% endif
