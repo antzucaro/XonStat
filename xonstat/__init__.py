@@ -45,8 +45,7 @@ def main(global_config, **settings):
     config.add_route("player_game_index_json", "/player/{player_id:\d+}/games.json")
     config.add_view(player_game_index_json, route_name="player_game_index_json", renderer="jsonp")
 
-    #config.add_route("player_hashkey_info_text", "/player/me")
-    config.add_route("player_hashkey_info_text", "/player/{hashkey}")
+    config.add_route("player_hashkey_info_text", "/player/me")
     config.add_view(player_hashkey_info_text, route_name="player_hashkey_info_text", renderer="player_hashkey_info_text.mako")
 
     config.add_route("player_info",      "/player/{id:\d+}")

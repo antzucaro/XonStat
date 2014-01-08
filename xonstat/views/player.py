@@ -789,9 +789,10 @@ def player_damage_json(request):
 
 def player_hashkey_info_data(request):
     (idfp, status) = verify_request(request)
-    print "player_hashkey_info_data [idfp={0} status={1}]".format(idfp, status)
+    log.debug("d0_blind_id verification: idfp={0} status={1}\n".format(idfp, status))
 
-    hashkey = request.matchdict['hashkey']
+    log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
+            "----- END REQUEST BODY -----\n\n")
 
     # if config is to *not* verify requests and we get nothing back, this
     # query will return nothing and we'll 404.
@@ -799,7 +800,7 @@ def player_hashkey_info_data(request):
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\
                 filter(Player.active_ind == True).\
-                filter(Hashkey.hashkey == hashkey).one()
+                filter(Hashkey.hashkey == idfp).one()
 
         games_played   = get_games_played(player.player_id)
         overall_stats  = get_overall_stats(player.player_id)
@@ -811,7 +812,7 @@ def player_hashkey_info_data(request):
         raise pyramid.httpexceptions.HTTPNotFound
 
     return {'player':player,
-            'hashkey':hashkey,
+            'hashkey':idfp,
             'games_played':games_played,
             'overall_stats':overall_stats,
             'fav_maps':fav_maps,
@@ -908,8 +909,13 @@ def player_elo_info_data(request):
     """
     Provides elo information on a specific player. Raw data is returned.
     """
+    (idfp, status) = verify_request(request)
+    log.debug("d0_blind_id verification: idfp={0} status={1}\n".format(idfp, status))
+
     hashkey = request.matchdict['hashkey']
-    print "player_elo_info_data [hashkey={0}]".format(hashkey)
+    log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
+            "----- END REQUEST BODY -----\n\n")
+
     try:
         player = DBSession.query(Player).\
                 filter(Player.player_id == Hashkey.player_id).\

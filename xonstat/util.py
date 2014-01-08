@@ -1,3 +1,4 @@
+import sys
 import logging
 import pyramid.httpexceptions
 import re
@@ -261,9 +262,8 @@ def verify_request(request):
                 sig=request.headers['X-D0-Blind-Id-Detached-Signature'],
                 querystring='',
                 postdata=request.body)
-
-        log.debug('\nidfp: {0}\nstatus: {1}'.format(idfp, status))
     except:
+        log.debug('ERROR: Could not verify request: {0}'.format(sys.exc_info()))
         idfp = None
         status = None
 
