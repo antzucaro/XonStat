@@ -5,80 +5,13 @@ import time
 from collections import OrderedDict
 from pyramid.response import Response
 from sqlalchemy import desc, func, over
-from collections import namedtuple
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url
 from xonstat.views.helpers import RecentGame, recent_games_q
 
-import random
 
 log = logging.getLogger(__name__)
-
-
-# DEPRECATED
-def _game_index_data(request):
-    game_type_cd = None
-    game_type_descr = None
-
-    if request.params.has_key('game_type_cd'):
-        game_type_cd = request.params['game_type_cd']
-        try:
-            game_type_descr = DBSession.query(GameType.descr).\
-                filter(GameType.game_type_cd == game_type_cd).\
-                one()[0]
-        except Exception as e:
-            game_type_cd = None
-
-    if request.params.has_key('page'):
-        current_page = request.params['page']
-    else:
-        current_page = 1
-
-    try:
-        rgs_q = recent_games_q(game_type_cd=game_type_cd)
-
-        games = Page(rgs_q, current_page, items_per_page=10, url=page_url)
-
-        # replace the items in the canned pagination class with more rich ones
-        games.items = [RecentGame(row) for row in games.items]
-
-        pgstats = {}
-        for game in games.items:
-            pgstats[game.game_id] = DBSession.query(PlayerGameStat).\
-                    filter(PlayerGameStat.game_id == game.game_id).\
-                    order_by(PlayerGameStat.scoreboardpos).\
-                    order_by(PlayerGameStat.score).all()
-
-    except Exception as e:
-        games           = None
-        pgstats         = None
-        game_type_cd    = None
-        game_type_descr = None
-
-    return {'games':games,
-            'pgstats':pgstats,
-            'game_type_cd':game_type_cd,
-            'game_type_descr':game_type_descr,
-            }
-
-
-def game_index(request):
-    """
-    Provides a list of current games, with the associated game stats.
-    These games are ordered by game_id, with the most current ones first.
-    Paginated.
-    """
-    return _game_index_data(request)
-
-
-def game_index_json(request):
-    """
-    Provides a list of current games, with the associated game stats.
-    These games are ordered by game_id, with the most current ones first.
-    Paginated. JSON.
-    """
-    return [{'status':'not implemented'}]
 
 
 def _game_info_data(request):
@@ -136,47 +69,6 @@ def _game_info_data(request):
                     captimes.append(pgstat)
             captimes = sorted(captimes, key=lambda x:x.fastest)
 
-        teamscores = {}
-        for pgstat in pgstats:
-            if pgstat.team in [5,14,13,10]:
-                team = pgstat.team_html_color()
-                if pgstat.teamscore is not None:
-                    if not teamscores.has_key(team):
-                        teamscores[team] = pgstat.teamscore
-                    else:
-                        if teamscores[team] != pgstat.teamscore:  # this should not happen!
-                            teamscores[team] = None
-        if len(teamscores) == 0:
-            teamscores = None
-            
-        ### RANDOM SCORES FOR TESTING
-        teams = ["red","blue","yellow","pink"]
-        random.shuffle(teams)
-        teamscores = {}
-        for k in range(random.randint(2,4)):
-            team = teams[k-1]
-            teamscores[team] = random.randint(-5,150)
-        ### END
-        
-        #TeamInfo = namedtuple('TeamInfo', ['team','scoreboardpos','playercount','teamscore'])
-        #
-        #teams = {}
-        #last_pgs = pgstats[0]
-        #for pgstat in pgstats:
-        #    if pgstat.team != last_pgs.team:
-        #        teams[last_pgs.scoreboardpos] = TeamInfo(
-        #                team=last_pgs.team,
-        #                scoreboardpos=last_pgs.scoreboardpos,
-        #                playercount=pgstat.scoreboardpos-last_pgs.scoreboardpos,
-        #                teamscore=last_pgs.teamscore)
-        #        last_pgs = pgstat
-        #teams[last_pgs.scoreboardpos] = TeamInfo(
-        #        team=last_pgs.team,
-        #        scoreboardpos=last_pgs.scoreboardpos,
-        #        playercount=pgstat.scoreboardpos-last_pgs.scoreboardpos,
-        #        teamscore=last_pgs.teamscore)
-        #print teams
-
         pwstats = {}
         for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
                 filter(PlayerWeaponStat.game_id == game_id).\
@@ -206,7 +98,6 @@ def _game_info_data(request):
         tgstats = None
         pwstats = None
         captimes = None
-        teams = None
         show_elo = False
         show_latency = False
         stats_by_team = None
@@ -220,8 +111,6 @@ def _game_info_data(request):
             'tgstats':tgstats,
             'pwstats':pwstats,
             'captimes':captimes,
-            'teams':teams,
-            'teamscores':teamscores,
             'show_elo':show_elo,
             'show_latency':show_latency,
             'stats_by_team':stats_by_team,

@@ -10,6 +10,7 @@ from xonstat.models import *
 from xonstat.util import page_url, to_json, pretty_date, datetime_seconds
 from xonstat.util import is_cake_day, verify_request
 from xonstat.views.helpers import RecentGame, recent_games_q
+from urllib import unquote
 
 log = logging.getLogger(__name__)
 
@@ -395,12 +396,12 @@ def get_elos(player_id):
     return elos
 
 
-def get_recent_games(player_id):
+def get_recent_games(player_id, limit=10):
     """
     Provides a list of recent games for a player. Uses the recent_games_q helper.
     """
     # recent games played in descending order
-    rgs = recent_games_q(player_id=player_id, force_player_id=True).limit(10).all()
+    rgs = recent_games_q(player_id=player_id, force_player_id=True).limit(limit).all()
     recent_games = [RecentGame(row) for row in rgs]
 
     return recent_games
@@ -788,6 +789,12 @@ def player_damage_json(request):
 
 
 def player_hashkey_info_data(request):
+    # hashkey = request.matchdict['hashkey']
+
+    # the incoming hashkey is double quoted, and WSGI unquotes once...
+    # hashkey = unquote(hashkey)
+
+    # if using request verification to obtain the hashkey
     (idfp, status) = verify_request(request)
     log.debug("d0_blind_id verification: idfp={0} status={1}\n".format(idfp, status))
 
@@ -802,11 +809,12 @@ def player_hashkey_info_data(request):
                 filter(Player.active_ind == True).\
                 filter(Hashkey.hashkey == idfp).one()
 
-        games_played   = get_games_played(player.player_id)
-        overall_stats  = get_overall_stats(player.player_id)
-        fav_maps       = get_fav_maps(player.player_id)
-        elos           = get_elos(player.player_id)
-        ranks          = get_ranks(player.player_id)
+        games_played      = get_games_played(player.player_id)
+        overall_stats     = get_overall_stats(player.player_id)
+        fav_maps          = get_fav_maps(player.player_id)
+        elos              = get_elos(player.player_id)
+        ranks             = get_ranks(player.player_id)
+        most_recent_game  = get_recent_games(player.player_id, 1)[0]
 
     except Exception as e:
         raise pyramid.httpexceptions.HTTPNotFound
@@ -818,6 +826,7 @@ def player_hashkey_info_data(request):
             'fav_maps':fav_maps,
             'elos':elos,
             'ranks':ranks,
+            'most_recent_game':most_recent_game,
             }
 
 
@@ -851,6 +860,8 @@ def player_hashkey_info_json(request):
     for gt,mapinfo in player_info['fav_maps'].items():
         fav_maps[gt] = to_json(mapinfo)
 
+    most_recent_game = to_json(player_info['most_recent_game'])
+
     return [{
         'version':          1,
         'player':           player,
@@ -859,6 +870,7 @@ def player_hashkey_info_json(request):
         'fav_maps':         fav_maps,
         'elos':             elos,
         'ranks':            ranks,
+        'most_recent_game': most_recent_game,
     }]
 
 
@@ -879,10 +891,11 @@ def player_hashkey_info_text(request):
     elos = player_info['elos']
     ranks = player_info['ranks']
     fav_maps = player_info['fav_maps']
+    most_recent_game = player_info['most_recent_game']
 
     # one-offs for things needing conversion for text/plain
     player_joined = timegm(player.create_dt.timetuple())
-    player_joined_dt = player.create_dt.strftime('%Y-%m-%d %H:%M:%SZ')
+    player_joined_dt = player.create_dt
     alivetime = int(datetime_seconds(overall_stats['overall'].total_playing_time))
 
     # this is a plain text response, if we don't do this here then
@@ -902,6 +915,7 @@ def player_hashkey_info_text(request):
         'fav_maps':         fav_maps,
         'elos':             elos,
         'ranks':            ranks,
+        'most_recent_game': most_recent_game,
     }
 
 
@@ -913,8 +927,14 @@ def player_elo_info_data(request):
     log.debug("d0_blind_id verification: idfp={0} status={1}\n".format(idfp, status))
 
     hashkey = request.matchdict['hashkey']
+<<<<<<< HEAD
     log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
             "----- END REQUEST BODY -----\n\n")
+=======
+
+    # the incoming hashkey is double quoted, and WSGI unquotes once...
+    hashkey = unquote(hashkey)
+>>>>>>> master
 
     try:
         player = DBSession.query(Player).\
@@ -1032,8 +1052,80 @@ def player_captimes_data(request):
             'player':player,
         }
 
+
 def player_captimes(request):
     return player_captimes_data(request)
 
+
 def player_captimes_json(request):
     return player_captimes_data(request)
+
+
+def player_weaponstats_data_json(request):
+    player_id = request.matchdict["id"]
+    if player_id <= 2:
+        player_id = -1;
+
+    game_type_cd = request.params.get("game_type", None)
+    if game_type_cd == "overall":
+        game_type_cd = None
+
+    limit = 20
+    if request.params.has_key("limit"):
+        limit = int(request.params["limit"])
+
+        if limit < 0:
+            limit = 20
+        if limit > 50:
+            limit = 50
+
+    games_raw = DBSession.query(sa.distinct(Game.game_id)).\
+        filter(Game.game_id == PlayerWeaponStat.game_id).\
+        filter(PlayerWeaponStat.player_id == player_id)
+
+    if game_type_cd is not None:
+        games_raw = games_raw.filter(Game.game_type_cd == game_type_cd)
+
+    games_raw = games_raw.order_by(Game.game_id.desc()).limit(limit).all()
+
+    weapon_stats_raw = DBSession.query(PlayerWeaponStat).\
+        filter(PlayerWeaponStat.player_id == player_id).\
+        filter(PlayerWeaponStat.game_id.in_(games_raw)).all()
+
+    # NVD3 expects data points for all weapons used across the
+    # set of games *for each* point on the x axis. This means populating
+    # zero-valued weapon stat entries for games where a weapon was not
+    # used in that game, but was used in another game for the set
+    games_to_weapons = {}
+    weapons_used = {}
+    sum_avgs = {}
+    for ws in weapon_stats_raw:
+        if ws.game_id not in games_to_weapons:
+            games_to_weapons[ws.game_id] = [ws.weapon_cd]
+        else:
+            games_to_weapons[ws.game_id].append(ws.weapon_cd)
+
+        weapons_used[ws.weapon_cd] = weapons_used.get(ws.weapon_cd, 0) + 1
+        sum_avgs[ws.weapon_cd] = sum_avgs.get(ws.weapon_cd, 0) + float(ws.hit)/float(ws.fired)
+
+    for game_id in games_to_weapons.keys():
+        for weapon_cd in set(weapons_used.keys()) - set(games_to_weapons[game_id]):
+            weapon_stats_raw.append(PlayerWeaponStat(player_id=player_id,
+                game_id=game_id, weapon_cd=weapon_cd))
+
+    # averages for the weapons used in the range
+    avgs = {}
+    for w in weapons_used.keys():
+        avgs[w] = round(sum_avgs[w]/float(weapons_used[w])*100, 2)
+
+    weapon_stats_raw = sorted(weapon_stats_raw, key = lambda x: x.game_id)
+    games            = sorted(games_to_weapons.keys())
+    weapon_stats     = [ws.to_dict() for ws in weapon_stats_raw]
+
+    return {
+        "weapon_stats": weapon_stats,
+        "weapons_used": weapons_used.keys(),
+        "games": games,
+        "averages": avgs,
+    }
+

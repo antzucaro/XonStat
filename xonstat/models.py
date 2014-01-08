@@ -178,7 +178,10 @@ class PlayerAchievement(object):
 
 
 class PlayerWeaponStat(object):
-    def __init__(self):
+    def __init__(self, player_id=None, game_id=None, weapon_cd=None):
+        self.player_id = player_id
+        self.game_id = game_id
+        self.weapon_cd = weapon_cd
         self.fired = 0
         self.max = 0
         self.hit = 0
@@ -189,7 +192,17 @@ class PlayerWeaponStat(object):
         return "<PlayerWeaponStat(%s, %s, %s)>" % (self.player_weapon_stats_id, self.player_id, self.game_id)
 
     def to_dict(self):
-        return {'player_weapon_stats_id':self.player_weapon_stats_id, 'player_id':self.player_id, 'game_id':self.game_id}
+        return {
+            'weapon_cd':self.weapon_cd,
+            'player_weapon_stats_id':self.player_weapon_stats_id,
+            'player_id':self.player_id,
+            'game_id':self.game_id,
+            'fired':self.fired,
+            'max':self.max,
+            'hit':self.hit,
+            'actual':self.actual,
+            'frags':self.frags,
+        }
 
 
 class Hashkey(object):

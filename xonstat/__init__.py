@@ -51,13 +51,20 @@ def main(global_config, **settings):
     config.add_route("player_info",      "/player/{id:\d+}")
     config.add_view(player_info,      route_name="player_info",      renderer="player_info.mako")
 
+    config.add_route("player_hashkey_info_json", "/player/me.json")
+    config.add_view(player_hashkey_info_json, route_name="player_hashkey_info_json", renderer="jsonp")
+
+    config.add_route("player_hashkey_info_text", "/player/me")
+    config.add_view(player_hashkey_info_text, route_name="player_hashkey_info_text", renderer="player_hashkey_info_text.mako")
+
     config.add_route("player_info_json", "/player/{id:\d+}.json")
     config.add_view(player_info_json, route_name="player_info_json", renderer="jsonp")
 
-    config.add_route("player_elo_info_text", "/elo/{hashkey}")
+    config.add_route("player_elo_info_text", "/player/{hashkey}/elo.txt")
     config.add_view(player_elo_info_text, route_name="player_elo_info_text", renderer="player_elo_info_text.mako")
 
-    config.add_route("player_elo_info_json", "/elo/{hashkey}.json") ## FIXME - doesn't seem to work?
+    # FIXME - needs an additional method to convert to JSON
+    config.add_route("player_elo_info_json", "/player/{hashkey}/elo.json")
     config.add_view(player_elo_info_json, route_name="player_elo_info_json", renderer="jsonp")
 
     config.add_route("player_accuracy",      "/player/{id:\d+}/accuracy")
@@ -69,14 +76,23 @@ def main(global_config, **settings):
     config.add_route("player_index_json", "/players.json")
     config.add_view(player_index_json, route_name="player_index_json", renderer="jsonp")
 
-    config.add_route("player_damage", "/player/{id:\d+}/damage")
-    config.add_view(player_damage_json, route_name="player_damage", renderer="jsonp")
-
     config.add_route("player_captimes",      "/player/{id:\d+}/captimes")
     config.add_view(player_captimes,      route_name="player_captimes",      renderer="player_captimes.mako")
 
     config.add_route("player_captimes_json", "/player/{id:\d+}/captimes.json")
     config.add_view(player_captimes_json, route_name="player_captimes_json", renderer="jsonp")
+
+    config.add_route("player_weaponstats_data_json", "/player/{id:\d+}/weaponstats.json")
+    config.add_view(player_weaponstats_data_json, route_name="player_weaponstats_data_json", renderer="jsonp")
+
+    config.add_route("top_players_by_time", "/topactive")
+    config.add_view(top_players_by_time, route_name="top_players_by_time", renderer="top_players_by_time.mako")
+
+    config.add_route("top_servers_by_players", "/topservers")
+    config.add_view(top_servers_by_players, route_name="top_servers_by_players", renderer="top_servers_by_players.mako")
+
+    config.add_route("top_maps_by_times_played", "/topmaps")
+    config.add_view(top_maps_by_times_played, route_name="top_maps_by_times_played", renderer="top_maps_by_times_played.mako")
 
     # GAME ROUTES
     config.add_route("game_info",      "/game/{id:\d+}")

@@ -1,6 +1,5 @@
 <%inherit file="base.mako"/>
 <%namespace name="nav" file="nav.mako" />
-<%namespace file="accuracy.mako" import="accuracy" />
 
 <%block name="navigation">
 ${nav.nav('players')}
@@ -9,13 +8,21 @@ ${nav.nav('players')}
 <%block name="css">
 ${parent.css()}
 <link href="/static/css/sprites.css" rel="stylesheet">
+<link href="/static/css/nv.d3.css" rel="stylesheet" type="text/css">
+<style>
+#damageChartSVG, #accuracyChartSVG {
+  height: 300px;
+}
+</style>
 </%block>
 
 <%block name="js">
 ${parent.js()}
-% if player is not None:
-<script src="/static/js/jquery.flot.min.js"></script>
+<script src="/static/js/d3.v3.min.js"></script>
+<script src="/static/js/nv.d3.min.js"></script>
+<script src="/static/js/weaponCharts.js"></script>
 <script type="text/javascript">
+// tabs
 $(function () {
   $('#gbtab li').click(function(e) {
     e.preventDefault();
@@ -24,173 +31,36 @@ $(function () {
 
   $('#gbtab a:first').tab('show');
 })
-</script>
 
-<script type="text/javascript">
-$(function () {
-    // plot the accuracy graph
-    function plot_acc_graph(data) {
-    var games = new Array();
-    var avgs = new Array();
-    var accs = new Array();
-
-  var i=0;
-  for(i=0; i < data.games; i++) {
-    avgs[i] = [i, data.avg];
-    accs[i] = [i, data.accs[i][1]];
-    game_link = '/game/' + data.accs[i][0];
-    j = data.games - i;
-    games[i] = [i, '<a href="' + game_link + '">' + j + '</a>'];
+// weapon accuracy and damage charts
+d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':30})}", function(err, data) {
+  if(data.games.length < 5) {
+    d3.select(".row #damageChartRow").remove();
+    d3.select(".row #accuracyChartRow").remove();
   }
-
-  $.plot(
-    $("#acc-graph"), 
-    [ { label: 'average', data: avgs, hoverable: true, clickable: false }, 
-      { label: 'accuracy', data: accs, lines: {show:true}, points: {show:false}, hoverable: true, clickable: true }, ],
-      { yaxis: {ticks: 10, min: 0, max: 100 },
-        xaxis: {ticks: games},
-        grid: { hoverable: true, clickable: true },
-      });
-}
-
-// plot the damage graph
-function plot_dmg_graph(data) {
-  var games = new Array();
-  var avgs = new Array();
-  var dmgs = new Array();
-
-var i=0;
-for(i=0; i < data.games; i++) {
-  avgs[i] = [i, data.avg];
-  dmgs[i] = [i, data.dmgs[i][1]];
-  game_link = '/game/' + data.dmgs[i][0];
-  j = data.games - i;
-  games[i] = [i, '<a href="' + game_link + '">' + j + '</a>'];
-}
-
-$.plot(
-  $("#dmg-graph"), 
-  [ { label: 'average', data: avgs, hoverable: true, clickable: false }, 
-    { label: 'efficiency', data: dmgs, lines: {show:true}, points: {show:false}, hoverable: true, clickable: true }, ],
-    { yaxis: {ticks: 10, min: 0 },
-      xaxis: {ticks: games},
-      grid: { hoverable: true, clickable: true },
-    });
-          }
-
-          function showTooltip(x, y, contents) {
-            $('<div id="tooltip">' + contents + '</div>').css( {
-              position: 'absolute',
-              display: 'none',
-              top: y - 35,
-              left: x + 10,
-              border: '1px solid #fdd',
-              padding: '2px',
-              'background-color': '#333333',
-              opacity: 0.80
-            }).appendTo("body").fadeIn(200);
-          }
-
-          var previousPoint = null;
-          var previousLabel = null;
-          $('#acc-graph').bind("plothover", function (event, pos, item) {
-            if (item) {
-              if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
-                previousLabel = item.series.label;
-                previousPoint = item.dataIndex;
-
-                $("#tooltip").remove();
-                var x = item.datapoint[0].toFixed(2),
-                y = item.datapoint[1].toFixed(2);
-
-                showTooltip(item.pageX, item.pageY, y + "%");
-              }
-            }
-            else {
-              $("#tooltip").remove();
-              previousPoint = null;
-              previousLabel = null;
-            }
-          });
-
-          $('#dmg-graph').bind("plothover", function (event, pos, item) {
-            if (item) {
-              if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
-                previousPoint = item.dataIndex;
-                previousLabel = item.series.label;
-
-                $("#tooltip").remove();
-                var x = item.datapoint[0].toFixed(2),
-                y = item.datapoint[1].toFixed(2);
-
-                showTooltip(item.pageX, item.pageY, y);
-              }
-            }
-            else {
-              $("#tooltip").remove();
-              previousPoint = null;
-              previousLabel = null;
-            }
-          });
-
-// bind click events to the weapon images
-$(".acc-weap").click(function () {
-    var dataurl = $(this).find('a').attr('href');
-
-          $('.accuracy-nav').find('.weapon-active').removeClass('weapon-active');
-          $(this).addClass('weapon-active');
-
-          $.ajax({
-            url: dataurl,
-            method: 'GET',
-            dataType: 'json',
-            success: plot_acc_graph
-          });
+  drawDamageChart(data);
+  drawAccuracyChart(data);
 });
 
-$(".dmg-weap").click(function () {
-  var dataurl = $(this).find('a').attr('href');
-
-  $('.damage-nav').find('.weapon-active').removeClass('weapon-active');
-  $(this).addClass('weapon-active');
-
-  $.ajax({
-    url: dataurl,
-    method: 'GET',
-    dataType: 'json',
-    success: plot_dmg_graph
+% for g in games_played:
+d3.select('.tab-${g.game_type_cd}').on("click", function() {
+  // have to remove the chart each time
+  d3.select('#damageChartSVG .nvd3').remove();
+  d3.select('#accuracyChartSVG .nvd3').remove();
+  d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':30, 'game_type':g.game_type_cd})}", function(err, data) {
+    drawDamageChart(data);
+    drawAccuracyChart(data);
   });
 });
+% endfor
 
-// populate the graphs with the default weapons
-$.ajax({
-url: '${request.route_url("player_accuracy", id=player.player_id)}',
-method: 'GET',
-dataType: 'json',
-success: plot_acc_graph
-});
-
-$.ajax({
-  url: '${request.route_url("player_damage", id=player.player_id)}',
-  method: 'GET',
-  dataType: 'json',
-  success: plot_dmg_graph
-});
-})
 </script>
-% endif
 </%block>
 
 <%block name="title">
 Player Information
 </%block>
 
-
-% if player is None:
-<h2>This player is so good we couldn't find him!</h2>
-<p>Seriously though, he probably doesn't exist...just a figment of your imagination. Carry on then!</p>
-
-% else:
 <div class="row">
   <div class="span12">
     <h2>
@@ -238,7 +108,7 @@ Player Information
           % else:
           <small><br /></small>
           % endif
-          
+
           % if g.game_type_cd == 'ctf':
           % if overall_stats[g.game_type_cd].total_captures is not None:
           <small><a href="${request.route_url("player_captimes", id=player.player_id)}">Fastest flag captures...</a> <br /></small>
@@ -248,7 +118,7 @@ Player Information
           % else:
           <small><br /></small>
           % endif
-          
+
           </p>
         </div>
         <div class="span5">
@@ -275,23 +145,23 @@ Player Information
 
           % if g.game_type_cd in ranks:
           % if g.game_type_cd == 'overall':
-          Best Rank: <small>${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank} (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)}) <br /></small>
+            Best Rank: 
+            <small>
+              <a href="${request.route_url('rank_index', game_type_cd=ranks[g.game_type_cd].game_type_cd, _query={'page':(ranks[g.game_type_cd].rank-1)/20+1})}" title="Player rank page for this player">
+                ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}
+              </a>
+              (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)}) 
+              <br />
+            </small>
           % else:
           Rank: 
-          <small>
-            <a href="
-              % if ranks[g.game_type_cd].rank % 20 == 0:
-                ${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':ranks[g.game_type_cd].rank/20})}
-
-              % else:
-                ${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':ranks[g.game_type_cd].rank/20+1})}
-
-              % endif
-            " title="Player rank page for this player">
-            ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}</a>
-            (percentile: ${round(ranks[g.game_type_cd].percentile,2)})
-            <br />
-          </small>
+            <small>
+              <a href="${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':(ranks[g.game_type_cd].rank-1)/20+1})}" title="Player rank page for this player">
+                ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}
+              </a>
+              (percentile: ${round(ranks[g.game_type_cd].percentile,2)})
+              <br />
+            </small>
           % endif
           % else:
           <small><br /></small>
@@ -318,7 +188,7 @@ Player Information
   <div class="span12">
     <ul id="gbtab" class="nav nav-tabs">
       % for g in games_played:
-      <li>
+      <li class="tab-${g.game_type_cd}">
       <a href="#tab-${g.game_type_cd}" data-toggle="tab" alt="${g.game_type_cd}" title="${overall_stats[g.game_type_cd].game_type_descr}">
         <span class="sprite sprite-${g.game_type_cd}"> </span><br />
         ${g.game_type_cd} <br />
@@ -331,147 +201,33 @@ Player Information
 </div>
 
 
-% if 'nex' in recent_weapons or 'rifle' in recent_weapons or 'minstanex' in recent_weapons or 'uzi' in recent_weapons or 'shotgun' in recent_weapons:
-<div class="row">
+##### Weapon Accuracy Chart ####
+<div class="row" id="accuracyChartRow">
   <div class="span12">
-    <h3>Accuracy</h3>
-    <div id="acc-graph" class="flot" style="width:95%; height:200px;">
+    <h3>Weapon Accuracy</h3>
+    <noscript>
+      Sorry, but you've disabled JavaScript! It is required to draw the accuracy chart.
+    </noscript>
+    <div id="accuracyChart">
+      <svg id="accuracyChartSVG"></svg>
     </div>
-
-    <div class="weapon-nav accuracy-nav">
-      <ul>
-        % if 'nex' in recent_weapons:
-        <li>
-        <div class="acc-weap weapon-active">
-          <span class="sprite sprite-nex"></span>
-          <p><small>Nex</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'nex'})}" title="Show nex accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'rifle' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-rifle"></span>
-          <p><small>Rifle</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'rifle'})}" title="Show rifle accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'minstanex' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-minstanex"></span>
-          <p><small>Minstanex</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'minstanex'})}" title="Show minstanex accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'uzi' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-uzi"></span>
-          <p><small>Uzi</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'uzi'})}" title="Show uzi accuracy"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'shotgun' in recent_weapons:
-        <li>
-        <div class="acc-weap">
-          <span class="sprite sprite-shotgun"></span>
-          <p><small>Shotgun</small></p>
-          <a href="${request.route_url('player_accuracy', id=player.player_id, _query={'weapon':'shotgun'})}" title="Show shotgun accuracy"></a>
-        </div>
-        </li>
-        % endif
-      </ul>
-    </div>
-
-  </div>
-</div>
-% endif
+  </div> <!-- end span12 -->
+</div> <!-- end row -->
 
 
-% if 'rocketlauncher' in recent_weapons or 'grenadelauncher' in recent_weapons or 'electro' in recent_weapons or 'crylink' in recent_weapons or 'laser' in recent_weapons:
-<div class="row">
+##### Weapon Damage Chart ####
+<div class="row" id="damageChartRow">
   <div class="span12">
-    <h3>Damage Efficiency</h3>
-    <div id="dmg-graph" class="flot" style="width:95%; height:200px;">
+    <h3>Weapon Damage</h3>
+    <noscript>
+      Sorry, but you've disabled JavaScript! It is required to draw the damage chart.
+    </noscript>
+    <div id="damageChart">
+      <svg id="damageChartSVG"></svg>
     </div>
+  </div> <!-- end span12 -->
+</div> <!-- end row -->
 
-    <div class="weapon-nav damage-nav">
-      <ul>
-        % if 'rocketlauncher' in recent_weapons:
-        <li>
-        <div class="dmg-weap weapon-active">
-          <span class="sprite sprite-rocketlauncher"></span>
-          <p><small>Rocket</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'rocketlauncher'})}" title="Show rocket launcher efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'grenadelauncher' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-grenadelauncher"></span>
-          <p><small>Mortar</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'grenadelauncher'})}" title="Show mortar damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'electro' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-electro"></span>
-          <p><small>Electro</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'electro'})}" title="Show electro damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'crylink' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-crylink"></span>
-          <p><small>Crylink</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'crylink'})}" title="Show crylink damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'hagar' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-hagar"></span>
-          <p><small>Hagar</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'hagar'})}" title="Show hagar damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-        % if 'laser' in recent_weapons:
-        <li>
-        <div class="dmg-weap">
-          <span class="sprite sprite-laser"></span>
-          <p><small>Laser</small></p>
-          <a href="${request.route_url('player_damage', id=player.player_id, _query={'weapon':'laser'})}" title="Show laser damage efficiency"></a>
-        </div>
-        </li>
-        % endif
-
-      </ul>
-    </div>
-
-  </div>
-</div>
-% endif
 
 
 ##### RECENT GAMES (v2) ####
@@ -518,14 +274,14 @@ Player Information
           <a href="${request.route_url('game_info', id=rg.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
             % if rg.elo_delta is not None:
             % if round(rg.elo_delta,2) > 0:
-            <span class="eloup" title="Elo went up by ${round(rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-up"></i></span>
+            <span class="eloup">+${round(rg.elo_delta,2)}</span>
             % elif round(rg.elo_delta,2) < 0:
-            <span class="elodown" title="Elo went down by ${round(-rg.elo_delta,2)}"><i class="glyphicon glyphicon-arrow-down"></i></span>
+            <span class="elodown">${round(rg.elo_delta,2)}</span>
             % else:
-            <span class="eloneutral" title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
+            <span class="eloneutral"><i class="glyphicon glyphicon-minus"></i></span>
             % endif
             % else:
-            <span class="eloneutral" title="Elo did not change"><i class="glyphicon glyphicon-minus"></i></span>
+            <span class="eloneutral"><i class="glyphicon glyphicon-minus"></i></span>
             % endif
           </a>
         </td>
@@ -538,5 +294,4 @@ Player Information
     % endif
   </div>
 </div>
-% endif
 % endif
