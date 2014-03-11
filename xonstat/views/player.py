@@ -526,16 +526,9 @@ def player_info_data(request):
         cake_day       = is_cake_day(player.create_dt)
 
     except Exception as e:
-        player         = None
-        games_played   = None
-        overall_stats  = None
-        fav_maps       = None
-        elos           = None
-        ranks          = None
-        recent_games   = None
-        recent_weapons = []
-        cake_day       = False
-        ## do not raise exceptions here (only for debugging)
+        raise pyramid.httpexceptions.HTTPNotFound
+
+        ## do not raise application exceptions here (only for debugging)
         # raise e
 
     return {'player':player,
