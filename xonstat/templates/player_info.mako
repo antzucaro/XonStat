@@ -111,7 +111,7 @@ Player Information
 
           % if g.game_type_cd == 'ctf':
           % if overall_stats[g.game_type_cd].total_captures is not None:
-          <small><a href="${request.route_url("player_captimes", id=player.player_id)}">Fastest flag captures...</a> <br /></small>
+          <small><a href="${request.route_url("player_captimes", player_id=player.player_id)}">Fastest flag captures...</a> <br /></small>
           % else:
           <small><br /></small>
           % endif
