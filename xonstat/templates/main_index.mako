@@ -17,6 +17,10 @@ Leaderboard
     % else:
     <p id="statline">Tracking <a href="${request.route_url('player_index')}">${'{:2,d}'.format(summary_stats.total_players)}</a> players, <a href="${request.route_url('game_index')}">${'{:2,d}'.format(summary_stats.total_games)}</a> games (${'{:2,d}'.format(summary_stats.duel_games)} duel; ${'{:2,d}'.format(summary_stats.ctf_games)} ctf; ${'{:2,d}'.format(summary_stats.dm_games)} dm) and <a href="${request.route_url('server_index')}">${'{:2,d}'.format(summary_stats.total_servers)}</a> servers since October 2011.</p>
     % endif
+
+    % if day_stats is not None:
+    <p id="statline">${day_stats.day_active_players} active players and ${day_stats.day_games} games (${day_stats.day_duel_games} duel, ${day_stats.day_ctf_games} ctf, ${day_stats.day_dm_games} dm) in the past 24 hours.</p>
+    % endif
   </div>
 </%block>
 

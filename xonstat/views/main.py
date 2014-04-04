@@ -67,6 +67,55 @@ def get_summary_stats():
 
 
 @cache_region('hourly_term')
+def get_day_summary_stats():
+    """
+    Gets the following aggregate statistics about the past 24 hours:
+        - the number of active players (day_active_players)
+        - the number of games (day_games)
+        - the total number of dm games (day_dm_games)
+        - the total number of duel games (day_duel_games)
+        - the total number of ctf games (day_ctf_games)
+    """
+    try:
+        day_stats = DBSession.query("day_active_players",
+                "day_games", "day_dm_games", "day_duel_games", "day_ctf_games").\
+            from_statement(
+            """
+            with day_games as (
+                select game_type_cd, count(*) day_games
+                from games
+                where game_type_cd in ('duel', 'dm', 'ctf')
+                and create_dt > now() - interval '1 day'
+                group by game_type_cd
+            ),
+            day_active_players as (
+                select count(distinct player_id) day_active_players
+                from player_game_stats
+                where create_dt > now() - interval '1 day'
+            )
+            select tap.day_active_players, dm.day_games+
+                   duel.day_games+ctf.day_games day_games,
+                   dm.day_games day_dm_games, duel.day_games day_duel_games,
+                   ctf.day_games day_ctf_games
+            from   day_games dm, day_games duel, day_games ctf,
+                   day_active_players tap
+            where  dm.game_type_cd = 'dm'
+            and    ctf.game_type_cd = 'ctf'
+            and    duel.game_type_cd = 'duel'
+            """
+            ).one()
+
+        # don't show anything if we don't have any activity
+        if day_stats.day_active_players is None or \
+           day_stats.day_active_players == 0:
+           day_stats = None
+
+    except Exception as e:
+        day_stats = None
+
+    return day_stats
+
+@cache_region('hourly_term')
 def get_ranks(game_type_cd):
     """
     Gets a set number of the top-ranked people for the specified game_type_cd.
@@ -223,8 +272,11 @@ def _main_index_data(request):
     # summary statistics for the tagline
     try:
         summary_stats = get_summary_stats()
+        day_stats = get_day_summary_stats()
+
     except:
         summary_stats = None
+        day_stats = None
 
     # the three top ranks tables
     ranks = []
@@ -255,6 +307,7 @@ def _main_index_data(request):
             'recent_games':recent_games,
             'ranks':ranks,
             'summary_stats':summary_stats,
+            'day_stats':day_stats,
             }
 
 
