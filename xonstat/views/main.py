@@ -1,4 +1,5 @@
 import logging
+import sqlalchemy as sa
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
 from beaker.cache import cache_regions, cache_region
@@ -71,49 +72,58 @@ def get_day_summary_stats():
     """
     Gets the following aggregate statistics about the past 24 hours:
         - the number of active players (day_active_players)
-        - the number of games (day_games)
-        - the total number of dm games (day_dm_games)
-        - the total number of duel games (day_duel_games)
-        - the total number of ctf games (day_ctf_games)
+        - the number of games per game type (day_games)
+
+    This information is then summarized into a string which is passed
+    directly to the template.
     """
     try:
-        day_stats = DBSession.query("day_active_players",
-                "day_games", "day_dm_games", "day_duel_games", "day_ctf_games").\
-            from_statement(
-            """
-            with day_games as (
-                select game_type_cd, count(*) day_games
-                from games
-                where game_type_cd in ('duel', 'dm', 'ctf')
-                and create_dt > now() - interval '1 day'
-                group by game_type_cd
-            ),
-            day_active_players as (
-                select count(distinct player_id) day_active_players
-                from player_game_stats
-                where create_dt > now() - interval '1 day'
-            )
-            select tap.day_active_players, dm.day_games+
-                   duel.day_games+ctf.day_games day_games,
-                   dm.day_games day_dm_games, duel.day_games day_duel_games,
-                   ctf.day_games day_ctf_games
-            from   day_games dm, day_games duel, day_games ctf,
-                   day_active_players tap
-            where  dm.game_type_cd = 'dm'
-            and    ctf.game_type_cd = 'ctf'
-            and    duel.game_type_cd = 'duel'
-            """
-            ).one()
+        # only games played during this range are considered
+        right_now = datetime.now()
+        cutoff_dt = right_now - timedelta(days=1)
 
-        # don't show anything if we don't have any activity
-        if day_stats.day_active_players is None or \
-           day_stats.day_active_players == 0:
-           day_stats = None
+        games = DBSession.query(Game.game_type_cd, func.count()).\
+            filter(expr.between(Game.create_dt, cutoff_dt, right_now)).\
+            group_by(Game.game_type_cd).\
+            order_by(expr.desc(func.count())).all()
+
+        total_games = 0
+        for total in games:
+            total_games += total[1]
+
+        i = 1
+        other_games = 0
+        for total in games:
+            if i > 5:
+                other_games += total[1]
+
+            i += 1
+
+        active_players = DBSession.query(func.count(sa.distinct(PlayerGameStat.player_id))).\
+            filter(PlayerGameStat.player_id > 2).\
+            filter(expr.between(PlayerGameStat.create_dt, cutoff_dt, right_now)).\
+            one()[0]
+
+        # don't send anything if we don't have any activity
+        if total_games == 0:
+            day_stat_line = None
+        else:
+            in_paren = ", ".join(["{} {}".format(
+                g[1], g[0]) for g in games[:5]]
+            )
+            if len(games) > 5:
+                in_paren += ", {} other".format(other_games)
+
+            day_stat_line = "{} active players and {} games ({}) in the past 24 hours.".format(
+                active_players,
+                total_games,
+                in_paren
+            )
 
     except Exception as e:
-        day_stats = None
+        day_stat_line = None
 
-    return day_stats
+    return day_stat_line
 
 @cache_region('hourly_term')
 def get_ranks(game_type_cd):
@@ -272,11 +282,11 @@ def _main_index_data(request):
     # summary statistics for the tagline
     try:
         summary_stats = get_summary_stats()
-        day_stats = get_day_summary_stats()
+        day_stat_line = get_day_summary_stats()
 
     except:
         summary_stats = None
-        day_stats = None
+        day_stat_line = None
 
     # the three top ranks tables
     ranks = []
@@ -307,7 +317,7 @@ def _main_index_data(request):
             'recent_games':recent_games,
             'ranks':ranks,
             'summary_stats':summary_stats,
-            'day_stats':day_stats,
+            'day_stat_line':day_stat_line,
             }
 
 
