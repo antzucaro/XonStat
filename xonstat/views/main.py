@@ -68,7 +68,7 @@ def get_summary_stats():
 
 
 @cache_region('hourly_term')
-def get_day_summary_stats():
+def get_day_summary_stats(request):
     """
     Gets the following aggregate statistics about the past 24 hours:
         - the number of active players (day_active_players)
@@ -108,9 +108,19 @@ def get_day_summary_stats():
         if total_games == 0:
             day_stat_line = None
         else:
+        # This is ugly because we're doing template-like stuff within the
+        # view code. The alternative isn't any better, though: we would
+        # have to assemble the string inside the template by using a Python
+        # code block. For now I'll leave it like this since it is the lesser
+        # of two evils IMO.
             in_paren = ", ".join(["{} {}".format(
-                g[1], g[0]) for g in games[:5]]
-            )
+                g[1],
+                "<a href='{}'>{}</a>".format(
+                    request.route_url("game_index", _query={'type':g[0]}),
+                    g[0]
+                )
+            ) for g in games[:5]])
+
             if len(games) > 5:
                 in_paren += ", {} other".format(other_games)
 
@@ -282,7 +292,7 @@ def _main_index_data(request):
     # summary statistics for the tagline
     try:
         summary_stats = get_summary_stats()
-        day_stat_line = get_day_summary_stats()
+        day_stat_line = get_day_summary_stats(request)
 
     except:
         summary_stats = None

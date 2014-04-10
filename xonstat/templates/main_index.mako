@@ -19,7 +19,7 @@ Leaderboard
     % endif
 
     % if day_stat_line is not None:
-    <p id="statline">${day_stat_line}</p>
+    <p id="statline">${day_stat_line|n}</p>
     % endif
   </div>
 </%block>
