@@ -204,20 +204,16 @@ class Skin:
 
         # make sorted list of gametypes
         game_types = []
-        num_games  = 0
-        for gt,info in data['games_played'].items():
-            if gt == "overall":
+        for gt in data['games_played'].keys():
+            if gt == 'overall':
                 continue
-            if info.games > num_games:
-                game_types.insert(0, gt)
-            else:
-                game_types.append(gt)
+            if elos.has_key(gt):
+                game_types.append(gt)  # only uses gametypes with elo values (needed later on)
 
-        # make sure gametypes list if sorted correctly (number of games, descending)
-        #game_types = sorted(game_types, key=lambda x: data['games_played'][x].games, reverse=True)
+        ## make sure gametypes list if sorted correctly (number of games, descending)
+        ##game_types = sorted(game_types, key=lambda x: data['games_played'][x].games, reverse=True)
         # make sure gametypes list if sorted correctly (total playing time per game type, descending)
         game_types = sorted(game_types, key=lambda x: data['overall_stats'][x].total_playing_time, reverse=True)
-
 
 
         # build image
