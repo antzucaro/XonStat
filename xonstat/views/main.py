@@ -70,7 +70,7 @@ def get_summary_stats(request, cutoff_days=None):
         # have to assemble the string inside the template by using a Python
         # code block. For now I'll leave it like this since it is the lesser
         # of two evils IMO.
-            in_paren = ", ".join(["{} {}".format(
+            in_paren = "; ".join(["{:2,d} {}".format(
                 g[1],
                 "<a href='{}'>{}</a>".format(
                     request.route_url("game_index", _query={'type':g[0]}),
@@ -79,9 +79,9 @@ def get_summary_stats(request, cutoff_days=None):
             ) for g in games[:5]])
 
             if len(games) > 5:
-                in_paren += ", {} other".format(other_games)
+                in_paren += "; {:2,d} other".format(other_games)
 
-            stat_line = "{} active players and {} games ({})".format(
+            stat_line = "{:2,d} active players and {:2,d} games ({})".format(
                 active_players,
                 total_games,
                 in_paren
@@ -249,7 +249,7 @@ def _main_index_data(request):
 
     # summary statistics for the tagline
     stat_line = get_summary_stats(request, None)
-    day_stat_line = get_summary_stats(request, 7)
+    day_stat_line = get_summary_stats(request, 1)
 
 
     # the three top ranks tables
