@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 @cache_region('hourly_term')
-def get_summary_stats(request, cutoff_days=None):
+def get_summary_stats(cutoff_days=None):
     """
     Gets the following aggregate statistics about the past cutoff_days days:
         - the number of active players
@@ -70,12 +70,11 @@ def get_summary_stats(request, cutoff_days=None):
         # have to assemble the string inside the template by using a Python
         # code block. For now I'll leave it like this since it is the lesser
         # of two evils IMO.
+        # Also we need to hard-code the URL structure in here to allow caching,
+        # which also sucks.
             in_paren = "; ".join(["{:2,d} {}".format(
                 g[1],
-                "<a href='{}'>{}</a>".format(
-                    request.route_url("game_index", _query={'type':g[0]}),
-                    g[0]
-                )
+                "<a href='/games?type={0}'>{0}</a>".format(g[0])
             ) for g in games[:5]])
 
             if len(games) > 5:
@@ -248,8 +247,8 @@ def _main_index_data(request):
     recent_games_count = 20
 
     # summary statistics for the tagline
-    stat_line = get_summary_stats(request, None)
-    day_stat_line = get_summary_stats(request, 1)
+    stat_line = get_summary_stats()
+    day_stat_line = get_summary_stats(1)
 
 
     # the three top ranks tables
