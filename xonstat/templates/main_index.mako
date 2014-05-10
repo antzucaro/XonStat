@@ -12,14 +12,14 @@ Leaderboard
 <%block name="hero_unit">
   <div class="text-center">
     <img src="/static/css/img/web_background_l2.png" />
-    % if summary_stats is None:
+    % if stat_line is None:
     <p id="statline">Tracking Xonotic statistics since October 2011.</p>
     % else:
-    <p id="statline">Tracking <a href="${request.route_url('player_index')}">${'{:2,d}'.format(summary_stats.total_players)}</a> players, <a href="${request.route_url('game_index')}">${'{:2,d}'.format(summary_stats.total_games)}</a> games (${'{:2,d}'.format(summary_stats.duel_games)} duel; ${'{:2,d}'.format(summary_stats.ctf_games)} ctf; ${'{:2,d}'.format(summary_stats.dm_games)} dm) and <a href="${request.route_url('server_index')}">${'{:2,d}'.format(summary_stats.total_servers)}</a> servers since October 2011.</p>
+    <p id="statline">Tracking ${stat_line|n} since October 2011.</p>
     % endif
 
     % if day_stat_line is not None:
-    <p id="statline">${day_stat_line|n}</p>
+    <p id="statline">${day_stat_line|n} in the past 24 hours.</p>
     % endif
   </div>
 </%block>

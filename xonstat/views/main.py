@@ -16,76 +16,39 @@ log = logging.getLogger(__name__)
 
 
 @cache_region('hourly_term')
-def get_summary_stats():
+def get_summary_stats(request, cutoff_days=None):
     """
-    Gets the following aggregate or "summary" statistics about stats:
-        - the total number of players (total_players)
-        - the total number of servers (total_servers)
-        - the total number of games (total_games)
-        - the total number of dm games (dm_games)
-        - the total number of duel games (duel_games)
-        - the total number of ctf games (ctf_games)
-
-    It is worth noting that there is also a table built to house these
-    stats in case the query in this function becomes too long for the
-    one time it runs per hour. In that case there is a script in the
-    xonstatdb repo - update_summary_stats.sql - that can be used via
-    cron to update the data offline.
-    """
-    summary_stats = DBSession.query("total_players", "total_servers",
-            "total_games", "dm_games", "duel_games", "ctf_games").\
-        from_statement(
-        """
-        with total_games as (
-            select game_type_cd, count(*) total_games
-            from games
-            where game_type_cd in ('duel', 'dm', 'ctf')
-            group by game_type_cd
-        ),
-        total_players as (
-            select count(*) total_players
-            from players
-            where active_ind = true
-        ),
-        total_servers as (
-            select count(*) total_servers
-            from servers
-            where active_ind = true
-        )
-        select tp.total_players, ts.total_servers, dm.total_games+
-               duel.total_games+ctf.total_games total_games,
-               dm.total_games dm_games, duel.total_games duel_games,
-               ctf.total_games ctf_games
-        from   total_games dm, total_games duel, total_games ctf,
-               total_players tp, total_servers ts
-        where  dm.game_type_cd = 'dm'
-        and    ctf.game_type_cd = 'ctf'
-        and    duel.game_type_cd = 'duel'
-        """
-        ).one()
-
-    return summary_stats
-
-
-@cache_region('hourly_term')
-def get_day_summary_stats(request):
-    """
-    Gets the following aggregate statistics about the past 24 hours:
-        - the number of active players (day_active_players)
-        - the number of games per game type (day_games)
+    Gets the following aggregate statistics about the past cutoff_days days:
+        - the number of active players
+        - the number of games per game type
+    If cutoff_days is None, the above stats are calculated for all time.
 
     This information is then summarized into a string which is passed
     directly to the template.
     """
     try:
-        # only games played during this range are considered
-        right_now = datetime.now()
-        cutoff_dt = right_now - timedelta(days=1)
+        if cutoff_days is not None:
+            # only games played during this range are considered
+            right_now = datetime.now()
+            cutoff_dt = right_now - timedelta(days=cutoff_days)
 
-        games = DBSession.query(Game.game_type_cd, func.count()).\
-            filter(expr.between(Game.create_dt, cutoff_dt, right_now)).\
-            group_by(Game.game_type_cd).\
-            order_by(expr.desc(func.count())).all()
+            games = DBSession.query(Game.game_type_cd, func.count()).\
+                filter(expr.between(Game.create_dt, cutoff_dt, right_now)).\
+                group_by(Game.game_type_cd).\
+                order_by(expr.desc(func.count())).all()
+
+            active_players = DBSession.query(func.count(sa.distinct(PlayerGameStat.player_id))).\
+                filter(PlayerGameStat.player_id > 2).\
+                filter(expr.between(PlayerGameStat.create_dt, cutoff_dt, right_now)).\
+                one()[0]
+        else:
+            games = DBSession.query(Game.game_type_cd, func.count()).\
+                group_by(Game.game_type_cd).\
+                order_by(expr.desc(func.count())).all()
+
+            active_players = DBSession.query(func.count(sa.distinct(PlayerGameStat.player_id))).\
+                filter(PlayerGameStat.player_id > 2).\
+                one()[0]
 
         total_games = 0
         for total in games:
@@ -96,17 +59,11 @@ def get_day_summary_stats(request):
         for total in games:
             if i > 5:
                 other_games += total[1]
-
             i += 1
-
-        active_players = DBSession.query(func.count(sa.distinct(PlayerGameStat.player_id))).\
-            filter(PlayerGameStat.player_id > 2).\
-            filter(expr.between(PlayerGameStat.create_dt, cutoff_dt, right_now)).\
-            one()[0]
 
         # don't send anything if we don't have any activity
         if total_games == 0:
-            day_stat_line = None
+            stat_line = None
         else:
         # This is ugly because we're doing template-like stuff within the
         # view code. The alternative isn't any better, though: we would
@@ -124,16 +81,17 @@ def get_day_summary_stats(request):
             if len(games) > 5:
                 in_paren += ", {} other".format(other_games)
 
-            day_stat_line = "{} active players and {} games ({}) in the past 24 hours.".format(
+            stat_line = "{} active players and {} games ({})".format(
                 active_players,
                 total_games,
                 in_paren
             )
 
     except Exception as e:
-        day_stat_line = None
+        stat_line = None
 
-    return day_stat_line
+    return stat_line
+
 
 @cache_region('hourly_term')
 def get_ranks(game_type_cd):
@@ -290,13 +248,9 @@ def _main_index_data(request):
     recent_games_count = 20
 
     # summary statistics for the tagline
-    try:
-        summary_stats = get_summary_stats()
-        day_stat_line = get_day_summary_stats(request)
+    stat_line = get_summary_stats(request, None)
+    day_stat_line = get_summary_stats(request, 7)
 
-    except:
-        summary_stats = None
-        day_stat_line = None
 
     # the three top ranks tables
     ranks = []
@@ -326,7 +280,7 @@ def _main_index_data(request):
             'top_maps':top_maps,
             'recent_games':recent_games,
             'ranks':ranks,
-            'summary_stats':summary_stats,
+            'stat_line':stat_line,
             'day_stat_line':day_stat_line,
             }
 
