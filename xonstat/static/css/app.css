@@ -1,15 +1,14 @@
 /* Fonts */
 @font-face {
     font-family: 'XoloniumNormal';
-    src: url('fonts/xolonium-webfont.eot');
-    src: url('fonts/xolonium-webfont.eot?#iefix') format('embedded-opentype'),
-         url('fonts/xolonium-webfont.woff') format('woff'),
-         url('fonts/xolonium-webfont.ttf') format('truetype'),
-         url('fonts/xolonium-webfont.svg#XoloniumNormal') format('svg');
+    src: url('fonts/xolonium.eot');
+    src: url('fonts/xolonium.eot?#iefix') format('embedded-opentype'),
+         url('fonts/xolonium.ttf') format('truetype'),
+         url('fonts/xolonium.woff') format('woff'),
+         url('fonts/xolonium.svg#xoloniumregular') format('svg');
     font-weight: normal;
     font-style: normal;
 }
-
 
 /* Primary elements */
 body {

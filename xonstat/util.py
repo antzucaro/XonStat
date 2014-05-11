@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 # Map of special chars to ascii from Darkplace's console.c.
-_qfont_table = [
+_qfont_ascii_table = [
  '\0', '#',  '#',  '#',  '#',  '.',  '#',  '#',
  '#',  '\t', '\n', '#',  ' ',  '\r', '.',  '.',
  '[',  ']',  '0',  '1',  '2',  '3',  '4',  '5',
@@ -50,6 +50,73 @@ _qfont_table = [
  'x',  'y',  'z',  '{',  '|',  '}',  '~',  '<'
 ]
 
+_qfont_unicode_glyphs = [
+   u'\u0020',       u'\u0020',       u'\u2014',       u'\u0020',
+   u'\u005F',       u'\u2747',       u'\u2020',       u'\u00B7',
+   u'\U0001F52B',   u'\u0020',       u'\u0020',       u'\u25A0',
+   u'\u2022',       u'\u2192',       u'\u2748',       u'\u2748',
+   u'\u005B',       u'\u005D',       u'\U0001F47D',   u'\U0001F60F',
+   u'\U0001F61E',   u'\U0001F635',   u'\U0001F615',   u'\U0001F60A',
+   u'\u00AB',       u'\u00BB',       u'\u2022',       u'\u203E',
+   u'\u2748',       u'\u25AC',       u'\u25AC',       u'\u25AC',
+   u'\u0020',       u'\u0021',       u'\u0022',       u'\u0023',
+   u'\u0024',       u'\u0025',       u'\u0026',       u'\u0027',
+   u'\u0028',       u'\u0029',       u'\u00D7',       u'\u002B',
+   u'\u002C',       u'\u002D',       u'\u002E',       u'\u002F',
+   u'\u0030',       u'\u0031',       u'\u0032',       u'\u0033',
+   u'\u0034',       u'\u0035',       u'\u0036',       u'\u0037',
+   u'\u0038',       u'\u0039',       u'\u003A',       u'\u003B',
+   u'\u003C',       u'\u003D',       u'\u003E',       u'\u003F',
+   u'\u0040',       u'\u0041',       u'\u0042',       u'\u0043',
+   u'\u0044',       u'\u0045',       u'\u0046',       u'\u0047',
+   u'\u0048',       u'\u0049',       u'\u004A',       u'\u004B',
+   u'\u004C',       u'\u004D',       u'\u004E',       u'\u004F',
+   u'\u0050',       u'\u0051',       u'\u0052',       u'\u0053',
+   u'\u0054',       u'\u0055',       u'\u0056',       u'\u0057',
+   u'\u0058',       u'\u0059',       u'\u005A',       u'\u005B',
+   u'\u005C',       u'\u005D',       u'\u005E',       u'\u005F',
+   u'\u0027',       u'\u0061',       u'\u0062',       u'\u0063',
+   u'\u0064',       u'\u0065',       u'\u0066',       u'\u0067',
+   u'\u0068',       u'\u0069',       u'\u006A',       u'\u006B',
+   u'\u006C',       u'\u006D',       u'\u006E',       u'\u006F',
+   u'\u0070',       u'\u0071',       u'\u0072',       u'\u0073',
+   u'\u0074',       u'\u0075',       u'\u0076',       u'\u0077',
+   u'\u0078',       u'\u0079',       u'\u007A',       u'\u007B',
+   u'\u007C',       u'\u007D',       u'\u007E',       u'\u2190',
+   u'\u003C',       u'\u003D',       u'\u003E',       u'\U0001F680',
+   u'\u00A1',       u'\u004F',       u'\u0055',       u'\u0049',
+   u'\u0043',       u'\u00A9',       u'\u00AE',       u'\u25A0',
+   u'\u00BF',       u'\u25B6',       u'\u2748',       u'\u2748',
+   u'\u2772',       u'\u2773',       u'\U0001F47D',   u'\U0001F60F',
+   u'\U0001F61E',   u'\U0001F635',   u'\U0001F615',   u'\U0001F60A',
+   u'\u00AB',       u'\u00BB',       u'\u2747',       u'\u0078',
+   u'\u2748',       u'\u2014',       u'\u2014',       u'\u2014',
+   u'\u0020',       u'\u0021',       u'\u0022',       u'\u0023',
+   u'\u0024',       u'\u0025',       u'\u0026',       u'\u0027',
+   u'\u0028',       u'\u0029',       u'\u002A',       u'\u002B',
+   u'\u002C',       u'\u002D',       u'\u002E',       u'\u002F',
+   u'\u0030',       u'\u0031',       u'\u0032',       u'\u0033',
+   u'\u0034',       u'\u0035',       u'\u0036',       u'\u0037',
+   u'\u0038',       u'\u0039',       u'\u003A',       u'\u003B',
+   u'\u003C',       u'\u003D',       u'\u003E',       u'\u003F',
+   u'\u0040',       u'\u0041',       u'\u0042',       u'\u0043',
+   u'\u0044',       u'\u0045',       u'\u0046',       u'\u0047',
+   u'\u0048',       u'\u0049',       u'\u004A',       u'\u004B',
+   u'\u004C',       u'\u004D',       u'\u004E',       u'\u004F',
+   u'\u0050',       u'\u0051',       u'\u0052',       u'\u0053',
+   u'\u0054',       u'\u0055',       u'\u0056',       u'\u0057',
+   u'\u0058',       u'\u0059',       u'\u005A',       u'\u005B',
+   u'\u005C',       u'\u005D',       u'\u005E',       u'\u005F',
+   u'\u0027',       u'\u0041',       u'\u0042',       u'\u0043',
+   u'\u0044',       u'\u0045',       u'\u0046',       u'\u0047',
+   u'\u0048',       u'\u0049',       u'\u004A',       u'\u004B',
+   u'\u004C',       u'\u004D',       u'\u004E',       u'\u004F',
+   u'\u0050',       u'\u0051',       u'\u0052',       u'\u0053',
+   u'\u0054',       u'\u0055',       u'\u0056',       u'\u0057',
+   u'\u0058',       u'\u0059',       u'\u005A',       u'\u007B',
+   u'\u007C',       u'\u007D',       u'\u007E',       u'\u25C0',
+]
+
 # Hex-colored spans for decimal color codes ^0 - ^9
 _dec_spans = [
  "<span style='color:rgb(128,128,128)'>",
@@ -73,15 +140,22 @@ _hex_colors = re.compile(r'\^x([\dA-Fa-f])([\dA-Fa-f])([\dA-Fa-f])')
 _contrast_threshold = 0.5
 
 
-def qfont_decode(qstr=''):
+def qfont_decode(qstr='', for_html=False):
     """ Convert the qfont characters in a string to ascii.
+
+        for_html - determines whether to convert the unicode characters to
+                   their ascii counterparts (if False, the default) or to
+                   the mapped glyph in the Xolonium font (if True).
     """
     if qstr == None:
         qstr = ''
     chars = []
     for c in qstr:
         if u'\ue000' <= c <= u'\ue0ff':
-            c = _qfont_table[ord(c) - 0xe000]
+            if for_html:
+                c = _qfont_unicode_glyphs[ord(c) - 0xe000]
+            else:
+                c = _qfont_ascii_table[ord(c) - 0xe000]
         chars.append(c)
     return ''.join(chars)
 
@@ -112,7 +186,7 @@ def hex_repl(match):
 
 
 def html_colors(qstr='', limit=None):
-    qstr = html_escape(qfont_decode(qstr))
+    qstr = html_escape(qfont_decode(qstr, for_html=True))
     qstr = qstr.replace('^^', '^')
 
     if limit is not None and limit > 0:
