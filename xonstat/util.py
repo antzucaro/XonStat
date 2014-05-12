@@ -140,10 +140,10 @@ _hex_colors = re.compile(r'\^x([\dA-Fa-f])([\dA-Fa-f])([\dA-Fa-f])')
 _contrast_threshold = 0.5
 
 
-def qfont_decode(qstr='', for_html=False):
+def qfont_decode(qstr='', glyph_translation=False):
     """ Convert the qfont characters in a string to ascii.
 
-        for_html - determines whether to convert the unicode characters to
+        glyph_translation - determines whether to convert the unicode characters to
                    their ascii counterparts (if False, the default) or to
                    the mapped glyph in the Xolonium font (if True).
     """
@@ -152,7 +152,7 @@ def qfont_decode(qstr='', for_html=False):
     chars = []
     for c in qstr:
         if u'\ue000' <= c <= u'\ue0ff':
-            if for_html:
+            if glyph_translation:
                 c = _qfont_unicode_glyphs[ord(c) - 0xe000]
             else:
                 c = _qfont_ascii_table[ord(c) - 0xe000]
@@ -186,7 +186,7 @@ def hex_repl(match):
 
 
 def html_colors(qstr='', limit=None):
-    qstr = html_escape(qfont_decode(qstr, for_html=True))
+    qstr = html_escape(qfont_decode(qstr, glyph_translation=True))
     qstr = qstr.replace('^^', '^')
 
     if limit is not None and limit > 0:
