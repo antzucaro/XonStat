@@ -269,7 +269,9 @@ class Skin:
         ## draw player's nickname with fancy colors
 
         # deocde nick, strip all weird-looking characters
-        qstr = qfont_decode(player.nick).replace('^^', '^').replace(u'\x00', '')
+        qstr = qfont_decode(qstr=player.nick, glyph_translation=True).\
+                replace('^^', '^').\
+                replace(u'\x00', '')
         #chars = []
         #for c in qstr:
         #    # replace weird characters that make problems - TODO
