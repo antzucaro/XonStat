@@ -309,6 +309,19 @@ class TeamGameStat(object):
             return "pink"
 
 
+class PlayerGameAnticheat(object):
+    def __init__(self, player_id=None, game_id=None, key=None,
+            value=None, create_dt=None):
+        self.player_id                = player_id
+        self.game_id                  = game_id
+        self.key                      = key
+        self.value                    = value
+        self.create_dt                = create_dt
+
+    def __repr__(self):
+        return "<PlayerGameAnticheat(%s, %d)>" % (self.key, self.value)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -335,6 +348,7 @@ def initialize_db(engine=None):
     player_captimes_table = MetaData.tables['player_map_captimes']
     summary_stats_table = MetaData.tables['summary_stats']
     team_game_stats_table = MetaData.tables['team_game_stats']
+    player_game_anticheats_table = MetaData.tables['player_game_anticheats']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -354,3 +368,4 @@ def initialize_db(engine=None):
     mapper(PlayerCaptime, player_captimes_table)
     mapper(SummaryStat, summary_stats_table)
     mapper(TeamGameStat, team_game_stats_table)
+    mapper(PlayerGameAnticheat, player_game_anticheats_table)

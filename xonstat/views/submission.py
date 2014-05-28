@@ -666,6 +666,29 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
     return pgstat
 
 
+def create_anticheats(session, pgstat, game, player, events):
+    """Anticheats handler for all game types"""
+
+    anticheats = []
+
+    # all anticheat events are prefixed by "anticheat"
+    for (key,value) in events.items():
+        if key.startswith("anticheat"):
+            try:
+                ac = PlayerGameAnticheat(
+                    player.player_id,
+                    game.game_id,
+                    key,
+                    float(value)
+                )
+                anticheats.append(ac)
+                session.add(ac)
+            except Exception as e:
+                log.debug("Could not parse value for key %s. Ignoring." % key)
+
+    return anticheats
+
+
 def create_default_team_stat(session, game_type_cd):
     """Creates a blanked-out teamstat record for the given game type"""
 
@@ -851,6 +874,10 @@ def submit_stats(request):
 
             pgstat = create_game_stat(session, game_meta, game, server,
                     gmap, player, events)
+
+            if player.player_id > 1:
+                anticheats = create_anticheats(session, pgstat, game, player,
+                    events)
 
             if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
                 pwstats = create_weapon_stats(session, game_meta, game, player,
