@@ -1,5 +1,7 @@
 import sqlahelper
 from pyramid_beaker import set_cache_regions_from_settings
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.renderers import JSONP
@@ -21,6 +23,12 @@ def main(global_config, **settings):
     set_cache_regions_from_settings(settings)
 
     config = Configurator(settings=settings)
+
+    # authentication and authorization policies
+    authn_policy = AuthTktAuthenticationPolicy('secret', hashalg='sha512')
+    authz_policy = ACLAuthorizationPolicy()
+    config.set_authentication_policy(authn_policy)
+    config.set_authorization_policy(authz_policy)
 
     config.add_renderer('jsonp', JSONP(param_name='callback'))
 
