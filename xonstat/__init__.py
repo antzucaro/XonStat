@@ -160,4 +160,10 @@ def main(global_config, **settings):
     config.add_route("search_json", "search.json")
     config.add_view(search_json, route_name="search_json", renderer="jsonp")
 
+    # ADMIN ROUTES
+    config.add_forbidden_view(forbidden, renderer="forbidden.mako")
+
+    config.add_route("merge",      "/merge")
+    config.add_view(route_name="merge", renderer="merge.mako", permission="admin")
+
     return config.make_wsgi_app()
