@@ -19,6 +19,7 @@ requires = [
     'psycopg2',
     'pyramid_beaker',
     'pyramid_mako',
+    'waitress',
     ]
 
 if sys.version_info[:3] < (2,5,0):
