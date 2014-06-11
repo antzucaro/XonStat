@@ -24,13 +24,17 @@ def main(global_config, **settings):
 
     config = Configurator(settings=settings)
 
+    # mako for templating
+    config.include('pyramid_mako')
+
+    # for json-encoded responses
+    config.add_renderer('jsonp', JSONP(param_name='callback'))
+
     # authentication and authorization policies
     authn_policy = AuthTktAuthenticationPolicy('secret', hashalg='sha512')
     authz_policy = ACLAuthorizationPolicy()
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
-
-    config.add_renderer('jsonp', JSONP(param_name='callback'))
 
     # for static assets
     config.add_static_view('static', 'xonstat:static')
