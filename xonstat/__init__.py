@@ -27,6 +27,10 @@ def main(global_config, **settings):
     # mako for templating
     config.include('pyramid_mako')
 
+    # Mozilla Persona as the login verifier. It defines default
+    # authentication and authorization policies.
+    config.include('pyramid_persona')
+
     # for json-encoded responses
     config.add_renderer('jsonp', JSONP(param_name='callback'))
 
