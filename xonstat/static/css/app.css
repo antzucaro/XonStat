@@ -337,7 +337,7 @@ table td {
 .pagination>li>a:hover, .pagination>li>a:focus, .pagination>.active>a, .pagination>.active>span{
     background-color: rgb(43, 34, 34);
 }
-.pull-left #signin {
+.pull-left #signin, .pull-left #signout {
     margin: 15px 0px 0px 5px;
 }
 
