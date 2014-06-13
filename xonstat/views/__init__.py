@@ -29,4 +29,4 @@ from xonstat.views.exceptions   import notfound
 from xonstat.views.main   import main_index, top_players_by_time, top_servers_by_players
 from xonstat.views.main   import top_servers_by_players, top_maps_by_times_played
 
-from xonstat.views.admin   import forbidden
+from xonstat.views.admin   import forbidden, login
