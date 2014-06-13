@@ -1,7 +1,5 @@
 import sqlahelper
 from pyramid_beaker import set_cache_regions_from_settings
-from pyramid.authentication import AuthTktAuthenticationPolicy
-from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.renderers import JSONP
@@ -33,12 +31,6 @@ def main(global_config, **settings):
 
     # for json-encoded responses
     config.add_renderer('jsonp', JSONP(param_name='callback'))
-
-    # authentication and authorization policies
-    authn_policy = AuthTktAuthenticationPolicy('secret', hashalg='sha512')
-    authz_policy = ACLAuthorizationPolicy()
-    config.set_authentication_policy(authn_policy)
-    config.set_authorization_policy(authz_policy)
 
     # for static assets
     config.add_static_view('static', 'xonstat:static')
@@ -175,6 +167,6 @@ def main(global_config, **settings):
     config.add_view(login, route_name="login", check_csrf=True, renderer="json")
 
     config.add_route("merge",      "/merge")
-    config.add_view(route_name="merge", renderer="merge.mako", permission="admin")
+    config.add_view(route_name="merge", renderer="merge.mako", permission="merge")
 
     return config.make_wsgi_app()
