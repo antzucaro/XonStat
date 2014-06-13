@@ -2,7 +2,11 @@
 <%namespace name="nav" file="nav.mako" />
 
 <%block name="navigation">
-${nav.nav('players')}
+% if player.email_addr is not None:
+${nav.nav('players', True)}
+% else:
+${nav.nav('players', False)}
+% endif
 </%block>
 
 <%block name="css">
@@ -21,6 +25,9 @@ ${parent.js()}
 <script src="/static/js/d3.v3.min.js"></script>
 <script src="/static/js/nv.d3.min.js"></script>
 <script src="/static/js/weaponCharts.js"></script>
+<script src="https://login.persona.org/include.js" type="text/javascript"></script>
+<script type="text/javascript">${request.persona_js}</script>
+
 <script type="text/javascript">
 // tabs
 $(function () {
