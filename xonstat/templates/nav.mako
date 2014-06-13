@@ -1,4 +1,4 @@
-<%def name="nav(active)">
+<%def name="nav(active='leaderboard', login_logout=False)">
     <div class="navbar navbar-inverse navbar-top">
       <div class="navbar-inner">
         <div class="container">
@@ -39,6 +39,13 @@
                 % endif
                 ><a href="${request.route_url('map_index')}" title="Map Index">Maps</a></li>
             </ul>
+
+            ##### Login/logout button goes here only if needed #####
+            % if login_logout:
+            <ul class="nav pull-left">
+              <li>${request.persona_button}</li>
+            </ul>
+            % endif
 
             <form class="navbar-form pull-left" action="${request.route_url('search')}" method="get">
               <input type="hidden" name="fs" />
