@@ -166,7 +166,7 @@ def main(global_config, **settings):
     config.add_route("login", "/login")
     config.add_view(login, route_name="login", check_csrf=True, renderer="json")
 
-    config.add_route("merge",      "/merge")
-    config.add_view(route_name="merge", renderer="merge.mako", permission="merge")
+    config.add_route("merge", "/merge")
+    config.add_view(merge, route_name="merge", renderer="merge.mako")
 
     return config.make_wsgi_app()
