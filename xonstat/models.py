@@ -322,6 +322,15 @@ class PlayerGameAnticheat(object):
         return "<PlayerGameAnticheat(%s, %d)>" % (self.key, self.value)
 
 
+class PlayerGroups(object):
+    def __init__(self, player_id=None, group_name=None):
+        self.player_id  = player_id
+        self.group_name = group_name
+
+    def __repr__(self):
+        return "<PlayerGroups(%s, %s)>" % (self.player_id, self.group_name)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -349,6 +358,7 @@ def initialize_db(engine=None):
     summary_stats_table = MetaData.tables['summary_stats']
     team_game_stats_table = MetaData.tables['team_game_stats']
     player_game_anticheats_table = MetaData.tables['player_game_anticheats']
+    player_groups_table = MetaData.tables['player_groups']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -369,3 +379,4 @@ def initialize_db(engine=None):
     mapper(SummaryStat, summary_stats_table)
     mapper(TeamGameStat, team_game_stats_table)
     mapper(PlayerGameAnticheat, player_game_anticheats_table)
+    mapper(PlayerGroups, player_groups_table)
