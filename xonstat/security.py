@@ -16,8 +16,9 @@ GROUPS = {
 # default ACL
 class ACLFactory(object):
     __acl__ = [
+        # permission, principal, permission
         (Allow, Everyone, 'view'),
-        (Allow, 'group:admins', 'merge')
+        (Allow, 'admin', 'merge')
     ]
     def __init__(self, request):
         pass
