@@ -1,11 +1,13 @@
 import sqlahelper
 from pyramid_beaker import set_cache_regions_from_settings
+from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.renderers import JSONP
 from sqlalchemy import engine_from_config
 from xonstat.models import initialize_db
 from xonstat.views import *
+from xonstat.security import *
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -20,7 +22,7 @@ def main(global_config, **settings):
     # set up beaker cache
     set_cache_regions_from_settings(settings)
 
-    config = Configurator(settings=settings)
+    config = Configurator(settings=settings, root_factory=ACLFactory)
 
     # mako for templating
     config.include('pyramid_mako')
@@ -28,6 +30,11 @@ def main(global_config, **settings):
     # Mozilla Persona as the login verifier. It defines default
     # authentication and authorization policies.
     config.include('pyramid_persona')
+
+    # override the authn policy to provide a callback
+    secret = settings.get('persona.secret', None)
+    authn_policy = AuthTktAuthenticationPolicy(secret, callback=groupfinder, hashalg='sha512')
+    config.set_authentication_policy(authn_policy)
 
     # for json-encoded responses
     config.add_renderer('jsonp', JSONP(param_name='callback'))
