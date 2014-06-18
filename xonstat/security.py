@@ -35,6 +35,4 @@ def groupfinder(userid, request):
     except:
         pass
 
-    log.debug("Found the following groups for %s: %s" % (userid, groups))
-
     return groups

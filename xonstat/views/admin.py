@@ -19,8 +19,8 @@ def login(request):
     player_email = DBSession.query(Player).\
             filter(Player.email_addr == persona_email).one()
 
-    log.debug("Verified email address: %s" % persona_email)
-    log.debug("Corresponding player is %s" % player_email)
+    #log.debug("Verified email address: %s" % persona_email)
+    #log.debug("Corresponding player is %s" % player_email)
 
     if player_email is not None:
         # Add the headers required to remember the user to the response
