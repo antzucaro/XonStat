@@ -1,6 +1,7 @@
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPForbidden, HTTPFound
 from pyramid.security import remember, forget
+from pyramid.session import check_csrf_token
 from pyramid_persona.views import verify_login
 from xonstat.models import *
 
@@ -31,6 +32,31 @@ def login(request):
     # Return a json message containing the address or path to redirect to.
     return {'redirect': request.POST['came_from'], 'success': True}
 
+
 def merge(request):
     '''A simple merge view. The merge.mako template does the work.'''
+    s = DBSession()
+
+    # only do a merge if we have all of the required data
+    if request.params.has_key("csrf_token"):
+        # check the token to prevent request forgery
+        st = request.session.get_csrf_token()
+        log.debug("Session token is %s" % st)
+        log.debug("Request token is %s" % request.params.get('csrf_token'))
+        check_csrf_token(request)
+
+        if request.params.has_key("w_pid") and request.params.has_key("l_pid"):
+            w_pid = request.params.get("w_pid")
+            l_pid = request.params.get("l_pid")
+
+            # do the merge, hope for the best!
+            try:
+                s.execute("select merge_players(:w_pid, :l_pid)",
+                    {"w_pid": w_pid, "l_pid": l_pid})
+
+                s.commit()
+
+            except:
+                s.rollback()
+
     return {}

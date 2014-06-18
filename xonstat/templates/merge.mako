@@ -33,7 +33,7 @@ ${nav.nav('players')}
         <!-- Form submitted? -->
         <input type="hidden" name="fs" />
 
-        <input type="hidden" name="csrf_token" value=${request.session.get_csrf_token()}/>
+        <input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"/>
 
         <!-- Button -->
         <div class="control-group">
