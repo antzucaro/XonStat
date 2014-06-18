@@ -9,6 +9,26 @@ ${nav.nav('players')}
 
 <h2>Merge two players below.</h2>
 
+% if len(request.session.peek_flash("failure")) > 0:
+<div class="row">
+  <div class="span6">
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      ${request.session.pop_flash("failure")[0]}
+    </div>
+  </div>
+</div>
+% endif
+
+% if len(request.session.peek_flash("success")) > 0:
+<div class="row">
+  <div class="alert alert-success">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    ${request.session.pop_flash("success")[0]}
+  </div>
+</div>
+% endif
+
 <div class="row">
   <div class="span6">
     <form style="margin-top:20px;" class="form-horizontal">
