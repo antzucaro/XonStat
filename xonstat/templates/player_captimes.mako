@@ -12,7 +12,7 @@ Player captimes
 
 % if len(captimes) == 0:
 <h2>Sorry, no caps yet. Get playing!</h2>
-<p><a href="${player_url}">Back to player info page</a></p>
+<p><a href="${request.route_url('player_info', id=player.player_id)}">Back to player info page</a></p>
 % else:
 
 <div class="row">
