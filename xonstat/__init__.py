@@ -42,6 +42,10 @@ def main(global_config, **settings):
     # for static assets
     config.add_static_view('static', 'xonstat:static')
 
+    # robots
+    config.add_route("robots", "robots.txt")
+    config.add_view(robots, route_name="robots")
+
     # for 404s
     config.add_view(notfound, context=HTTPNotFound, renderer="404.mako")
 
