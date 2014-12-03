@@ -345,6 +345,7 @@ def get_ranks(player_id):
                     "from player_ranks  "
                     "group by game_type_cd) overall "
                 "where pr.game_type_cd = overall.game_type_cd  "
+                "and max_rank > 1 "
                 "and player_id = :player_id "
                 "order by rank").\
             params(player_id=player_id).all()
