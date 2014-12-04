@@ -15,7 +15,7 @@ ${parent.css()}
 <link href="/static/css/nv.d3.css" rel="stylesheet" type="text/css">
 <style>
 #damageChartSVG, #accuracyChartSVG {
-  height: 300px;
+  height: 250px;
 }
 </style>
 </%block>
