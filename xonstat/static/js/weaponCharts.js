@@ -1,12 +1,6 @@
-var weapons = ["laser", "shotgun", "uzi", "grenadelauncher", "minelayer", "electro",
-    "crylink", "nex", "hagar", "rocketlauncher", "porto", "minstanex", "hook", "hlac",
-    "seeker", "rifle", "tuba", "fireball"];
-
 var weaponColors = ["#ff5933", "#b2b2b2", "#66e559", "#ff2600", "#bfbf00", "#597fff",
     "#d83fff", "#00e5ff", "#d87f59", "#ffbf33", "#7fff7f", "#a5a5ff", "#a5ffd8",
     "#ffa533", "#ff5959", "#d87f3f", "#d87f3f", "#33ff33"];
-
-var colorScale = d3.scale.ordinal().domain(weapons).range(weaponColors);
 
 var drawDamageChart = function(data) {
   // the chart should fill the "damageChart" div
@@ -26,30 +20,23 @@ var drawDamageChart = function(data) {
 
   width -= margin.left - margin.right;
 
-  // colors
-  keyColor = function(d, i) {return colorScale(d.key)};
-
-  var chart;
   nv.addGraph(function() {
     chart = nv.models.stackedAreaChart()
       .margin(margin)
       .width(width)
       .height(height)
+      .color(weaponColors)
       .x(function(d) { return games[d.game_id] })
       .y(function(d) { return d.actual })
+      .useInteractiveGuideline(true)
+      .controlsData(['Stacked','Expanded'])
+      .tooltips(true)
       .tooltip(function(key, x, y, e, graph) {
-        return '<h3>' + key + '</h3>' + '<p>' +  y + ' damage in game #' + x + '</p>'
-      })
-      .color(keyColor);
+        return '<h3>' + key + '</h3>' + '<p>' +  y + ' damage in game #' + x + '</p>';
+      });
 
-    chart.xAxis
-      .axisLabel("Game ID")
-      .showMaxMin(false)
-      .ticks(5)
-      .tickFormat(function(d) { return data.games[d]; });
-
-    chart.yAxis
-      .tickFormat(d3.format(',02d'));
+    chart.xAxis.tickFormat(function(d) { return ''; });
+    chart.yAxis.tickFormat(d3.format(',02d'));
 
     d3.select('#damageChartSVG')
       .datum(transformedData)
@@ -91,34 +78,21 @@ var drawAccuracyChart = function(data) {
 
   width -= margin.left - margin.right;
 
-  // colors
-  keyColor = function(d, i) {return colorScale(d.key)};
-
-  var chart;
   nv.addGraph(function() {
     chart = nv.models.lineChart()
       .margin(margin)
       .width(width)
       .height(height)
+      .color(weaponColors)
       .forceY([0,1])
       .x(function(d) { return games[d.game_id] })
-      .y(function(d) {
-        if(d.fired > 0) {
-          return d.hit/d.fired;
-        } else {
-          return 0;
-        }
-      })
-      .tooltip(function(key, x, y, e, graph) {
+      .y(function(d) { return d.fired > 0 ? d.hit/d.fired : 0; })
+      .tooltips(true)
+      .tooltipContent(function(key, x, y, e, graph) {
         return '<h3>' + key + '</h3>' + '<p>' +  y + ' accuracy in game #' + x + ' <br /> ' + data.averages[key]  + '% average over ' + findNumGames(key) + ' games</p>';
-      })
-      .color(keyColor);
+      });
 
-    chart.xAxis
-      .axisLabel("Game ID")
-      .showMaxMin(false)
-      .ticks(5)
-      .tickFormat(function(d) { return data.games[d]; });
+    chart.xAxis.tickFormat(function(d) { return ''; });
 
     var yScale = d3.scale.linear().domain([0,1]).range([0,height]);
     chart.yAxis
