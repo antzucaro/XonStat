@@ -87,6 +87,7 @@ var drawAccuracyChart = function(data) {
       .forceY([0,1])
       .x(function(d) { return games[d.game_id] })
       .y(function(d) { return d.fired > 0 ? d.hit/d.fired : 0; })
+      .useInteractiveGuideline(true)
       .tooltips(true)
       .tooltipContent(function(key, x, y, e, graph) {
         return '<h3>' + key + '</h3>' + '<p>' +  y + ' accuracy in game #' + x + ' <br /> ' + data.averages[key]  + '% average over ' + findNumGames(key) + ' games</p>';
