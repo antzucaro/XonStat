@@ -1106,10 +1106,6 @@ def player_weaponstats_data_json(request):
         filter(PlayerWeaponStat.player_id == player_id).\
         filter(PlayerWeaponStat.game_id.in_(games_raw)).all()
 
-    # NVD3 expects data points for all weapons used across the
-    # set of games *for each* point on the x axis. This means populating
-    # zero-valued weapon stat entries for games where a weapon was not
-    # used in that game, but was used in another game for the set
     games_to_weapons = {}
     weapons_used = {}
     sum_avgs = {}
@@ -1122,6 +1118,9 @@ def player_weaponstats_data_json(request):
         weapons_used[ws.weapon_cd] = weapons_used.get(ws.weapon_cd, 0) + 1
         sum_avgs[ws.weapon_cd] = sum_avgs.get(ws.weapon_cd, 0) + float(ws.hit)/float(ws.fired)
 
+    # Creating zero-valued weapon stat entries for games where a weapon was not
+    # used in that game, but was used in another game for the set. This makes 
+    # the charts look smoother
     for game_id in games_to_weapons.keys():
         for weapon_cd in set(weapons_used.keys()) - set(games_to_weapons[game_id]):
             weapon_stats_raw.append(PlayerWeaponStat(player_id=player_id,
