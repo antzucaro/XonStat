@@ -14,7 +14,7 @@ ${parent.css()}
 <link href="/static/css/sprites.css" rel="stylesheet">
 <link href="/static/css/nv.d3.css" rel="stylesheet" type="text/css">
 <style>
-#damageChartSVG, #accuracyChartSVG {
+#damageChart, #accuracyChart {
   height: 250px;
 }
 </style>
@@ -23,7 +23,7 @@ ${parent.css()}
 <%block name="js">
 ${parent.js()}
 <script src="/static/js/d3.v3.min.js"></script>
-<script src="/static/js/nv.d3.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>
 <script src="/static/js/weaponCharts.js"></script>
 <script src="https://login.persona.org/include.js" type="text/javascript"></script>
 <script type="text/javascript">${request.persona_js}</script>
@@ -40,10 +40,11 @@ $(function () {
 })
 
 // weapon accuracy and damage charts
-d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':30})}", function(err, data) {
+google.load('visualization', '1.1', {packages: ['corechart']});
+d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':10})}", function(err, data) {
   if(data.games.length < 5) {
-    d3.select(".row #damageChartRow").remove();
-    d3.select(".row #accuracyChartRow").remove();
+    d3.select(".row #damageChart").remove();
+    d3.select(".row #accuracyChart").remove();
   }
   drawDamageChart(data);
   drawAccuracyChart(data);
@@ -54,7 +55,7 @@ d3.select('.tab-${g.game_type_cd}').on("click", function() {
   // have to remove the chart each time
   d3.select('#damageChartSVG .nvd3').remove();
   d3.select('#accuracyChartSVG .nvd3').remove();
-  d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':30, 'game_type':g.game_type_cd})}", function(err, data) {
+  d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':10, 'game_type':g.game_type_cd})}", function(err, data) {
     drawDamageChart(data);
     drawAccuracyChart(data);
   });
