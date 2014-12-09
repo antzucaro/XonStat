@@ -12,7 +12,6 @@ ${nav.nav('players', False)}
 <%block name="css">
 ${parent.css()}
 <link href="/static/css/sprites.css" rel="stylesheet">
-<link href="/static/css/nv.d3.css" rel="stylesheet" type="text/css">
 <style>
 #damageChart, #accuracyChart {
   height: 250px;
