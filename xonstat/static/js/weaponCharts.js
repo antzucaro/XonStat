@@ -77,7 +77,7 @@ function drawAccuracyChart(weaponData) {
 
   var flattened = flatten(weaponData);
 
-  for(i in weaponData.games.slice(0,10)) {
+  for(i in weaponData.games) {
     var game_id = weaponData.games[i];
     var sg = accuracyValue(flattened[game_id], "shotgun");
     var sgTT = accuracyTooltip("shotgun", sg, weaponData.averages);
@@ -101,7 +101,8 @@ function drawAccuracyChart(weaponData) {
       textStyle: { color: "#666" }
     },
     hAxis: {
-      title: 'Game ID',
+      title: 'Games',
+      textPosition: 'none',
       titleTextStyle: { color: '#666' }
     },
     vAxis: {
@@ -179,7 +180,7 @@ function drawDamageChart(weaponData) {
 
   var flattened = flatten(weaponData);
 
-  for(i in weaponData.games.slice(0,10)) {
+  for(i in weaponData.games) {
     var game_id = weaponData.games[i];
     var sg = damageValue(flattened[game_id], "shotgun");
     var sgTT = damageTooltip("shotgun", sg);
@@ -230,7 +231,8 @@ function drawDamageChart(weaponData) {
       gridlineColor: '#333',
     },
     hAxis: {
-      title: 'Game ID',
+      title: 'Games',
+      textPosition: 'none',
       titleTextStyle: { color: '#666' },
     },
     isStacked: true,

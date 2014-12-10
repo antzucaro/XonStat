@@ -40,7 +40,7 @@ $(function () {
 
 // weapon accuracy and damage charts
 google.load('visualization', '1.1', {packages: ['corechart']});
-d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':10})}", function(err, data) {
+d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':20})}", function(err, data) {
   if(data.games.length < 5) {
     d3.select(".row #damageChart").remove();
     d3.select(".row #accuracyChart").remove();
@@ -54,7 +54,7 @@ d3.select('.tab-${g.game_type_cd}').on("click", function() {
   // have to remove the chart each time
   d3.select('#damageChartSVG .nvd3').remove();
   d3.select('#accuracyChartSVG .nvd3').remove();
-  d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':10, 'game_type':g.game_type_cd})}", function(err, data) {
+  d3.json("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':20, 'game_type':g.game_type_cd})}", function(err, data) {
     drawDamageChart(data);
     drawAccuracyChart(data);
   });
