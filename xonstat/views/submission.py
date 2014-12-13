@@ -760,7 +760,7 @@ def create_weapon_stats(session, game_meta, game, player, pgstat, events):
 
             # Weapon names changed for 0.8. We'll convert the old
             # ones to use the new scheme as well.
-            weapon_cd = weapon_map.get(weapon_cd, weapon_cd)
+            mapped_weapon_cd = weapon_map.get(weapon_cd, weapon_cd)
 
             seq = Sequence('player_weapon_stats_player_weapon_stats_id_seq')
             pwstat_id = session.execute(seq)
@@ -769,7 +769,7 @@ def create_weapon_stats(session, game_meta, game, player, pgstat, events):
             pwstat.player_id = player.player_id
             pwstat.game_id = game.game_id
             pwstat.player_game_stat_id = pgstat.player_game_stat_id
-            pwstat.weapon_cd = weapon_cd
+            pwstat.weapon_cd = mapped_weapon_cd
 
             if 'n' in events:
                 pwstat.nick = events['n']
