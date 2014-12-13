@@ -1,17 +1,23 @@
 // Colors assigned to the various weapons
 var weaponColors = {
   "laser": "#ff5933", 
+  "blaster": "#ff5933", 
   "shotgun": "#1f77b4", 
   "uzi": "#b9e659", 
+  "machinegun": "#b9e659", 
   "grenadelauncher": "#ff2600", 
+  "mortar": "#ff2600", 
   "minelayer": "#bfbf00", 
   "electro": "#597fff",
   "crylink": "#d940ff", 
   "nex": "#00e6ff", 
+  "vortex": "#00e6ff", 
   "hagar": "#d98059", 
   "rocketlauncher": "#ffbf33", 
+  "devastator": "#ffbf33", 
   "porto": "#7fff7f", 
   "minstanex": "#d62728", 
+  "vaporizer": "#d62728", 
   "hook": "#a5ffd8", 
   "hlac": "#ffa533",
   "seeker": "#ff5959", 
@@ -66,17 +72,18 @@ function drawAccuracyChart(weaponData) {
   data.addColumn('string', 'X');
   data.addColumn('number', 'Shotgun');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Uzi');
+  data.addColumn('number', 'MG');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Nex');
+  data.addColumn('number', 'Vortex');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Minstanex');
+  data.addColumn('number', 'Vaporizer');
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Rifle');
   data.addColumn({type: 'string', role: 'tooltip'});
 
   var flattened = flatten(weaponData);
 
+  // TODO: after data conversion, retrieve the correct keys here
   for(i in weaponData.games) {
     var game_id = weaponData.games[i];
     var sg = accuracyValue(flattened[game_id], "shotgun");
@@ -116,9 +123,9 @@ function drawAccuracyChart(weaponData) {
     },
     series: {
       0: { color: weaponColors["shotgun"] },
-      1: { color: weaponColors["uzi"] },
-      2: { color: weaponColors["nex"] },
-      3: { color: weaponColors["minstanex"] },
+      1: { color: weaponColors["machinegun"] },
+      2: { color: weaponColors["vortex"] },
+      3: { color: weaponColors["vaporizer"] },
       4: { color: weaponColors["rifle"] }
     }
   };
@@ -161,9 +168,9 @@ function drawDamageChart(weaponData) {
   data.addColumn('string', 'X');
   data.addColumn('number', 'Shotgun');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Uzi');
+  data.addColumn('number', 'Machine Gun');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Nex');
+  data.addColumn('number', 'Vortex');
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Rifle');
   data.addColumn({type: 'string', role: 'tooltip'});
@@ -175,11 +182,12 @@ function drawDamageChart(weaponData) {
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Hagar');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Rocket Launcher');
+  data.addColumn('number', 'Devastator');
   data.addColumn({type: 'string', role: 'tooltip'});
 
   var flattened = flatten(weaponData);
 
+  // TODO: after data conversion, retrieve the correct keys here
   for(i in weaponData.games) {
     var game_id = weaponData.games[i];
     var sg = damageValue(flattened[game_id], "shotgun");
@@ -238,14 +246,14 @@ function drawDamageChart(weaponData) {
     isStacked: true,
     series: {
       0: { color: weaponColors["shotgun"] },
-      1: { color: weaponColors["uzi"] },
-      2: { color: weaponColors["nex"] },
+      1: { color: weaponColors["machinegun"] },
+      2: { color: weaponColors["vortex"] },
       3: { color: weaponColors["rifle"] },
-      4: { color: weaponColors["grenadelauncher"] },
+      4: { color: weaponColors["mortar"] },
       5: { color: weaponColors["electro"] },
       6: { color: weaponColors["crylink"] },
       7: { color: weaponColors["hagar"] },
-      8: { color: weaponColors["rocketlauncher"] }
+      8: { color: weaponColors["devastator"] }
     }
   };
 
