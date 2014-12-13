@@ -83,22 +83,21 @@ function drawAccuracyChart(weaponData) {
 
   var flattened = flatten(weaponData);
 
-  // TODO: after data conversion, retrieve the correct keys here
   for(i in weaponData.games) {
     var game_id = weaponData.games[i];
     var sg = accuracyValue(flattened[game_id], "shotgun");
     var sgTT = accuracyTooltip("shotgun", sg, weaponData.averages);
-    var uzi = accuracyValue(flattened[game_id], "uzi");
-    var uziTT = accuracyTooltip("uzi", uzi, weaponData.averages); 
-    var nex = accuracyValue(flattened[game_id], "nex");
-    var nexTT = accuracyTooltip("nex", nex, weaponData.averages);
-    var mn = accuracyValue(flattened[game_id], "minstanex");
-    var mnTT = accuracyTooltip("minstanex", mn, weaponData.averages);
+    var mg = accuracyValue(flattened[game_id], "machinegun");
+    var mgTT = accuracyTooltip("machinegun", mg, weaponData.averages); 
+    var vortex = accuracyValue(flattened[game_id], "vortex");
+    var vortexTT = accuracyTooltip("vortex", vortex, weaponData.averages);
+    var mn = accuracyValue(flattened[game_id], "vaporizer");
+    var mnTT = accuracyTooltip("vaporizer", mn, weaponData.averages);
     var rifle = accuracyValue(flattened[game_id], "rifle");
     var rifleTT = accuracyTooltip("rifle", rifle, weaponData.averages); 
 
-    data.addRow([game_id.toString(), sg, sgTT, uzi, uziTT, nex,
-            nexTT, mn, mnTT, rifle, rifleTT]);
+    data.addRow([game_id.toString(), sg, sgTT, mg, mgTT, vortex,
+            vortexTT, mn, mnTT, rifle, rifleTT]);
   }
 
   var options = {
@@ -187,35 +186,34 @@ function drawDamageChart(weaponData) {
 
   var flattened = flatten(weaponData);
 
-  // TODO: after data conversion, retrieve the correct keys here
   for(i in weaponData.games) {
     var game_id = weaponData.games[i];
     var sg = damageValue(flattened[game_id], "shotgun");
     var sgTT = damageTooltip("shotgun", sg);
-    var uzi = damageValue(flattened[game_id], "uzi");
-    var uziTT = damageTooltip("uzi", uzi); 
-    var nex = damageValue(flattened[game_id], "nex");
-    var nexTT = damageTooltip("nex", nex);
-    var mn = damageValue(flattened[game_id], "minstanex");
-    var mnTT = damageTooltip("minstanex", mn);
+    var mg = damageValue(flattened[game_id], "machinegun");
+    var mgTT = damageTooltip("machinegun", mg); 
+    var vortex = damageValue(flattened[game_id], "vortex");
+    var vortexTT = damageTooltip("vortex", vortex);
+    var mn = damageValue(flattened[game_id], "vaporizer");
+    var mnTT = damageTooltip("vaporizer", mn);
     var rifle = damageValue(flattened[game_id], "rifle");
     var rifleTT = damageTooltip("rifle", rifle); 
-    var mortar = damageValue(flattened[game_id], "grenadelauncher");
-    var mortarTT = damageTooltip("grenadelauncher", mortar);
+    var mortar = damageValue(flattened[game_id], "mortar");
+    var mortarTT = damageTooltip("mortar", mortar);
     var electro = damageValue(flattened[game_id], "electro");
     var electroTT = damageTooltip("electro", electro); 
     var crylink = damageValue(flattened[game_id], "crylink");
     var crylinkTT = damageTooltip("crylink", crylink);
     var hagar = damageValue(flattened[game_id], "hagar");
     var hagarTT = damageTooltip("hagar", hagar);
-    var rl = damageValue(flattened[game_id], "rocketlauncher");
-    var rlTT = damageTooltip("rocketlauncher", rl); 
+    var rl = damageValue(flattened[game_id], "devastator");
+    var rlTT = damageTooltip("devastator", rl); 
 
     data.addRow([
       game_id.toString(), 
       sg, sgTT,
-      uzi, uziTT,
-      nex, nexTT, 
+      mg, mgTT,
+      vortex, vortexTT, 
       rifle, rifleTT,
       mortar, mortarTT,
       electro, electroTT,
