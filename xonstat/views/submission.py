@@ -10,7 +10,7 @@ from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.elo import process_elos
 from xonstat.models import *
-from xonstat.util import strip_colors, qfont_decode, verify_request
+from xonstat.util import strip_colors, qfont_decode, verify_request, weapon_map
 
 
 log = logging.getLogger(__name__)
@@ -757,6 +757,11 @@ def create_weapon_stats(session, game_meta, game, player, pgstat, events):
         matched = re.search("acc-(.*?)-cnt-fired", key)
         if matched:
             weapon_cd = matched.group(1)
+
+            # Weapon names changed for 0.8. We'll convert the old
+            # ones to use the new scheme as well.
+            weapon_cd = weapon_map.get(weapon_cd, weapon_cd)
+
             seq = Sequence('player_weapon_stats_player_weapon_stats_id_seq')
             pwstat_id = session.execute(seq)
             pwstat = PlayerWeaponStat()
