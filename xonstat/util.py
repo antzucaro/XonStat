@@ -13,6 +13,17 @@ from xonstat.d0_blind_id import d0_blind_id_verify
 log = logging.getLogger(__name__)
 
 
+# Map of old weapons codes to new ones
+weapon_map = {
+  "grenadelauncher": "mortar", 
+  "laser": "blaster", 
+  "minstanex": "vaporizer", 
+  "nex": "vortex", 
+  "rocketlauncher": "devastator", 
+  "uzi": "machinegun", 
+}
+
+
 # Map of special chars to ascii from Darkplace's console.c.
 _qfont_ascii_table = [
  '\0', '#',  '#',  '#',  '#',  '.',  '#',  '#',
