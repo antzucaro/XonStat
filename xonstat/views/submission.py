@@ -871,6 +871,8 @@ def submit_stats(request):
                 duration     = duration,
                 mod          = game_meta.get('O', None))
 
+        # keep track of the players we've seen
+        player_ids = []
         for events in raw_players:
             player = get_or_create_player(
                 session = session,
@@ -883,10 +885,14 @@ def submit_stats(request):
             if player.player_id > 1:
                 anticheats = create_anticheats(session, pgstat, game, player,
                     events)
+                player_ids.append(player.player_id)
 
             if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
                 pwstats = create_weapon_stats(session, game_meta, game, player,
                         pgstat, events)
+
+        # store them on games for easy access
+        game.players = player_ids
 
         for events in raw_teams:
             try:
