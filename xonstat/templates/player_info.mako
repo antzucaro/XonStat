@@ -24,8 +24,6 @@ ${parent.js()}
 <script src="/static/js/d3.v3.min.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>
 <script src="/static/js/weaponCharts.js"></script>
-<script src="https://login.persona.org/include.js" type="text/javascript"></script>
-<script type="text/javascript">${request.persona_js}</script>
 
 <script type="text/javascript">
 // tabs
@@ -62,6 +60,8 @@ d3.select('.tab-${g.game_type_cd}').on("click", function() {
 % endfor
 
 </script>
+<script src="https://login.persona.org/include.js" type="text/javascript"></script>
+<script type="text/javascript">${request.persona_js}</script>
 </%block>
 
 <%block name="title">
