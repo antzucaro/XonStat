@@ -1037,7 +1037,7 @@ def player_captimes_data(request):
                 filter(PlayerCaptime.game_id==Game.game_id).\
                 filter(PlayerCaptime.map_id==Map.map_id).\
                 filter(Game.server_id==Server.server_id).\
-                order_by(expr.asc(PlayerCaptime.fastest_cap))  # or PlayerCaptime.create_dt
+                order_by(expr.desc(PlayerCaptime.create_dt))
 
         player_captimes = Page(pct_q, current_page, items_per_page=20, url=page_url)
 
