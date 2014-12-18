@@ -22,7 +22,7 @@ ${parent.css()}
 <%block name="js">
 ${parent.js()}
 <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>
-<script src="/static/js/weaponCharts.js"></script>
+<script src="/static/js/weaponCharts.min.js"></script>
 <script type="text/javascript">
 
 // tabs
