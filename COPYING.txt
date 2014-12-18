@@ -2,7 +2,7 @@ Xonotic Statistics Application (XonStat): an application to handle the
 parsing, storage, and presentation of statistical data produced by the 
 open source first person shooter game Xonotic. 
 
-Copyright (C) 2010-2011 Ant Zucaro
+Copyright (C) 2010-2014 Ant Zucaro
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
