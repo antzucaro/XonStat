@@ -409,24 +409,6 @@ def get_recent_games(player_id, limit=10):
     return recent_games
 
 
-def get_recent_weapons(player_id):
-    """
-    Returns the weapons that have been used in the past 90 days
-    and also used in 5 games or more.
-    """
-    cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=90)
-    recent_weapons = []
-    for weapon in DBSession.query(PlayerWeaponStat.weapon_cd, func.count()).\
-            filter(PlayerWeaponStat.player_id == player_id).\
-            filter(PlayerWeaponStat.create_dt > cutoff).\
-            group_by(PlayerWeaponStat.weapon_cd).\
-            having(func.count() > 4).\
-            all():
-                recent_weapons.append(weapon[0])
-
-    return recent_weapons
-
-
 def get_accuracy_stats(player_id, weapon_cd, games):
     """
     Provides accuracy for weapon_cd by player_id for the past N games.
@@ -523,7 +505,6 @@ def player_info_data(request):
         elos           = get_elos(player_id)
         ranks          = get_ranks(player_id)
         recent_games   = get_recent_games(player_id)
-        recent_weapons = get_recent_weapons(player_id)
         cake_day       = is_cake_day(player.create_dt)
 
     except Exception as e:
@@ -539,7 +520,6 @@ def player_info_data(request):
             'elos':elos,
             'ranks':ranks,
             'recent_games':recent_games,
-            'recent_weapons':recent_weapons,
             'cake_day':cake_day,
             }
 
@@ -585,8 +565,6 @@ def player_info_json(request):
     for game in player_info['recent_games']:
         recent_games.append(to_json(game))
 
-    #recent_weapons = player_info['recent_weapons']
-
     return [{
         'player':           player,
         'games_played':     games_played,
@@ -595,8 +573,6 @@ def player_info_json(request):
         'elos':             elos,
         'ranks':            ranks,
         'recent_games':     recent_games,
-    #    'recent_weapons':   recent_weapons,
-        'recent_weapons':   ['not implemented'],
     }]
     #return [{'status':'not implemented'}]
 
