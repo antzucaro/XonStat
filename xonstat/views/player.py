@@ -1076,7 +1076,7 @@ def player_captimes_json(request):
 
 
 def player_weaponstats_data_json(request):
-    player_id = request.matchdict["id"]
+    player_id = int(request.matchdict["id"])
     if player_id <= 2:
         player_id = -1;
 
@@ -1093,18 +1093,21 @@ def player_weaponstats_data_json(request):
         if limit > 50:
             limit = 50
 
-    games_raw = DBSession.query(sa.distinct(Game.game_id)).\
-        filter(Game.game_id == PlayerWeaponStat.game_id).\
-        filter(PlayerWeaponStat.player_id == player_id)
+
+    # the game_ids of the most recently played ones 
+    # of the given game type is used for a subquery
+    games_list = DBSession.query(Game.game_id).\
+            filter(Game.players.contains([player_id]))
 
     if game_type_cd is not None:
-        games_raw = games_raw.filter(Game.game_type_cd == game_type_cd)
+        games_list = games_list.filter(Game.game_type_cd == game_type_cd)
 
-    games_raw = games_raw.order_by(Game.game_id.desc()).limit(limit).all()
+    games_list = games_list.order_by(Game.game_id.desc()).limit(limit)
 
     weapon_stats_raw = DBSession.query(PlayerWeaponStat).\
         filter(PlayerWeaponStat.player_id == player_id).\
-        filter(PlayerWeaponStat.game_id.in_(games_raw)).all()
+        filter(PlayerWeaponStat.game_id.in_(games_list)).\
+        all()
 
     games_to_weapons = {}
     weapons_used = {}
