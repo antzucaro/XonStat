@@ -116,11 +116,13 @@ def recent_games_q(server_id=None, map_id=None, player_id=None,
     if player_id is not None:
         if force_player_id:
             recent_games_q = recent_games_q.\
-                filter(PlayerGameStat.player_id==player_id)
+                filter(PlayerGameStat.player_id==player_id).\
+                filter(Game.players.contains([player_id]))
         else:
             recent_games_q = recent_games_q.\
                 filter(PlayerGameStat.scoreboardpos==1).\
                 filter(Game.game_id==pgstat_alias.game_id).\
+                filter(Game.players.contains([player_id])).\
                 filter(pgstat_alias.player_id==player_id)
     else:
         recent_games_q = recent_games_q.\

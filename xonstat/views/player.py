@@ -89,7 +89,8 @@ def get_games_played(player_id):
                         "FROM   games g, "
                                "player_game_stats pgs "
                         "WHERE  g.game_id = pgs.game_id "
-                        "AND pgs.player_id = :player_id) win_loss "
+                        "AND pgs.player_id = :player_id "
+                        "AND g.players @> ARRAY[:player_id]) win_loss "
                 "GROUP  BY game_type_cd "
             ).params(player_id=player_id).all()
 
@@ -167,6 +168,7 @@ def get_overall_stats(player_id):
                        "player_game_stats pgs "
                 "WHERE  g.game_id = pgs.game_id "
                   "AND  g.game_type_cd = gt.game_type_cd "
+                  "AND  g.players @> ARRAY[:player_id] "
                   "AND  pgs.player_id = :player_id "
                 "GROUP  BY g.game_type_cd, game_type_descr "
                 "UNION "
@@ -289,6 +291,7 @@ def get_fav_maps(player_id, game_type_cd=None):
                                "maps m "
                         "WHERE  g.game_id = pgs.game_id "
                                "AND g.map_id = m.map_id "
+                               "AND g.players @> ARRAY[:player_id]"
                                "AND pgs.player_id = :player_id "
                         "GROUP  BY g.game_type_cd, "
                                   "m.map_id, "
