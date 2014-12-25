@@ -581,7 +581,10 @@ def player_info_json(request):
 
 
 def player_game_index_data(request):
-    player_id = request.matchdict['player_id']
+    try:
+        player_id = int(request.matchdict['player_id'])
+    except:
+        player_id = -1
 
     game_type_cd = None
     game_type_descr = None
@@ -621,6 +624,7 @@ def player_game_index_data(request):
         games_played = get_games_played(player_id)
 
     except Exception as e:
+        raise e
         player = None
         games = None
         game_type_cd = None
