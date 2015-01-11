@@ -47,7 +47,7 @@ def map_index_json(request):
 
 
 def _map_info_data(request):
-    map_id = request.matchdict['id']
+    map_id = int(request.matchdict['id'])
 
     try:
         leaderboard_lifetime = int(
