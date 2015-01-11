@@ -99,7 +99,7 @@ def recent_games_q(server_id=None, map_id=None, player_id=None,
             filter(Game.map_id==Map.map_id).\
             filter(Game.game_id==PlayerGameStat.game_id).\
             filter(Game.game_type_cd==GameType.game_type_cd).\
-            order_by(expr.desc(Game.game_id))
+            order_by(expr.desc(Game.create_dt))
 
     # the various filters provided get tacked on to the query
     if server_id is not None:
