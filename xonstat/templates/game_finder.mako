@@ -58,7 +58,7 @@ Game Index
         </tr>
       </thead>
       <tbody>
-      % for rg in recent_games.items:
+      % for rg in recent_games:
         <tr>
           <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
           <td class="tdcenter"><span alt="${rg.game_type_cd}" class="sprite sprite-${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
@@ -78,6 +78,14 @@ Game Index
   </div> <!-- /span12 -->
 </div> <!-- /row -->
 
-<!-- navigation links -->
-${navlinks("game_index", recent_games.page, recent_games.last_page, search_query=query)}
+<div class="row">
+  <div class="span12 text-center">
+    <ul class="pagination">
+      <li>
+        <a  href="${request.route_url('game_index', _query=query)}" name="Next Page">Next <i class="glyphicon glyphicon-arrow-right"></i></a>
+      </li>
+    </ul>
+  </div>
+</div>
+
 % endif

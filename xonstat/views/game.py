@@ -177,7 +177,7 @@ def game_finder_data(request):
     query = {}
 
     server_id, map_id, player_id = None, None, None
-    range_start, range_end, game_type_cd = None, None, None
+    game_type_cd, start_game_id, end_game_id = None, None, None
     game_type_descr = None
 
     # these become WHERE clauses when present
@@ -193,13 +193,13 @@ def game_finder_data(request):
         player_id = request.params['player_id']
         query['player_id'] = player_id
 
-    if request.params.has_key('range_start'):
-        range_start = request.params['range_start']
-        query['range_start'] = range_start
+    if request.params.has_key('start_game_id'):
+        start_game_id = request.params['start_game_id']
+        query['start_game_id'] = start_game_id
 
-    if request.params.has_key('range_end'):
-        range_end = request.params['range_end']
-        query['range_end'] = range_end
+    if request.params.has_key('end_game_id'):
+        end_game_id = request.params['end_game_id']
+        query['end_game_id'] = end_game_id
 
     if request.params.has_key('type'):
         game_type_cd = request.params['type']
@@ -212,11 +212,12 @@ def game_finder_data(request):
             game_type_cd = None
 
     rgs_q = recent_games_q(server_id=server_id, map_id=map_id,
-            player_id=player_id, game_type_cd=game_type_cd)
+            player_id=player_id, game_type_cd=game_type_cd,
+            start_game_id=start_game_id, end_game_id=end_game_id)
 
-    recent_games = Page(rgs_q, current_page, url=page_url)
-
-    recent_games.items = [RecentGame(row) for row in recent_games.items]
+    recent_games = [RecentGame(row) for row in rgs_q.limit(20).all()]
+    
+    query['start_game_id'] = recent_games[-1].game_id + 1
 
     return {
             'recent_games':recent_games,
