@@ -217,12 +217,30 @@ def game_finder_data(request):
 
     recent_games = [RecentGame(row) for row in rgs_q.limit(20).all()]
     
-    query['start_game_id'] = recent_games[-1].game_id + 1
+    if len(recent_games) > 0:
+        query['start_game_id'] = recent_games[-1].game_id + 1
+
+    # build the list of links for the stripe across the top
+    game_type_links = []
+
+    # clear out the game_id window
+    gt_query = query.copy()
+    if 'start_game_id' in gt_query:
+        del gt_query['start_game_id']
+    if 'end_game_id' in gt_query:
+        del gt_query['end_game_id']
+
+    for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft',
+            'lms','as','dom','nb','cts','rc'):
+        gt_query['type'] = gt
+        url = request.route_url("game_index", _query=gt_query)
+        game_type_links.append((gt, url))
 
     return {
             'recent_games':recent_games,
             'query':query,
             'game_type_cd':game_type_cd,
+            'game_type_links':game_type_links,
            }
 
 def game_finder(request):

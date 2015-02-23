@@ -15,27 +15,20 @@ ${nav.nav('games')}
 Game Index
 </%block>
 
-% if len(recent_games) > 0:
-
 ##### ROW OF GAME TYPE ICONS #####
 <div class="row">
   <div class="span12 tabbable">
     <ul class="nav nav-tabs">
-      % for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft','lms','as','dom','nb','cts','rc'):
-      <li 
-      % if game_type_cd == gt or (game_type_cd is None and gt == 'overall'):
-      class="active"
-      % endif
+      % for gt, url in game_type_links:
+      <li
+        % if game_type_cd == gt or (game_type_cd is None and gt == 'overall'):
+        class="active"
+        % endif
       >
-
-      % if gt == 'overall':
-      <a href="${request.route_url("game_index")}" alt="${gt}" title="" data-toggle="none">
-      % else:
-      <a href="${request.route_url("game_index", _query={'type':gt})}" alt="${gt}" title="" data-toggle="none">
-      % endif
-        <span class="sprite sprite-${gt}"> </span><br />
-        ${gt} <br />
-      </a>
+        <a href="${url}" alt="${gt}" title="Show only ${gt} games" data-toggle="none">
+          <span class="sprite sprite-${gt}"> </span><br />
+          ${gt} <br />
+        </a>
       </li>
       % endfor
     </ul>
@@ -46,6 +39,7 @@ Game Index
 ##### RECENT GAMES TABLE #####
 <div class="row">
   <div class="span12">
+    % if len(recent_games) > 0:
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -75,9 +69,13 @@ Game Index
         % endfor
         </tbody>
     </table>
+    % else:
+    <h2>No more games to show!</h2>
+    % endif
   </div> <!-- /span12 -->
 </div> <!-- /row -->
 
+% if len(recent_games) == 20:
 <div class="row">
   <div class="span12 text-center">
     <ul class="pagination">
@@ -87,5 +85,4 @@ Game Index
     </ul>
   </div>
 </div>
-
 % endif
