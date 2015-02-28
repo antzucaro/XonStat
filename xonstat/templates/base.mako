@@ -1,4 +1,6 @@
 <%namespace name="nav" file="nav.mako"/>
+<%namespace name="footer" file="footer.mako" />
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -38,13 +40,7 @@
       </div> <!-- /xonborder -->
     </div> <!-- /row -->
 
-    <%block name="footer">
-      <div class="row">
-        <div class="small-1 large-12 columns">
-          <p class="text-center" >XonStat is an open source (GPLv2) project created by Antibody. Fork it <a href="https://github.com/antzucaro/XonStat" title="Go to the project page">on Github!</a> <br />Questions? Check the <a href="https://github.com/antzucaro/XonStat/wiki/FAQ" title="FAQ">FAQ</a> first. <br />Issues? Log them either <a href="http://dev.xonotic.org/projects/xonstat" title="Xonotic Redmin Issue Tracker">here</a> or <a href="https://github.com/antzucaro/XonStat/issues" title="GitHub issue tracker">here</a> - I check both!</p>
-        </div>
-      </div>
-    </%block>
+    ${footer.footer()}
 
     <%block name="js">
      <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
