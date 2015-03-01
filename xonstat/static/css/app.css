@@ -116,3 +116,11 @@ ul, ol, dl {
   list-style: none;
   margin-left: 0;
 }
+
+/* One-off elements */
+#statline {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  position: relative;
+  top: -25px;
+}
