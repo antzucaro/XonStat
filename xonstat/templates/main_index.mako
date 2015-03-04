@@ -1,7 +1,7 @@
 <%inherit file="base.mako"/>
 
 <%block name="title">
-Leaderboard
+  Leaderboard
 </%block>
 
 <%block name="css">
@@ -13,13 +13,13 @@ Leaderboard
   <div class="text-center">
     <img src="/static/css/img/xonotic-logo.png" />
     % if stat_line is None:
-    <p class="statline">Tracking Xonotic statistics since October 2011.</p>
+      <p class="statline">Tracking Xonotic statistics since October 2011.</p>
     % else:
-    <p class="statline">Tracking ${stat_line|n} since October 2011.</p>
+      <p class="statline">Tracking ${stat_line|n} since October 2011.</p>
     % endif
 
     % if day_stat_line is not None:
-    <p class="statline">${day_stat_line|n} in the past 24 hours.</p>
+      <p class="statline">${day_stat_line|n} in the past 24 hours.</p>
     % endif
   </div>
 </%block>
@@ -27,90 +27,88 @@ Leaderboard
 ##### RANKS #####
 % if len(ranks) < 4:
   <div class="row">
-    <div class="span12">
-      <p style="text-align: center;"><i class="icon-white icon-info-sign"> </i> You don't seem to have any ranks yet.</p>
-    </div> <!-- span12 -->
-  </div> <!-- row -->
+    <div class="small-1 large-12 columns">
+      <p class="text-center"><i class="icon-white icon-info-sign"> </i> You don't seem to have any ranks yet.</p>
+    </div>
+  </div>
 
 % else:
   <div class="row">
     % for rs in ranks[:4]:
-    % if len(rs) > 0:
-    <div class="span3">
-      % if rs[0].game_type_cd == 'duel':
-      <h3>Duel Ranks</h3>
-      % elif rs[0].game_type_cd == 'ctf':
-      <h3>CTF Ranks</h3>
-      % elif rs[0].game_type_cd == 'dm':
-      <h3>DM Ranks</h3>
-      % elif rs[0].game_type_cd == 'tdm':
-      <h3>TDM Ranks</h3>
-      % endif
+      % if len(rs) > 0:
+        <div class="small-1 large-3 columns">
+          % if rs[0].game_type_cd == 'duel':
+            <h5>Duel Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
+          % elif rs[0].game_type_cd == 'ctf':
+            <h5>CTF Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
+          % elif rs[0].game_type_cd == 'dm':
+            <h5>DM Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
+          % elif rs[0].game_type_cd == 'tdm':
+            <h5>TDM Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
+          % endif
 
-      <table class="table table-hover table-condensed">
-        <thead>
-          <tr>
-            <th style="width:40px;">#</th>
-            <th style="width:150px;">Nick</th>
-            <th style="width:60px;">Elo</th>
-          </tr>
-        </thead>
-        <tbody>
-        <% i = 1 %>
-        % for r in rs:
-        <tr>
-          <td>${i}</td>
-          <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
-          <td>${int(round(r.elo))}</td>
-        </tr>
-        <% i = i+1 %>
-        % endfor
-        </tbody>
-      </table>
-      <p class="note"><a href="${request.route_url('rank_index', page=1, game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings">More...</a></p>
-    </div> <!-- /span4 -->
+          <table class="table table-hover table-condensed">
+            <thead>
+              <tr>
+                <th style="width:40px;">#</th>
+                <th style="width:150px;">Nick</th>
+                <th style="width:60px;">Elo</th>
+              </tr>
+            </thead>
+            <tbody>
+            <% i = 1 %>
+            % for r in rs:
+            <tr>
+              <td>${i}</td>
+              <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
+              <td>${int(round(r.elo))}</td>
+            </tr>
+            <% i = i+1 %>
+            % endfor
+            </tbody>
+          </table>
+    </div>
   % endif
 
   % endfor
-</div> <!-- row -->
+</div>
 % endif
 
 
 ##### ACTIVE PLAYERS #####
 <div class="row">
-  <div class="span4">
-    <h3>Most Active Players</h3>
-    <table class="table table-hover table-condensed">
-      <thead>
-        <tr>
-          <th style="width:40px;">#</th>
-          <th style="width:150px;">Nick</th>
-          <th class="play-time" style="width:90px;">Play Time</th>
-        </tr>
-      </thead>
-      <tbody>
-      <% i = 1 %>
-      % for (player_id, nick, alivetime) in top_players:
-        <tr>
-          <td>${i}</td>
-          % if player_id != '-':
-          <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
-          % else:
-          <td class="nostretch" style="max-width:150px;">${nick|n}</td>
-          % endif
-          <td class="play-time">${alivetime}</td>
-        </tr>
-        <% i = i+1 %>
-      % endfor
-      </tbody>
-    </table>
-    <p class="note"><a href="${request.route_url('top_players_by_time', page=1)}" title="See more player activity">More...</a></p>
-  </div> <!-- /span4 -->
+  <div class="small-1 large-4 columns">
+    <h5>Most Active Players <a href="${request.route_url('top_players_by_time', page=1)}" title="See more player activity"><i class="fa fa-plus-circle"></i></a></h5>
+      <table class="table table-hover table-condensed">
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th style="width:150px;">Nick</th>
+            <th class="play-time" style="width:90px;">Play Time</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% i = 1 %>
+        % for (player_id, nick, alivetime) in top_players:
+          <tr>
+            <td>${i}</td>
+            % if player_id != '-':
+            <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
+            % else:
+            <td class="nostretch" style="max-width:150px;">${nick|n}</td>
+            % endif
+            <td class="play-time">${alivetime}</td>
+          </tr>
+          <% i = i+1 %>
+        % endfor
+        </tbody>
+      </table>
+  </div>
 
 
 ##### ACTIVE SERVERS #####
-  <div class="span4">
-    <h3>Most Active Servers</h3>
+  <div class="small-1 large-4 columns">
+    <h5>Most Active Servers <a href="${request.route_url('top_servers_by_players', page=1)}" title="See more server activity"><i class="fa fa-plus-circle"></i></a></h5>
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -135,13 +133,12 @@ Leaderboard
       % endfor
       </tbody>
     </table>
-    <p class="note"><a href="${request.route_url('top_servers_by_players', page=1)}" title="See more server activity">More...</a></p>
-  </div> <!-- /span4 -->
+  </div>
 
 
 ##### ACTIVE MAPS #####
-  <div class="span4">
-    <h3>Most Active Maps</h3>
+  <div class="small-1 large-4 columns">
+    <h5>Most Active Maps <a href="${request.route_url('top_maps_by_times_played', page=1)}" title="See more map activity"><i class="fa fa-plus-circle"></i></a></h5>
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -166,9 +163,8 @@ Leaderboard
       % endfor
       </tbody>
     </table>
-    <p class="note"><a href="${request.route_url('top_maps_by_times_played', page=1)}" title="See more map activity">More...</a></p>
-  </div> <!-- /span4 -->
-</div> <!-- /row -->
+  </div>
+</div>
 <row class="span12">
     <p class="note">*Most active stats are from the past 7 days</p>
 </div>
@@ -177,7 +173,7 @@ Leaderboard
 ##### RECENT GAMES #####
 % if len(recent_games) > 0:
 <div class="row">
-  <div class="span12">
+  <div class="small-1 large-12 columns">
     <h3>Recent Games</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -209,6 +205,6 @@ Leaderboard
         </tbody>
     </table>
     <p><a href="${request.route_url('game_index')}">More...</a></p>
-  </div> <!-- /span12 -->
-</div> <!-- /row -->
+  </div>
+</div>
 % endif

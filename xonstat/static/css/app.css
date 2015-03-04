@@ -35,6 +35,37 @@ ul, ol, dl {
   font-size: 1.1rem;
 }
 
+table {
+  background: none repeat scroll 0px 0px rgba(0, 0, 0, 0.70);
+  border: 1px solid #436688;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+table tr td {
+  font-size: 10px;
+}
+
+table thead {
+  background-color: #001021;
+}
+
+table td, table th {
+  border: 1px solid #436688;
+}
+
+table tr.even, table tr.alt, table tr:nth-of-type(2n) {
+  background: none;
+}
+
+table thead tr th, table thead tr td, table tr th, table tr td {
+  color: #D0D0D0;
+}
+
+.table-condensed th, .table-condensed td {
+  padding: 4px 5px;
+}
+
 .top-bar {
   height: 50px;
 }
@@ -122,4 +153,13 @@ ul, ol, dl {
   font-size: 0.9rem;
   position: relative;
   top: -20px;
+}
+
+#title {
+  color: #08C;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  position: relative;
+  text-align: center;
+  text-shadow: 2px 2px 3px #333;
 }
