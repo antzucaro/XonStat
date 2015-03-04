@@ -13,13 +13,13 @@ Leaderboard
   <div class="text-center">
     <img src="/static/css/img/xonotic-logo.png" />
     % if stat_line is None:
-    <p id="statline">Tracking Xonotic statistics since October 2011.</p>
+    <p class="statline">Tracking Xonotic statistics since October 2011.</p>
     % else:
-    <p id="statline">Tracking ${stat_line|n} since October 2011.</p>
+    <p class="statline">Tracking ${stat_line|n} since October 2011.</p>
     % endif
 
     % if day_stat_line is not None:
-    <p id="statline">${day_stat_line|n} in the past 24 hours.</p>
+    <p class="statline">${day_stat_line|n} in the past 24 hours.</p>
     % endif
   </div>
 </%block>
