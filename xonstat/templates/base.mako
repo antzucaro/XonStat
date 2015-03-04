@@ -29,6 +29,9 @@
       ${nav.nav("leaderboard")}
     </%block>
 
+    <%block name="hero_unit">
+    </%block>
+
     <div class="row">
       <div class="small-1 large-12 columns" id="xonborder">
         <div id="title">
