@@ -12,7 +12,7 @@
 
 body {
   background-color: #0F0F0F;
-  background: url("img/bg.jpg") no-repeat fixed center center / cover black;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)) repeat scroll 0% 0%, url("img/bg.jpg") no-repeat fixed center center / cover black;
   color: #9B9B9B;
   font-family: "Xolonium", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
