@@ -11,7 +11,7 @@ Leaderboard
 
 <%block name="hero_unit">
   <div class="text-center">
-    <img src="/static/css/img/web_background_l2.png" />
+    <img src="/static/css/img/xonotic-logo.png" />
     % if stat_line is None:
     <p id="statline">Tracking Xonotic statistics since October 2011.</p>
     % else:
