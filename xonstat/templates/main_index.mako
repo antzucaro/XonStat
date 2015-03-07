@@ -50,9 +50,9 @@
           <table class="table-hover table-condensed">
             <thead>
               <tr>
-                <th class="w15p">#</th>
-                <th class="w60p">Nick</th>
-                <th class="w25p">Elo</th>
+                <th class="small-2">#</th>
+                <th class="small-7">Nick</th>
+                <th class="small-3">Elo</th>
               </tr>
             </thead>
             <tbody>
@@ -82,9 +82,9 @@
       <table class="table table-hover table-condensed">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Nick</th>
-            <th>Play Time</th>
+            <th class="small-2">#</th>
+            <th class="small-7">Nick</th>
+            <th class="small-3">Time</th>
           </tr>
         </thead>
         <tbody>
@@ -93,9 +93,9 @@
           <tr>
             <td>${i}</td>
             % if player_id != '-':
-            <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
+            <td class="no-stretch"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
             % else:
-            <td class="nostretch" style="max-width:150px;">${nick|n}</td>
+            <td class="no-stretch" style="max-width:150px;">${nick|n}</td>
             % endif
             <td>${alivetime}</td>
           </tr>
@@ -112,9 +112,9 @@
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Server</th>
-          <th>Games</th>
+          <th class="small-2">#</th>
+          <th class="small-7">Server</th>
+          <th class="small-3">Games</th>
         </tr>
       </thead>
       <tbody>
@@ -123,7 +123,7 @@
         <tr>
           <td>${i}</td>
           % if server_id != '-':
-          <td><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
+          <td class="no-stretch"><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
           % else:
           <td>${name}</td>
           % endif
@@ -142,9 +142,9 @@
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Map</th>
-          <th>Games</th>
+          <th class="small-2">#</th>
+          <th class="small-7">Map</th>
+          <th class="small-3">Games</th>
         </tr>
       </thead>
       <tbody>
@@ -153,7 +153,7 @@
         <tr>
           <td>${i}</td>
           % if map_id != '-':
-          <td><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
+          <td class="no-stretch"><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
           % else:
           <td>${name}</td>
           % endif
@@ -165,8 +165,8 @@
     </table>
   </div>
 </div>
-<row class="span12">
-    <p>*Most active stats are from the past 7 days</p>
+<div class="row">
+    <h5>*Most active stats are from the past 7 days</h5>
 </div>
 
 

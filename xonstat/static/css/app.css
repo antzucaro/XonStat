@@ -71,18 +71,6 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   padding: 4px 5px;
 }
 
-.w15p {
-  width: 15%;
-}
-
-.w60p {
-  width: 60%;
-}
-
-.w25p {
-  width: 25%;
-}
-
 .no-stretch {
   overflow: hidden;
   text-overflow: ellipsis;
