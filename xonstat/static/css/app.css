@@ -62,8 +62,31 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   color: #D0D0D0;
 }
 
+.table-condensed {
+  table-layout: fixed;
+  width: 100%;
+}
+
 .table-condensed th, .table-condensed td {
   padding: 4px 5px;
+}
+
+.w15p {
+  width: 15%;
+}
+
+.w60p {
+  width: 60%;
+}
+
+.w25p {
+  width: 25%;
+}
+
+.no-stretch {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .top-bar {
@@ -125,7 +148,6 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   box-shadow: 0 0 6px 1px rgba(0, 140, 186, 0.7);
 }
 
-
 /* Footer */
 #footer {
   background: linear-gradient( rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 95% );
@@ -148,13 +170,6 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   margin-left: 0;
 }
 
-.statline {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 0.9rem;
-  position: relative;
-  top: -20px;
-}
-
 #title {
   color: #08C;
   font-size: 1.8rem;
@@ -162,4 +177,17 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   position: relative;
   text-align: center;
   text-shadow: 2px 2px 3px #333;
+}
+
+.statline {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  position: relative;
+  top: -20px;
+}
+
+.nostretch {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

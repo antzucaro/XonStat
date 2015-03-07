@@ -27,7 +27,7 @@
 ##### RANKS #####
 % if len(ranks) < 4:
   <div class="row">
-    <div class="small-1 large-12 columns">
+    <div class="small-12 large-12 columns">
       <p class="text-center"><i class="icon-white icon-info-sign"> </i> You don't seem to have any ranks yet.</p>
     </div>
   </div>
@@ -36,7 +36,7 @@
   <div class="row">
     % for rs in ranks[:4]:
       % if len(rs) > 0:
-        <div class="small-1 large-3 columns">
+        <div class="small-12 large-3 columns">
           % if rs[0].game_type_cd == 'duel':
             <h5>Duel Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
           % elif rs[0].game_type_cd == 'ctf':
@@ -47,12 +47,12 @@
             <h5>TDM Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
           % endif
 
-          <table class="table table-hover table-condensed">
+          <table class="table-hover table-condensed">
             <thead>
               <tr>
-                <th style="width:40px;">#</th>
-                <th style="width:150px;">Nick</th>
-                <th style="width:60px;">Elo</th>
+                <th class="w15p">#</th>
+                <th class="w60p">Nick</th>
+                <th class="w25p">Elo</th>
               </tr>
             </thead>
             <tbody>
@@ -60,7 +60,7 @@
             % for r in rs:
             <tr>
               <td>${i}</td>
-              <td class="nostretch" style="max-width:150px;"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
+              <td class="no-stretch"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
               <td>${int(round(r.elo))}</td>
             </tr>
             <% i = i+1 %>
@@ -77,14 +77,14 @@
 
 ##### ACTIVE PLAYERS #####
 <div class="row">
-  <div class="small-1 large-4 columns">
+  <div class="small-12 large-4 columns">
     <h5>Most Active Players <a href="${request.route_url('top_players_by_time', page=1)}" title="See more player activity"><i class="fa fa-plus-circle"></i></a></h5>
       <table class="table table-hover table-condensed">
         <thead>
           <tr>
-            <th style="width:40px;">#</th>
-            <th style="width:150px;">Nick</th>
-            <th class="play-time" style="width:90px;">Play Time</th>
+            <th>#</th>
+            <th>Nick</th>
+            <th>Play Time</th>
           </tr>
         </thead>
         <tbody>
@@ -97,7 +97,7 @@
             % else:
             <td class="nostretch" style="max-width:150px;">${nick|n}</td>
             % endif
-            <td class="play-time">${alivetime}</td>
+            <td>${alivetime}</td>
           </tr>
           <% i = i+1 %>
         % endfor
@@ -107,14 +107,14 @@
 
 
 ##### ACTIVE SERVERS #####
-  <div class="small-1 large-4 columns">
+  <div class="small-12 large-4 columns">
     <h5>Most Active Servers <a href="${request.route_url('top_servers_by_players', page=1)}" title="See more server activity"><i class="fa fa-plus-circle"></i></a></h5>
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th style="width:40px;">#</th>
-          <th style="width:180px;">Server</th>
-          <th style="width:60px;">Games</th>
+          <th>#</th>
+          <th>Server</th>
+          <th>Games</th>
         </tr>
       </thead>
       <tbody>
@@ -123,9 +123,9 @@
         <tr>
           <td>${i}</td>
           % if server_id != '-':
-          <td class="nostretch" style="max-width:180px;"><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
+          <td><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
           % else:
-          <td class="nostretch" style="max-width:180px;">${name}</td>
+          <td>${name}</td>
           % endif
           <td>${count}</td>
         </tr>
@@ -137,14 +137,14 @@
 
 
 ##### ACTIVE MAPS #####
-  <div class="small-1 large-4 columns">
+  <div class="small-12 large-4 columns">
     <h5>Most Active Maps <a href="${request.route_url('top_maps_by_times_played', page=1)}" title="See more map activity"><i class="fa fa-plus-circle"></i></a></h5>
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th style="width:40px;">#</th>
-          <th style="width:180px;">Map</th>
-          <th style="width:60px;">Games</th>
+          <th>#</th>
+          <th>Map</th>
+          <th>Games</th>
         </tr>
       </thead>
       <tbody>
@@ -153,9 +153,9 @@
         <tr>
           <td>${i}</td>
           % if map_id != '-':
-          <td class="nostretch" style="max-width:180px;"><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
+          <td><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
           % else:
-          <td class="nostretch" style="max-width:180px;">${name}</td>
+          <td>${name}</td>
           % endif
           <td>${count}</td>
         </tr>
@@ -166,14 +166,14 @@
   </div>
 </div>
 <row class="span12">
-    <p class="note">*Most active stats are from the past 7 days</p>
+    <p>*Most active stats are from the past 7 days</p>
 </div>
 
 
 ##### RECENT GAMES #####
 % if len(recent_games) > 0:
 <div class="row">
-  <div class="small-1 large-12 columns">
+  <div class="small-12 columns">
     <h3>Recent Games</h3>
     <table class="table table-hover table-condensed">
       <thead>
@@ -189,7 +189,7 @@
       <tbody>
       % for rg in recent_games:
         <tr>
-          <td class="tdcenter"><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
+          <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
           <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
           <td><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
           <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
