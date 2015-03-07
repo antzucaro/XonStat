@@ -33,7 +33,7 @@
     </%block>
 
     <div class="row">
-      <div class="small-1 large-12 columns" id="xonborder">
+      <div class="small-12 columns">
         <div id="title">
           <%block name="title"></%block>
         </div>
