@@ -171,7 +171,7 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 0.9rem;
   position: relative;
-  top: -20px;
+  top: -10px;
 }
 
 .nostretch {
