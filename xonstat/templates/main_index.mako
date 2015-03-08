@@ -166,7 +166,9 @@
   </div>
 </div>
 <div class="row">
-    <h5>*Most active stats are from the past 7 days</h5>
+  <div class="small-12 columns">
+    <small>*Most active stats are from the past 7 days</small>
+  </div>
 </div>
 
 
@@ -174,27 +176,27 @@
 % if len(recent_games) > 0:
 <div class="row">
   <div class="small-12 columns">
-    <h3>Recent Games</h3>
+    <h5>Recent Games <a href="${request.route_url('game_index')}"><i class="fa fa-plus-circle"></i></a></h5>
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
-          <th></th>
-          <th>Type</th>
-          <th>Server</th>
-          <th>Map</th>
-          <th>Time</th>
-          <th>Winner</th>
+          <th class="small-1 text-center"></th>
+          <th class="small-1">Type</th>
+          <th class="show-for-medium-up small-3">Server</th>
+          <th class="show-for-medium-up small-2">Map</th>
+          <th class="show-for-large-up small-2">Time</th>
+          <th class="small-3">Winner</th>
         </tr>
       </thead>
       <tbody>
       % for rg in recent_games:
         <tr>
-          <td><a class="btn btn-primary btn-small" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
-          <td class="tdcenter"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
-          <td><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
-          <td><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
-          <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
-          <td class="nostretch">
+          <td class="text-center"><a class="button tiny" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
+          <td class="text-center"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
+          <td class="show-for-medium-up no-stretch"><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
+          <td class="show-for-medium-up"><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
+          <td class="show-for-large-up"><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
+          <td class="no-stretch">
             % if rg.player_id > 2:
             <a href="${request.route_url('player_info', id=rg.player_id)}" title="Go to the player info page for this player">${rg.nick_html_colors|n}</a></td>
             % else:
@@ -204,7 +206,6 @@
         % endfor
         </tbody>
     </table>
-    <p><a href="${request.route_url('game_index')}">More...</a></p>
   </div>
 </div>
 % endif
