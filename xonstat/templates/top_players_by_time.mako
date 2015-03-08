@@ -16,7 +16,7 @@
 % else:
   ##### ACTIVE PLAYERS #####
   <div class="row">
-    <div class="small-12 large-6 large-offset-3">
+    <div class="small-12 large-6 large-offset-3 columns">
       <table class="table-hover table-condensed">
         <thead>
           <tr>
@@ -48,7 +48,7 @@
   </div>
 
   <div class="row">
-    <div class="small-12 large-6 large-offset-3">
+    <div class="small-12 large-6 large-offset-3 columns">
       ${navlinks("top_players_by_time", top_players.page, top_players.last_page)}
     </div>
   </div>
