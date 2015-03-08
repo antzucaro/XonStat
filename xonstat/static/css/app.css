@@ -179,3 +179,8 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.button.tiny {
+  margin: 0;
+  padding: 0.5rem 1rem 0.5rem;
+}
