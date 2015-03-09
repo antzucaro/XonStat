@@ -17,19 +17,20 @@ Game Index
 
 ##### ROW OF GAME TYPE ICONS #####
 <div class="row">
-  <div class="span12 tabbable">
-    <ul class="nav nav-tabs">
+  <div class="small-12 columns">
+    <ul class="tabs">
       % for gt, url in game_type_links:
-      <li
-        % if game_type_cd == gt or (game_type_cd is None and gt == 'overall'):
-        class="active"
-        % endif
-      >
-        <a href="${url}" alt="${gt}" title="Show only ${gt} games" data-toggle="none">
-          <span class="sprite sprite-${gt}"> </span><br />
-          ${gt} <br />
-        </a>
-      </li>
+        <li class="tab-title
+          % if game_type_cd == gt or (game_type_cd is None and gt == 'overall'):
+            active
+          % endif
+          "
+        >
+          <a href="${url}" alt="${gt}" title="Show only ${gt} games">
+            <span class="sprite sprite-${gt}"> </span><br />
+            ${gt} <br />
+          </a>
+        </li>
       % endfor
     </ul>
     <br />
