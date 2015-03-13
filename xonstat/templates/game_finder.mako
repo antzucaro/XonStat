@@ -20,7 +20,7 @@ Game Index
   <div class="small-12 columns">
     <ul class="tabs">
       % for gt, url in game_type_links:
-        <li class="tab-title
+        <li class="text-center tab-title
           % if game_type_cd == gt or (game_type_cd is None and gt == 'overall'):
             active
           % endif
@@ -39,7 +39,7 @@ Game Index
 
 ##### RECENT GAMES TABLE #####
 <div class="row">
-  <div class="span12">
+  <div class="small-12 columns">
     % if len(recent_games) > 0:
     <table class="table-hover table-condensed">
       <thead>

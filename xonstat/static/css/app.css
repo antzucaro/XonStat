@@ -184,3 +184,18 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   margin: 0;
   padding: 0.5rem 1rem 0.5rem;
 }
+
+.tabs dd > a, .tabs .tab-title > a {
+  background: none;
+  color: #aaa;
+  padding: 1rem;
+}
+
+.tabs dd > a:hover, .tabs .tab-title > a:hover {
+  background-color: #1D1D1D;
+}
+
+.tabs dd.active a, .tabs .tab-title.active a {
+  background-color: #111;
+  color: #aaa;
+}
