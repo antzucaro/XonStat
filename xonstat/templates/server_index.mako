@@ -30,12 +30,14 @@
       </form>
 
       <table class="table-hover table-condensed">
-        <tr>
-          <th class="small-3">Server ID</th>
-          <th class="small-5">Name</th>
-          <th class="small-3">Added</th>
-          <th class="small-1"></th>
-        </tr>
+        <thead>
+          <tr>
+            <th class="small-3">Server ID</th>
+            <th class="small-5">Name</th>
+            <th class="small-3">Added</th>
+            <th class="small-1"></th>
+          </tr>
+        </thead>
       % for server in servers:
         <tr>
           <td>${server.server_id}</td>

@@ -30,12 +30,14 @@
       </form>
 
       <table class="table-hover table-condensed">
-        <tr>
-          <th class="small-3">Player ID</th>
-          <th class="small-5">Nick</th>
-          <th class="small-3">Joined</th>
-          <th class="small-1"></th>
-        </tr>
+        <thead>
+          <tr>
+            <th class="small-3">Player ID</th>
+            <th class="small-5">Nick</th>
+            <th class="small-3">Joined</th>
+            <th class="small-1"></th>
+          </tr>
+        </thead>
       % for player in players:
         <tr>
           <td>${player.player_id}</th>
