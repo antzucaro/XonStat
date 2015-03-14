@@ -15,7 +15,7 @@
 
 % else:
   <div class="row">
-    <div class="small-6 small-offset-3 columns">
+    <div class="small-12 large-6 large-offset-3 columns">
 
       <form method="get" action="${request.route_url('search')}">
         <div class="row">
