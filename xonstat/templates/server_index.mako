@@ -20,8 +20,8 @@
       <form method="get" action="${request.route_url('search')}">
         <div class="row">
           <div class="small-7 columns">
-            <input type="hidden" name="server_name" />
-            <input type="text" name="nick" />
+            <input type="hidden" name="fs" />
+            <input type="text" name="server_name" />
           </div>
           <div class="small-5 columns">
             <input type="submit" value="search" />
@@ -53,6 +53,7 @@
       </table>
 
       ${navlinks("server_index", servers.page, servers.last_page)}
+
     </div>
   </div>
 % endif
