@@ -23,12 +23,12 @@
 % endif
 
 % if 50 <= rand < 60:
-  <h2>Hey, you! Watch out - kojn's behind you!</h2>
+  <h2>Hey, you! Watch out - Smilecythe's behind you!</h2>
   <p>(he killed this page, apparently)</p>
 % endif
 
 % if 60 <= rand < 70:
-  <h2>Samual must have destroyed this page.</h2>
+  <h2>Mario refactored this page into something else.</h2>
   <p>(it wasn't pulling its own weight anyway)</p>
 % endif
 
