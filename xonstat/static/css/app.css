@@ -199,3 +199,15 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   background-color: #111;
   color: #aaa;
 }
+
+.eloup {
+  color: #008000;
+}
+
+.elodown {
+  color: #BE0000;
+}
+
+.eloneutral {
+  color: gray;
+}
