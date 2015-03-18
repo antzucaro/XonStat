@@ -133,12 +133,6 @@ def main(global_config, **settings):
     config.add_route("server_index_json", "/servers.json")
     config.add_view(server_index_json, route_name="server_index_json", renderer="jsonp")
 
-    config.add_route("server_game_index",      "/server/{server_id:\d+}/games/page/{page:\d+}")
-    config.add_view(server_game_index,      route_name="server_game_index",      renderer="server_game_index.mako")
-
-    config.add_route("server_game_index_json", "/server/{server_id:\d+}/games.json")
-    config.add_view(server_game_index_json, route_name="server_game_index_json", renderer="jsonp")
-
     config.add_route("server_info",      "/server/{id:\d+}")
     config.add_view(server_info,      route_name="server_info",      renderer="server_info.mako")
 
