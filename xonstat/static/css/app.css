@@ -24,7 +24,7 @@ h1, h2, h3, h4, h5 {
 
 p {
   color: #C3C3C3;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 
 hr {
@@ -214,4 +214,8 @@ table thead tr th, table thead tr td, table tr th, table tr td {
 
 .eloneutral {
   color: gray;
+}
+
+.tabs-content {
+  margin-bottom: 0;
 }
