@@ -35,6 +35,10 @@ ul, ol, dl {
   font-size: 1.1rem;
 }
 
+fieldset {
+  border: none;
+}
+
 table {
   background: none repeat scroll 0px 0px rgba(0, 0, 0, 0.70);
   border: 1px solid #436688;
