@@ -50,7 +50,7 @@ table tr td {
   font-size: 10px;
 }
 
-table thead {
+table thead, table th {
   background-color: #001021;
 }
 
@@ -214,6 +214,64 @@ table thead tr th, table thead tr td, table tr th, table tr td {
 
 .eloneutral {
   color: gray;
+}
+
+.game {
+  margin-bottom: 1rem;
+}
+
+.game a {
+    color: #CCC;
+}
+
+.game a:hover {
+    color: #d95f00;
+    text-decoration: none;
+}
+
+.game tr {
+    background-color: #000;
+}
+
+.game tr.red {
+  background-color: #4d0000;
+}
+
+.game tr.blue {
+  background-color: #00004d;
+}
+
+.game tr.yellow {
+  background-color: #4d4d00;
+}
+
+.game tr.pink {
+  background-color: #4d004d;
+}
+
+.game tr:hover {
+    background-color: #222;
+}
+
+.teamscore {
+  text-shadow: -1px -1px 0 #222;
+  font-weight: bold;
+}
+
+.teamscore .red {
+  color: #ad0000;
+}
+
+.teamscore .blue {
+  color: #0000ad;
+}
+
+.teamscore .yellow {
+  color: #adad00;
+}
+
+.teamscore .pink {
+  color: #ad00ad;
 }
 
 .tabs-content {

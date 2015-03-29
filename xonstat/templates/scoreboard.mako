@@ -1,25 +1,25 @@
 <%def name="scoreboard(game_type_cd, pgstats, show_elo=False, show_latency=False)">
-<table  class="table table-hover table-condensed">
+<table  class="table-hover table-condensed">
   ${scoreboard_header(game_type_cd, pgstats[0])}
   <tbody>
   % for pgstat in pgstats:
     <tr class="${pgstat.team_html_color()}">
       % if show_latency and pgstat.avg_latency is not None:
-        <td class="tdcenter">
+        <td class="text-center">
           ${int(round(pgstat.avg_latency))}
         </td>
       % elif show_latency:
-        <td class="tdcenter">-</td>
+        <td class="text-center">-</td>
       % endif
 
-      <td class="player-nick">
+      <td class="no-stretch">
         % if pgstat.player_id > 2:
           <a href="${request.route_url("player_info", id=pgstat.player_id)}"
             title="Go to the info page for this player">
-            <span class="nick">${pgstat.nick_html_colors()|n}</span>
+            <span class="small-2">${pgstat.nick_html_colors()|n}</span>
           </a>
         % else:
-          <span class="nick">${pgstat.nick_html_colors()|n}</span>
+          <span class="small-2">${pgstat.nick_html_colors()|n}</span>
         % endif
       </td>
 
@@ -48,16 +48,16 @@
 <thead>
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="deaths">Deaths</th>
-    <th class="suicides">Suicides</th>
-    <th class="objectives">Objectives</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Kills</th>
+    <th>Deaths</th>
+    <th>Suicides</th>
+    <th>Objectives</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -67,15 +67,15 @@
 <thead>
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="deaths">Deaths</th>
-    <th class="suicides">Suicides</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Kills</th>
+    <th>Deaths</th>
+    <th>Suicides</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -85,16 +85,16 @@
 <thead>
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="deaths">Deaths</th>
-    <th class="captured">Captured</th>
-    <th class="released">Released</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Kills</th>
+    <th>Deaths</th>
+    <th>Captured</th>
+    <th>Released</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -104,11 +104,11 @@
 <thead>
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="fastest">Fastest Time</th>
-    <th class="deaths">Deaths</th>
+    <th class="small-2">Nick</th>
+    <th>Fastest Time</th>
+    <th>Deaths</th>
   </tr>
 </thead>
 % endif
@@ -117,17 +117,17 @@
 <thead class="ctf ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="captures">Captures</th>
-    <th class="pickups">Pickups</th>
-    <th class="fck" title="Flag Carrier Kill">FCK</th>
-    <th class="returns">Returns</th>
-    <th class="score">Score</th>
+    <th>Nick</th>
+    <th>Kills</th>
+    <th>Captures</th>
+    <th>Pickups</th>
+    <th title="Flag Carrier Kill">FCK</th>
+    <th>Returns</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -137,16 +137,16 @@
 <thead class="dom ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="deaths">Deaths</th>
-    <th class="takes">Takes</th>
-    <th class="ticks">Ticks</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Kills</th>
+    <th>Deaths</th>
+    <th>Takes</th>
+    <th>Ticks</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -156,15 +156,15 @@
 <thead class="freezetag ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="deaths">Deaths</th>
-    <th class="revivals">Revivals</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Kills</th>
+    <th>Deaths</th>
+    <th>Revivals</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -174,17 +174,17 @@
 <thead>
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="deaths">Deaths</th>
-    <th class="pickups">Pickups</th>
-    <th class="bctime">BC Time</th>
-    <th class="bckills">BC Kills</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Kills</th>
+    <th>Deaths</th>
+    <th>Pickups</th>
+    <th>BC Time</th>
+    <th>BC Kills</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -194,20 +194,18 @@
 <thead class="kh ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="kills">Kills</th>
-    <th class="deaths">Deaths</th>
-    <th class="pickups">Pickups</th>
-    <th class="caps">Captures</th>
-    <th class="losses">Losses</th>
-    <th class="pushes">Pushes</th>
-    <th class="destroys">Destroys</th>
-    <th class="kckills">KC Kills</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Kills</th>
+    <th>Deaths</th>
+    <th>Pickups</th>
+    <th>Captures</th>
+    <th>Losses</th>
+    <th>KC Kills</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -217,14 +215,14 @@
 <thead class="nb ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="goals">Goals</th>
-    <th class="faults">Faults</th>
-    <th class="score">Score</th>
+    <th class="small-2">Nick</th>
+    <th>Goals</th>
+    <th>Faults</th>
+    <th>Score</th>
     % if show_elo:
-    <th>Elo Change</th>
+      <th>Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -234,12 +232,12 @@
 <thead>
   <tr>
     % if show_latency:
-    <th class="ping">Ping</th>
+      <th class="small-1">Ping</th>
     % endif
-    <th class="nick">Nick</th>
-    <th class="laps">Laps</th>
-    <th class="fastest">Fastest Lap</th>
-    <th class="time">Time</th>
+    <th class="small-2">Nick</th>
+    <th>Laps</th>
+    <th>Fastest Lap</th>
+    <th>Time</th>
   </tr>
 </thead>
 % endif
@@ -319,8 +317,6 @@
   <td>${pgstat.pickups}</td>
   <td>${pgstat.captures}</td>
   <td>${pgstat.drops}</td>
-  <td>${pgstat.pushes}</td>
-  <td>${pgstat.destroys}</td>
   <td>${pgstat.carrier_frags}</td>
 % endif
 
