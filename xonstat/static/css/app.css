@@ -71,6 +71,10 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   width: 100%;
 }
 
+.table-hover tr:hover {
+    background-color: #222;
+}
+
 .table-condensed th, .table-condensed td {
   padding: 4px 5px;
 }
@@ -247,10 +251,6 @@ table thead tr th, table thead tr td, table tr th, table tr td {
 
 .game tr.pink {
   background-color: #4d004d;
-}
-
-.game tr:hover {
-    background-color: #222;
 }
 
 .teamscore {
