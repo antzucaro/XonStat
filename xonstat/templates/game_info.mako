@@ -12,13 +12,13 @@
   <link href="/static/css/sprites.css" rel="stylesheet">
 </%block>
 
-<%block name="js">
-  ${parent.js()}
+<%block name="foundation">
   <script>
-  $(".collapse").collapse();
-
-  // show accordion only when loaded to prevent rollup from being seen
-  $("#acc-accordion").css('display', '');
+  $(document).foundation({
+      accordion: {
+        multi_expand: true,
+      }
+    });
   </script>
 </%block>
 
