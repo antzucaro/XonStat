@@ -102,61 +102,54 @@
   % endif
 
   % if len(captimes) > 0:
-  <div class="row">
-    <div class="small-6 columns">
-      <h3>Best Flag Capture Times</h3>
-      <table class="table-hover table-condensed">
-        <thead>
+    <div class="row">
+      <div class="small-6 columns">
+        <h3>Best Flag Capture Times</h3>
+        <table class="table-hover table-condensed">
+          <thead>
+            <tr>
+              <th>Nick</th>
+              <th>Captime</th>
+            </tr>
+          </thead>
+          <tbody>
+          % for pgs in captimes:
           <tr>
-            <th>Nick</th>
-            <th>Captime</th>
-          </tr>
-        </thead>
-        <tbody>
-        % for pgs in captimes:
-        <tr>
-          <td>
-            % if pgs.player_id > 2:
-            <a href="${request.route_url("player_info", id=pgs.player_id)}"
-              title="Go to the info page for this player">
+            <td>
+              % if pgs.player_id > 2:
+              <a href="${request.route_url("player_info", id=pgs.player_id)}"
+                title="Go to the info page for this player">
+                <span class="nick">${pgs.nick_html_colors()|n}</span>
+              </a>
+              % else:
               <span class="nick">${pgs.nick_html_colors()|n}</span>
-            </a>
-            % else:
-            <span class="nick">${pgs.nick_html_colors()|n}</span>
-            % endif
-          </td>
-          <td>${round(float(pgs.fastest.seconds) + (pgs.fastest.microseconds/1000000.0), 2)}</td>
-        </tr>
-        % endfor
-        </tbody>
-      </table>
-    </div>
-  </div>
-% endif
-
-% if len(pgstats) > 0 and len(pwstats) > 0:
-  <div class="row">
-    <div class="small-12 columns">
-      <h3>Accuracy Information</h3>
-      <div class="accordion" id="acc-accordion" style="display:none;">
-        % for pgstat in pgstats:
-          % if pgstat.player_game_stat_id in pwstats:
-            <div class="accordion-group">
-              <div class="accordion-heading">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#acc-accordion" href="#accuracy-${pgstat.player_game_stat_id}">
-                  Accuracy for ${pgstat.nick_html_colors()|n}
-                </a>
-              </div>
-              <div id="accuracy-${pgstat.player_game_stat_id}" class="accordion-body collapse in">
-                <div class="accordion-inner">
-                  ${accuracy(pwstats[pgstat.player_game_stat_id])}
-                </div>
-              </div>
-            </div>
-          % endif
-        % endfor
+              % endif
+            </td>
+            <td>${round(float(pgs.fastest.seconds) + (pgs.fastest.microseconds/1000000.0), 2)}</td>
+          </tr>
+          % endfor
+          </tbody>
+        </table>
       </div>
     </div>
-    % endif
-  </div>
+  % endif
+
+  % if len(pgstats) > 0 and len(pwstats) > 0:
+    <div class="row">
+      <div class="small-12 columns">
+          <ul class="accordion" data-accordion>
+            % for pgstat in pgstats:
+              % if pgstat.player_game_stat_id in pwstats:
+                <li class="accordion-navigation">
+                  <a href="#accuracy-${pgstat.player_game_stat_id}">Accuracy for ${pgstat.nick_html_colors()|n}</a>
+                  <div id="accuracy-${pgstat.player_game_stat_id}" class="content">
+                    ${accuracy(pwstats[pgstat.player_game_stat_id])}
+                  </div>
+                </li>
+              % endif
+            % endfor
+          </ul>
+        </div>
+      </div>
+  % endif
 % endif

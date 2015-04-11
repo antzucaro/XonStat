@@ -144,6 +144,31 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   box-shadow: 0 0 6px 1px rgba(0, 140, 186, 0.7);
 }
 
+/* accordion overrides */
+.accordion .accordion-navigation, .accordion dd {
+  border: 1px solid #222222;
+  margin-bottom: 5px;
+}
+
+.accordion .accordion-navigation > a, .accordion dd > a {
+  background: none;
+  color: #C3C3C3;
+  font-family: "Xolonium", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.8rem;
+}
+
+.accordion .accordion-navigation > .content.active, .accordion dd > .content.active {
+  background: none;
+}
+
+.accordion .accordion-navigation.active > a, .accordion .accordion-navigation > a:hover {
+  background: #242424;
+}
+
+ul.accordion {
+  margin-left: 0;
+}
+
 /* Footer */
 #footer {
   background: linear-gradient( rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 95% );
