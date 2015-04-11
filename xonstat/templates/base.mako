@@ -46,11 +46,14 @@
     ${footer.footer()}
 
     <%block name="js">
-     <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
-     <script src="/static/js/foundation.min.js"></script>
-     <script>
-       $(document).foundation();
-     </script>
+      <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+      <script src="/static/js/foundation.min.js"></script>
+ 
+      <%block name="foundation">
+        <script>
+          $(document).foundation();
+        </script>
+      </%block>
     </%block>
 
     <!-- RELATIVE TIME CONVERSION -->
