@@ -66,13 +66,13 @@
 <thead>
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-5 medium-3">Nick</th>
     <th>Kills</th>
     <th class="show-for-medium-up">Deaths</th>
     <th class="show-for-medium-up">Suicides</th>
-    <th class="small-3">Score</th>
+    <th class="small-3 medium-1">Score</th>
     % if show_elo:
       <th class="show-for-medium-up">Elo Change</th>
     % endif
