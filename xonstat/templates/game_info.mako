@@ -136,7 +136,7 @@
 
   % if len(pgstats) > 0 and len(pwstats) > 0:
     <div class="row">
-      <div class="small-12 columns">
+      <div class="small-12 medium-9 columns">
           <ul class="accordion" data-accordion>
             % for pgstat in pgstats:
               % if pgstat.player_game_stat_id in pwstats:

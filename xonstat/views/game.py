@@ -87,7 +87,7 @@ def _game_info_data(request):
                     # template
                     pwstats[pgstat.player_game_stat_id].append((weapon.descr,
                         weapon.weapon_cd, pwstat.actual, pwstat.max,
-                        pwstat.hit, pwstat.fired, pgstat))
+                        pwstat.hit, pwstat.fired, pwstat.frags, pgstat))
 
     except Exception as inst:
         game = None
