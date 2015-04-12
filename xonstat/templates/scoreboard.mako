@@ -5,35 +5,34 @@
   % for pgstat in pgstats:
     <tr class="${pgstat.team_html_color()}">
       % if show_latency and pgstat.avg_latency is not None:
-        <td class="text-center">
+        <td class="show-for-medium-up text-center">
           ${int(round(pgstat.avg_latency))}
         </td>
       % elif show_latency:
-        <td class="text-center">-</td>
+        <td class="show-for-medium-up text-center">-</td>
       % endif
 
-      <td class="no-stretch">
+      <td class="small-5 medium-3 no-stretch">
         % if pgstat.player_id > 2:
-          <a href="${request.route_url("player_info", id=pgstat.player_id)}"
-            title="Go to the info page for this player">
-            <span class="small-2">${pgstat.nick_html_colors()|n}</span>
+          <a href="${request.route_url("player_info", id=pgstat.player_id)}" title="Go to the info page for this player">
+            ${pgstat.nick_html_colors()|n}
           </a>
         % else:
-          <span class="small-2">${pgstat.nick_html_colors()|n}</span>
+          ${pgstat.nick_html_colors()|n}
         % endif
       </td>
 
       ${scoreboard_row(game_type_cd, pgstat)}
 
       % if game_type_cd != 'cts':
-        <td class="player-score">${pgstat.score}</td>
+        <td class="small-3">${pgstat.score}</td>
       % endif
 
       % if show_elo:
         % if pgstat.elo_delta is not None:
-          <td>${round(pgstat.elo_delta,2)}</td>
+          <td class="show-for-medium-up">${round(pgstat.elo_delta,2)}</td>
         % else:
-          <td>-</td>
+          <td class="show-for-medium-up">-</td>
         % endif
       % endif
     </tr>
@@ -50,12 +49,12 @@
     % if show_latency:
       <th class="small-1">Ping</th>
     % endif
-    <th class="small-2">Nick</th>
+    <th class="small-4">Nick</th>
     <th>Kills</th>
     <th>Deaths</th>
     <th>Suicides</th>
     <th>Objectives</th>
-    <th>Score</th>
+    <th class="medium-1">Score</th>
     % if show_elo:
       <th>Elo Change</th>
     % endif
@@ -67,15 +66,15 @@
 <thead>
   <tr>
     % if show_latency:
-      <th class="small-1">Ping</th>
+      <th class="show-for-medium-up">Ping</th>
     % endif
-    <th class="small-2">Nick</th>
+    <th class="small-5 medium-3">Nick</th>
     <th>Kills</th>
-    <th>Deaths</th>
-    <th>Suicides</th>
-    <th>Score</th>
+    <th class="show-for-medium-up">Deaths</th>
+    <th class="show-for-medium-up">Suicides</th>
+    <th class="small-3">Score</th>
     % if show_elo:
-      <th>Elo Change</th>
+      <th class="show-for-medium-up">Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -117,15 +116,15 @@
 <thead class="ctf ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-      <th class="small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
-    <th>Nick</th>
-    <th>Kills</th>
-    <th>Captures</th>
-    <th>Pickups</th>
-    <th title="Flag Carrier Kill">FCK</th>
-    <th>Returns</th>
-    <th>Score</th>
+    <th class="small-5 medium-3">Nick</th>
+    <th class="show-for-medium-up">Kills</th>
+    <th>Caps</th>
+    <th class="show-for-medium-up">Pickups</th>
+    <th class="show-for-medium-up" title="Flag Carrier Kill">FCK</th>
+    <th class="show-for-medium-up">Returns</th>
+    <th class="medium-1">Score</th>
     % if show_elo:
       <th>Elo Change</th>
     % endif
@@ -254,9 +253,9 @@
 % endif
 
 % if game_type_cd in 'ca' 'dm' 'duel' 'rune' 'tdm':
-  <td>${pgstat.kills}</td>
-  <td>${pgstat.deaths}</td>
-  <td>${pgstat.suicides}</td>
+  <td class="small-3">${pgstat.kills}</td>
+  <td class="show-for-medium-up">${pgstat.deaths}</td>
+  <td class="show-for-medium-up">${pgstat.suicides}</td>
 % endif
 
 % if game_type_cd == 'cq':
@@ -277,11 +276,11 @@
 % endif
 
 % if game_type_cd == 'ctf':
-  <td>${pgstat.kills}</td>
+  <td class="show-for-medium-up">${pgstat.kills}</td>
   <td>${pgstat.captures}</td>
-  <td>${pgstat.pickups}</td>
-  <td>${pgstat.carrier_frags}</td>
-  <td>${pgstat.returns}</td>
+  <td class="show-for-medium-up">${pgstat.pickups}</td>
+  <td class="show-for-medium-up">${pgstat.carrier_frags}</td>
+  <td class="show-for-medium-up">${pgstat.returns}</td>
 % endif
 
 % if game_type_cd == 'dom':
