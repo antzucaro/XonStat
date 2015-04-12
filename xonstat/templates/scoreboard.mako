@@ -193,18 +193,18 @@
 <thead class="kh ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-      <th class="small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
-    <th class="small-2">Nick</th>
-    <th>Kills</th>
-    <th>Deaths</th>
-    <th>Pickups</th>
-    <th>Captures</th>
-    <th>Losses</th>
-    <th>KC Kills</th>
-    <th>Score</th>
+    <th class="small-5 medium-3">Nick</th>
+    <th class="show-for-medium-up">Kills</th>
+    <th class="show-for-medium-up">Deaths</th>
+    <th class="show-for-medium-up">Pickups</th>
+    <th>Caps</th>
+    <th class="show-for-medium-up">Losses</th>
+    <th class="show-for-medium-up">KC Kills</th>
+    <th class="small-3 medium-1">Score</th>
     % if show_elo:
-      <th>Elo Change</th>
+      <th class="show-for-medium-up">Elo Change</th>
     % endif
   </tr>
 </thead>
@@ -311,11 +311,11 @@
 % endif
 
 % if game_type_cd == 'kh':
-  <td>${pgstat.kills}</td>
-  <td>${pgstat.deaths}</td>
-  <td>${pgstat.pickups}</td>
-  <td>${pgstat.captures}</td>
-  <td>${pgstat.drops}</td>
+  <td class="show-for-medium-up">${pgstat.kills}</td>
+  <td class="show-for-medium-up">${pgstat.deaths}</td>
+  <td class="show-for-medium-up">${pgstat.pickups}</td>
+  <td class="show-for-medium-up">${pgstat.captures}</td>
+  <td class="show-for-medium-up">${pgstat.drops}</td>
   <td>${pgstat.carrier_frags}</td>
 % endif
 
