@@ -76,10 +76,10 @@
             <th class="small-1 text-center"></th>
             <th class="small-1">Type</th>
             <th class="show-for-medium-up small-3">Server</th>
-            <th class="show-for-medium-up small-3">Map</th>
-            <th class="show-for-large-up small-1">Result</th>
-            <th class="show-for-large-up small-2">Played</th>
-            <th class="show-for-large-up small-1">Elo</th>
+            <th class="small-2">Map</th>
+            <th class="show-for-medium-up small-1">Result</th>
+            <th class="show-for-medium-up small-2">Played</th>
+            <th class="small-1">Elo</th>
           </tr>
         </thead>
         <tbody>
@@ -87,9 +87,9 @@
         <tr>
           <td class="text-center"><a class="button tiny" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
           <td class="text-center"><img title="${rg.game_type_cd}" src="/static/images/icons/24x24/${rg.game_type_cd}.png" alt="${rg.game_type_cd}" /></td>
-          <td><a href="${request.route_url("server_info", id=rg.server_id)}" name="Server info page for ${rg.server_name}">${rg.server_name}</a></td>
-          <td><a href="${request.route_url("map_info", id=rg.map_id)}" name="Map info page for ${rg.map_name}">${rg.map_name}</a></td>
-          <td>
+          <td class="show-for-medium-up no-stretch"><a href="${request.route_url("server_info", id=rg.server_id)}" name="Server info page for ${rg.server_name}">${rg.server_name}</a></td>
+          <td class="no-stretch"><a href="${request.route_url("map_info", id=rg.map_id)}" name="Map info page for ${rg.map_name}">${rg.map_name}</a></td>
+          <td class="show-for-medium-up">
             % if rg.team != None:
               % if rg.team == rg.winner:
                 Win
@@ -104,7 +104,7 @@
               % endif
             % endif
           </td>
-          <td><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
+          <td class="show-for-medium-up"><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>
           <td class="text-center">
             <a href="${request.route_url('game_info', id=rg.game_id, _query={'show_elo':1})}" title="View detailed information about this game">
               % if rg.elo_delta is not None:
