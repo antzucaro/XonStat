@@ -84,7 +84,7 @@
           </div>
         </div>
 
-        <div class="small-11 columns game">
+        <div class="small-12 medium-11 columns game">
           ${scoreboard(game.game_type_cd, stats_by_team[tgstat.team], show_elo, show_latency)}
         </div>
       </div>
