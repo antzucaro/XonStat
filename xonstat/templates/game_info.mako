@@ -9,7 +9,7 @@
 
 <%block name="css">
   ${parent.css()}
-  <link href="/static/css/sprites.css" rel="stylesheet">
+  <link href="/static/css/luma.css" rel="stylesheet">
 </%block>
 
 <%block name="foundation">
@@ -36,7 +36,7 @@
     <div class="small-12 columns">
       <h3>Game #${game.game_id}</h3>
       <p>
-        <img src="/static/images/icons/24x24/${game.game_type_cd}.png" alt="${game.game_type_cd}"/> ${gametype.descr} (${game.game_type_cd})<br />
+        <span class="sprite sprite-${game.game_type_cd}"></span> ${gametype.descr} <br />
         Played ${game.fuzzy_date()} <span class="abstime" data-epoch="${game.epoch()}" title="${game.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}"> <i class="fa fa-info-circle"></i></span><br />
         Server: <a href="${request.route_url("server_info", id=server.server_id)}" name="Server info page for ${server.name}">${server.name}</a><br />
         Map: <a href="${request.route_url("map_info", id=map.map_id)}" name="Map info page for ${map.name}">${map.name}</a><br />

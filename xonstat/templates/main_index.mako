@@ -6,7 +6,7 @@
 
 <%block name="css">
   ${parent.css()}
-  <link href="/static/css/sprites.css" rel="stylesheet">
+  <link href="/static/css/luma.css" rel="stylesheet">
 </%block>
 
 <%block name="hero_unit">

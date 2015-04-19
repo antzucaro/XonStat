@@ -14,7 +14,7 @@
 
 <table class="table-hover table-condensed">
   <thead>
-    <th></th>
+    <th class="small-1"></th>
     <th class="show-for-medium-up">Weapon</th>
     <th class="show-for-medium-up">Frags</th>
     <th>Accuracy</th>
@@ -44,7 +44,7 @@
     <tr>
       ## Note: the name of the image must match up with the weapon_cd 
       ## entry of that weapon, else this won't work
-      <td><span class="sprite sprite-${weapon_stat[1]}"></span></td>
+      <td class="small-1 text-center"><span class="sprite sprite-${weapon_stat[1]}"></span></td>
       <td class="show-for-medium-up">${weapon_stat[0]}</td>
       <td class="show-for-medium-up">${weapon_stat[6]}</td>
       <td>${weapon_stat[4]}/${weapon_stat[5]} (${hit_pct}%)</td>
