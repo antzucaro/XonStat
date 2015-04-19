@@ -6,11 +6,6 @@
 ${nav.nav('games')}
 </%block>
 
-<%block name="css">
-    ${parent.css()}
-    <link href="/static/css/luma.css" rel="stylesheet">
-</%block>
-
 <%block name="title">
 Game Index
 </%block>

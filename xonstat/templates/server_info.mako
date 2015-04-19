@@ -11,11 +11,6 @@
   % endif
 </%block>
 
-<%block name="css">
-  ${parent.css()}
-  <link href="/static/css/luma.css" rel="stylesheet">
-</%block>
-
 % if server is None:
   <h2>Sorry, that server wasn't found!</h2>
 

@@ -4,11 +4,6 @@
   Leaderboard
 </%block>
 
-<%block name="css">
-  ${parent.css()}
-  <link href="/static/css/luma.css" rel="stylesheet">
-</%block>
-
 <%block name="hero_unit">
   <div class="text-center">
     <img src="/static/css/img/xonotic-logo.png" />

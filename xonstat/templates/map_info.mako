@@ -14,11 +14,6 @@
   ${parent.title()}
 </%block>
 
-<%block name="css">
-  ${parent.css()}
-  <link href="/static/css/luma.css" rel="stylesheet">
-</%block>
-
 % if gmap is None:
   <h2>Sorry, that map wasn't found!</h2>
 

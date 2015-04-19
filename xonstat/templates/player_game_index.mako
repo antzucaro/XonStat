@@ -2,11 +2,6 @@
 <%namespace name="nav" file="nav.mako" />
 <%namespace file="navlinks.mako" import="navlinks" />
 
-<%block name="css">
-  ${parent.css()}
-  <link href="/static/css/luma.css" rel="stylesheet">
-</%block>
-
 <%block name="navigation">
   ${nav.nav('games')}
 </%block>

@@ -14,9 +14,12 @@
     <link rel="shortcut icon" href="/static/favicon.ico">
 
     <%block name="css">
-      <link href="/static/css/foundation.css" rel="stylesheet">
-      <link href="/static/css/font-awesome.min.css" rel="stylesheet">
-      <link href="/static/css/app.css" rel="stylesheet">
+      ### FOR DEVELOPMENT ONLY
+      ### <link href="/static/css/foundation.css" rel="stylesheet">
+      ### <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+      ### <link href="/static/css/app.css" rel="stylesheet">
+      ### <link href="/static/css/luma.css" rel="stylesheet">
+      <link href="/static/css/xonstat.css" rel="stylesheet">
     </%block>
 
     <%block name="headjs">
