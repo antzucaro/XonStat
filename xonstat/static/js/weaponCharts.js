@@ -1,5 +1,6 @@
 // Colors assigned to the various weapons
 var weaponColors = {
+  "arc": "#b8e9ff", 
   "laser": "#ff5933", 
   "blaster": "#ff5933", 
   "shotgun": "#1f77b4", 
