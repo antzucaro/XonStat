@@ -1,0 +1,296 @@
+@font-face {
+	font-family: 'Luma';
+	src:url('fonts/Luma.eot?hm7zuv');
+	src:url('fonts/Luma.eot?#iefixhm7zuv') format('embedded-opentype'),
+		url('fonts/Luma.woff?hm7zuv') format('woff'),
+		url('fonts/Luma.ttf?hm7zuv') format('truetype'),
+		url('fonts/Luma.svg?hm7zuv#Luma') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="sprite-"], [class*=" sprite-"] {
+	font-family: 'Luma';
+	speak: none;
+  font-size: 2rem;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.sprite-overall:before {
+	content: "\e600";
+}
+
+.sprite-arc:before {
+  color: #b8e9ff;
+	content: "\e601";
+}
+
+.sprite-arc-circle:before {
+  color: #b8e9ff;
+	content: "\e602";
+}
+
+.sprite-as:before {
+	content: "\e603";
+}
+
+.sprite-ca:before {
+	content: "\e604";
+}
+
+.sprite-campingrifle:before {
+	content: "\e605";
+}
+
+.sprite-campingrifle-circle:before {
+	content: "\e606";
+}
+
+.sprite-crylink:before {
+	content: "\e607";
+}
+
+.sprite-crylink-circle:before {
+	content: "\e608";
+}
+
+.sprite-ctf:before {
+	content: "\e609";
+}
+
+.sprite-cts:before {
+	content: "\e60a";
+}
+
+.sprite-dm:before {
+	content: "\e60b";
+}
+
+.sprite-dom:before {
+	content: "\e60c";
+}
+
+.sprite-duel:before {
+	content: "\e60d";
+}
+
+.sprite-electro:before {
+  color: #597fff;
+	content: "\e60e";
+}
+
+.sprite-electro-circle:before {
+  color: #597fff;
+	content: "\e60f";
+}
+
+.sprite-fireball:before {
+  color: #33ff33;
+	content: "\e610";
+}
+
+.sprite-fireball-circle:before {
+  color: #33ff33;
+	content: "\e611";
+}
+
+.sprite-ft:before {
+	content: "\e612";
+}
+
+.sprite-gl:before, .sprite-mortar:before{
+  color: #ff2600;
+	content: "\e613";
+}
+
+.sprite-gl-circle:before, .sprite-mortar-circle:before{
+  color: #ff2600;
+	content: "\e614";
+}
+
+.sprite-hagar:before {
+  color: #d98059;
+	content: "\e615";
+}
+
+.sprite-hagar-circle:before {
+  color: #d98059;
+	content: "\e616";
+}
+
+.sprite-hlac:before {
+  color: #ffa533;
+	content: "\e617";
+}
+
+.sprite-hlac-circle:before {
+  color: #ffa533;
+	content: "\e618";
+}
+
+.sprite-hookgun:before {
+  color: #a5ffd8;
+	content: "\e619";
+}
+
+.sprite-hookgun-circle:before {
+  color: #a5ffd8;
+	content: "\e61a";
+}
+
+.sprite-inf:before {
+	content: "\e61b";
+}
+
+.sprite-jb:before {
+	content: "\e61c";
+}
+
+.sprite-ka:before {
+	content: "\e61d";
+}
+
+.sprite-kh:before {
+	content: "\e61e";
+}
+
+.sprite-laser:before, .sprite-blaster:before {
+  color: #ff5933;
+	content: "\e61f";
+}
+
+.sprite-laser-circle:before, .sprite-blaster-circle:before{
+  color: #ff5933;
+	content: "\e620";
+}
+
+.sprite-lms:before {
+	content: "\e621";
+}
+
+.sprite-minelayer:before {
+  color: #bfbf00;
+	content: "\e622";
+}
+
+.sprite-minelayer-circle:before {
+  color: #bfbf00;
+	content: "\e623";
+}
+
+.sprite-minstanex:before, .sprite-vaporizer:before{
+  color: #d62728;
+	content: "\e624";
+}
+
+.sprite-minstanex-circle:before, .sprite-vaporizer-circle:before{
+  color: #d62728;
+	content: "\e625";
+}
+
+.sprite-nb:before {
+	content: "\e626";
+}
+
+.sprite-nex:before, .sprite-vortex:before{
+  color: #00e6ff;
+	content: "\e627";
+}
+
+.sprite-nex-circle:before, .sprite-vortex-circle:before{
+  color: #00e6ff;
+	content: "\e628";
+}
+
+.sprite-ons:before {
+	content: "\e629";
+}
+
+.sprite-porto:before {
+  color: #7fff7f;
+	content: "\e62a";
+}
+
+.sprite-porto-circle:before {
+  color: #7fff7f;
+	content: "\e62b";
+}
+
+.sprite-rc:before {
+	content: "\e62c";
+}
+
+.sprite-rl:before, .sprite-devastator:before{
+  color: #ffbf33;
+	content: "\e62d";
+}
+
+.sprite-rl-circle:before, .sprite-devastator-circle:before{
+  color: #ffbf33;
+	content: "\e62e";
+}
+
+.sprite-seeker:before {
+  color: #ff5959;
+	content: "\e62f";
+}
+
+.sprite-seeker-circle:before {
+  color: #ff5959;
+	content: "\e630";
+}
+
+.sprite-shockwave:before {
+	content: "\e631";
+}
+
+.sprite-shockwave-circle:before {
+	content: "\e632";
+}
+
+.sprite-shotgun:before {
+  color: #1f77b4;
+	content: "\e633";
+}
+
+.sprite-shotgun-circle:before {
+  color: #1f77b4;
+	content: "\e634";
+}
+
+.sprite-tdm:before {
+	content: "\e635";
+}
+
+.sprite-tuba:before {
+  color: #d87f3f;
+	content: "\e636";
+}
+
+.sprite-tuba-circle:before {
+  color: #d87f3f;
+	content: "\e637";
+}
+
+.sprite-uzi:before {
+  color: #b9e659;
+	content: "\e638";
+}
+
+.sprite-uzi-circle:before {
+  color: #b9e659;
+	content: "\e639";
+}
+
+.sprite-vip:before {
+	content: "\e63a";
+}
+
