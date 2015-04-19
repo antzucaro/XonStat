@@ -280,12 +280,12 @@
 	content: "\e637";
 }
 
-.sprite-uzi:before {
+.sprite-uzi:before, .sprite-machinegun:before{
   color: #b9e659;
 	content: "\e638";
 }
 
-.sprite-uzi-circle:before {
+.sprite-uzi-circle:before, .sprite-machinegun-circle:before{
   color: #b9e659;
 	content: "\e639";
 }
