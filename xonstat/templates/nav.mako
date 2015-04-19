@@ -12,7 +12,7 @@
             <h1><a href="http://www.xonotic.org">Xonotic</a></h1>
           </li>
           <li class="name show-for-small-only">
-            <a href="/"><img src="http://www.xonotic.org/static/img/xonotic-icon-mono.png"></a>
+            <a href="/"><img src="/static/css/img/xonotic-icon-mono.png"></a>
           </li>
           <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
         </ul>
