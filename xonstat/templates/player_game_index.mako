@@ -81,7 +81,7 @@
         % for rg in games.items:
         <tr>
           <td class="text-center"><a class="button tiny" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
-          <td class="text-center"><img title="${rg.game_type_cd}" src="/static/images/icons/24x24/${rg.game_type_cd}.png" alt="${rg.game_type_cd}" /></td>
+          <td class="text-center"><span class="sprite sprite-${rg.game_type_cd}"></span></td>
           <td class="show-for-medium-up no-stretch"><a href="${request.route_url("server_info", id=rg.server_id)}" name="Server info page for ${rg.server_name}">${rg.server_name}</a></td>
           <td class="no-stretch"><a href="${request.route_url("map_info", id=rg.map_id)}" name="Map info page for ${rg.map_name}">${rg.map_name}</a></td>
           <td class="show-for-medium-up">
