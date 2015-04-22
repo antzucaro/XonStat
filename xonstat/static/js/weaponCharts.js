@@ -81,6 +81,8 @@ function drawAccuracyChart(weaponData) {
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Rifle');
   data.addColumn({type: 'string', role: 'tooltip'});
+  data.addColumn('number', 'Arc');
+  data.addColumn({type: 'string', role: 'tooltip'});
 
   var flattened = flatten(weaponData);
 
@@ -96,9 +98,11 @@ function drawAccuracyChart(weaponData) {
     var mnTT = accuracyTooltip("vaporizer", mn, weaponData.averages);
     var rifle = accuracyValue(flattened[game_id], "rifle");
     var rifleTT = accuracyTooltip("rifle", rifle, weaponData.averages); 
+    var arc = accuracyValue(flattened[game_id], "arc");
+    var arcTT = accuracyTooltip("arc", arc, weaponData.averages); 
 
     data.addRow([game_id.toString(), sg, sgTT, mg, mgTT, vortex,
-            vortexTT, mn, mnTT, rifle, rifleTT]);
+            vortexTT, mn, mnTT, rifle, rifleTT, arc, arcTT]);
   }
 
   var options = {
@@ -126,7 +130,8 @@ function drawAccuracyChart(weaponData) {
       1: { color: weaponColors["machinegun"] },
       2: { color: weaponColors["vortex"] },
       3: { color: weaponColors["vaporizer"] },
-      4: { color: weaponColors["rifle"] }
+      4: { color: weaponColors["rifle"] },
+      5: { color: weaponColors["arc"] }
     }
   };
 
