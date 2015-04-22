@@ -74,14 +74,9 @@ def _game_info_data(request):
                 filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd).\
                 order_by(PlayerWeaponStat.actual.desc()).\
                 all():
-                    print pwstat
-                    print pwstats
                     if pwstat.player_game_stat_id not in pwstats:
                         pwstats[pwstat.player_game_stat_id] = []
 
-                    # NOTE adding pgstat to position 6 in order to display nick.
-                    # You have to use a slice [0:5] to pass to the accuracy
-                    # template
                     pwstats[pwstat.player_game_stat_id].append((weapon.descr,
                         weapon.weapon_cd, pwstat.actual, pwstat.max,
                         pwstat.hit, pwstat.fired, pwstat.frags))
