@@ -15,12 +15,11 @@ log = logging.getLogger(__name__)
 
 
 def _game_info_data(request):
-    game_id = request.matchdict['id']
+    game_id = int(request.matchdict['id'])
 
+    show_elo = False
     if request.params.has_key('show_elo'):
         show_elo = True
-    else:
-        show_elo = False
 
     show_latency = False
 
@@ -70,24 +69,22 @@ def _game_info_data(request):
             captimes = sorted(captimes, key=lambda x:x.fastest)
 
         pwstats = {}
-        for (pwstat, pgstat, weapon) in DBSession.query(PlayerWeaponStat, PlayerGameStat, Weapon).\
+        for (pwstat, weapon) in DBSession.query(PlayerWeaponStat, Weapon).\
                 filter(PlayerWeaponStat.game_id == game_id).\
                 filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd).\
-                filter(PlayerWeaponStat.player_game_stat_id == \
-                    PlayerGameStat.player_game_stat_id).\
-                order_by(PlayerGameStat.scoreboardpos).\
-                order_by(PlayerGameStat.score).\
-                order_by(Weapon.descr).\
+                order_by(PlayerWeaponStat.actual.desc()).\
                 all():
-                    if pgstat.player_game_stat_id not in pwstats:
-                        pwstats[pgstat.player_game_stat_id] = []
+                    print pwstat
+                    print pwstats
+                    if pwstat.player_game_stat_id not in pwstats:
+                        pwstats[pwstat.player_game_stat_id] = []
 
                     # NOTE adding pgstat to position 6 in order to display nick.
                     # You have to use a slice [0:5] to pass to the accuracy
                     # template
-                    pwstats[pgstat.player_game_stat_id].append((weapon.descr,
+                    pwstats[pwstat.player_game_stat_id].append((weapon.descr,
                         weapon.weapon_cd, pwstat.actual, pwstat.max,
-                        pwstat.hit, pwstat.fired, pwstat.frags, pgstat))
+                        pwstat.hit, pwstat.fired, pwstat.frags))
 
     except Exception as inst:
         game = None
