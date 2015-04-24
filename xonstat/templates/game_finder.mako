@@ -22,7 +22,7 @@ Game Index
           "
         >
           <a href="${url}" alt="${gt}" title="Show only ${gt} games">
-            <span class="sprite sprite-${gt}"> </span><br />
+            <span class="sprite sprite-${gt}"></span><br />
             ${gt} <br />
           </a>
         </li>

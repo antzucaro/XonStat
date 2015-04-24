@@ -77,7 +77,7 @@
           % endif
         ">
           <a id="tab-${g.game_type_cd}" href="#tab-${g.game_type_cd}" title="${overall_stats[g.game_type_cd].game_type_descr}">
-            <span class="sprite sprite-${g.game_type_cd}"> </span><br />
+            <span class="sprite sprite-${g.game_type_cd}"></span><br />
             ${g.game_type_cd} <br />
             <small>(${g.games})</small>
           </a>
