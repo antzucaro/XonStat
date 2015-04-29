@@ -39,9 +39,9 @@
       <table class="table-hover table-condensed">
         <thead>
           <tr>
-            <th style="small-2">#</th>
-            <th style="small-7">Nick</th>
-            <th style="small-3">Score</th>
+            <th class="small-2">#</th>
+            <th class="small-7">Nick</th>
+            <th class="small-3">Score</th>
           </tr>
         </thead>
         <tbody>
@@ -67,9 +67,9 @@
       <table class="table-hover table-condensed">
         <thead>
           <tr>
-            <th style="small-2">#</th>
-            <th style="small-7">Nick</th>
-            <th style="small-3">Play Time</th>
+            <th class="small-2">#</th>
+            <th class="small-7">Nick</th>
+            <th class="small-3">Time</th>
           </tr>
         </thead>
         <tbody>
@@ -95,9 +95,9 @@
       <table class="table-hover table-condensed">
         <thead>
           <tr>
-            <th style="small-2">#</th>
-            <th style="small-7">Map</th>
-            <th style="small-3"># Games</th>
+            <th class="small-2">#</th>
+            <th class="small-7">Map</th>
+            <th class="small-3">Games</th>
           </tr>
         </thead>
         <tbody>
