@@ -189,6 +189,8 @@ function drawDamageChart(weaponData) {
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Devastator');
   data.addColumn({type: 'string', role: 'tooltip'});
+  data.addColumn('number', 'Arc');
+  data.addColumn({type: 'string', role: 'tooltip'});
 
   var flattened = flatten(weaponData);
 
@@ -214,6 +216,8 @@ function drawDamageChart(weaponData) {
     var hagarTT = damageTooltip("hagar", hagar);
     var rl = damageValue(flattened[game_id], "devastator");
     var rlTT = damageTooltip("devastator", rl); 
+    var arc = damageValue(flattened[game_id], "arc");
+    var arcTT = damageTooltip("arc", arc); 
 
     data.addRow([
       game_id.toString(), 
@@ -225,7 +229,8 @@ function drawDamageChart(weaponData) {
       electro, electroTT,
       crylink, crylinkTT,
       hagar, hagarTT,
-      rl, rlTT
+      rl, rlTT,
+      arc, arcTT
     ]);
   }
 
@@ -257,7 +262,8 @@ function drawDamageChart(weaponData) {
       5: { color: weaponColors["electro"] },
       6: { color: weaponColors["crylink"] },
       7: { color: weaponColors["hagar"] },
-      8: { color: weaponColors["devastator"] }
+      8: { color: weaponColors["devastator"] },
+      9: { color: weaponColors["arc"] }
     }
   };
 
