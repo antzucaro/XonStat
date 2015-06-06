@@ -79,8 +79,6 @@ function drawAccuracyChart(weaponData) {
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Vaporizer');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Rifle');
-  data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Arc');
   data.addColumn({type: 'string', role: 'tooltip'});
 
@@ -96,13 +94,11 @@ function drawAccuracyChart(weaponData) {
     var vortexTT = accuracyTooltip("vortex", vortex, weaponData.averages);
     var mn = accuracyValue(flattened[game_id], "vaporizer");
     var mnTT = accuracyTooltip("vaporizer", mn, weaponData.averages);
-    var rifle = accuracyValue(flattened[game_id], "rifle");
-    var rifleTT = accuracyTooltip("rifle", rifle, weaponData.averages); 
     var arc = accuracyValue(flattened[game_id], "arc");
     var arcTT = accuracyTooltip("arc", arc, weaponData.averages); 
 
     data.addRow([game_id.toString(), sg, sgTT, mg, mgTT, vortex,
-            vortexTT, mn, mnTT, rifle, rifleTT, arc, arcTT]);
+            vortexTT, mn, mnTT, arc, arcTT]);
   }
 
   var options = {
@@ -130,8 +126,7 @@ function drawAccuracyChart(weaponData) {
       1: { color: weaponColors["machinegun"] },
       2: { color: weaponColors["vortex"] },
       3: { color: weaponColors["vaporizer"] },
-      4: { color: weaponColors["rifle"] },
-      5: { color: weaponColors["arc"] }
+      4: { color: weaponColors["arc"] }
     }
   };
 
@@ -177,8 +172,6 @@ function drawDamageChart(weaponData) {
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Vortex');
   data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Rifle');
-  data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Mortar');
   data.addColumn({type: 'string', role: 'tooltip'});
   data.addColumn('number', 'Electro');
@@ -204,8 +197,6 @@ function drawDamageChart(weaponData) {
     var vortexTT = damageTooltip("vortex", vortex);
     var mn = damageValue(flattened[game_id], "vaporizer");
     var mnTT = damageTooltip("vaporizer", mn);
-    var rifle = damageValue(flattened[game_id], "rifle");
-    var rifleTT = damageTooltip("rifle", rifle); 
     var mortar = damageValue(flattened[game_id], "mortar");
     var mortarTT = damageTooltip("mortar", mortar);
     var electro = damageValue(flattened[game_id], "electro");
@@ -224,7 +215,6 @@ function drawDamageChart(weaponData) {
       sg, sgTT,
       mg, mgTT,
       vortex, vortexTT, 
-      rifle, rifleTT,
       mortar, mortarTT,
       electro, electroTT,
       crylink, crylinkTT,
@@ -257,7 +247,6 @@ function drawDamageChart(weaponData) {
       0: { color: weaponColors["shotgun"] },
       1: { color: weaponColors["machinegun"] },
       2: { color: weaponColors["vortex"] },
-      3: { color: weaponColors["rifle"] },
       4: { color: weaponColors["mortar"] },
       5: { color: weaponColors["electro"] },
       6: { color: weaponColors["crylink"] },
