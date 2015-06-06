@@ -100,6 +100,10 @@ def is_blank_game(gametype, players):
 
     1) a match in which no player made a fastest lap AND was
     on the scoreboard
+
+    ... or for NB, in which not all maps have weapons
+
+    1) a match in which no player made a positive or negative score
     """
     r = re.compile(r'acc-.*-cnt-fired')
     flg_nonzero_score = False
@@ -118,6 +122,8 @@ def is_blank_game(gametype, players):
 
     if gametype == 'cts':
         return not flg_fastest_lap
+    elif gametype == 'nb':
+        return not flg_nonzero_score
     else:
         return not (flg_nonzero_score and flg_acc_events)
 
