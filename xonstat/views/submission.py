@@ -319,7 +319,7 @@ def register_new_nick(session, player, new_nick):
     session.add(player)
 
 
-def update_fastest_cap(session, player_id, game_id,  map_id, captime):
+def update_fastest_cap(session, player_id, game_id, map_id, captime, mod):
     """
     Check the fastest cap time for the player and map. If there isn't
     one, insert one. If there is, check if the passed time is faster.
@@ -333,7 +333,7 @@ def update_fastest_cap(session, player_id, game_id,  map_id, captime):
     # then check to see if the new captime is faster
     try:
         cur_fastest_cap = session.query(PlayerCaptime).filter_by(
-            player_id=player_id, map_id=map_id).one()
+            player_id=player_id, map_id=map_id, mod=mod).one()
 
         # current captime is faster, so update
         if captime < cur_fastest_cap.fastest_cap:
@@ -344,7 +344,8 @@ def update_fastest_cap(session, player_id, game_id,  map_id, captime):
 
     except NoResultFound, e:
         # none exists, so insert
-        cur_fastest_cap = PlayerCaptime(player_id, game_id, map_id, captime)
+        cur_fastest_cap = PlayerCaptime(player_id, game_id, map_id, captime,
+                mod)
         session.add(cur_fastest_cap)
         session.flush()
 
@@ -678,7 +679,7 @@ def create_game_stat(session, game_meta, game, server, gmap, player, events):
             pgstat.fastest = datetime.timedelta(seconds=float(value)/100)
             if game.game_type_cd == 'ctf':
                 update_fastest_cap(session, player.player_id, game.game_id,
-                        gmap.map_id, pgstat.fastest)
+                        gmap.map_id, pgstat.fastest, game.mod)
 
     # there is no "winning team" field, so we have to derive it
     if wins and pgstat.team is not None and game.winner is None:

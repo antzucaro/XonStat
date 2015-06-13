@@ -258,14 +258,16 @@ class PlayerRank(object):
 
 class PlayerCaptime(object):
     def __init__(self, player_id=None, game_id=None, map_id=None,
-            fastest_cap=None):
+            fastest_cap=None, mod=None):
         self.player_id = player_id
         self.game_id = game_id
         self.map_id = map_id
         self.fastest_cap = fastest_cap
+        self.mod = mod
 
     def __repr__(self):
-        return "<PlayerCaptime(pid=%s, map_id=%s)>" % (self.player_id, self.map_id)
+        return "<PlayerCaptime(pid=%s, map_id=%s, mod=%s)>" % (self.player_id,
+                self.map_id, self.mod)
 
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
