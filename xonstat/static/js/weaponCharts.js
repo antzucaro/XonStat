@@ -247,12 +247,12 @@ function drawDamageChart(weaponData) {
       0: { color: weaponColors["shotgun"] },
       1: { color: weaponColors["machinegun"] },
       2: { color: weaponColors["vortex"] },
-      4: { color: weaponColors["mortar"] },
-      5: { color: weaponColors["electro"] },
-      6: { color: weaponColors["crylink"] },
-      7: { color: weaponColors["hagar"] },
-      8: { color: weaponColors["devastator"] },
-      9: { color: weaponColors["arc"] }
+      3: { color: weaponColors["mortar"] },
+      4: { color: weaponColors["electro"] },
+      5: { color: weaponColors["crylink"] },
+      6: { color: weaponColors["hagar"] },
+      7: { color: weaponColors["devastator"] },
+      8: { color: weaponColors["arc"] }
     }
   };
 
