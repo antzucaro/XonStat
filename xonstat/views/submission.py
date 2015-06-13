@@ -349,13 +349,18 @@ def update_fastest_cap(session, player_id, game_id,  map_id, captime):
         session.flush()
 
 
-def get_or_create_server(session, name, hashkey, ip_addr, revision, port):
+def get_or_create_server(session, name, hashkey, ip_addr, revision, port,
+        impure_cvars):
     """
     Find a server by name or create one if not found. Parameters:
 
     session - SQLAlchemy database session factory
     name - server name of the server to be found or created
     hashkey - server hashkey
+    ip_addr - the IP address of the server
+    revision - the xonotic revision number
+    port - the port number of the server
+    impure_cvars - the number of impure cvar changes
     """
     server = None
 
@@ -363,6 +368,11 @@ def get_or_create_server(session, name, hashkey, ip_addr, revision, port):
         port = int(port)
     except:
         port = None
+
+    try: 
+        impure_cvars = int(impure_cvars)
+    except:
+        impure_cvars = 0
 
     # finding by hashkey is preferred, but if not we will fall
     # back to using name only, which can result in dupes
@@ -411,6 +421,14 @@ def get_or_create_server(session, name, hashkey, ip_addr, revision, port):
 
     if server.revision != revision:
         server.revision = revision
+        session.add(server)
+
+    if server.impure_cvars != impure_cvars:
+        server.impure_cvars = impure_cvars
+        if impure_cvars > 0:
+            server.pure_ind = False
+        else:
+            server.pure_ind = True
         session.add(server)
 
     return server
@@ -856,12 +874,13 @@ def submit_stats(request):
         # All game types create Game, Server, Map, and Player records
         # the same way.
         server = get_or_create_server(
-                session  = session,
-                hashkey  = idfp,
-                name     = game_meta['S'],
-                revision = revision,
-                ip_addr  = get_remote_addr(request),
-                port     = game_meta.get('U', None))
+                session      = session,
+                hashkey      = idfp,
+                name         = game_meta['S'],
+                revision     = revision,
+                ip_addr      = get_remote_addr(request),
+                port         = game_meta.get('U', None),
+                impure_cvars = game_meta.get('C', 0))
 
         gmap = get_or_create_map(
                 session = session,
