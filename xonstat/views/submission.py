@@ -752,6 +752,7 @@ def create_team_stat(session, game, events):
         for (key,value) in events.items():
             if key == 'scoreboard-score': teamstat.score = int(round(float(value)))
             if key == 'scoreboard-caps': teamstat.caps = int(value)
+            if key == 'scoreboard-goals': teamstat.caps = int(value)
             if key == 'scoreboard-rounds': teamstat.rounds = int(value)
 
         session.add(teamstat)

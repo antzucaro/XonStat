@@ -73,6 +73,8 @@
               ${tgstat.caps}
             % elif game.game_type_cd == 'ca':
               ${tgstat.rounds}
+            % elif game.game_type_cd == 'nb':
+              ${tgstat.caps}
             % else:
               ${tgstat.score}
             % endif
