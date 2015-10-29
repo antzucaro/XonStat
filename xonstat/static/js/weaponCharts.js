@@ -27,246 +27,136 @@ var weaponColors = {
   "fireball": "#33ff33"
 };
 
-// Flatten the existing weaponstats JSON requests
-// to ease indexing
-var flatten = function(weaponData) {
-  flattened = {}
+// these weapons are used in the damage chart
+var damageWeapons = new Set(["vortex", "machinegun", "shotgun",
+        "arc", "uzi", "nex", "minstanex", "rifle", "grenadelauncher", "minelayer",
+        "rocketlauncher", "hlac", "seeker", "fireball",  
+        "mortar", "electro", "crylink", "hagar", "devastator"]);
 
-  // each game is a key entry...
-  weaponData.games.forEach(function(e,i) { flattened[e] = {}; });
+// these weapons are used in the accuracy chart
+var accuracyWeapons = new Set(["vortex", "machinegun", "shotgun", "vaporizer",
+        "arc", "uzi", "nex", "minstanex", "rifle"]);
 
-  // ... with indexes by weapon_cd
-  weaponData.weapon_stats.forEach(function(e,i) { flattened[e.game_id][e.weapon_cd] = e; });
+// draw an accuracy chart into the given element id
+function drawAccuracyChart(id, data) {
 
-  return flattened;
-}
+    // transform games list into a map such that games[game_id] = linear sequence
+    var games = {};
+    data.games.forEach(function(v,i){ games[v] = i; });
 
-// Calculate the Y value for a given weapon stat
-function accuracyValue(gameWeaponStats, weapon) {
-  if (gameWeaponStats[weapon] == undefined) {
-    return null;
-  }
-  var ws = gameWeaponStats[weapon];
-  var pct = ws.fired > 0 ? Math.round((ws.hit / ws.fired) * 100) : 0;
-  
-  return pct;
-}
+    // for use in filtering out weapons that were not fired
+    function wasFired(e) { return e.fired != 0; }
 
-// Calculate the tooltip text for a given weapon stat
-function accuracyTooltip(weapon, pct, averages) {
-  if (pct == null) {
-    return null;
-  }
+    // for use in filtering out splash-damage weapons
+    function isAccuracyWeapon(e) { return accuracyWeapons.has(e.weapon_cd); }
 
-  var tt = weapon + ": " + pct.toString() + "%";
-  if (averages[weapon] != undefined) {
-    return tt + " (" + averages[weapon].toString() + "% average)"; 
-  }
+    // transform it into something NVD3 can use
+    var accuracyData = d3.nest().key(function(d) { return d.weapon_cd; })
+        .entries(data.weapon_stats.filter(isAccuracyWeapon).filter(wasFired));
 
-  return tt;
-}
+    nv.addGraph(function() {
+      var chart = nv.models.lineChart()
+        .useInteractiveGuideline(false)
+        .forceY([0,1])
+        .showLegend(true)
+        .showYAxis(true)
+        .showXAxis(true)
+        .color(function(d){ return weaponColors[d.key]; })
+        .x(function(d) { return games[d.game_id] })
+        .y(function(d) { return d.fired > 0 ? d.hit/d.fired : 0; })
+      ;
 
-// Draw the accuracy chart in the "accuracyChart" div id
-function drawAccuracyChart(weaponData) {
+      chart.tooltip.contentGenerator(function(key, y, e, graph) {
+          return "<table><tr><td>" +
+              key.point.weapon_cd + ": " +
+              Math.round(key.point.y*100) + "% (" +
+              Math.round(data.averages[key.point.weapon_cd]) + "% avg)" + 
+              "</td></tr></table>";
+      });
 
-  var data = new google.visualization.DataTable();
-  data.addColumn('string', 'X');
-  data.addColumn('number', 'Shotgun');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'MG');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Vortex');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Vaporizer');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Arc');
-  data.addColumn({type: 'string', role: 'tooltip'});
+      chart.lines.dispatch.on("elementClick", function(e) { 
+          window.location.href = "http://stats.xonotic.org/game/" + e.point.game_id.toString();
+      });
 
-  var flattened = flatten(weaponData);
+      chart.yAxis
+          .axisLabel('Accuracy')
+          .tickFormat(d3.format('2%'));
 
-  for(i in weaponData.games) {
-    var game_id = weaponData.games[i];
-    var sg = accuracyValue(flattened[game_id], "shotgun");
-    var sgTT = accuracyTooltip("shotgun", sg, weaponData.averages);
-    var mg = accuracyValue(flattened[game_id], "machinegun");
-    var mgTT = accuracyTooltip("machinegun", mg, weaponData.averages); 
-    var vortex = accuracyValue(flattened[game_id], "vortex");
-    var vortexTT = accuracyTooltip("vortex", vortex, weaponData.averages);
-    var mn = accuracyValue(flattened[game_id], "vaporizer");
-    var mnTT = accuracyTooltip("vaporizer", mn, weaponData.averages);
-    var arc = accuracyValue(flattened[game_id], "arc");
-    var arcTT = accuracyTooltip("arc", arc, weaponData.averages); 
+      chart.xAxis
+          .axisLabel('Games')
+          .tickFormat(function(e) { return ''; });
 
-    data.addRow([game_id.toString(), sg, sgTT, mg, mgTT, vortex,
-            vortexTT, mn, mnTT, arc, arcTT]);
-  }
+      d3.select("#accuracyChartSVG")
+          .datum(accuracyData)
+          .call(chart);
 
-  var options = {
-    backgroundColor: { fill: 'transparent' },
-    lineWidth: 2,
-    legend: { 
-      textStyle: { color: "#666" }
-    },
-    hAxis: {
-      title: 'Games',
-      textPosition: 'none',
-      titleTextStyle: { color: '#666' }
-    },
-    vAxis: {
-      title: 'Percentage',
-      titleTextStyle: { color: '#666' },
-      minValue: 0,
-      maxValue: 100,
-      baselineColor: '#333',
-      gridlineColor: '#333',
-      ticks: [20, 40, 60, 80, 100]
-    },
-    series: {
-      0: { color: weaponColors["shotgun"] },
-      1: { color: weaponColors["machinegun"] },
-      2: { color: weaponColors["vortex"] },
-      3: { color: weaponColors["vaporizer"] },
-      4: { color: weaponColors["arc"] }
-    }
-  };
+      nv.utils.windowResize(function() { chart.update() });
+      return chart;
+    });
+};
 
-  var chart = new google.visualization.LineChart(document.getElementById('accuracyChart'));
+// draw an damage chart into the given element id
+function drawDamageChart(id, data) {
+    
+    // transform games list into a map such that games[game_id] = linear sequence
+    var games = {};
+    data.games.forEach(function(v,i){ games[v] = i; });
 
-  // a click on a point sends you to that games' page
-  var accuracySelectHandler = function(e) {
-    var selection = chart.getSelection()[0];
-    if (selection != null && selection.row != null) {
-      var game_id = data.getFormattedValue(selection.row, 0);
-      window.location.href = "http://stats.xonotic.org/game/" + game_id.toString();
-    }
-  };
-  google.visualization.events.addListener(chart, 'select', accuracySelectHandler);
+    // for use in filtering out splash-damage weapons
+    function isDamageWeapon(e) { return damageWeapons.has(e.weapon_cd); }
 
-  chart.draw(data, options);
-}
+    // transform it into something NVD3 can use
+    var damageData = d3.nest().key(function(d) { return d.weapon_cd; })
+        .entries(data.weapon_stats.filter(isDamageWeapon));
 
-// Calculate the damage Y value for a given weapon stat
-function damageValue(gameWeaponStats, weapon) {
-  if (gameWeaponStats[weapon] == undefined) {
-    return null;
-  }
-  return gameWeaponStats[weapon].actual;
-}
+    nv.addGraph(function() {
+        var chart = nv.models.multiBarChart()
+          .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+          .rotateLabels(0)      //Angle to rotate x-axis labels.
+          .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+          .groupSpacing(0.1)    //Distance between each group of bars.
+          .showXAxis(true)
+          .stacked(true)
+          .color(function(d){ return weaponColors[d.key]; })
+          .x(function(d) { return games[d.game_id] })
+          .y(function(d) { return d.actual; })
+        ;
 
-// Calculate the damage tooltip text for a given weapon stat
-function damageTooltip(weapon, dmg) {
-  if (dmg == null) {
-    return null;
-  }
-  return weapon + ": " + dmg.toString() + " HP damage";
-}
+        chart.tooltip.contentGenerator(function(key, y, e, graph) {
 
-// Draw the damage chart into the "damageChart" div id
-function drawDamageChart(weaponData) {
+            var txt = "<table><tr><td>" +
+                key.data.weapon_cd  + ": " + key.data.actual + " HP damage";
 
-  var data = new google.visualization.DataTable();
-  data.addColumn('string', 'X');
-  data.addColumn('number', 'Shotgun');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Machine Gun');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Vortex');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Mortar');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Electro');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Crylink');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Hagar');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Devastator');
-  data.addColumn({type: 'string', role: 'tooltip'});
-  data.addColumn('number', 'Arc');
-  data.addColumn({type: 'string', role: 'tooltip'});
+            if (key.data.frags > 0) {
+                if(key.data.frags > 1) {
+                    txt += " (" + key.data.frags + " frags)";
+                } else {
+                    txt += " (" + key.data.frags + " frag)";
+                }
+            }
+            txt += "</td></tr></table>";
 
-  var flattened = flatten(weaponData);
+            return txt;
+        });
 
-  for(i in weaponData.games) {
-    var game_id = weaponData.games[i];
-    var sg = damageValue(flattened[game_id], "shotgun");
-    var sgTT = damageTooltip("shotgun", sg);
-    var mg = damageValue(flattened[game_id], "machinegun");
-    var mgTT = damageTooltip("machinegun", mg); 
-    var vortex = damageValue(flattened[game_id], "vortex");
-    var vortexTT = damageTooltip("vortex", vortex);
-    var mn = damageValue(flattened[game_id], "vaporizer");
-    var mnTT = damageTooltip("vaporizer", mn);
-    var mortar = damageValue(flattened[game_id], "mortar");
-    var mortarTT = damageTooltip("mortar", mortar);
-    var electro = damageValue(flattened[game_id], "electro");
-    var electroTT = damageTooltip("electro", electro); 
-    var crylink = damageValue(flattened[game_id], "crylink");
-    var crylinkTT = damageTooltip("crylink", crylink);
-    var hagar = damageValue(flattened[game_id], "hagar");
-    var hagarTT = damageTooltip("hagar", hagar);
-    var rl = damageValue(flattened[game_id], "devastator");
-    var rlTT = damageTooltip("devastator", rl); 
-    var arc = damageValue(flattened[game_id], "arc");
-    var arcTT = damageTooltip("arc", arc); 
+        chart.multibar.dispatch.on("elementClick", function(e) { 
+            window.location.href = "http://stats.xonotic.org/game/" + e.data.game_id.toString();
+        });
 
-    data.addRow([
-      game_id.toString(), 
-      sg, sgTT,
-      mg, mgTT,
-      vortex, vortexTT, 
-      mortar, mortarTT,
-      electro, electroTT,
-      crylink, crylinkTT,
-      hagar, hagarTT,
-      rl, rlTT,
-      arc, arcTT
-    ]);
-  }
+        chart.xAxis
+            .axisLabel('Games')
+            .tickFormat(function(e){ return '';});
 
-  var options = {
-    backgroundColor: { fill: 'transparent' },
-    legend: { 
-      position: 'top', 
-      maxLines: 3,
-      textStyle: { color: "#666" }
-    },
-    vAxis: {
-      title: 'HP Damage',  
-      titleTextStyle: {color: '#666'},
-      baselineColor: '#333',
-      gridlineColor: '#333',
-    },
-    hAxis: {
-      title: 'Games',
-      textPosition: 'none',
-      titleTextStyle: { color: '#666' },
-    },
-    isStacked: true,
-    series: {
-      0: { color: weaponColors["shotgun"] },
-      1: { color: weaponColors["machinegun"] },
-      2: { color: weaponColors["vortex"] },
-      3: { color: weaponColors["mortar"] },
-      4: { color: weaponColors["electro"] },
-      5: { color: weaponColors["crylink"] },
-      6: { color: weaponColors["hagar"] },
-      7: { color: weaponColors["devastator"] },
-      8: { color: weaponColors["arc"] }
-    }
-  };
+        chart.yAxis
+            .axisLabel('Damage (HP)')
+            .tickFormat(d3.format(',d'));
 
-  var chart = new google.visualization.ColumnChart(document.getElementById('damageChart'));
+        d3.select('#damageChartSVG')
+            .datum(damageData)
+            .call(chart);
 
-  // a click on a point sends you to that game's page
-  var damageSelectHandler = function(e) {
-    var selection = chart.getSelection()[0];
-    if (selection != null && selection.row != null) {
-      var game_id = data.getFormattedValue(selection.row, 0);
-      window.location.href = "http://stats.xonotic.org/game/" + game_id.toString();
-    }
-  };
-  google.visualization.events.addListener(chart, 'select', damageSelectHandler);
+        nv.utils.windowResize(chart.update);
 
-  chart.draw(data, options);
-}
+        return chart;
+    });
+};

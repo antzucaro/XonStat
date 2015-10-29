@@ -11,38 +11,41 @@
 
 <%block name="css">
   ${parent.css()}
+  <link href="/static/css/nv.d3.min.css" rel="stylesheet">
   <style>
     #damageChart, #accuracyChart {
-      height: 250px;
+      height: 300px;
     }
   </style>
 </%block>
 
 <%block name="js">
   ${parent.js()}
-  <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>
-  <script src="/static/js/weaponCharts.min.js"></script>
+  <script type="text/javascript" src="/static/js/vendor/d3.min.js"></script>
+  <script type="text/javascript" src="/static/js/vendor/nv.d3.min.js"></script>
+  <script type="text/javascript" src="/static/js/weaponCharts.min.js"></script>
+  ##### <script src="/static/js/weaponCharts.min.js"></script>
   <script type="text/javascript">
 
     // game type buttons
     % for g in games_played:
     $('#tab-${g.game_type_cd}').click(function() {
       $.getJSON("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':20, 'game_type':g.game_type_cd})}", function(data) {
-        drawDamageChart(data);
-        drawAccuracyChart(data);
+        drawDamageChart("#damageChart", data);
+        drawAccuracyChart("#accuracyChart", data);
       });
     });
     % endfor
 
     // weapon accuracy and damage charts
-    google.load('visualization', '1.1', {packages: ['corechart']});
     $.getJSON("${request.route_url('player_weaponstats_data_json', id=player.player_id, _query={'limit':20})}", function(data) {
+    
       if(data.games.length < 5) {
         d3.select(".row #damageChart").remove();
         d3.select(".row #accuracyChart").remove();
       }
-      drawDamageChart(data);
-      drawAccuracyChart(data);
+      drawDamageChart("#damageChart", data);
+      drawAccuracyChart("#accuracyChart", data);
     });
   </script>
   <script src="https://login.persona.org/include.js" type="text/javascript"></script>
