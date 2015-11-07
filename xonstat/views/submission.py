@@ -521,7 +521,7 @@ def get_or_create_player(session=None, hashkey=None, nick=None):
     nick - nick of the player (in case of a first time create)
     """
     # if we have a bot
-    if re.search('^bot#\d+$', hashkey) or re.search('^bot#\d+#', hashkey):
+    if re.search('^bot#\d+', hashkey):
         player = session.query(Player).filter_by(player_id=1).one()
     # if we have an untracked player
     elif re.search('^player#\d+$', hashkey):
