@@ -912,6 +912,8 @@ def submit_stats(request):
             if player.player_id > 1:
                 anticheats = create_anticheats(session, pgstat, game, player,
                     events)
+
+            if player.player_id > 2:
                 player_ids.append(player.player_id)
 
             if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
