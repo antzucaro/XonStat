@@ -989,29 +989,6 @@ def player_captimes_data(request):
 
     player = DBSession.query(Player).filter_by(player_id=player_id).one()
 
-    #pct_q = DBSession.query('fastest_cap', 'create_dt', 'player_id', 'game_id', 'map_id',
-    #            'map_name', 'server_id', 'server_name').\
-    #        from_statement(
-    #            "SELECT ct.fastest_cap, "
-    #                   "ct.create_dt, "
-    #                   "ct.player_id, "
-    #                   "ct.game_id, "
-    #                   "ct.map_id, "
-    #                   "m.name map_name, "
-    #                   "g.server_id, "
-    #                   "s.name server_name "
-    #            "FROM   player_map_captimes ct, "
-    #                   "games g, "
-    #                   "maps m, "
-    #                   "servers s "
-    #            "WHERE  ct.player_id = :player_id "
-    #              "AND  g.game_id = ct.game_id "
-    #              "AND  g.server_id = s.server_id "
-    #              "AND  m.map_id = ct.map_id "
-    #            #"ORDER  BY ct.fastest_cap "
-    #            "ORDER  BY ct.create_dt desc"
-    #        ).params(player_id=player_id)
-
     try:
         pct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
                 PlayerCaptime.player_id, PlayerCaptime.game_id, PlayerCaptime.map_id,
@@ -1046,7 +1023,6 @@ def player_captimes_data(request):
             'player_id':player_id,
             'player':player,
             'captimes':player_captimes,
-            #'player_url':request.route_url('player_info', id=player_id),
         }
 
 
