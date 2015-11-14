@@ -8,7 +8,7 @@ import sqlalchemy.sql.expression as expr
 from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-from xonstat.elo import process_elos
+from xonstat.elo import EloProcessor
 from xonstat.models import *
 from xonstat.util import strip_colors, qfont_decode, verify_request, weapon_map
 
@@ -831,14 +831,6 @@ def create_weapon_stats(session, game_meta, game, player, pgstat, events):
     return pwstats
 
 
-def create_elos(session, game):
-    """Elo handler for all game types."""
-    try:
-        process_elos(game, session)
-    except Exception as e:
-        log.debug('Error (non-fatal): elo processing failed.')
-
-
 def submit_stats(request):
     """
     Entry handler for POST stats submissions.
@@ -900,6 +892,7 @@ def submit_stats(request):
 
         # keep track of the players we've seen
         player_ids = []
+        pgstats = []
         for events in raw_players:
             player = get_or_create_player(
                 session = session,
@@ -908,6 +901,7 @@ def submit_stats(request):
 
             pgstat = create_game_stat(session, game_meta, game, server,
                     gmap, player, events)
+            pgstats.append(pgstat)
 
             if player.player_id > 1:
                 anticheats = create_anticheats(session, pgstat, game, player,
@@ -930,7 +924,8 @@ def submit_stats(request):
                 raise e
 
         if should_do_elos(game_type_cd):
-            create_elos(session, game)
+            ep = EloProcessor(session, game, pgstats)
+            ep.save(session)
 
         session.commit()
         log.debug('Success! Stats recorded.')
