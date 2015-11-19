@@ -55,7 +55,7 @@ def main(global_config, **settings):
 
     # MAIN SUBMISSION ROUTE
     config.add_route("submit_stats", "stats/submit")
-    config.add_view(submit_stats, route_name="submit_stats")
+    config.add_view(submit_stats, route_name="submit_stats", renderer="submit_stats.mako")
 
     # PLAYER ROUTES
     config.add_route("player_game_index",      "/player/{player_id:\d+}/games")

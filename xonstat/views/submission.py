@@ -5,6 +5,7 @@ import pyramid.httpexceptions
 import re
 import time
 import sqlalchemy.sql.expression as expr
+from calendar import timegm
 from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -893,6 +894,7 @@ def submit_stats(request):
         # keep track of the players we've seen
         player_ids = []
         pgstats = []
+        hashkeys = {}
         for events in raw_players:
             player = get_or_create_player(
                 session = session,
@@ -904,11 +906,11 @@ def submit_stats(request):
             pgstats.append(pgstat)
 
             if player.player_id > 1:
-                anticheats = create_anticheats(session, pgstat, game, player,
-                    events)
+                anticheats = create_anticheats(session, pgstat, game, player, events)
 
             if player.player_id > 2:
                 player_ids.append(player.player_id)
+                hashkeys[player.player_id] = events['P']
 
             if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
                 pwstats = create_weapon_stats(session, game_meta, game, player,
@@ -929,7 +931,20 @@ def submit_stats(request):
 
         session.commit()
         log.debug('Success! Stats recorded.')
-        return Response('200 OK')
+
+        # plain text response
+        request.response.content_type = 'text/plain'
+
+        return {
+                "now"        : timegm(datetime.datetime.utcnow().timetuple()),
+                "server"     : server,
+                "game"       : game,
+                "gmap"       : gmap,
+                "player_ids" : player_ids,
+                "hashkeys"   : hashkeys,
+                "elos"       : ep.wip,
+        }
+
     except Exception as e:
         if session:
             session.rollback()
