@@ -11,8 +11,5 @@ i ${request.route_url('player_info', id=player_id)}
 e elo ${elos[player_id].elo.elo}
 e elo_delta ${elos[player_id].elo_delta}
 e elo_games ${elos[player_id].elo.games}
-e k-factor ${elos[player_id].k}
-e score-per-second ${elos[player_id].score_per_second}
-e alivetime ${elos[player_id].alivetime}
 % endif
 % endfor
