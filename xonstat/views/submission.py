@@ -832,6 +832,22 @@ def create_weapon_stats(session, game_meta, game, player, pgstat, events):
     return pwstats
 
 
+def get_ranks(session, player_ids, game_type_cd):
+    """
+    Gets the rank entries for all players in the given list, returning a dict
+    of player_id -> PlayerRank instance. The rank entry corresponds to the
+    game type of the parameter passed in as well.
+    """
+    ranks = {}
+    for pr in session.query(PlayerRank).\
+            filter(PlayerRank.player_id.in_(player_ids)).\
+            filter(PlayerRank.game_type_cd == game_type_cd).\
+            all():
+                ranks[pr.player_id] = pr
+
+    return ranks
+
+
 def submit_stats(request):
     """
     Entry handler for POST stats submissions.
@@ -932,6 +948,9 @@ def submit_stats(request):
         session.commit()
         log.debug('Success! Stats recorded.')
 
+        # ranks are fetched after we've done the "real" processing
+        ranks = get_ranks(session, player_ids, game_type_cd)
+
         # plain text response
         request.response.content_type = 'text/plain'
 
@@ -943,6 +962,7 @@ def submit_stats(request):
                 "player_ids" : player_ids,
                 "hashkeys"   : hashkeys,
                 "elos"       : ep.wip,
+                "ranks"      : ranks,
         }
 
     except Exception as e:
