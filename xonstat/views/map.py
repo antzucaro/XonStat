@@ -112,13 +112,14 @@ def _map_info_data(request):
                 group_by(Server.name).\
                 group_by(Server.server_id).all()[0:leaderboard_count]
 
+        # TODO make this a configuration parameter to be set in the settings
         # top captimes
         captimes_raw = DBSession.query(Player.player_id, Player.nick,
             PlayerCaptime.fastest_cap, PlayerCaptime.game_id).\
                 filter(PlayerCaptime.map_id == map_id).\
                 filter(Player.player_id == PlayerCaptime.player_id).\
                 order_by(PlayerCaptime.fastest_cap).\
-                limit(25).\
+                limit(10).\
                 all()
 
         captimes = [Captime(c.player_id, html_colors(c.nick),
