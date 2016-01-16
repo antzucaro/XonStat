@@ -1005,16 +1005,20 @@ def player_captimes_data(request):
 
     current_page = request.params.get("page", 1)
 
-    player = DBSession.query(Player).filter_by(player_id=player_id).one()
+    try:
+        player = DBSession.query(Player).filter_by(player_id=player_id).one()
 
-    pct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
-            PlayerCaptime.player_id, PlayerCaptime.game_id, PlayerCaptime.map_id,
-            Map.name.label('map_name'), Game.server_id, Server.name.label('server_name')).\
-            filter(PlayerCaptime.player_id==player_id).\
-            filter(PlayerCaptime.game_id==Game.game_id).\
-            filter(PlayerCaptime.map_id==Map.map_id).\
-            filter(Game.server_id==Server.server_id).\
-            order_by(expr.desc(PlayerCaptime.create_dt))
+        pct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
+                PlayerCaptime.player_id, PlayerCaptime.game_id, PlayerCaptime.map_id,
+                Map.name.label('map_name'), Game.server_id, Server.name.label('server_name')).\
+                filter(PlayerCaptime.player_id==player_id).\
+                filter(PlayerCaptime.game_id==Game.game_id).\
+                filter(PlayerCaptime.map_id==Map.map_id).\
+                filter(Game.server_id==Server.server_id).\
+                order_by(expr.desc(PlayerCaptime.create_dt))
+
+    except Exception as e:
+        raise pyramid.httpexceptions.HTTPNotFound
 
     captimes = Page(pct_q, current_page, items_per_page=20, url=page_url)
 

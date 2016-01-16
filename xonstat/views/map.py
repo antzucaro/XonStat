@@ -196,19 +196,23 @@ def map_captimes_data(request):
 
     current_page = request.params.get('page', 1)
 
-    mmap = DBSession.query(Map).filter_by(map_id=map_id).one()
+    try:
+        mmap = DBSession.query(Map).filter_by(map_id=map_id).one()
 
-    mct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
-            PlayerCaptime.player_id, PlayerCaptime.game_id,
-            Game.server_id, Server.name.label('server_name'),
-            PlayerGameStat.nick.label('player_nick')).\
-            filter(PlayerCaptime.map_id==map_id).\
-            filter(PlayerCaptime.game_id==Game.game_id).\
-            filter(PlayerCaptime.map_id==Map.map_id).\
-            filter(Game.server_id==Server.server_id).\
-            filter(PlayerCaptime.player_id==PlayerGameStat.player_id).\
-            filter(PlayerCaptime.game_id==PlayerGameStat.game_id).\
-            order_by(expr.asc(PlayerCaptime.fastest_cap))
+        mct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
+                PlayerCaptime.player_id, PlayerCaptime.game_id,
+                Game.server_id, Server.name.label('server_name'),
+                PlayerGameStat.nick.label('player_nick')).\
+                filter(PlayerCaptime.map_id==map_id).\
+                filter(PlayerCaptime.game_id==Game.game_id).\
+                filter(PlayerCaptime.map_id==Map.map_id).\
+                filter(Game.server_id==Server.server_id).\
+                filter(PlayerCaptime.player_id==PlayerGameStat.player_id).\
+                filter(PlayerCaptime.game_id==PlayerGameStat.game_id).\
+                order_by(expr.asc(PlayerCaptime.fastest_cap))
+
+    except Exception as e:
+        raise pyramid.httpexceptions.HTTPNotFound
 
     map_captimes = Page(mct_q, current_page, items_per_page=20, url=page_url)
 
