@@ -114,7 +114,7 @@
   % if len(captimes) > 0:
   <div class="row">
     <div class="small-12 large-6 columns">
-      <h5>Best Flag Capture Times</h5>
+      <h5>Best Flag Capture Times <a href="${request.route_url('map_captimes', id=gmap.map_id)}" title="See more flag capture times for ${gmap.name}"><i class="fa fa-plus-circle"></i></a></h5>
       <table class="table-hover table-condensed">
         <thead>
           <tr>
