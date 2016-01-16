@@ -333,6 +333,62 @@ class PlayerGroups(object):
         return "<PlayerGroups(%s, %s)>" % (self.player_id, self.group_name)
 
 
+class MapCapTime(object):
+    """Fastest flag capture times per map, assembled from a SQLAlchemy query"""
+    def __init__(self, row):
+        self.fastest_cap          = row.fastest_cap
+        self.create_dt            = row.create_dt
+        self.create_dt_epoch      = timegm(row.create_dt.timetuple())
+        self.create_dt_fuzzy      = pretty_date(row.create_dt)
+        self.player_id            = row.player_id
+        self.player_nick          = row.player_nick
+        self.player_nick_stripped = strip_colors(row.player_nick)
+        self.player_nick_html     = html_colors(row.player_nick)
+        self.game_id              = row.game_id
+        self.server_id            = row.server_id
+        self.server_name          = row.server_name
+
+    def to_dict(self):
+        return {
+            "fastest_cap"          : self.fastest_cap.total_seconds(),
+            "create_dt_epoch"      : self.create_dt_epoch,
+            "create_dt_fuzzy"      : self.create_dt_fuzzy,
+            "player_id"            : self.player_id,
+            "player_nick"          : self.player_nick,
+            "player_nick_stripped" : self.player_nick_stripped,
+            "game_id"              : self.game_id,
+            "server_id"            : self.server_id,
+            "server_name"          : self.server_name,
+            }
+
+
+class PlayerCapTime(object):
+    """Fastest flag capture times per player, assembled from a SQLAlchemy query"""
+    def __init__(self, row):
+        self.fastest_cap = row.fastest_cap
+        self.create_dt = row.create_dt
+        self.create_dt_epoch = timegm(row.create_dt.timetuple())
+        self.create_dt_fuzzy = pretty_date(row.create_dt)
+        self.player_id = row.player_id
+        self.game_id = row.game_id
+        self.map_id = row.map_id
+        self.map_name = row.map_name
+        self.server_id = row.server_id
+        self.server_name = row.server_name
+
+    def to_dict(self):
+        return {
+            "fastest_cap" : self.fastest_cap.total_seconds(),
+            "create_dt_epoch": self.create_dt_epoch,
+            "create_dt_fuzzy": self.create_dt_fuzzy,
+            "game_id":self.game_id,
+            "map_id": self.map_id,
+            "map_name": self.map_name,
+            "server_id": self.server_id,
+            "server_name": self.server_name,
+            }
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine

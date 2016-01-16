@@ -973,31 +973,6 @@ def player_elo_info_text(request):
     }
 
 
-class PlayerCapTime(object):
-    def __init__(self, row):
-        self.fastest_cap = row.fastest_cap
-        self.create_dt = row.create_dt
-        self.create_dt_epoch = timegm(row.create_dt.timetuple())
-        self.create_dt_fuzzy = pretty_date(row.create_dt)
-        self.player_id = row.player_id
-        self.game_id = row.game_id
-        self.map_id = row.map_id
-        self.map_name = row.map_name
-        self.server_id = row.server_id
-        self.server_name = row.server_name
-
-    def to_dict(self):
-        return {
-            "fastest_cap" : self.fastest_cap.total_seconds(),
-            "create_dt_epoch": self.create_dt_epoch,
-            "create_dt_fuzzy": self.create_dt_fuzzy,
-            "game_id":self.game_id,
-            "map_id": self.map_id,
-            "map_name": self.map_name,
-            "server_id": self.server_id,
-            "server_name": self.server_name,
-            }
-
 def player_captimes_data(request):
     player_id = int(request.matchdict['player_id'])
     if player_id <= 2:
