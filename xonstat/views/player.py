@@ -973,56 +973,58 @@ def player_elo_info_text(request):
     }
 
 
+class PlayerCapTime(object):
+    def __init__(self, row):
+        self.fastest_cap = row.fastest_cap
+        self.create_dt = row.create_dt
+        self.create_dt_epoch = timegm(row.create_dt.timetuple())
+        self.create_dt_fuzzy = pretty_date(row.create_dt)
+        self.player_id = row.player_id
+        self.game_id = row.game_id
+        self.map_id = row.map_id
+        self.map_name = row.map_name
+        self.server_id = row.server_id
+        self.server_name = row.server_name
+
+    def to_dict(self):
+        return {
+            "fastest_cap" : self.fastest_cap.total_seconds(),
+            "create_dt_epoch": self.create_dt_epoch,
+            "create_dt_fuzzy": self.create_dt_fuzzy,
+            "game_id":self.game_id,
+            "map_id": self.map_id,
+            "map_name": self.map_name,
+            "server_id": self.server_id,
+            "server_name": self.server_name,
+            }
+
 def player_captimes_data(request):
     player_id = int(request.matchdict['player_id'])
     if player_id <= 2:
         player_id = -1;
 
-    if request.params.has_key('page'):
-        current_page = request.params['page']
-    else:
-        current_page = 1
-
-    PlayerCaptimes = namedtuple('PlayerCaptimes', ['fastest_cap',
-            'create_dt', 'create_dt_epoch', 'create_dt_fuzzy',
-            'player_id', 'game_id', 'map_id', 'map_name', 'server_id', 'server_name'])
+    current_page = request.params.get("page", 1)
 
     player = DBSession.query(Player).filter_by(player_id=player_id).one()
 
-    try:
-        pct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
-                PlayerCaptime.player_id, PlayerCaptime.game_id, PlayerCaptime.map_id,
-                Map.name.label('map_name'), Game.server_id, Server.name.label('server_name')).\
-                filter(PlayerCaptime.player_id==player_id).\
-                filter(PlayerCaptime.game_id==Game.game_id).\
-                filter(PlayerCaptime.map_id==Map.map_id).\
-                filter(Game.server_id==Server.server_id).\
-                order_by(expr.desc(PlayerCaptime.create_dt))
+    pct_q = DBSession.query(PlayerCaptime.fastest_cap, PlayerCaptime.create_dt,
+            PlayerCaptime.player_id, PlayerCaptime.game_id, PlayerCaptime.map_id,
+            Map.name.label('map_name'), Game.server_id, Server.name.label('server_name')).\
+            filter(PlayerCaptime.player_id==player_id).\
+            filter(PlayerCaptime.game_id==Game.game_id).\
+            filter(PlayerCaptime.map_id==Map.map_id).\
+            filter(Game.server_id==Server.server_id).\
+            order_by(expr.desc(PlayerCaptime.create_dt))
 
-        player_captimes = Page(pct_q, current_page, items_per_page=20, url=page_url)
+    captimes = Page(pct_q, current_page, items_per_page=20, url=page_url)
 
-        # replace the items in the canned pagination class with more rich ones
-        player_captimes.items = [PlayerCaptimes(
-                fastest_cap=row.fastest_cap,
-                create_dt=row.create_dt,
-                create_dt_epoch=timegm(row.create_dt.timetuple()),
-                create_dt_fuzzy=pretty_date(row.create_dt),
-                player_id=row.player_id,
-                game_id=row.game_id,
-                map_id=row.map_id,
-                map_name=row.map_name,
-                server_id=row.server_id,
-                server_name=row.server_name
-                ) for row in player_captimes.items]
-
-    except Exception as e:
-        player = None
-        player_captimes = None
+    # replace the items in the canned pagination class with more rich ones
+    captimes.items = [PlayerCapTime(row) for row in captimes.items]
 
     return {
-            'player_id':player_id,
-            'player':player,
-            'captimes':player_captimes,
+            "player_id" : player_id,
+            "player"    : player,
+            "captimes"  : captimes,
         }
 
 
@@ -1031,7 +1033,19 @@ def player_captimes(request):
 
 
 def player_captimes_json(request):
-    return player_captimes_data(request)
+    data = player_captimes_data(request)
+    page = request.params.get("page", 1)
+
+    # perform any necessary JSON conversions
+    player_id = data["player_id"]
+    player = data["player"].to_dict()
+    captimes = [ct.to_dict() for ct in data["captimes"].items]
+
+    return {
+            "player"    : player,
+            "captimes"  : captimes,
+            "page"      : page,
+            }
 
 
 def player_weaponstats_data_json(request):
