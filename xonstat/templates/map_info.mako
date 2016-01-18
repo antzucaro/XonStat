@@ -29,7 +29,7 @@
       <table class="table-hover table-condensed">
         <thead>
           <tr>
-            <th class="small-2">#</th>
+            <th class="small-1">#</th>
             <th class="small-7">Nick</th>
             <th class="small-4">Score</th>
           </tr>
@@ -57,7 +57,7 @@
       <table class="table-hover table-condensed">
         <thead>
           <tr>
-            <th class="small-2">#</th>
+            <th class="small-1">#</th>
             <th class="small-7">Nick</th>
             <th class="small-4">Time</th>
           </tr>
@@ -85,7 +85,7 @@
       <table class="table-hover table-condensed">
         <thead>
           <tr>
-            <th class="small-2">#</th>
+            <th class="small-1">#</th>
             <th class="small-7">Name</th>
             <th class="small-4"># Games</th>
           </tr>
