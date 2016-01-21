@@ -564,9 +564,7 @@ def player_info_json(request):
     for gt,mapinfo in player_info['fav_maps'].items():
         fav_maps[gt] = to_json(mapinfo)
 
-    recent_games = []
-    for game in player_info['recent_games']:
-        recent_games.append(to_json(game))
+    recent_games = [g.to_dict() for g in player_info['recent_games']]
 
     return [{
         'player':           player,
@@ -577,7 +575,6 @@ def player_info_json(request):
         'ranks':            ranks,
         'recent_games':     recent_games,
     }]
-    #return [{'status':'not implemented'}]
 
 
 def player_game_index_data(request):
