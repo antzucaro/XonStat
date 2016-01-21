@@ -29,47 +29,41 @@ class RecentGame(object):
     which will return rows matching this specification.
     '''
     def __init__(self, row):
-        self.game_id = row.game_id
-        self.game_type_cd = row.game_type_cd
-        self.game_type_descr = row.game_type_descr
-        self.winner = row.winner
-        self.start_dt = row.start_dt
-        self.fuzzy_date = pretty_date(row.start_dt)
-        self.epoch = timegm(row.start_dt.timetuple())
-        self.server_id = row.server_id
-        self.server_name = row.server_name
-        self.map_id = row.map_id
-        self.map_name = row.map_name
-        self.player_id = row.player_id
-        self.nick = row.nick
+        self.game_id          = row.game_id
+        self.game_type_cd     = row.game_type_cd
+        self.game_type_descr  = row.game_type_descr
+        self.winner           = row.winner
+        self.start_dt         = row.start_dt
+        self.fuzzy_date       = pretty_date(row.start_dt)
+        self.epoch            = timegm(row.start_dt.timetuple())
+        self.server_id        = row.server_id
+        self.server_name      = row.server_name
+        self.map_id           = row.map_id
+        self.map_name         = row.map_name
+        self.player_id        = row.player_id
+        self.nick             = row.nick
         self.nick_html_colors = html_colors(row.nick)
-        self.rank = row.rank
-        self.team = row.team
+        self.rank             = row.rank
+        self.team             = row.team
 
         try:
             self.elo_delta = row.elo_delta
         except:
             self.elo_delta = None
 
-    def _asdict(self):
+    def to_dict(self):
         return {
-            "game_id": self.game_id,
-            "game_type_cd": self.game_type_cd,
-            "game_type_descr": self.game_type_descr,
-            "winner": self.winner,
-            "start_dt": self.start_dt,
-            "fuzzy_dt": self.fuzzy_date,
-            "epoch": self.epoch,
-            "server_id": self.server_id,
-            "server_name": self.server_name,
-            "map_id": self.map_id,
-            "map_name": self.map_name,
-            "player_id": self.player_id,
-            "nick": self.nick,
-            "nick_html_colors": self.nick_html_colors,
-            "rank": self.rank,
-            "team": self.team,
-            "elo_delta": self.elo_delta,
+            "game_id"      : self.game_id,
+            "game_type_cd" : self.game_type_cd,
+            "winning_team" : self.winner,
+            "fuzzy_dt"     : self.fuzzy_date,
+            "epoch"        : self.epoch,
+            "server_id"    : self.server_id,
+            "server_name"  : self.server_name,
+            "map_id"       : self.map_id,
+            "map_name"     : self.map_name,
+            "player_id"    : self.player_id,
+            "winner"       : self.nick,
             }
 
     def __repr__(self):

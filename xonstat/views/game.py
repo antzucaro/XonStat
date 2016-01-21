@@ -3,6 +3,7 @@ import logging
 import re
 import time
 from collections import OrderedDict
+from pyramid import httpexceptions
 from pyramid.response import Response
 from sqlalchemy import desc, func, over
 from webhelpers.paginate import Page, PageURL
@@ -207,26 +208,30 @@ def game_finder_data(request):
             player_id=player_id, game_type_cd=game_type_cd,
             start_game_id=start_game_id, end_game_id=end_game_id)
 
-    recent_games = [RecentGame(row) for row in rgs_q.limit(20).all()]
-    
-    if len(recent_games) > 0:
-        query['start_game_id'] = recent_games[-1].game_id + 1
+    try:
+        recent_games = [RecentGame(row) for row in rgs_q.limit(20).all()]
+        
+        if len(recent_games) > 0:
+            query['start_game_id'] = recent_games[-1].game_id + 1
 
-    # build the list of links for the stripe across the top
-    game_type_links = []
+        # build the list of links for the stripe across the top
+        game_type_links = []
 
-    # clear out the game_id window
-    gt_query = query.copy()
-    if 'start_game_id' in gt_query:
-        del gt_query['start_game_id']
-    if 'end_game_id' in gt_query:
-        del gt_query['end_game_id']
+        # clear out the game_id window
+        gt_query = query.copy()
+        if 'start_game_id' in gt_query:
+            del gt_query['start_game_id']
+        if 'end_game_id' in gt_query:
+            del gt_query['end_game_id']
 
-    for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft',
-            'lms','as','dom','nb','cts','rc'):
-        gt_query['type'] = gt
-        url = request.route_url("game_index", _query=gt_query)
-        game_type_links.append((gt, url))
+        for gt in ('overall','duel','ctf','dm','tdm','ca','kh','ft',
+                'lms','as','dom','nb','cts','rc'):
+            gt_query['type'] = gt
+            url = request.route_url("game_index", _query=gt_query)
+            game_type_links.append((gt, url))
+
+    except:
+        raise httpexceptions.HTTPBadRequest("Malformed Query")
 
     return {
             'recent_games':recent_games,
@@ -235,8 +240,17 @@ def game_finder_data(request):
             'game_type_links':game_type_links,
            }
 
+
 def game_finder(request):
     """
     Provide a list of recent games with an advanced filter.
     """
     return game_finder_data(request)
+
+
+def game_finder_json(request):
+    """
+    Provide a list of recent games in JSON format.
+    """
+    data = game_finder_data(request)
+    return [rg.to_dict() for rg in data["recent_games"]]

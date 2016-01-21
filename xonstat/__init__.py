@@ -126,6 +126,9 @@ def main(global_config, **settings):
     config.add_route("game_index", "/games")
     config.add_view(game_finder, route_name="game_index", renderer="game_finder.mako")
 
+    config.add_route("game_index_json", "/games.json")
+    config.add_view(game_finder_json, route_name="game_index_json", renderer="jsonp")
+
     # SERVER ROUTES
     config.add_route("server_index",      "/servers")
     config.add_view(server_index,      route_name="server_index",      renderer="server_index.mako")
