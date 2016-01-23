@@ -6,6 +6,7 @@ from collections import OrderedDict
 from pyramid import httpexceptions
 from pyramid.response import Response
 from sqlalchemy import desc, func, over
+from sqlalchemy.orm.exc import *
 from webhelpers.paginate import Page, PageURL
 from xonstat.models import *
 from xonstat.util import page_url
@@ -18,15 +19,10 @@ log = logging.getLogger(__name__)
 def _game_info_data(request):
     game_id = int(request.matchdict['id'])
 
-    show_elo = False
-    if request.params.has_key('show_elo'):
-        show_elo = True
-
-    show_latency = False
+    # show an extra column if "show_elo" is a GET parameter
+    show_elo = bool(request.params.get("show_elo", False))
 
     try:
-        notfound = False
-
         (game, server, map, gametype) = DBSession.query(Game, Server, Map, GameType).\
                 filter(Game.game_id == game_id).\
                 filter(Game.server_id == Server.server_id).\
@@ -39,10 +35,13 @@ def _game_info_data(request):
                 order_by(PlayerGameStat.score).\
                 all()
 
-        # if at least one player has a valid latency, we'll show the column
+        # Really old games don't have latency sent, so we have to check. If at
+        # least one player has a latency value, we'll show the ping column.
+        show_latency = False
         for pgstat in pgstats:
             if pgstat.avg_latency is not None:
                 show_latency = True
+                break
 
         q = DBSession.query(TeamGameStat).\
                 filter(TeamGameStat.game_id == game_id)
@@ -82,18 +81,10 @@ def _game_info_data(request):
                         weapon.weapon_cd, pwstat.actual, pwstat.max,
                         pwstat.hit, pwstat.fired, pwstat.frags))
 
-    except Exception as inst:
-        game = None
-        server = None
-        map = None
-        gametype = None
-        pgstats = None
-        tgstats = None
-        pwstats = None
-        captimes = None
-        show_elo = False
-        show_latency = False
-        stats_by_team = None
+    except NoResultFound as e:
+        raise httpexceptions.HTTPNotFound("Could not find that game!")
+
+    except Exception as e:
         raise inst
 
     return {'game':game,
