@@ -16,7 +16,7 @@ if 'search_query' in kwargs.keys():
 <ul class="pagination">
     % if curr != 1:
             <% kwargs['_query']['page'] = curr-1 %>
-            <li><a href="${request.route_url(view, **kwargs)}" name="Previous Page"><i class="glyphicon glyphicon-arrow-left"></i></a></li>
+            <li><a href="${request.route_url(view, **kwargs)}" name="Previous Page"><i class="fa fa-arrow-left"></i></a></li>
     % endif
 
     % if last < 8:
@@ -56,7 +56,7 @@ if 'search_query' in kwargs.keys():
 
     % if curr != last:
             <% kwargs['_query']['page'] = curr+1 %>
-        <li><a  href="${request.route_url(view, **kwargs)}" name="Next Page"><i class="glyphicon glyphicon-arrow-right"></i></a></li>
+        <li><a  href="${request.route_url(view, **kwargs)}" name="Next Page"><i class="fa fa-arrow-right"></i></a></li>
     % endif
 </ul>
 </div> <!-- end span12 -->
