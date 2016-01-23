@@ -121,7 +121,12 @@ def _rank_index_data(request):
     else:
         current_page = 1
 
+    # game type whitelist
+    game_types_allowed = ["ca", "ctf", "dm", "duel", "ft", "ka", "tdm"]
+
     game_type_cd = request.matchdict['game_type_cd']
+    if game_type_cd not in game_types_allowed:
+        raise httpexceptions.HTTPNotFound()
 
     ranks_q = DBSession.query(PlayerRank).\
             filter(PlayerRank.game_type_cd==game_type_cd).\
