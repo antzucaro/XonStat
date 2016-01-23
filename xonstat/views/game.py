@@ -116,10 +116,7 @@ def game_info_json(request):
 
 
 def _rank_index_data(request):
-    if request.params.has_key('page'):
-        current_page = request.params['page']
-    else:
-        current_page = 1
+    current_page = request.params.get("page", 1)
 
     # game type whitelist
     game_types_allowed = ["ca", "ctf", "dm", "duel", "ft", "ka", "tdm"]
@@ -132,6 +129,9 @@ def _rank_index_data(request):
             filter(PlayerRank.game_type_cd==game_type_cd).\
             order_by(PlayerRank.rank)
 
+    game_type = DBSession.query(GameType).\
+            filter(GameType.game_type_cd == game_type_cd).one()
+
     ranks = Page(ranks_q, current_page, url=page_url)
 
     if len(ranks) == 0:
@@ -140,6 +140,7 @@ def _rank_index_data(request):
     return {
             'ranks':ranks,
             'game_type_cd':game_type_cd,
+            'game_type': game_type,
            }
 
 

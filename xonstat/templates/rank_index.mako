@@ -2,15 +2,7 @@
 <%namespace file="navlinks.mako" import="navlinks" />
 
 <%block name="title">
-  % if game_type_cd == 'dm':
-    Deathmatch Rank Index
-  % elif game_type_cd == 'duel':
-    Duel Rank Index
-  % elif game_type_cd == 'tdm':
-    Team Deathmatch Rank Index
-  % elif game_type_cd == 'ctf':
-    Capture The Flag Rank Index
-  % endif
+    ${game_type.descr} Rank Index
 </%block>
 
 <div class="row">
