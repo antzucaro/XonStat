@@ -119,6 +119,7 @@ def get_games_played(player_id):
     # sort the resulting list by # of games played
     games_played = sorted(games_played, key=lambda x:x.games)
     games_played.reverse()
+
     return games_played
 
 

@@ -200,7 +200,7 @@
 ##### ACCURACY CHART ####
 <div class="row" id="accuracyChartRow">
   <div class="small-12 columns">
-    <h3>Weapon Accuracy</h3>
+    <h5>Weapon Accuracy</h5>
     <noscript>
       Sorry, but you've disabled JavaScript! It is required to draw the accuracy chart.
     </noscript>
@@ -213,7 +213,7 @@
 ##### DAMAGE CHART ####
 <div class="row" id="damageChartRow">
   <div class="small-12 columns">
-    <h3>Weapon Damage</h3>
+    <h5>Weapon Damage</h5>
     <noscript>
       Sorry, but you've disabled JavaScript! It is required to draw the damage chart.
     </noscript>
@@ -227,7 +227,7 @@
 % if recent_games:
   <div class="row">
     <div class="small-12 columns">
-      <h3>Recent Games</h3>
+      <h5>Recent Games <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.stripped_nick}"><i class="fa fa-plus-circle"></i></a></h5>
       <table class="table-hover table-condensed">
         <thead>
           <tr>
@@ -282,13 +282,6 @@
         % endfor
         </tbody>
       </table>
-
-      % if total_games > 10:
-        <p>
-          <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="Game index for ${player.stripped_nick}">More...</a>
-        </p>
-      % endif
-
     </div>
   </div>
 % endif
