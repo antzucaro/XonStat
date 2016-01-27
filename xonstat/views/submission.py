@@ -487,6 +487,11 @@ def create_game(session, start_dt, game_type_cd, server_id, map_id,
     game.match_id = match_id
     game.mod = mod[:64]
 
+    # There is some drift between start_dt (provided by app) and create_dt
+    # (default in the database), so we'll make them the same until this is 
+    # resolved.
+    game.create_dt = start_dt
+
     try:
         game.duration = datetime.timedelta(seconds=int(round(float(duration))))
     except:
