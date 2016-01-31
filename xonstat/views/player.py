@@ -976,7 +976,9 @@ def player_captimes_data(request):
     if player_id <= 2:
         player_id = -1;
 
-    current_page = request.params.get("page", 1)
+    page = request.params.get("page", 1)
+
+    sort = request.params.get("sort", "create_dt")
 
     try:
         player = DBSession.query(Player).filter_by(player_id=player_id).one()
@@ -987,13 +989,18 @@ def player_captimes_data(request):
                 filter(PlayerCaptime.player_id==player_id).\
                 filter(PlayerCaptime.game_id==Game.game_id).\
                 filter(PlayerCaptime.map_id==Map.map_id).\
-                filter(Game.server_id==Server.server_id).\
-                order_by(expr.desc(PlayerCaptime.create_dt))
+                filter(Game.server_id==Server.server_id)
+
+        if sort == "fastest":
+            pct_q = pct_q.order_by(PlayerCaptime.fastest_cap)
+        else:
+            sort = "create_dt"
+            pct_q = pct_q.order_by(expr.desc(PlayerCaptime.create_dt))
 
     except Exception as e:
         raise pyramid.httpexceptions.HTTPNotFound
 
-    captimes = Page(pct_q, current_page, items_per_page=20, url=page_url)
+    captimes = Page(pct_q, page, items_per_page=20, url=page_url)
 
     # replace the items in the canned pagination class with more rich ones
     captimes.items = [PlayerCapTime(row) for row in captimes.items]
@@ -1002,6 +1009,8 @@ def player_captimes_data(request):
             "player_id" : player_id,
             "player"    : player,
             "captimes"  : captimes,
+            "page"      : page,
+            "sort"      : sort,
         }
 
 

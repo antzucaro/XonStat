@@ -17,11 +17,12 @@
 
   <div class="row">
     <div class="small-12 columns">
-      <h5>Fastest Flag Captures by
+      <h4>Fastest Flag Captures by
         <a href="${request.route_url('player_info', id=player.player_id)}">
           ${player.nick_html_colors()|n}
         </a>
-      </h5>
+      </h4>
+
    
       <table class="table-hover table-condensed">
         <thead>
@@ -44,6 +45,12 @@
         % endfor
         </tbody>
       </table>
+
+      % if sort == "fastest":
+          <p>* sorted by fastest - sort by <a href="${request.route_url('player_captimes', player_id=player.player_id, _query={"sort":"create_dt", "page":page})}">most recent</a> instead</p>
+      % else:
+          <p>* sorted by most recent - sort by <a href="${request.route_url('player_captimes', player_id=player.player_id, _query={"sort":"fastest", "page":page})}">fastest</a> instead</p>
+      % endif
 
     </div>
   </div>
