@@ -16,49 +16,44 @@ log = logging.getLogger(__name__)
 
 
 @cache_region('hourly_term')
-def get_summary_stats(cutoff_days=None):
+def get_summary_stats(scope="all"):
     """
-    Gets the following aggregate statistics about the past cutoff_days days:
+    Gets the following aggregate statistics according to the provided scope:
+
         - the number of active players
         - the number of games per game type
-    If cutoff_days is None, the above stats are calculated for all time.
 
-    This information is then summarized into a string which is passed
+    Scope can be "all" or "day".
+
+    The fetched information is summarized into a string which is passed
     directly to the template.
     """
+    if scope not in ["all", "day"]:
+        scope = "all"
+
     try:
-        if cutoff_days is not None:
-            # only games played during this range are considered
-            right_now = datetime.now()
-            cutoff_dt = right_now - timedelta(days=cutoff_days)
-
-            games = DBSession.query(Game.game_type_cd, func.count()).\
-                filter(expr.between(Game.create_dt, cutoff_dt, right_now)).\
-                group_by(Game.game_type_cd).\
-                order_by(expr.desc(func.count())).all()
-
-            active_players = DBSession.query(func.count(sa.distinct(PlayerGameStat.player_id))).\
-                filter(PlayerGameStat.player_id > 2).\
-                filter(expr.between(PlayerGameStat.create_dt, cutoff_dt, right_now)).\
-                one()[0]
-        else:
-            games = DBSession.query(Game.game_type_cd, func.count()).\
-                group_by(Game.game_type_cd).\
-                order_by(expr.desc(func.count())).all()
-
-            active_players = DBSession.query(func.count(sa.distinct(PlayerGameStat.player_id))).\
-                filter(PlayerGameStat.player_id > 2).\
-                one()[0]
-
-        total_games = 0
-        for total in games:
-            total_games += total[1]
+        ss = DBSession.query("num_players", "game_type_cd", "num_games").\
+                from_statement(
+                        "SELECT num_players, game_type_cd, num_games "
+                        "FROM summary_stats_mv "
+                        "WHERE scope = :scope "
+                        "ORDER BY sort_order "
+                ).params(scope=scope).all()
 
         i = 1
+        total_games = 0
         other_games = 0
-        for total in games:
+        for row in ss:
+            # the number of players is constant in each row
+            total_players = row.num_players
+
+            total_games += row.num_games
+
+            # we can't show all game types on the single summary line, so any
+            # past the fifth one will get bundled in to an "other" count
             if i > 5:
-                other_games += total[1]
+                other_games += row.num_games
+
             i += 1
 
         # don't send anything if we don't have any activity
@@ -73,20 +68,21 @@ def get_summary_stats(cutoff_days=None):
         # Also we need to hard-code the URL structure in here to allow caching,
         # which also sucks.
             in_paren = "; ".join(["{:2,d} {}".format(
-                g[1],
-                "<a href='/games?type={0}'>{0}</a>".format(g[0])
-            ) for g in games[:5]])
+                g.num_games,
+                "<a href='/games?type={0}'>{0}</a>".format(g.game_type_cd)
+            ) for g in ss[:5]])
 
-            if len(games) > 5:
+            if other_games > 0:
                 in_paren += "; {:2,d} other".format(other_games)
 
-            stat_line = "{:2,d} active players and {:2,d} games ({})".format(
-                active_players,
+            stat_line = "{:2,d} players and {:2,d} games ({})".format(
+                total_players,
                 total_games,
                 in_paren
             )
 
     except Exception as e:
+        raise e
         stat_line = None
 
     return stat_line
@@ -247,8 +243,8 @@ def _main_index_data(request):
     recent_games_count = 20
 
     # summary statistics for the tagline
-    stat_line = get_summary_stats()
-    day_stat_line = get_summary_stats(1)
+    stat_line = get_summary_stats("all")
+    day_stat_line = get_summary_stats("day")
 
 
     # the three top ranks tables
