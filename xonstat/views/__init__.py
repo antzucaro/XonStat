@@ -26,8 +26,8 @@ from xonstat.views.search import search_json
 
 from xonstat.views.exceptions   import notfound
 
-from xonstat.views.main   import main_index, top_players_by_time, top_servers_by_players
-from xonstat.views.main   import top_servers_by_players, top_maps_by_times_played
+from xonstat.views.main   import main_index, top_players_index, top_servers_index
+from xonstat.views.main   import top_maps_index
 
 from xonstat.views.admin   import forbidden, login, merge
 

@@ -1,6 +1,5 @@
 <%inherit file="base.mako"/>
 <%namespace name="nav" file="nav.mako" />
-<%namespace file="navlinks.mako" import="navlinks" />
 
 <%block name="navigation">
   ${nav.nav('servers')}
@@ -10,8 +9,11 @@
   Active Servers Index
 </%block>
 
-% if not top_servers:
-  <h2>Sorry, no servers yet. Get playing!</h2>
+% if not top_servers and start is not None:
+  <h2 class="text-center">Sorry, no more servers!</h2>
+
+% elif not top_servers and start is None:
+  <h2 class="text-center">No active servers found. Yikes, get playing!</h2>
 
 % else:
 ##### ACTIVE SERVERS #####
@@ -26,30 +28,29 @@
           </tr>
         </thead>
         <tbody>
-        ##### this is to get around the actual row_number/rank of the server not being in the actual query
-        <% i = 1 + (top_servers.page-1) * 25%>
-        % for (server_id, name, count) in top_servers.items:
+        % for ts in top_servers:
           <tr>
-            <td>${i}</td>
-            % if server_id != '-':
-            <td class="no-stretch"><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
-            % else:
-            <td class="no-stretch">${name}</td>
-            % endif
-            <td>${count}</td>
+            <td>${ts.sort_order}</td>
+            <td class="no-stretch"><a href="${request.route_url('server_info', id=ts.server_id)}" title="Go to the server info page for ${ts.server_name}">${ts.server_name}</a></td>
+            <td>${ts.games}</td>
           </tr>
-          <% i = i+1 %>
         % endfor
         </tbody>
       </table>
-      <small>*figures are from the past 7 days<small>
+      <p class="text-center"><small>Note: these figures are from the past 7 days</small>
     </div>
   </div>
 
-  <div class="row">
-    <div class="small-12 large-6 large-offset-3 columns">
-      ${navlinks("top_servers_by_players", top_servers.page, top_servers.last_page)}
-    </div>
+% if len(top_servers) == 20:
+<div class="row">
+  <div class="small-12 large-6 large-offset-3 columns">
+    <ul class="pagination">
+      <li>
+        <a  href="${request.route_url('top_servers_index', _query=query)}" name="Next Page">Next <i class="fa fa-arrow-right"></i></a>
+      </li>
+    </ul>
   </div>
+</div>
+% endif
 
 % endif

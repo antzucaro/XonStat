@@ -101,14 +101,14 @@ def main(global_config, **settings):
     config.add_route("player_weaponstats_data_json", "/player/{id:\d+}/weaponstats.json")
     config.add_view(player_weaponstats_data_json, route_name="player_weaponstats_data_json", renderer="jsonp")
 
-    config.add_route("top_players_by_time", "/topactive")
-    config.add_view(top_players_by_time, route_name="top_players_by_time", renderer="top_players_by_time.mako")
+    config.add_route("top_players_index", "/topactive")
+    config.add_view(top_players_index, route_name="top_players_index", renderer="top_players_by_time.mako")
 
-    config.add_route("top_servers_by_players", "/topservers")
-    config.add_view(top_servers_by_players, route_name="top_servers_by_players", renderer="top_servers_by_players.mako")
+    config.add_route("top_servers_index", "/topservers")
+    config.add_view(top_servers_index, route_name="top_servers_index", renderer="top_servers_by_players.mako")
 
-    config.add_route("top_maps_by_times_played", "/topmaps")
-    config.add_view(top_maps_by_times_played, route_name="top_maps_by_times_played", renderer="top_maps_by_times_played.mako")
+    config.add_route("top_maps_index", "/topmaps")
+    config.add_view(top_maps_index, route_name="top_maps_index", renderer="top_maps_by_times_played.mako")
 
     # GAME ROUTES
     config.add_route("game_info",      "/game/{id:\d+}")

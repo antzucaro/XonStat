@@ -73,7 +73,7 @@
 ##### ACTIVE PLAYERS #####
 <div class="row">
   <div class="small-12 large-4 columns">
-    <h5>Most Active Players <a href="${request.route_url('top_players_by_time', page=1)}" title="See more player activity"><i class="fa fa-plus-circle"></i></a></h5>
+    <h5>Most Active Players <a href="${request.route_url('top_players_index')}" title="See more player activity"><i class="fa fa-plus-circle"></i></a></h5>
       <table class="table table-hover table-condensed">
         <thead>
           <tr>
@@ -83,18 +83,12 @@
           </tr>
         </thead>
         <tbody>
-        <% i = 1 %>
-        % for (player_id, nick, alivetime) in top_players:
+        % for tp in top_players:
           <tr>
-            <td>${i}</td>
-            % if player_id != '-':
-            <td class="no-stretch"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
-            % else:
-            <td class="no-stretch" style="max-width:150px;">${nick|n}</td>
-            % endif
-            <td>${alivetime}</td>
+            <td>${tp.sort_order}</td>
+            <td class="no-stretch"><a href="${request.route_url('player_info', id=tp.player_id)}" title="Go to the player info page for this player">${tp.nick_html_colors()|n}</a></td>
+            <td>${tp.alivetime}</td>
           </tr>
-          <% i = i+1 %>
         % endfor
         </tbody>
       </table>
@@ -103,7 +97,7 @@
 
 ##### ACTIVE SERVERS #####
   <div class="small-12 large-4 columns">
-    <h5>Most Active Servers <a href="${request.route_url('top_servers_by_players', page=1)}" title="See more server activity"><i class="fa fa-plus-circle"></i></a></h5>
+    <h5>Most Active Servers <a href="${request.route_url('top_servers_index')}" title="See more server activity"><i class="fa fa-plus-circle"></i></a></h5>
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -113,18 +107,12 @@
         </tr>
       </thead>
       <tbody>
-      <% i = 1 %>
-      % for (server_id, name, count) in top_servers:
+      % for ts in top_servers:
         <tr>
-          <td>${i}</td>
-          % if server_id != '-':
-          <td class="no-stretch"><a href="${request.route_url('server_info', id=server_id)}" title="Go to the server info page for ${name}">${name}</a></td>
-          % else:
-          <td>${name}</td>
-          % endif
-          <td>${count}</td>
+          <td>${ts.sort_order}</td>
+          <td class="no-stretch"><a href="${request.route_url('server_info', id=ts.server_id)}" title="Go to the server info page for ${ts.server_name}">${ts.server_name}</a></td>
+          <td>${ts.games}</td>
         </tr>
-        <% i = i+1 %>
       % endfor
       </tbody>
     </table>
@@ -133,7 +121,7 @@
 
 ##### ACTIVE MAPS #####
   <div class="small-12 large-4 columns">
-    <h5>Most Active Maps <a href="${request.route_url('top_maps_by_times_played', page=1)}" title="See more map activity"><i class="fa fa-plus-circle"></i></a></h5>
+    <h5>Most Active Maps <a href="${request.route_url('top_maps_index')}" title="See more map activity"><i class="fa fa-plus-circle"></i></a></h5>
     <table class="table table-hover table-condensed">
       <thead>
         <tr>
@@ -143,23 +131,18 @@
         </tr>
       </thead>
       <tbody>
-      <% i = 1 %>
-      % for (map_id, name, count) in top_maps:
+      % for tm in top_maps:
         <tr>
-          <td>${i}</td>
-          % if map_id != '-':
-          <td class="no-stretch"><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
-          % else:
-          <td>${name}</td>
-          % endif
-          <td>${count}</td>
+          <td>${tm.sort_order}</td>
+          <td>${tm.map_name}</td>
+          <td>${tm.games}</td>
         </tr>
-        <% i = i+1 %>
       % endfor
       </tbody>
     </table>
   </div>
 </div>
+
 <div class="row">
   <div class="small-12 columns">
     <small>*Most active stats are from the past 7 days</small>

@@ -389,6 +389,45 @@ class PlayerCapTime(object):
             }
 
 
+class ActivePlayer(object):
+    def __init__(self, sort_order=None, player_id=None, nick=None,
+            alivetime=None):
+        self.sort_order = sort_order
+        self.player_id = player_id
+        self.nick = nick
+        self.alivetime = alivetime
+
+    def nick_html_colors(self):
+        return html_colors(self.nick)
+
+    def __repr__(self):
+        return "<ActivePlayer(%s, %s)>" % (self.sort_order, self.player_id)
+
+
+class ActiveServer(object):
+    def __init__(self, sort_order=None, server_id=None, server_name=None,
+            games=None):
+        self.sort_order = sort_order
+        self.server_id = server_id
+        self.server_name = server_name
+        self.games = games
+
+    def __repr__(self):
+        return "<ActiveServer(%s, %s)>" % (self.sort_order, self.server_id)
+
+
+class ActiveMap(object):
+    def __init__(self, sort_order=None, map_id=None, map_name=None,
+            games=None):
+        self.sort_order = sort_order
+        self.map_id = map_id
+        self.map_name = map_name
+        self.games = games
+
+    def __repr__(self):
+        return "<ActiveMap(%s, %s)>" % (self.sort_order, self.map_id)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -417,6 +456,9 @@ def initialize_db(engine=None):
     team_game_stats_table = MetaData.tables['team_game_stats']
     player_game_anticheats_table = MetaData.tables['player_game_anticheats']
     player_groups_table = MetaData.tables['player_groups']
+    active_players_table = MetaData.tables['active_players_mv']
+    active_servers_table = MetaData.tables['active_servers_mv']
+    active_maps_table = MetaData.tables['active_maps_mv']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -438,3 +480,6 @@ def initialize_db(engine=None):
     mapper(TeamGameStat, team_game_stats_table)
     mapper(PlayerGameAnticheat, player_game_anticheats_table)
     mapper(PlayerGroups, player_groups_table)
+    mapper(ActivePlayer, active_players_table)
+    mapper(ActiveServer, active_servers_table)
+    mapper(ActiveMap, active_maps_table)
