@@ -1167,9 +1167,18 @@ def player_versus_data(request):
 
     except Exception as e:
         log.debug(e)
-        raise pyramid.httpexceptions.HTTPNotFound
+
+        p1_id = None
+        p2_id = None
+        p1 = None
+        p2 = None
+        p1_wins = None
+        p2_wins = None
+        rgs = None
 
     return {
+            "p1_id" : p1_id,
+            "p2_id" : p2_id,
             "p1" : p1,
             "p2" : p2,
             "p1_wins" : p1_wins,

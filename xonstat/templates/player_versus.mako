@@ -6,6 +6,7 @@
   ${nav.nav('players')}
 </%block>
 
+% if p1 is not None and p2 is not None:
 <div class="row">
   <div class="small-5 columns text-right">
     <h3>${p1.nick_html_colors()|n}</h3>
@@ -69,4 +70,53 @@
     </table>
   </div>
 </div>
+% endif
+
+% else:
+
+<div class="row">
+  <div class="small-12 large-8 large-offset-2 columns">
+
+    <form class="form-horizontal">
+      <fieldset>
+
+        <div class="row">
+          <div class="small-5 columns">
+            <div class="control-group">
+              <label class="control-label">Player #1</label>
+              <div class="controls">
+                <input id="p1" name="p1" type="text" class="input-xlarge">
+              </div>
+            </div>
+          </div>
+
+          <div class="small-2 columns text-center">
+            <h3>vs</h3>
+          </div>
+
+          <div class="small-5 columns">
+            <div class="control-group">
+              <label class="control-label">Player #2</label>
+              <div class="controls">
+                <input id="p2" name="p2" type="text" class="input-xlarge">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Button -->
+        <div class="control-group">
+          <label class="control-label"></label>
+          <div class="controls">
+            <button id="submit" name="submit" type="submit" class="btn btn-primary">Compare!</button>
+          </div>
+        </div>
+
+      </fieldset>
+    </form>
+
+  </div>
+</div>
+
 % endif
