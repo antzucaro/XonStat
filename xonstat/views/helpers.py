@@ -72,7 +72,7 @@ class RecentGame(object):
 
 def recent_games_q(server_id=None, map_id=None, player_id=None,
         game_type_cd=None, cutoff=None, force_player_id=False,
-        start_game_id=None, end_game_id=None):
+        start_game_id=None, end_game_id=None, player_id_2=None):
     '''
     Returns a SQLA query of recent game data. Parameters filter
     the results returned if they are provided. If not, it is
@@ -119,6 +119,12 @@ def recent_games_q(server_id=None, map_id=None, player_id=None,
                 filter(Game.game_id==pgstat_alias.game_id).\
                 filter(Game.players.contains([player_id])).\
                 filter(pgstat_alias.player_id==player_id)
+
+            # supports versus queries
+            if player_id_2 is not None:
+                recent_games_q = recent_games_q.\
+                        filter(Game.players.contains([player_id, player_id_2]))
+
     else:
         recent_games_q = recent_games_q.\
             filter(PlayerGameStat.scoreboardpos==1)

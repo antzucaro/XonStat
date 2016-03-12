@@ -1104,3 +1104,79 @@ def player_weaponstats_data_json(request):
         "averages": avgs,
     }
 
+
+def player_versus_data(request):
+    try:
+        p1_id = int(request.params.get("p1", None))
+        p2_id = int(request.params.get("p2", None))
+
+        p1_wins = 0
+        p2_wins = 0
+
+        players = DBSession.query(Player).filter(sa.or_(Player.player_id ==
+            p1_id, Player.player_id == p2_id)).order_by(Player.player_id).all()
+
+
+        if len(players) < 2:
+            raise Exception("Not enough players found.")
+
+        # assign the players from the array retrieved above
+        if players[0].player_id == p1_id:
+            p1 = players[0]
+            p2 = players[1]
+        else:
+            p1 = players[1]
+            p2 = players[0]
+
+        # note that wins and losses are from p1's perspective
+        win_loss_sql = """select win_loss, count(1)
+            from (
+              select case 
+                when pgsp1.score >= pgsp2.score then 'win' 
+                else 'loss' 
+              end win_loss
+              from games g join player_game_stats pgsp1 
+                on g.game_id = pgsp1.game_id and pgsp1.player_id = :p1
+              join player_game_stats pgsp2 
+                on g.game_id = pgsp2.game_id and pgsp2.player_id = :p2
+              where g.players @> ARRAY[:p1,:p2]
+              and g.game_type_cd = 'duel'
+              and pgsp1.create_dt between g.create_dt - interval '1 hour' 
+                and g.create_dt + interval '1 hour'
+              and pgsp2.create_dt between g.create_dt - interval '1 hour' 
+                and g.create_dt + interval '1 hour'
+            ) wl
+            group by win_loss
+            """
+
+        wins_losses = DBSession.query("win_loss", "count").\
+                from_statement(win_loss_sql).\
+                params(p1=p1_id, p2=p2_id).all()
+
+        for row in wins_losses:
+            if row.win_loss == "win":
+                p1_wins = row.count
+            elif row.win_loss == "loss":
+                p2_wins = row.count
+
+        # grab the 20 most recent games between the two
+        rgs_raw = recent_games_q(player_id=p1_id, player_id_2=p2_id, 
+                game_type_cd="duel").limit(20).all()
+
+        rgs = [RecentGame(row) for row in rgs_raw]
+
+    except Exception as e:
+        log.debug(e)
+        raise pyramid.httpexceptions.HTTPNotFound
+
+    return {
+            "p1" : p1,
+            "p2" : p2,
+            "p1_wins" : p1_wins,
+            "p2_wins" : p2_wins,
+            "recent_games" : rgs,
+        }
+
+
+def player_versus(request):
+    return player_versus_data(request)

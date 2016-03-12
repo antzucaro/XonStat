@@ -110,6 +110,9 @@ def main(global_config, **settings):
     config.add_route("top_maps_index", "/topmaps")
     config.add_view(top_maps_index, route_name="top_maps_index", renderer="top_maps_index.mako")
 
+    config.add_route("player_versus", "/versus")
+    config.add_view(player_versus, route_name="player_versus", renderer="player_versus.mako")
+
     # GAME ROUTES
     config.add_route("game_info",      "/game/{id:\d+}")
     config.add_view(game_info,      route_name="game_info",      renderer="game_info.mako")
