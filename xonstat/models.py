@@ -428,6 +428,12 @@ class ActiveMap(object):
         return "<ActiveMap(%s, %s)>" % (self.sort_order, self.map_id)
 
 
+class PlayerMedal(object):
+    def __repr__(self):
+        return "<PlayerRank(pid=%s, place=%s, alt=%s)>" % (self.player_id,
+                self.place, self.alt)
+
+
 def initialize_db(engine=None):
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -459,6 +465,7 @@ def initialize_db(engine=None):
     active_players_table = MetaData.tables['active_players_mv']
     active_servers_table = MetaData.tables['active_servers_mv']
     active_maps_table = MetaData.tables['active_maps_mv']
+    player_medals_table = MetaData.tables['player_medals']
 
     # now map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -483,3 +490,4 @@ def initialize_db(engine=None):
     mapper(ActivePlayer, active_players_table)
     mapper(ActiveServer, active_servers_table)
     mapper(ActiveMap, active_maps_table)
+    mapper(PlayerMedal, player_medals_table)

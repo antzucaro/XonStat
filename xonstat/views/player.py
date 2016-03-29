@@ -494,6 +494,23 @@ def get_damage_stats(player_id, weapon_cd, games):
     return (avg, dmgs)
 
 
+def get_player_medals(player_id):
+    """Retrieves the list of medals the player has received from tournaments or
+    other contests."""
+    try:
+        medals = DBSession.query(PlayerMedal)\
+                .filter(PlayerMedal.player_id==player_id)\
+                .order_by(PlayerMedal.place)\
+                .order_by(PlayerMedal.create_dt)\
+                .all()
+
+        return medals
+    
+    except Exception as e:
+        log.debug(e)
+        return []
+
+
 def player_info_data(request):
     player_id = int(request.matchdict['id'])
     if player_id <= 2:
@@ -508,6 +525,7 @@ def player_info_data(request):
         fav_maps       = get_fav_maps(player_id)
         elos           = get_elos(player_id)
         ranks          = get_ranks(player_id)
+        medals         = get_player_medals(player_id)
         recent_games   = get_recent_games(player_id)
         cake_day       = is_cake_day(player.create_dt)
 
@@ -523,6 +541,7 @@ def player_info_data(request):
             'fav_maps':fav_maps,
             'elos':elos,
             'ranks':ranks,
+            'medals':medals,
             'recent_games':recent_games,
             'cake_day':cake_day,
             }
