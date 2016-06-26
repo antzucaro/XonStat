@@ -18,7 +18,7 @@ The other setting to change is "session.secret," which is used to keep your web 
 
 To start the server run the following from the root directory. I recommend running this within a GNU screen session:
 
-    paster serve development.ini #(or production.ini if you've configured that settings file instead)
+    pserve --reload development.ini #(or production.ini if you've configured that settings file instead)
 
 To get a Xonotic server configured to use this server, change the CVAR `g_playerstats_uri` to point to the correct host, port, and URL path. By default this is:
 
