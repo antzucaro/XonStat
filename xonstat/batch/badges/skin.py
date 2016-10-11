@@ -223,6 +223,13 @@ class Skin:
         self.ctx = ctx
         ctx.set_antialias(C.ANTIALIAS_GRAY)
 
+        # set font hinting options
+        fo = C.FontOptions()
+        fo.set_antialias(C.ANTIALIAS_GRAY)
+        fo.set_hint_style(C.HINT_STYLE_FULL)
+        fo.set_hint_metrics(C.HINT_METRICS_ON)
+        ctx.set_font_options(fo)
+
         # draw background
         if self.bg == None:
             if self.bgcolor != None:
