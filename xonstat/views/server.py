@@ -11,13 +11,17 @@ log = logging.getLogger(__name__)
 
 
 class ServerIndex(object):
+    """Returns a list of servers."""
 
     def __init__(self, request):
+        """Common parameter parsing."""
+
         self.request = request
         self.page = request.params.get("page", 1)
         self.servers = self._data()
 
     def _data(self):
+        """Returns the data shared by all renderers."""
         try:
             server_q = DBSession.query(Server).order_by(Server.server_id.desc())
             servers = Page(server_q, self.page, items_per_page=25, url=page_url)
@@ -28,11 +32,13 @@ class ServerIndex(object):
         return servers
 
     def html(self):
+        """For rendering this data using something HTML-based."""
         return {
             'servers': self.servers,
         }
 
     def json(self):
+        """For rendering this data using JSON."""
         return {
             'servers': [s.to_dict() for s in self.servers],
         }
