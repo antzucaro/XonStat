@@ -9,37 +9,33 @@ from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
 
-def _server_index_data(request):
-    if request.params.has_key('page'):
-        current_page = request.params['page']
-    else:
-        current_page = 1
 
-    try:
-        server_q = DBSession.query(Server).\
-                order_by(Server.server_id.desc())
+class ServerIndex(object):
 
-        servers = Page(server_q, current_page, items_per_page=25, url=page_url)
+    def __init__(self, request):
+        self.request = request
+        self.page = request.params.get("page", 1)
+        self.servers = self._data()
 
+    def _data(self):
+        try:
+            server_q = DBSession.query(Server).order_by(Server.server_id.desc())
+            servers = Page(server_q, self.page, items_per_page=25, url=page_url)
 
-    except Exception as e:
-        servers = None
+        except:
+            servers = None
 
-    return {'servers':servers, }
+        return servers
 
+    def html(self):
+        return {
+            'servers': self.servers,
+        }
 
-def server_index(request):
-    """
-    Provides a list of all the current servers.
-    """
-    return _server_index_data(request)
-
-
-def server_index_json(request):
-    """
-    Provides a list of all the current servers. JSON.
-    """
-    return [{'status':'not implemented'}]
+    def json(self):
+        return {
+            'servers': [s.to_dict() for s in self.servers],
+        }
 
 
 def _server_info_data(request):
