@@ -17,8 +17,7 @@ from xonstat.views.map    import map_info, map_index
 from xonstat.views.map    import map_info_json, map_index_json
 from xonstat.views.map    import map_captimes, map_captimes_json
 
-from xonstat.views.server import server_info, server_info_json
-from xonstat.views.server import ServerIndex
+from xonstat.views.server import ServerIndex, ServerInfo
 
 from xonstat.views.search import search_q, search
 from xonstat.views.search import search_json

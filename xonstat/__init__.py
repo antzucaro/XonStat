@@ -150,11 +150,21 @@ def main(global_config, **settings):
         accept="text/json"
     )
 
-    config.add_route("server_info",      "/server/{id:\d+}")
-    config.add_view(server_info,      route_name="server_info",      renderer="server_info.mako")
-
-    config.add_route("server_info_json", "/server/{id:\d+}.json")
-    config.add_view(server_info_json, route_name="server_info_json", renderer="jsonp")
+    config.add_route("server_info", "/server/{id:\d+}")
+    config.add_view(
+        view=ServerInfo,
+        route_name="server_info",
+        attr="html",
+        renderer="server_info.mako",
+        accept="text/html"
+    )
+    config.add_view(
+        view=ServerInfo,
+        route_name="server_info",
+        attr="json",
+        renderer="server_info.mako",
+        accept="text/json"
+    )
 
     # MAP ROUTES
     config.add_route("map_index",      "/maps")
