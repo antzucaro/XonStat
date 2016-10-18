@@ -150,6 +150,33 @@ def main(global_config, **settings):
         accept="text/json"
     )
 
+    config.add_route("server_top_maps", "/server/{id:\d+}/topmaps")
+    config.add_view(
+        view=ServerTopMaps,
+        route_name="server_top_maps",
+        attr="json",
+        renderer="json",
+        accept="text/json"
+    )
+
+    config.add_route("server_top_players", "/server/{id:\d+}/topplayers")
+    config.add_view(
+        view=ServerTopPlayers,
+        route_name="server_top_players",
+        attr="json",
+        renderer="json",
+        accept="text/json"
+    )
+
+    config.add_route("server_top_scorers", "/server/{id:\d+}/topscorers")
+    config.add_view(
+        view=ServerTopScorers,
+        route_name="server_top_scorers",
+        attr="json",
+        renderer="json",
+        accept="text/json"
+    )
+
     config.add_route("server_info", "/server/{id:\d+}")
     config.add_view(
         view=ServerInfo,
@@ -162,7 +189,7 @@ def main(global_config, **settings):
         view=ServerInfo,
         route_name="server_info",
         attr="json",
-        renderer="server_info.mako",
+        renderer="json",
         accept="text/json"
     )
 

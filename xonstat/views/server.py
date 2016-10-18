@@ -24,10 +24,10 @@ class ServerIndex(object):
         """Common parameter parsing."""
         self.request = request
         self.page = request.params.get("page", 1)
-        self.servers = self._data()
+        self.servers = self.raw()
 
-    def _data(self):
-        """Returns the data shared by all renderers."""
+    def raw(self):
+        """Returns the raw data shared by all renderers."""
         try:
             server_q = DBSession.query(Server).order_by(Server.server_id.desc())
             servers = Page(server_q, self.page, items_per_page=25, url=page_url)
@@ -50,8 +50,8 @@ class ServerIndex(object):
         }
 
 
-class ServerInfo(object):
-    """Returns detailed information about a particular server."""
+class ServerInfoBase(object):
+    """Baseline parameter parsing for Server URLs with a server_id in them."""
 
     def __init__(self, request):
         """Common parameter parsing."""
@@ -63,10 +63,18 @@ class ServerInfo(object):
         self.lifetime = int(raw_lifetime)
 
         self.now = datetime.utcnow()
-        self.server_info = self._data()
 
-    def _top_maps(self):
-        """Top maps on this server by total times played."""
+
+class ServerTopMaps(ServerInfoBase):
+    """Returns the top maps played on a given server."""
+
+    def __init__(self, request):
+        """Common parameter parsing."""
+        super(ServerTopMaps, self).__init__(request)
+        self.top_maps = self.raw()
+
+    def raw(self):
+        """Returns the raw data shared by all renderers."""
         try:
             top_maps = DBSession.query(Game.map_id, Map.name, func.count())\
                 .filter(Map.map_id==Game.map_id)\
@@ -75,13 +83,34 @@ class ServerInfo(object):
                 .group_by(Game.map_id)\
                 .group_by(Map.name) \
                 .order_by(expr.desc(func.count()))\
-                .limit(LEADERBOARD_COUNT)
+                .limit(LEADERBOARD_COUNT)\
+                .all()
         except:
             top_maps = None
 
         return top_maps
 
-    def _top_scorers(self):
+    def json(self):
+        """For rendering this data using JSON."""
+        top_maps = [{
+            "map_id": tm.map_id,
+            "map_name": tm.name,
+            "times_played": tm[2],
+        } for tm in self.top_maps]
+
+        return top_maps
+
+
+class ServerTopScorers(ServerInfoBase):
+    """Returns the top scorers on a given server."""
+
+    def __init__(self, request):
+        """Common parameter parsing."""
+
+        super(ServerTopScorers, self).__init__(request)
+        self.top_scorers = self.raw()
+
+    def raw(self):
         """Top scorers on this server by total score."""
         try:
             top_scorers = DBSession.query(Player.player_id, Player.nick,
@@ -97,16 +126,32 @@ class ServerInfo(object):
                 .group_by(Player.player_id)\
                 .limit(LEADERBOARD_COUNT)
 
-            # We can't call a Python function directly in our query, so we have to convert
-            # it out-of-band.
-            top_scorers = [(player_id, html_colors(nick), score)
-                           for (player_id, nick, score) in top_scorers]
         except:
             top_scorers = None
 
         return top_scorers
 
-    def _top_players(self):
+    def json(self):
+        """For rendering this data using JSON."""
+        top_scorers = [{
+            "player_id": ts.player_id,
+            "nick": ts.nick,
+            "score": ts[2],
+        } for ts in self.top_scorers]
+
+        return top_scorers
+
+
+class ServerTopPlayers(ServerInfoBase):
+    """Returns the top players by playing time on a given server."""
+
+    def __init__(self, request):
+        """Common parameter parsing."""
+
+        super(ServerTopPlayers, self).__init__(request)
+        self.top_players = self.raw()
+
+    def raw(self):
         """Top players on this server by total playing time."""
         try:
             top_players = DBSession.query(Player.player_id, Player.nick,
@@ -121,24 +166,45 @@ class ServerInfo(object):
                 .group_by(Player.player_id)\
                 .limit(LEADERBOARD_COUNT)
 
-            # We can't call a Python function directly in our query, so we have to convert
-            # it out-of-band.
-            top_players = [(player_id, html_colors(nick), score) \
-                    for (player_id, nick, score) in top_players]
-
         except:
             top_players = None
 
         return top_players
 
-    def _data(self):
-        """Returns the data shared by all renderers."""
+    def json(self):
+        """For rendering this data using JSON."""
+        top_players = [{
+            "player_id": ts.player_id,
+            "nick": ts.nick,
+            "time": ts[2].total_seconds(),
+        } for ts in self.top_players]
+
+        return top_players
+
+
+class ServerInfo(ServerInfoBase):
+    """Returns detailed information about a particular server."""
+
+    def __init__(self, request):
+        """Common parameter parsing."""
+
+        super(ServerInfo, self).__init__(request)
+        self.server_info = self.raw()
+
+    def raw(self):
+        """Returns the raw data shared by all renderers."""
         try:
             server = DBSession.query(Server).filter_by(server_id=self.server_id).one()
 
-            top_maps = self._top_maps()
-            top_scorers = self._top_scorers()
-            top_players = self._top_players()
+            top_maps = ServerTopMaps(self.request).top_maps
+
+            top_scorers_raw = ServerTopScorers(self.request).top_scorers
+            top_scorers = [(player_id, html_colors(nick), score)
+                           for (player_id, nick, score) in top_scorers_raw]
+
+            top_players_raw = ServerTopPlayers(self.request).top_players
+            top_players = [(player_id, html_colors(nick), score)
+                           for (player_id, nick, score) in top_players_raw]
 
             rgs = recent_games_q(server_id=self.server_id).limit(RECENT_GAMES_COUNT).all()
             recent_games = [RecentGame(row) for row in rgs]
@@ -159,4 +225,4 @@ class ServerInfo(object):
 
     def json(self):
         """For rendering this data using JSON."""
-        return {"status":"Not implemented"}
+        return {"status": "Not implemented"}
