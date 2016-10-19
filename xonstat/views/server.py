@@ -189,7 +189,6 @@ class ServerInfo(ServerInfoBase):
         """Common parameter parsing."""
 
         super(ServerInfo, self).__init__(request)
-        self.server_info = self.raw()
 
     def raw(self):
         """Returns the raw data shared by all renderers."""
@@ -221,8 +220,25 @@ class ServerInfo(ServerInfoBase):
 
     def html(self):
         """For rendering this data using something HTML-based."""
-        return self.server_info
+        return self.raw()
 
     def json(self):
         """For rendering this data using JSON."""
-        return {"status": "Not implemented"}
+        try:
+            server_raw = DBSession.query(Server).filter_by(server_id=self.server_id).one()
+            server = server_raw.to_dict()
+            top_maps = ServerTopMaps(self.request).json()
+            top_scorers = ServerTopScorers(self.request).json()
+            top_players = ServerTopPlayers(self.request).json()
+            rgs = recent_games_q(server_id=self.server_id).limit(RECENT_GAMES_COUNT).all()
+            recent_games = [RecentGame(row).to_dict() for row in rgs]
+        except:
+            raise HTTPNotFound
+
+        return {
+            'server': server,
+            'recent_games': recent_games,
+            'top_players': top_players,
+            'top_scorers': top_scorers,
+            'top_maps': top_maps,
+        }
