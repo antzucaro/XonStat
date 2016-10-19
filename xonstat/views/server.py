@@ -106,7 +106,6 @@ class ServerTopScorers(ServerInfoBase):
 
     def __init__(self, request):
         """Common parameter parsing."""
-
         super(ServerTopScorers, self).__init__(request)
         self.top_scorers = self.raw()
 
@@ -147,7 +146,6 @@ class ServerTopPlayers(ServerInfoBase):
 
     def __init__(self, request):
         """Common parameter parsing."""
-
         super(ServerTopPlayers, self).__init__(request)
         self.top_players = self.raw()
 
@@ -187,7 +185,6 @@ class ServerInfo(ServerInfoBase):
 
     def __init__(self, request):
         """Common parameter parsing."""
-
         super(ServerInfo, self).__init__(request)
 
     def raw(self):
