@@ -123,7 +123,8 @@ class ServerTopScorers(ServerInfoBase):
                 .order_by(expr.desc(func.sum(PlayerGameStat.score)))\
                 .group_by(Player.nick)\
                 .group_by(Player.player_id)\
-                .limit(LEADERBOARD_COUNT)
+                .limit(LEADERBOARD_COUNT)\
+                .all()
 
         except:
             top_scorers = None
@@ -162,7 +163,8 @@ class ServerTopPlayers(ServerInfoBase):
                 .order_by(expr.desc(func.sum(PlayerGameStat.alivetime)))\
                 .group_by(Player.nick)\
                 .group_by(Player.player_id)\
-                .limit(LEADERBOARD_COUNT)
+                .limit(LEADERBOARD_COUNT)\
+                .all()
 
         except:
             top_players = None
@@ -184,58 +186,53 @@ class ServerInfo(ServerInfoBase):
     """Returns detailed information about a particular server."""
 
     def __init__(self, request):
-        """Common parameter parsing."""
+        """Common data and parameters."""
         super(ServerInfo, self).__init__(request)
 
-    def raw(self):
-        """Returns the raw data shared by all renderers."""
+        # this view uses data from other views, so we'll save the data at that level
         try:
-            server = DBSession.query(Server).filter_by(server_id=self.server_id).one()
-
-            top_maps = ServerTopMaps(self.request).top_maps
-
-            top_scorers_raw = ServerTopScorers(self.request).top_scorers
-            top_scorers = [(player_id, html_colors(nick), score)
-                           for (player_id, nick, score) in top_scorers_raw]
-
-            top_players_raw = ServerTopPlayers(self.request).top_players
-            top_players = [(player_id, html_colors(nick), score)
-                           for (player_id, nick, score) in top_players_raw]
+            self.server = DBSession.query(Server).filter_by(server_id=self.server_id).one()
+            self.top_maps_v = ServerTopMaps(self.request)
+            self.top_scorers_v = ServerTopScorers(self.request)
+            self.top_players_v = ServerTopPlayers(self.request)
 
             rgs = recent_games_q(server_id=self.server_id).limit(RECENT_GAMES_COUNT).all()
-            recent_games = [RecentGame(row) for row in rgs]
+            self.recent_games = [RecentGame(row) for row in rgs]
         except:
             raise HTTPNotFound
 
+    def raw(self):
+        """Returns the raw data shared by all renderers."""
         return {
-            'server': server,
-            'recent_games': recent_games,
-            'top_players': top_players,
-            'top_scorers': top_scorers,
-            'top_maps': top_maps,
+            'server': self.server,
+            'top_players': self.top_players_v.top_players,
+            'top_scorers': self.top_scorers_v.top_scorers,
+            'top_maps': self.top_maps_v.top_maps,
+            'recent_games': self.recent_games,
         }
 
     def html(self):
         """For rendering this data using something HTML-based."""
-        return self.raw()
+        server_info = self.raw()
+
+        print(server_info)
+
+        # convert the nick into HTML for both scorers and players
+        server_info["top_scorers"] = [(player_id, html_colors(nick), score)
+                                      for (player_id, nick, score) in server_info["top_scorers"]]
+
+        server_info["top_players"] = [(player_id, html_colors(nick), score)
+                                      for (player_id, nick, score) in server_info["top_players"]]
+
+        return server_info
 
     def json(self):
         """For rendering this data using JSON."""
-        try:
-            server_raw = DBSession.query(Server).filter_by(server_id=self.server_id).one()
-            server = server_raw.to_dict()
-            top_maps = ServerTopMaps(self.request).json()
-            top_scorers = ServerTopScorers(self.request).json()
-            top_players = ServerTopPlayers(self.request).json()
-            rgs = recent_games_q(server_id=self.server_id).limit(RECENT_GAMES_COUNT).all()
-            recent_games = [RecentGame(row).to_dict() for row in rgs]
-        except:
-            raise HTTPNotFound
 
         return {
-            'server': server,
-            'recent_games': recent_games,
-            'top_players': top_players,
-            'top_scorers': top_scorers,
-            'top_maps': top_maps,
+            'server': self.server.to_dict(),
+            'top_players': self.top_players_v.json(),
+            'top_scorers': self.top_scorers_v.json(),
+            'top_maps': self.top_maps_v.json(),
+            'recent_games': [rg.to_dict() for rg in self.recent_games],
         }
