@@ -33,7 +33,7 @@ class ServerIndex(object):
             servers = Page(server_q, self.page, items_per_page=25, url=page_url)
 
         except:
-            servers = None
+            raise HTTPNotFound
 
         return servers
 
@@ -62,15 +62,15 @@ class ServerInfoBase(object):
                                                      LEADERBOARD_LIFETIME)
         self.lifetime = int(raw_lifetime)
 
-        self.limit = request.matchdict.get("limit", limit)
-        self.last = request.matchdict.get("last", last)
+        self.limit = request.params.get("limit", limit)
+        self.last = request.params.get("last", last)
         self.now = datetime.utcnow()
 
 
 class ServerTopMaps(ServerInfoBase):
     """Returns the top maps played on a given server."""
 
-    def __init__(self, request, limit=None, last=None):
+    def __init__(self, request, limit=LEADERBOARD_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopMaps, self).__init__(request, limit, last)
 
@@ -95,7 +95,7 @@ class ServerTopMaps(ServerInfoBase):
 
             top_maps = top_maps_q.all()
         except:
-            top_maps = None
+            raise HTTPNotFound
 
         return top_maps
 
@@ -113,7 +113,7 @@ class ServerTopMaps(ServerInfoBase):
 class ServerTopScorers(ServerInfoBase):
     """Returns the top scorers on a given server."""
 
-    def __init__(self, request, limit=None, last=None):
+    def __init__(self, request, limit=LEADERBOARD_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopScorers, self).__init__(request, limit, last)
         self.top_scorers = self.raw()
@@ -142,7 +142,7 @@ class ServerTopScorers(ServerInfoBase):
             top_scorers = top_scorers_q.all()
 
         except:
-            top_scorers = None
+            raise HTTPNotFound
 
         return top_scorers
 
@@ -160,7 +160,7 @@ class ServerTopScorers(ServerInfoBase):
 class ServerTopPlayers(ServerInfoBase):
     """Returns the top players by playing time on a given server."""
 
-    def __init__(self, request, limit=None, last=None):
+    def __init__(self, request, limit=LEADERBOARD_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopPlayers, self).__init__(request, limit, last)
         self.top_players = self.raw()
@@ -188,7 +188,7 @@ class ServerTopPlayers(ServerInfoBase):
             top_players = top_players_q.all()
 
         except:
-            top_players = None
+            raise HTTPNotFound
 
         return top_players
 
@@ -247,7 +247,6 @@ class ServerInfo(ServerInfoBase):
 
     def json(self):
         """For rendering this data using JSON."""
-
         return {
             'server': self.server.to_dict(),
             'top_players': self.top_players_v.json(),
