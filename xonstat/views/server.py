@@ -53,7 +53,7 @@ class ServerIndex(object):
 class ServerInfoBase(object):
     """Baseline parameter parsing for Server URLs with a server_id in them."""
 
-    def __init__(self, request):
+    def __init__(self, request, limit=None, last=None):
         """Common parameter parsing."""
         self.request = request
         self.server_id = request.matchdict.get("id", None)
@@ -62,29 +62,38 @@ class ServerInfoBase(object):
                                                      LEADERBOARD_LIFETIME)
         self.lifetime = int(raw_lifetime)
 
+        self.limit = request.matchdict.get("limit", limit)
+        self.last = request.matchdict.get("last", last)
         self.now = datetime.utcnow()
 
 
 class ServerTopMaps(ServerInfoBase):
     """Returns the top maps played on a given server."""
 
-    def __init__(self, request):
+    def __init__(self, request, limit=None, last=None):
         """Common parameter parsing."""
-        super(ServerTopMaps, self).__init__(request)
+        super(ServerTopMaps, self).__init__(request, limit, last)
+
         self.top_maps = self.raw()
 
     def raw(self):
         """Returns the raw data shared by all renderers."""
         try:
-            top_maps = DBSession.query(Game.map_id, Map.name, func.count())\
+            top_maps_q = DBSession.query(Game.map_id, Map.name, func.count())\
                 .filter(Map.map_id==Game.map_id)\
                 .filter(Game.server_id==self.server_id)\
                 .filter(Game.create_dt > (self.now - timedelta(days=self.lifetime)))\
                 .group_by(Game.map_id)\
                 .group_by(Map.name) \
-                .order_by(expr.desc(func.count()))\
-                .limit(LEADERBOARD_COUNT)\
-                .all()
+                .order_by(expr.desc(func.count()))
+
+            if self.last:
+                top_maps_q = top_maps_q.offset(self.last)
+
+            if self.limit:
+                top_maps_q = top_maps_q.limit(self.limit)
+
+            top_maps = top_maps_q.all()
         except:
             top_maps = None
 
@@ -104,15 +113,15 @@ class ServerTopMaps(ServerInfoBase):
 class ServerTopScorers(ServerInfoBase):
     """Returns the top scorers on a given server."""
 
-    def __init__(self, request):
+    def __init__(self, request, limit=None, last=None):
         """Common parameter parsing."""
-        super(ServerTopScorers, self).__init__(request)
+        super(ServerTopScorers, self).__init__(request, limit, last)
         self.top_scorers = self.raw()
 
     def raw(self):
         """Top scorers on this server by total score."""
         try:
-            top_scorers = DBSession.query(Player.player_id, Player.nick,
+            top_scorers_q = DBSession.query(Player.player_id, Player.nick,
                                           func.sum(PlayerGameStat.score))\
                 .filter(Player.player_id == PlayerGameStat.player_id)\
                 .filter(Game.game_id == PlayerGameStat.game_id)\
@@ -122,9 +131,15 @@ class ServerTopScorers(ServerInfoBase):
                         (self.now - timedelta(days=LEADERBOARD_LIFETIME)))\
                 .order_by(expr.desc(func.sum(PlayerGameStat.score)))\
                 .group_by(Player.nick)\
-                .group_by(Player.player_id)\
-                .limit(LEADERBOARD_COUNT)\
-                .all()
+                .group_by(Player.player_id)
+
+            if self.last:
+                top_scorers_q = top_scorers_q.offset(self.last)
+
+            if self.limit:
+                top_scorers_q = top_scorers_q.limit(self.limit)
+
+            top_scorers = top_scorers_q.all()
 
         except:
             top_scorers = None
@@ -145,15 +160,15 @@ class ServerTopScorers(ServerInfoBase):
 class ServerTopPlayers(ServerInfoBase):
     """Returns the top players by playing time on a given server."""
 
-    def __init__(self, request):
+    def __init__(self, request, limit=None, last=None):
         """Common parameter parsing."""
-        super(ServerTopPlayers, self).__init__(request)
+        super(ServerTopPlayers, self).__init__(request, limit, last)
         self.top_players = self.raw()
 
     def raw(self):
         """Top players on this server by total playing time."""
         try:
-            top_players = DBSession.query(Player.player_id, Player.nick,
+            top_players_q = DBSession.query(Player.player_id, Player.nick,
                                           func.sum(PlayerGameStat.alivetime))\
                 .filter(Player.player_id == PlayerGameStat.player_id)\
                 .filter(Game.game_id == PlayerGameStat.game_id)\
@@ -162,9 +177,15 @@ class ServerTopPlayers(ServerInfoBase):
                 .filter(PlayerGameStat.create_dt > (self.now - timedelta(days=self.lifetime)))\
                 .order_by(expr.desc(func.sum(PlayerGameStat.alivetime)))\
                 .group_by(Player.nick)\
-                .group_by(Player.player_id)\
-                .limit(LEADERBOARD_COUNT)\
-                .all()
+                .group_by(Player.player_id)
+
+            if self.last:
+                top_players_q = top_players_q.offset(self.last)
+
+            if self.limit:
+                top_players_q = top_players_q.limit(self.limit)
+
+            top_players = top_players_q.all()
 
         except:
             top_players = None
@@ -192,9 +213,9 @@ class ServerInfo(ServerInfoBase):
         # this view uses data from other views, so we'll save the data at that level
         try:
             self.server = DBSession.query(Server).filter_by(server_id=self.server_id).one()
-            self.top_maps_v = ServerTopMaps(self.request)
-            self.top_scorers_v = ServerTopScorers(self.request)
-            self.top_players_v = ServerTopPlayers(self.request)
+            self.top_maps_v = ServerTopMaps(self.request, limit=LEADERBOARD_COUNT)
+            self.top_scorers_v = ServerTopScorers(self.request, limit=LEADERBOARD_COUNT)
+            self.top_players_v = ServerTopPlayers(self.request, limit=LEADERBOARD_COUNT)
 
             rgs = recent_games_q(server_id=self.server_id).limit(RECENT_GAMES_COUNT).all()
             self.recent_games = [RecentGame(row) for row in rgs]
@@ -214,8 +235,6 @@ class ServerInfo(ServerInfoBase):
     def html(self):
         """For rendering this data using something HTML-based."""
         server_info = self.raw()
-
-        print(server_info)
 
         # convert the nick into HTML for both scorers and players
         server_info["top_scorers"] = [(player_id, html_colors(nick), score)
