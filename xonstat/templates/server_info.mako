@@ -130,7 +130,7 @@
   % if len(recent_games) > 0:
     <div class="row">
       <div class="small-12 columns">
-        <h5>Most Recent Games</h5>
+        <h5>Most Recent Games <a href="${request.route_url('game_index', _query={'server_id':server.server_id})}"><i class="fa fa-plus-circle"></i></a></h5>
         <table class="table-hover table-condensed">
           <thead>
             <tr>
@@ -159,7 +159,6 @@
             % endfor
           </tbody>
         </table>
-        <p><a href="${request.route_url('game_index', _query={'server_id':server.server_id})}">More...</a></p>
       </div>
     </div>
   % endif
