@@ -277,6 +277,7 @@ class ServerInfo(ServerInfoBase):
             'top_scorers': self.top_scorers_v.html(),
             'top_maps': self.top_maps_v.html(),
             'recent_games': self.recent_games,
+            'lifetime': self.lifetime,
         }
 
     def json(self):

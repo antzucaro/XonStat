@@ -122,7 +122,7 @@
 
   <div class="row">
     <div class="small-12 columns">
-      <small>*Most active stats are from the past 7 days</small>
+      <small>*Most active stats are from the past ${lifetime} days</small>
     </div>
   </div>
 
