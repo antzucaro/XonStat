@@ -35,7 +35,8 @@ class ServerIndex(object):
             server_q = DBSession.query(Server).order_by(Server.server_id.desc())
             servers = Page(server_q, self.page, items_per_page=25, url=page_url)
 
-        except:
+        except Exception as e:
+            log.debug(e)
             raise HTTPNotFound
 
         return servers
@@ -128,7 +129,10 @@ class ServerTopMaps(ServerInfoBase):
             "times_played": tm.times_played,
         } for tm in self.top_maps]
 
-        return top_maps
+        return {
+            "server_id": self.server_id,
+            "top_maps": top_maps,
+        }
 
 
 class ServerTopScorers(ServerInfoBase):
@@ -198,7 +202,10 @@ class ServerTopScorers(ServerInfoBase):
             "score": ts.total_score,
         } for ts in self.top_scorers]
 
-        return top_scorers
+        return {
+            "server_id": self.server_id,
+            "top_scorers": top_scorers,
+        }
 
 
 class ServerTopPlayers(ServerInfoBase):
@@ -267,7 +274,10 @@ class ServerTopPlayers(ServerInfoBase):
             "time": ts.alivetime.total_seconds(),
         } for ts in self.top_players]
 
-        return top_players
+        return {
+            "server_id": self.server_id,
+            "top_players": top_players,
+        }
 
 
 class ServerInfo(ServerInfoBase):
