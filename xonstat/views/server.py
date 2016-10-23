@@ -117,6 +117,7 @@ class ServerTopMaps(ServerInfoBase):
         return {
             "server_id": self.server_id,
             "top_maps": self.top_maps,
+            "lifetime": self.lifetime,
             "query": query,
         }
 
@@ -190,6 +191,7 @@ class ServerTopScorers(ServerInfoBase):
         return {
             "server_id": self.server_id,
             "top_scorers": top_scorers,
+            "lifetime": self.lifetime,
             "query": query,
         }
 
@@ -262,6 +264,7 @@ class ServerTopPlayers(ServerInfoBase):
         return {
             "server_id": self.server_id,
             "top_players": top_players,
+            "lifetime": self.lifetime,
             "query": query,
         }
 

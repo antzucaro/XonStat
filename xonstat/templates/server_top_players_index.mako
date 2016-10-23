@@ -38,7 +38,7 @@
         % endfor
         </tbody>
       </table>
-      <p class="text-center"><small>Note: these figures are from the past 7 days</small>
+      <p class="text-center"><small>Note: these figures are from the past ${lifetime} days</small>
     </div>
   </div>
 
