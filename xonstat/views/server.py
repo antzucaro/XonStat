@@ -1,8 +1,10 @@
 import logging
 import sqlalchemy.sql.functions as func
 import sqlalchemy.sql.expression as expr
+from collections import namedtuple
 from datetime import datetime, timedelta
 from pyramid.httpexceptions import HTTPNotFound
+from sqlalchemy import func as fg
 from webhelpers.paginate import Page
 from xonstat.models import DBSession, Player, Server, Map, Game, PlayerGameStat
 from xonstat.util import page_url, html_colors
@@ -79,7 +81,9 @@ class ServerTopMaps(ServerInfoBase):
     def raw(self):
         """Returns the raw data shared by all renderers."""
         try:
-            top_maps_q = DBSession.query(Game.map_id, Map.name, func.count())\
+            top_maps_q = DBSession.query(
+                fg.row_number().over(order_by=expr.desc(func.count())).label("rank"),
+                Game.map_id, Map.name, func.count().label("times_played"))\
                 .filter(Map.map_id==Game.map_id)\
                 .filter(Game.server_id==self.server_id)\
                 .filter(Game.create_dt > (self.now - timedelta(days=self.lifetime)))\
@@ -94,17 +98,23 @@ class ServerTopMaps(ServerInfoBase):
                 top_maps_q = top_maps_q.limit(self.limit)
 
             top_maps = top_maps_q.all()
-        except:
+        except Exception as e:
+            log.debug(e)
             raise HTTPNotFound
 
         return top_maps
 
+    def html(self):
+        """Returns the HTML-ready representation."""
+        return self.top_maps
+
     def json(self):
         """For rendering this data using JSON."""
         top_maps = [{
+            "rank": tm.rank,
             "map_id": tm.map_id,
             "map_name": tm.name,
-            "times_played": tm[2],
+            "times_played": tm.times_played,
         } for tm in self.top_maps]
 
         return top_maps
@@ -121,8 +131,11 @@ class ServerTopScorers(ServerInfoBase):
     def raw(self):
         """Top scorers on this server by total score."""
         try:
-            top_scorers_q = DBSession.query(Player.player_id, Player.nick,
-                                          func.sum(PlayerGameStat.score))\
+            top_scorers_q = DBSession.query(
+                fg.row_number().over(
+                    order_by=expr.desc(func.sum(PlayerGameStat.score))).label("rank"),
+                Player.player_id, Player.nick,
+                func.sum(PlayerGameStat.score).label("total_score"))\
                 .filter(Player.player_id == PlayerGameStat.player_id)\
                 .filter(Game.game_id == PlayerGameStat.game_id)\
                 .filter(Game.server_id == self.server_id)\
@@ -141,17 +154,27 @@ class ServerTopScorers(ServerInfoBase):
 
             top_scorers = top_scorers_q.all()
 
-        except:
+        except Exception as e:
+            log.debug(e)
             raise HTTPNotFound
 
+        return top_scorers
+
+    def html(self):
+        """Returns an HTML-ready representation."""
+        TopScorer = namedtuple("TopScorer", ["rank", "player_id", "nick", "total_score"])
+
+        top_scorers = [TopScorer(ts.rank, ts.player_id, html_colors(ts.nick), ts.total_score)
+                       for ts in self.top_scorers]
         return top_scorers
 
     def json(self):
         """For rendering this data using JSON."""
         top_scorers = [{
+            "rank": ts.rank,
             "player_id": ts.player_id,
             "nick": ts.nick,
-            "score": ts[2],
+            "score": ts.total_score,
         } for ts in self.top_scorers]
 
         return top_scorers
@@ -168,8 +191,11 @@ class ServerTopPlayers(ServerInfoBase):
     def raw(self):
         """Top players on this server by total playing time."""
         try:
-            top_players_q = DBSession.query(Player.player_id, Player.nick,
-                                          func.sum(PlayerGameStat.alivetime))\
+            top_players_q = DBSession.query(
+                fg.row_number().over(
+                    order_by=expr.desc(func.sum(PlayerGameStat.alivetime))).label("rank"),
+                Player.player_id, Player.nick,
+                func.sum(PlayerGameStat.alivetime).label("alivetime"))\
                 .filter(Player.player_id == PlayerGameStat.player_id)\
                 .filter(Game.game_id == PlayerGameStat.game_id)\
                 .filter(Game.server_id == self.server_id)\
@@ -187,17 +213,28 @@ class ServerTopPlayers(ServerInfoBase):
 
             top_players = top_players_q.all()
 
-        except:
+        except Exception as e:
+            log.debug(e)
             raise HTTPNotFound
+
+        return top_players
+
+    def html(self):
+        """Returns the HTML-ready representation."""
+        TopPlayer = namedtuple("TopPlayer", ["rank", "player_id", "nick", "alivetime"])
+
+        top_players = [TopPlayer(tp.rank, tp.player_id, html_colors(tp.nick), tp.alivetime)
+                       for tp in self.top_players]
 
         return top_players
 
     def json(self):
         """For rendering this data using JSON."""
         top_players = [{
+            "rank": ts.rank,
             "player_id": ts.player_id,
             "nick": ts.nick,
-            "time": ts[2].total_seconds(),
+            "time": ts.alivetime.total_seconds(),
         } for ts in self.top_players]
 
         return top_players
@@ -234,16 +271,13 @@ class ServerInfo(ServerInfoBase):
 
     def html(self):
         """For rendering this data using something HTML-based."""
-        server_info = self.raw()
-
-        # convert the nick into HTML for both scorers and players
-        server_info["top_scorers"] = [(player_id, html_colors(nick), score)
-                                      for (player_id, nick, score) in server_info["top_scorers"]]
-
-        server_info["top_players"] = [(player_id, html_colors(nick), score)
-                                      for (player_id, nick, score) in server_info["top_players"]]
-
-        return server_info
+        return {
+            'server': self.server,
+            'top_players': self.top_players_v.html(),
+            'top_scorers': self.top_scorers_v.html(),
+            'top_maps': self.top_maps_v.html(),
+            'recent_games': self.recent_games,
+        }
 
     def json(self):
         """For rendering this data using JSON."""

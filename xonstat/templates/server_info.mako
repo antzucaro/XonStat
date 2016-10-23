@@ -11,6 +11,16 @@
   % endif
 </%block>
 
+<%def name="empty_rows(list, max_empty_rows)">
+  % for i in range(max_empty_rows - len(list)):
+    <tr>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+  % endfor
+</%def>
+
 % if server is None:
   <h2>Sorry, that server wasn't found!</h2>
 
@@ -45,19 +55,16 @@
           </tr>
         </thead>
         <tbody>
-        <% i = 1 %>
-        % for (score_player_id, score_nick, score_value) in top_scorers:
+        % for ts in top_scorers:
           <tr>
-            <td>${i}</td>
-            % if score_player_id != '-':
-              <td class="no-stretch"><a href="${request.route_url('player_info', id=score_player_id)}" title="Go to the player info page for this player">${score_nick|n}</a></td>
-            % else:
-              <td class="no-stretch">${score_nick}</td>
-            % endif
-            <td>${score_value}</td>
+            <td>${ts.rank}</td>
+            <td class="no-stretch"><a href="${request.route_url('player_info', id=ts.player_id)}" title="Go to the player info page for this player">${ts.nick|n}</a></td>
+            <td>${ts.total_score}</td>
           </tr>
-          <% i = i+1 %>
         % endfor
+
+        ${empty_rows(top_scorers, 10)}
+
         </tbody>
       </table>
     </div>
@@ -73,19 +80,16 @@
           </tr>
         </thead>
         <tbody>
-        <% i = 1 %>
-        % for (player_id, nick, alivetime) in top_players:
+        % for tp in top_players:
           <tr>
-            <td>${i}</td>
-            % if player_id != '-':
-              <td class="no-stretch"><a href="${request.route_url('player_info', id=player_id)}" title="Go to the player info page for this player">${nick|n}</a></td>
-            % else:
-              <td class="no-stretch">${nick}</td>
-            % endif
-            <td>${alivetime}</td>
+            <td>${tp.rank}</td>
+            <td class="no-stretch"><a href="${request.route_url('player_info', id=tp.player_id)}" title="Go to the player info page for this player">${tp.nick|n}</a></td>
+            <td>${tp.alivetime}</td>
           </tr>
-          <% i = i+1 %>
         % endfor
+
+        ${empty_rows(top_players, 10)}
+
         </tbody>
       </table>
     </div>
@@ -101,19 +105,16 @@
           </tr>
         </thead>
         <tbody>
-        <% i = 1 %>
-        % for (map_id, name, count) in top_maps:
+        % for tm in top_maps:
           <tr>
-            <td>${i}</td>
-            % if map_id != '-':
-              <td class="no-stretch"><a href="${request.route_url('map_info', id=map_id)}" title="Go to the map info page for ${name}">${name}</a></td>
-            % else:
-              <td class="no-stretch">${name}</td>
-            % endif
-            <td>${count}</td>
+            <td>${tm.rank}</td>
+            <td class="no-stretch"><a href="${request.route_url('map_info', id=tm.map_id)}" title="Go to the map info page for ${tm.name}">${tm.name}</a></td>
+            <td>${tm.times_played}</td>
           </tr>
-          <% i = i+1 %>
         % endfor
+
+        ${empty_rows(top_maps, 10)}
+
         </tbody>
       </table>
     </div> 
