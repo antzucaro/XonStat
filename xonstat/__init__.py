@@ -146,10 +146,10 @@ def main(global_config, **settings):
     config.add_view(view=ServerTopMaps, route_name="server_top_maps", attr="json", renderer="json",
                     accept="text/json")
 
-    config.add_route("server_top_players", "/server/{id:\d+}/topactive")
-    config.add_view(view=ServerTopPlayers, route_name="server_top_players", attr="html",
-                    renderer="server_top_players_index.mako", accept="text/html")
-    config.add_view(view=ServerTopPlayers, route_name="server_top_players", attr="json",
+    config.add_route("server_top_active", "/server/{id:\d+}/topactive")
+    config.add_view(view=ServerTopPlayers, route_name="server_top_active", attr="html",
+                    renderer="server_top_active.mako", accept="text/html")
+    config.add_view(view=ServerTopPlayers, route_name="server_top_active", attr="json",
                     renderer="json", accept="text/json")
 
     config.add_route("server_top_scorers", "/server/{id:\d+}/topscorers")

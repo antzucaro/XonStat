@@ -45,7 +45,7 @@
 
   <div class="row">
     <div class="small-12 large-4 columns">
-      <h5>Top Scoring Players</h5>
+      <h5>Top Scoring Players <a href="${request.route_url('server_top_scorers', id=server.server_id)}" title="See more top scoring players for this server"><i class="fa fa-plus-circle"></i></a></h5>
       <table class="table-hover table-condensed">
         <thead>
           <tr>
@@ -70,7 +70,7 @@
     </div>
 
     <div class="small-12 large-4 columns">
-      <h5>Most Active Players</h5>
+      <h5>Most Active Players <a href="${request.route_url('server_top_active', id=server.server_id)}" title="See more active players for this server"><i class="fa fa-plus-circle"></i></a></h5>
       <table class="table-hover table-condensed">
         <thead>
           <tr>
@@ -95,7 +95,7 @@
     </div>
 
     <div class="small-12 large-4 columns">
-      <h5>Most Active Maps</h5>
+      <h5>Most Active Maps <a href="${request.route_url('server_top_maps', id=server.server_id)}" title="See more top maps for this server"><i class="fa fa-plus-circle"></i></a></h5>
       <table class="table-hover table-condensed">
         <thead>
           <tr>

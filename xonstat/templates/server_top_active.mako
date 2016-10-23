@@ -47,7 +47,7 @@
       <div class="small-12 large-6 large-offset-3 columns">
         <ul class="pagination">
           <li>
-            <a  href="${request.route_url('server_top_players', id=server_id, _query=query)}" name="Next Page">Next <i class="fa fa-arrow-right"></i></a>
+            <a  href="${request.route_url('server_top_active', id=server_id, _query=query)}" name="Next Page">Next <i class="fa fa-arrow-right"></i></a>
           </li>
         </ul>
       </div>
