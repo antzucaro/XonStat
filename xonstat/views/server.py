@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 # Defaults
 LEADERBOARD_LIFETIME = 30
 LEADERBOARD_COUNT = 10
+INDEX_COUNT = 20
 RECENT_GAMES_COUNT = 20
 
 
@@ -72,7 +73,7 @@ class ServerInfoBase(object):
 class ServerTopMaps(ServerInfoBase):
     """Returns the top maps played on a given server."""
 
-    def __init__(self, request, limit=LEADERBOARD_COUNT, last=None):
+    def __init__(self, request, limit=INDEX_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopMaps, self).__init__(request, limit, last)
 
@@ -106,7 +107,17 @@ class ServerTopMaps(ServerInfoBase):
 
     def html(self):
         """Returns the HTML-ready representation."""
-        return self.top_maps
+
+        # build the query string
+        query = {}
+        if len(self.top_maps) > 1:
+            query['last'] = self.top_maps[-1].rank
+
+        return {
+            "server_id": self.server_id,
+            "top_maps": self.top_maps,
+            "query": query,
+        }
 
     def json(self):
         """For rendering this data using JSON."""
@@ -123,7 +134,7 @@ class ServerTopMaps(ServerInfoBase):
 class ServerTopScorers(ServerInfoBase):
     """Returns the top scorers on a given server."""
 
-    def __init__(self, request, limit=LEADERBOARD_COUNT, last=None):
+    def __init__(self, request, limit=INDEX_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopScorers, self).__init__(request, limit, last)
         self.top_scorers = self.raw()
@@ -166,7 +177,17 @@ class ServerTopScorers(ServerInfoBase):
 
         top_scorers = [TopScorer(ts.rank, ts.player_id, html_colors(ts.nick), ts.total_score)
                        for ts in self.top_scorers]
-        return top_scorers
+
+        # build the query string
+        query = {}
+        if len(top_scorers) > 1:
+            query['last'] = top_scorers[-1].rank
+
+        return {
+            "server_id": self.server_id,
+            "top_scorers": top_scorers,
+            "query": query,
+        }
 
     def json(self):
         """For rendering this data using JSON."""
@@ -183,7 +204,7 @@ class ServerTopScorers(ServerInfoBase):
 class ServerTopPlayers(ServerInfoBase):
     """Returns the top players by playing time on a given server."""
 
-    def __init__(self, request, limit=LEADERBOARD_COUNT, last=None):
+    def __init__(self, request, limit=INDEX_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopPlayers, self).__init__(request, limit, last)
         self.top_players = self.raw()
@@ -226,7 +247,16 @@ class ServerTopPlayers(ServerInfoBase):
         top_players = [TopPlayer(tp.rank, tp.player_id, html_colors(tp.nick), tp.alivetime)
                        for tp in self.top_players]
 
-        return top_players
+        # build the query string
+        query = {}
+        if len(top_players) > 1:
+            query['last'] = top_players[-1].rank
+
+        return {
+            "server_id": self.server_id,
+            "top_players": top_players,
+            "query": query,
+        }
 
     def json(self):
         """For rendering this data using JSON."""
@@ -273,9 +303,9 @@ class ServerInfo(ServerInfoBase):
         """For rendering this data using something HTML-based."""
         return {
             'server': self.server,
-            'top_players': self.top_players_v.html(),
-            'top_scorers': self.top_scorers_v.html(),
-            'top_maps': self.top_maps_v.html(),
+            'top_players': self.top_players_v.html()["top_players"],
+            'top_scorers': self.top_scorers_v.html()["top_scorers"],
+            'top_maps': self.top_maps_v.html()["top_maps"],
             'recent_games': self.recent_games,
             'lifetime': self.lifetime,
         }
