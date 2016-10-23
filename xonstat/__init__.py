@@ -9,6 +9,7 @@ from xonstat.models import initialize_db
 from xonstat.views import *
 from xonstat.security import *
 
+
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
@@ -133,17 +134,35 @@ def main(global_config, **settings):
     config.add_view(game_finder_json, route_name="game_index_json", renderer="jsonp")
 
     # SERVER ROUTES
-    config.add_route("server_index",      "/servers")
-    config.add_view(server_index,      route_name="server_index",      renderer="server_index.mako")
+    config.add_route("server_index", "/servers")
+    config.add_view(view=ServerIndex, route_name="server_index", attr="html",
+                    renderer="server_index.mako", accept="text/html")
+    config.add_view(view=ServerIndex, route_name="server_index", attr="json", renderer="json",
+                    accept="application/json")
 
-    config.add_route("server_index_json", "/servers.json")
-    config.add_view(server_index_json, route_name="server_index_json", renderer="jsonp")
+    config.add_route("server_top_maps", "/server/{id:\d+}/topmaps")
+    config.add_view(view=ServerTopMaps, route_name="server_top_maps", attr="html",
+                    renderer="server_top_maps.mako", accept="text/html")
+    config.add_view(view=ServerTopMaps, route_name="server_top_maps", attr="json", renderer="json",
+                    accept="application/json")
 
-    config.add_route("server_info",      "/server/{id:\d+}")
-    config.add_view(server_info,      route_name="server_info",      renderer="server_info.mako")
+    config.add_route("server_top_active", "/server/{id:\d+}/topactive")
+    config.add_view(view=ServerTopPlayers, route_name="server_top_active", attr="html",
+                    renderer="server_top_active.mako", accept="text/html")
+    config.add_view(view=ServerTopPlayers, route_name="server_top_active", attr="json",
+                    renderer="json", accept="application/json")
 
-    config.add_route("server_info_json", "/server/{id:\d+}.json")
-    config.add_view(server_info_json, route_name="server_info_json", renderer="jsonp")
+    config.add_route("server_top_scorers", "/server/{id:\d+}/topscorers")
+    config.add_view(view=ServerTopScorers, route_name="server_top_scorers", attr="html",
+                    renderer="server_top_scorers.mako", accept="text/html")
+    config.add_view(view=ServerTopScorers, route_name="server_top_scorers", attr="json",
+                    renderer="json", accept="application/json")
+
+    config.add_route("server_info", "/server/{id:\d+}")
+    config.add_view(view=ServerInfo, route_name="server_info", attr="html",
+                    renderer="server_info.mako", accept="text/html")
+    config.add_view(view=ServerInfo, route_name="server_info", attr="json", renderer="json",
+                    accept="application/json")
 
     # MAP ROUTES
     config.add_route("map_index",      "/maps")
