@@ -86,8 +86,8 @@ class ServerTopMaps(ServerInfoBase):
             top_maps_q = DBSession.query(
                 fg.row_number().over(order_by=expr.desc(func.count())).label("rank"),
                 Game.map_id, Map.name, func.count().label("times_played"))\
-                .filter(Map.map_id==Game.map_id)\
-                .filter(Game.server_id==self.server_id)\
+                .filter(Map.map_id == Game.map_id)\
+                .filter(Game.server_id == self.server_id)\
                 .filter(Game.create_dt > (self.now - timedelta(days=self.lifetime)))\
                 .group_by(Game.map_id)\
                 .group_by(Map.name) \
@@ -157,7 +157,7 @@ class ServerTopScorers(ServerInfoBase):
                 .filter(Game.server_id == self.server_id)\
                 .filter(Player.player_id > 2)\
                 .filter(PlayerGameStat.create_dt >
-                        (self.now - timedelta(days=LEADERBOARD_LIFETIME)))\
+                        (self.now - timedelta(days=self.lifetime)))\
                 .order_by(expr.desc(func.sum(PlayerGameStat.score)))\
                 .group_by(Player.nick)\
                 .group_by(Player.player_id)
@@ -302,23 +302,13 @@ class ServerInfo(ServerInfoBase):
         except:
             raise HTTPNotFound
 
-    def raw(self):
-        """Returns the raw data shared by all renderers."""
-        return {
-            'server': self.server,
-            'top_players': self.top_players_v.top_players,
-            'top_scorers': self.top_scorers_v.top_scorers,
-            'top_maps': self.top_maps_v.top_maps,
-            'recent_games': self.recent_games,
-        }
-
     def html(self):
         """For rendering this data using something HTML-based."""
         return {
             'server': self.server,
-            'top_players': self.top_players_v.html()["top_players"],
-            'top_scorers': self.top_scorers_v.html()["top_scorers"],
-            'top_maps': self.top_maps_v.html()["top_maps"],
+            'top_players': self.top_players_v.html().get("top_players", None),
+            'top_scorers': self.top_scorers_v.html().get("top_scorers", None),
+            'top_maps': self.top_maps_v.html().get("top_maps", None),
             'recent_games': self.recent_games,
             'lifetime': self.lifetime,
         }
