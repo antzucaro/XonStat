@@ -1,9 +1,11 @@
 import logging
-import sqlalchemy.sql.expression as expr
+from calendar import timegm
 from datetime import datetime
+
+import sqlalchemy.sql.expression as expr
 from sqlalchemy.orm import aliased
-from xonstat.models import *
-from xonstat.util import *
+from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, GameType
+from xonstat.util import pretty_date, html_colors
 
 log = logging.getLogger(__name__)
 

@@ -1,10 +1,8 @@
 import datetime
 import logging
 import math
-import random
-import sys
-from xonstat.models import *
 
+from xonstat.models import PlayerElo
 
 log = logging.getLogger(__name__)
 

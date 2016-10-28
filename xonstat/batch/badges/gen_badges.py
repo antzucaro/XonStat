@@ -1,17 +1,14 @@
 #-*- coding: utf-8 -*-
 
 import sys
-from datetime import datetime
-import sqlalchemy as sa
-import sqlalchemy.sql.functions as func
-from sqlalchemy import distinct
-from pyramid.paster import bootstrap
-from xonstat.models import *
-from xonstat.util import datetime_seconds
+from datetime import datetime, timedelta
 
-from skin import Skin
 from playerdata import PlayerData
-
+from pyramid.paster import bootstrap
+from skin import Skin
+from sqlalchemy import distinct
+from xonstat.models import DBSession, PlayerGameStat, Player, PlayerElo
+from xonstat.util import datetime_seconds
 
 # maximal number of query results (for testing, set to None to get all)
 NUM_PLAYERS = None

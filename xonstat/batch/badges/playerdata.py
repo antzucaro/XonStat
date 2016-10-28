@@ -1,6 +1,4 @@
-import sqlalchemy as sa
-import sqlalchemy.sql.functions as func
-from xonstat.models import *
+from xonstat.models import DBSession, Player
 from xonstat.views.player import get_games_played, get_overall_stats, get_ranks, get_elos
 
 

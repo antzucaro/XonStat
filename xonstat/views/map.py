@@ -1,10 +1,13 @@
 import logging
-import sqlalchemy.sql.functions as func
-import sqlalchemy.sql.expression as expr
 from collections import namedtuple
 from datetime import datetime, timedelta
+
+import sqlalchemy.sql.expression as expr
+import sqlalchemy.sql.functions as func
+from pyramid import httpexceptions
 from webhelpers.paginate import Page
-from xonstat.models import *
+from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, Player, PlayerCaptime
+from xonstat.models.map import MapCapTime
 from xonstat.util import page_url, html_colors
 from xonstat.views.helpers import RecentGame, recent_games_q
 
@@ -186,7 +189,7 @@ def map_captimes_data(request):
                 order_by(expr.asc(PlayerCaptime.fastest_cap))
 
     except Exception as e:
-        raise pyramid.httpexceptions.HTTPNotFound
+        raise httpexceptions.HTTPNotFound
 
     map_captimes = Page(mct_q, current_page, items_per_page=20, url=page_url)
 
