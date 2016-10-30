@@ -1,3 +1,7 @@
+"""
+Model initialization and mapping.
+"""
+
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
@@ -13,6 +17,12 @@ Base = declarative_base()
 
 
 def initialize_db(engine=None):
+    """
+    Initialize the database using reflection.
+
+    :param engine: The SQLAlchemy engine instance to bind.
+    :return: None
+    """
     DBSession.configure(bind=engine)
 
     Base.metadata.bind = engine

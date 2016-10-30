@@ -1,9 +1,17 @@
+"""
+Models related to players.
+"""
+
 from calendar import timegm
 
 from xonstat.util import html_colors, strip_colors, pretty_date, qfont_decode
 
 
 class Player(object):
+    """
+    A player, which can represent either a human or a bot.
+    """
+
     def nick_html_colors(self, limit=None):
         if self.nick is None:
             return "Anonymous Player"
@@ -20,49 +28,93 @@ class Player(object):
         return pretty_date(self.create_dt)
 
     def __repr__(self):
-        return "<Player(%s, %s)>" % (self.player_id, self.nick.encode('utf-8'))
+        return "<Player({}, {})>".format(self.player_id, self.nick.encode('utf-8'))
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'nick':self.nick,
-            'joined':self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
-            'active_ind':self.active_ind, 'location':self.location,
-            'stripped_nick':qfont_decode(self.stripped_nick)}
+        return {
+            'player_id': self.player_id,
+            'nick': self.nick,
+            'joined': self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'active_ind': self.active_ind,
+            'location': self.location,
+            'stripped_nick': qfont_decode(self.stripped_nick),
+        }
 
     def epoch(self):
         return timegm(self.create_dt.timetuple())
 
 
-class PlayerAchievement(object):
+class Achievement(object):
+    """
+    A type of achievement. Referenced implicitly in PlayerAchievement.
+    """
+
     def __repr__(self):
-        return "<PlayerAchievement(%s, %s)>" % (self.player_id, self.achievement_cd)
+        return "<Achievement({}, {}, {})>".format(self.achievement_cd, self.descr, self.limit)
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'achievement_cd':self.achievement_cd}
+        return {
+            'achievement_cd': self.achievement_cd,
+            'name': self.descr,
+            'limit':self.limit,
+        }
+
+
+class PlayerAchievement(object):
+    """
+    Achievements a player has earned.
+    """
+
+    def __repr__(self):
+        return "<PlayerAchievement({}, {})>".format(self.player_id, self.achievement_cd)
+
+    def to_dict(self):
+        return {
+            'player_id': self.player_id,
+            'achievement_cd': self.achievement_cd,
+        }
 
 
 class Hashkey(object):
+    """
+    A player's identifying key from the d0_blind_id library.
+    """
+
     def __init__(self, player_id=None, hashkey=None):
         self.player_id = player_id
         self.hashkey = hashkey
 
     def __repr__(self):
-        return "<Hashkey(%s, %s)>" % (self.player_id, self.hashkey)
+        return "<Hashkey({}, {})>".format(self.player_id, self.hashkey)
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'hashkey':self.hashkey}
+        return {
+            'player_id': self.player_id,
+            'hashkey': self.hashkey
+        }
 
 
 class PlayerNick(object):
+    """
+    A single nickname a player has used in a game.
+    """
+
     def __repr__(self):
-        return "<PlayerNick(%s, %s)>" % (self.player_id, qfont_decode(self.stripped_nick))
+        return "<PlayerNick({}, {})>".format(self.player_id, qfont_decode(self.stripped_nick))
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'name':qfont_decode(self.stripped_nick)}
+        return {
+            'player_id': self.player_id,
+            'name': qfont_decode(self.stripped_nick),
+        }
 
 
 class PlayerElo(object):
-    def __init__(self, player_id=None, game_type_cd=None, elo=None):
+    """
+    A player's skill for a particular game type, as determined by a modified Elo algorithm.
+    """
 
+    def __init__(self, player_id=None, game_type_cd=None, elo=None):
         self.player_id = player_id
         self.game_type_cd = game_type_cd
         self.elo = elo
@@ -70,13 +122,22 @@ class PlayerElo(object):
         self.games = 0
 
     def __repr__(self):
-        return "<PlayerElo(pid=%s, gametype=%s, elo=%s, games=%s)>" % (self.player_id, self.game_type_cd, self.elo, self.games)
+        return ("<PlayerElo(pid={}, gametype={}, elo={}, games={})>"
+                .format(self.player_id, self.game_type_cd, self.elo, self.games))
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'game_type_cd':self.game_type_cd, 'elo':self.elo, 'games':self.games}
+        return {
+            'player_id': self.player_id,
+            'game_type_cd': self.game_type_cd,
+            'elo': self.elo,
+            'games': self.games,
+        }
 
 
 class PlayerRank(object):
+    """
+    A player's rank for a given game type.
+    """
 
     def nick_html_colors(self, limit=None):
         if self.nick is None:
@@ -85,15 +146,23 @@ class PlayerRank(object):
             return html_colors(self.nick, limit)
 
     def __repr__(self):
-        return "<PlayerRank(pid=%s, gametype=%s, rank=%s)>" % (self.player_id, self.game_type_cd, self.rank)
+        return ("<PlayerRank(pid={}, gametype={}, rank={})>"
+                .format(self.player_id, self.game_type_cd, self.rank))
 
     def to_dict(self):
-        return {'player_id':self.player_id, 'game_type_cd':self.game_type_cd, 'rank':self.rank}
+        return {
+            'player_id': self.player_id,
+            'game_type_cd': self.game_type_cd,
+            'rank': self.rank
+        }
 
 
 class PlayerCaptime(object):
-    def __init__(self, player_id=None, game_id=None, map_id=None,
-            fastest_cap=None, mod=None):
+    """
+    A flag capture time for a player on a given map.
+    """
+
+    def __init__(self, player_id=None, game_id=None, map_id=None, fastest_cap=None, mod=None):
         self.player_id = player_id
         self.game_id = game_id
         self.map_id = map_id
@@ -101,8 +170,8 @@ class PlayerCaptime(object):
         self.mod = mod
 
     def __repr__(self):
-        return "<PlayerCaptime(pid=%s, map_id=%s, mod=%s)>" % (self.player_id,
-                self.map_id, self.mod)
+        return ("<PlayerCaptime(pid={}, map_id={}, mod={})>"
+                .format(self.player_id, self.map_id, self.mod))
 
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
@@ -112,16 +181,24 @@ class PlayerCaptime(object):
 
 
 class PlayerGroups(object):
+    """
+    An authorization group a player belongs to. Used to control access.
+    """
+
     def __init__(self, player_id=None, group_name=None):
         self.player_id  = player_id
         self.group_name = group_name
 
     def __repr__(self):
-        return "<PlayerGroups(%s, %s)>" % (self.player_id, self.group_name)
+        return "<PlayerGroups({}, {})>".format(self.player_id, self.group_name)
 
 
+# TODO: determine if this is a real model (it is very similar to PlayerCaptime from above)
 class PlayerCapTime(object):
-    """Fastest flag capture times per player, assembled from a SQLAlchemy query"""
+    """
+    Fastest flag capture times per player.
+    """
+
     def __init__(self, row):
         self.fastest_cap = row.fastest_cap
         self.create_dt = row.create_dt
@@ -144,18 +221,13 @@ class PlayerCapTime(object):
             "map_name": self.map_name,
             "server_id": self.server_id,
             "server_name": self.server_name,
-            }
+        }
 
 
 class PlayerMedal(object):
+    """
+    A medal a player has earned in a large tournament.
+    """
+
     def __repr__(self):
-        return "<PlayerRank(pid=%s, place=%s, alt=%s)>" % (self.player_id,
-                self.place, self.alt)
-
-
-class Achievement(object):
-    def __repr__(self):
-        return "<Achievement(%s, %s, %s)>" % (self.achievement_cd, self.descr, self.limit)
-
-    def to_dict(self):
-        return {'achievement_cd':self.achievement_cd, 'name':self.descr, 'limit':self.limit}
+        return "<PlayerRank(pid={}, place={}, alt={})>".format(self.player_id, self.place, self.alt)
