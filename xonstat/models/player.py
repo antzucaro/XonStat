@@ -50,7 +50,7 @@ class Achievement(object):
     """
 
     def __repr__(self):
-        return "<Achievement({}, {}, {})>".format(self.achievement_cd, self.descr, self.limit)
+        return "<Achievement({0.achievement_cd}, {0.descr}, {0.limit})>".format(self)
 
     def to_dict(self):
         return {
@@ -66,7 +66,7 @@ class PlayerAchievement(object):
     """
 
     def __repr__(self):
-        return "<PlayerAchievement({}, {})>".format(self.player_id, self.achievement_cd)
+        return "<PlayerAchievement({0.player_id}, {0.achievement_cd})>".format(self)
 
     def to_dict(self):
         return {
@@ -85,7 +85,7 @@ class Hashkey(object):
         self.hashkey = hashkey
 
     def __repr__(self):
-        return "<Hashkey({}, {})>".format(self.player_id, self.hashkey)
+        return "<Hashkey({0.player_id}, {0.hashkey})>".format(self)
 
     def to_dict(self):
         return {
@@ -100,7 +100,7 @@ class PlayerNick(object):
     """
 
     def __repr__(self):
-        return "<PlayerNick({}, {})>".format(self.player_id, qfont_decode(self.stripped_nick))
+        return "<PlayerNick({0.player_id}, {0.stripped_nick})>".format(self)
 
     def to_dict(self):
         return {
@@ -122,8 +122,8 @@ class PlayerElo(object):
         self.games = 0
 
     def __repr__(self):
-        return ("<PlayerElo(pid={}, gametype={}, elo={}, games={})>"
-                .format(self.player_id, self.game_type_cd, self.elo, self.games))
+        return ("<PlayerElo(pid={0.player_id}, gametype={0.game_type_cd}, elo={0.elo}, "
+                "games={0.games})>".format(self))
 
     def to_dict(self):
         return {
@@ -146,8 +146,8 @@ class PlayerRank(object):
             return html_colors(self.nick, limit)
 
     def __repr__(self):
-        return ("<PlayerRank(pid={}, gametype={}, rank={})>"
-                .format(self.player_id, self.game_type_cd, self.rank))
+        return ("<PlayerRank(pid={0.player_id}, gametype={0.game_type_cd}, rank={0.rank})>"
+                .format(self))
 
     def to_dict(self):
         return {
@@ -170,8 +170,7 @@ class PlayerCaptime(object):
         self.mod = mod
 
     def __repr__(self):
-        return ("<PlayerCaptime(pid={}, map_id={}, mod={})>"
-                .format(self.player_id, self.map_id, self.mod))
+        return "<PlayerCaptime(pid={0.player_id}, map_id={0.map_id}, mod={0.mod})>".format(self)
 
     def fuzzy_date(self):
         return pretty_date(self.create_dt)
@@ -190,7 +189,7 @@ class PlayerGroups(object):
         self.group_name = group_name
 
     def __repr__(self):
-        return "<PlayerGroups({}, {})>".format(self.player_id, self.group_name)
+        return "<PlayerGroups({0.player_id}, {0.group_name})>".format(self)
 
 
 # TODO: determine if this is a real model (it is very similar to PlayerCaptime from above)
@@ -230,4 +229,4 @@ class PlayerMedal(object):
     """
 
     def __repr__(self):
-        return "<PlayerRank(pid={}, place={}, alt={})>".format(self.player_id, self.place, self.alt)
+        return "<PlayerRank(pid={0.player_id}, place={0.place}, alt={0.alt})>".format(self)

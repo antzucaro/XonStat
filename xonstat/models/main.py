@@ -11,8 +11,8 @@ class SummaryStat(object):
     """
 
     def __repr__(self):
-        return ("<SummaryStat(total_players={}, total_games={}, total_servers={})>"
-                .format(self.total_players, self.total_games, self.total_servers))
+        return ("<SummaryStat(total_players={0.total_players}, total_games={0.total_games}, "
+                "total_servers={0.total_servers})>".format(self))
 
 
 class ActivePlayer(object):
@@ -30,7 +30,7 @@ class ActivePlayer(object):
         return html_colors(self.nick)
 
     def __repr__(self):
-        return "<ActivePlayer({}, {})>".format(self.sort_order, self.player_id)
+        return "<ActivePlayer({0.sort_order}, {0.player_id})>".format(self)
 
 
 class ActiveServer(object):
@@ -45,7 +45,7 @@ class ActiveServer(object):
         self.games = games
 
     def __repr__(self):
-        return "<ActiveServer({}, {})>".format(self.sort_order, self.server_id)
+        return "<ActiveServer({0.sort_order}, {0.server_id})>".format(self)
 
 
 class ActiveMap(object):
@@ -60,4 +60,4 @@ class ActiveMap(object):
         self.games = games
 
     def __repr__(self):
-        return "<ActiveMap({}, {})>".format(self.sort_order, self.map_id)
+        return "<ActiveMap({0.sort_order}, {0.map_id})>".format(self)

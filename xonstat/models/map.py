@@ -16,7 +16,7 @@ class Map(object):
         self.name = name
 
     def __repr__(self):
-        return "<Map({}, {}, {})>".format(self.map_id, self.name, self.version)
+        return "<Map({0.map_id}, {0.name}, {0.version})>".format(self)
 
     def to_dict(self):
         return {

@@ -22,8 +22,7 @@ class Game(object):
         self.winner = winner
 
     def __repr__(self):
-        return ("<Game({}, {}, {}, {})>"
-                .format(self.game_id, self.start_dt, self.game_type_cd, self.server_id))
+        return ("<Game({0.game_id}, {0.start_dt}, {0.game_type_cd}, {0.server_id})>".format(self))
 
     def to_dict(self):
         return {
@@ -50,7 +49,7 @@ class PlayerGameStat(object):
         self.create_dt = create_dt
 
     def __repr__(self):
-        return "<PlayerGameStat({}, {}, {})>".format(self.player_id, self.game_id, self.create_dt)
+        return "<PlayerGameStat({0.player_id}, {0.game_id}, {0.create_dt})>".format(self)
 
     def to_dict(self):
         return {
@@ -102,8 +101,8 @@ class PlayerWeaponStat(object):
         self.frags = 0
 
     def __repr__(self):
-        return ("<PlayerWeaponStat({}, {}, {})>"
-                .format(self.player_weapon_stats_id, self.player_id, self.game_id))
+        return ("<PlayerWeaponStat({0.player_weapon_stats_id}, {0.player_id}, {0.game_id})>"
+                .format(self))
 
     def to_dict(self):
         return {
@@ -129,7 +128,7 @@ class TeamGameStat(object):
         self.create_dt = create_dt
 
     def __repr__(self):
-        return "<TeamGameStat({}, {}, {})>".format(self.team_game_stat_id, self.game_id, self.team)
+        return "<TeamGameStat({0.team_game_stat_id}, {0.game_id}, {0.team})>".format(self)
 
     def to_dict(self):
         return {
@@ -167,7 +166,7 @@ class PlayerGameAnticheat(object):
         self.create_dt = create_dt
 
     def __repr__(self):
-        return "<PlayerGameAnticheat({}, {})>".format(self.key, self.value)
+        return "<PlayerGameAnticheat({0.key}, {0.value})>".format(self)
 
 
 class GameType(object):
@@ -176,7 +175,7 @@ class GameType(object):
     """
 
     def __repr__(self):
-        return "<GameType({}, {}, {})>".format(self.game_type_cd, self.descr, self.active_ind)
+        return "<GameType({0.game_type_cd}, {0.descr}, {0.active_ind})>".format(self)
 
     def to_dict(self):
         return {
@@ -192,7 +191,7 @@ class Weapon(object):
     """
 
     def __repr__(self):
-        return "<Weapon({}, {}, {})>".format(self.weapon_cd, self.descr, self.active_ind)
+        return "<Weapon({0.weapon_cd}, {0.descr}, {0.active_ind})>".format(self)
 
     def to_dict(self):
         return {
