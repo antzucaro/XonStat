@@ -210,4 +210,4 @@ class PlayerMedal(object):
     """
 
     def __repr__(self):
-        return "<PlayerRank(pid={0.player_id}, place={0.place}, alt={0.alt})>".format(self)
+        return "<PlayerMedal(pid={0.player_id}, place={0.place}, alt={0.alt})>".format(self)
