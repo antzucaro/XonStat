@@ -2,13 +2,12 @@
 Models related to servers.
 """
 
-from calendar import timegm
 from datetime import datetime as dt
 
-from xonstat.util import pretty_date
+from xonstat.models.mixins import FuzzyDateMixin, EpochMixin
 
 
-class Server(object):
+class Server(FuzzyDateMixin, EpochMixin):
     """
     A Xonotic server, identifiable by name and (when there's a conflict) hashkey.
     """
@@ -29,9 +28,3 @@ class Server(object):
             'ip_addr': self.ip_addr,
             'location': self.location,
         }
-
-    def fuzzy_date(self):
-        return pretty_date(self.create_dt)
-
-    def epoch(self):
-        return timegm(self.create_dt.timetuple())

@@ -4,10 +4,11 @@ Models related to maps.
 
 from calendar import timegm
 
+from xonstat.models.mixins import FuzzyDateMixin, EpochMixin
 from xonstat.util import pretty_date, strip_colors, html_colors
 
 
-class Map(object):
+class Map(FuzzyDateMixin, EpochMixin):
     """
     A playable map. Roughly equivalent to a pk3 file, but distinguished by name instead.
     """
@@ -24,12 +25,6 @@ class Map(object):
             'name': self.name,
             'version': self.version,
         }
-
-    def fuzzy_date(self):
-        return pretty_date(self.create_dt)
-
-    def epoch(self):
-        return timegm(self.create_dt.timetuple())
 
 
 # TODO: investigate if this model is truly a model, or really just a query (i.e. namedtuple)

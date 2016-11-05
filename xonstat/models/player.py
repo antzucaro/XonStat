@@ -4,19 +4,14 @@ Models related to players.
 
 from calendar import timegm
 
-from xonstat.util import html_colors, strip_colors, pretty_date, qfont_decode
+from xonstat.models.mixins import FuzzyDateMixin, EpochMixin, NickColorsMixin
+from xonstat.util import strip_colors, pretty_date, qfont_decode
 
 
-class Player(object):
+class Player(EpochMixin, NickColorsMixin):
     """
     A player, which can represent either a human or a bot.
     """
-
-    def nick_html_colors(self, limit=None):
-        if self.nick is None:
-            return "Anonymous Player"
-        else:
-            return html_colors(self.nick, limit)
 
     def nick_strip_colors(self):
         if self.nick is None:
@@ -24,6 +19,7 @@ class Player(object):
         else:
             return strip_colors(self.nick)
 
+    # TODO: use FuzzyDateMixin instead, but change the method calls
     def joined_pretty_date(self):
         return pretty_date(self.create_dt)
 
@@ -39,9 +35,6 @@ class Player(object):
             'location': self.location,
             'stripped_nick': qfont_decode(self.stripped_nick),
         }
-
-    def epoch(self):
-        return timegm(self.create_dt.timetuple())
 
 
 class Achievement(object):
@@ -134,16 +127,10 @@ class PlayerElo(object):
         }
 
 
-class PlayerRank(object):
+class PlayerRank(NickColorsMixin):
     """
     A player's rank for a given game type.
     """
-
-    def nick_html_colors(self, limit=None):
-        if self.nick is None:
-            return "Anonymous Player"
-        else:
-            return html_colors(self.nick, limit)
 
     def __repr__(self):
         return ("<PlayerRank(pid={0.player_id}, gametype={0.game_type_cd}, rank={0.rank})>"
@@ -157,7 +144,7 @@ class PlayerRank(object):
         }
 
 
-class PlayerCaptime(object):
+class PlayerCaptime(FuzzyDateMixin, EpochMixin):
     """
     A flag capture time for a player on a given map.
     """
@@ -171,12 +158,6 @@ class PlayerCaptime(object):
 
     def __repr__(self):
         return "<PlayerCaptime(pid={0.player_id}, map_id={0.map_id}, mod={0.mod})>".format(self)
-
-    def fuzzy_date(self):
-        return pretty_date(self.create_dt)
-
-    def epoch(self):
-        return timegm(self.create_dt.timetuple())
 
 
 class PlayerGroups(object):

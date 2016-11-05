@@ -2,18 +2,17 @@
 Models related to games.
 """
 
-from calendar import timegm
+from xonstat.models.mixins import FuzzyDateMixin, EpochMixin
+from xonstat.util import strip_colors, html_colors
 
-from xonstat.util import pretty_date, strip_colors, html_colors
 
-
-class Game(object):
+class Game(FuzzyDateMixin, EpochMixin):
     """
     An individual game.
     """
 
-    def __init__(self, game_id=None, start_dt=None, game_type_cd=None,
-            server_id=None, map_id=None, winner=None):
+    def __init__(self, game_id=None, start_dt=None, game_type_cd=None, server_id=None, map_id=None,
+                 winner=None):
         self.game_id = game_id
         self.start_dt = start_dt
         self.game_type_cd = game_type_cd
@@ -22,7 +21,7 @@ class Game(object):
         self.winner = winner
 
     def __repr__(self):
-        return ("<Game({0.game_id}, {0.start_dt}, {0.game_type_cd}, {0.server_id})>".format(self))
+        return "<Game({0.game_id}, {0.start_dt}, {0.game_type_cd}, {0.server_id})>".format(self)
 
     def to_dict(self):
         return {
@@ -31,12 +30,6 @@ class Game(object):
             'game_type_cd': self.game_type_cd,
             'server_id': self.server_id
         }
-
-    def fuzzy_date(self):
-        return pretty_date(self.start_dt)
-
-    def epoch(self):
-        return timegm(self.start_dt.timetuple())
 
 
 class PlayerGameStat(object):
