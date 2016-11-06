@@ -32,7 +32,7 @@
           <tr>
             <td>${tm.sort_order}</td>
             <td class="no-stretch"><a href="${request.route_url('map_info', id=tm.map_id)}" title="Go to the map info page for ${tm.map_name}">${tm.map_name}</a></td>
-            <td>${tm.sort_order}</td>
+            <td>${tm.games}</td>
           </tr>
         % endfor
         </tbody>
