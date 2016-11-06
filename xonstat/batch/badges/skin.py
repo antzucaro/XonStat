@@ -66,8 +66,8 @@ class Skin:
             'font':             "Xolonium",
             'width':            560,
             'height':           70,
-            'nick_fontsize':    20,
-            'nick_pos':         (52,18),
+            'nick_fontsize':    22,
+            'nick_pos':         (53,20),
             'nick_maxwidth':    270,
             'gametype_fontsize':10,
             'gametype_pos':     (101,33),
@@ -99,18 +99,18 @@ class Skin:
             'wintext_color':    (0.8, 0.8, 0.8),
             'wintext_text':     "Win Percentage",
             'wintext_align':    0,
-            'winp_fontsize':    12,
-            'winp_pos':         (508,19),
+            'winp_fontsize':    15,
+            'winp_pos':         (509,18),
             'winp_colortop':    (0.2, 1.0, 1.0),
             'winp_colormid':    (0.4, 0.8, 0.4),
             'winp_colorbot':    (1.0, 1.0, 0.2),
             'winp_align':       0,
-            'wins_fontsize':    8,
+            'wins_fontsize':    9,
             'wins_pos':         (508,33),
             'wins_color':       (0.6, 0.8, 0.8),
             'wins_align':       0,
-            'loss_fontsize':    8,
-            'loss_pos':         (508,43),
+            'loss_fontsize':    9,
+            'loss_pos':         (508,44),
             'loss_color':       (0.8, 0.8, 0.6),
             'loss_align':       0,
             'kdtext_fontsize':  10,
@@ -120,22 +120,22 @@ class Skin:
             'kdtext_bg':        (0.8, 0.8, 0.8, 0.1),
             'kdtext_text':      "Kill Ratio",
             'kdtext_align':     0,
-            'kdr_fontsize':     12,
-            'kdr_pos':          (392,19),
+            'kdr_fontsize':     15,
+            'kdr_pos':          (392,18),
             'kdr_colortop':     (0.2, 1.0, 0.2),
             'kdr_colormid':     (0.8, 0.8, 0.4),
             'kdr_colorbot':     (1.0, 0.2, 0.2),
             'kdr_align':        0,
-            'kills_fontsize':   8,
+            'kills_fontsize':   9,
             'kills_pos':        (392,33),
             'kills_color':      (0.6, 0.8, 0.6),
             'kills_align':      0,
-            'deaths_fontsize':  8,
-            'deaths_pos':       (392,43),
+            'deaths_fontsize':  9,
+            'deaths_pos':       (392,44),
             'deaths_color':     (0.8, 0.6, 0.6),
             'deaths_align':     0,
             'ptime_fontsize':   10,
-            'ptime_pos':        (451,60),
+            'ptime_pos':        (451,59),
             'ptime_color':      (0.1, 0.1, 0.1),
             'ptime_text':       "Playing Time: %s",
             'ptime_align':      0,
@@ -222,6 +222,13 @@ class Skin:
         ctx = C.Context(surf)
         self.ctx = ctx
         ctx.set_antialias(C.ANTIALIAS_GRAY)
+
+        # set font hinting options
+        fo = C.FontOptions()
+        fo.set_antialias(C.ANTIALIAS_GRAY)
+        fo.set_hint_style(C.HINT_STYLE_FULL)
+        fo.set_hint_metrics(C.HINT_METRICS_ON)
+        ctx.set_font_options(fo)
 
         # draw background
         if self.bg == None:
