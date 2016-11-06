@@ -66,7 +66,7 @@
     </h2>
 
     <h5>
-      <i><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">Joined ${player.joined_pretty_date()}</span> (player #${player.player_id})</i>
+      <i><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">Joined ${player.fuzzy_date()}</span> (player #${player.player_id})</i>
       % if cake_day:
         <img src="/static/images/icons/24x24/cake.png" title="Happy cake day!" />
       % endif

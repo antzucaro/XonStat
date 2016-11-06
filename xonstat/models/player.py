@@ -8,7 +8,7 @@ from xonstat.models.mixins import FuzzyDateMixin, EpochMixin, NickColorsMixin
 from xonstat.util import strip_colors, pretty_date, qfont_decode
 
 
-class Player(EpochMixin, NickColorsMixin):
+class Player(EpochMixin, NickColorsMixin, FuzzyDateMixin):
     """
     A player, which can represent either a human or a bot.
     """
@@ -18,10 +18,6 @@ class Player(EpochMixin, NickColorsMixin):
             return "Anonymous Player"
         else:
             return strip_colors(self.nick)
-
-    # TODO: use FuzzyDateMixin instead, but change the method calls
-    def joined_pretty_date(self):
-        return pretty_date(self.create_dt)
 
     def __repr__(self):
         return "<Player({}, {})>".format(self.player_id, self.nick.encode('utf-8'))
