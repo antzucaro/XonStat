@@ -20,13 +20,13 @@ To start the server run the following from the root directory. I recommend runni
 
     pserve --reload development.ini #(or production.ini if you've configured that settings file instead)
 
-To get a Xonotic server configured to use this server, change the CVAR `g_playerstats_uri` to point to the correct host, port, and URL path. By default this is:
+To get a Xonotic server configured to use this server, change the CVAR `g_playerstats_gamereport_uri` to point to the correct host, port, and URL path. By default this is:
 
     http://localhost:6543/stats/submit
 
 ...so in the server console (or in your config) you can put:
 
-    set g_playerstats_uri http://localhost:6543/stats/submit
+    set g_playerstats_gamereport_uri http://localhost:6543/stats/submit
 
 If you have any questions or issues please open up a bug report here, or - better yet ! - fork it and send me a pull request.
 
