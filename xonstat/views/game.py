@@ -1,17 +1,13 @@
-import datetime
 import logging
-import re
-import time
 from collections import OrderedDict
+
 from pyramid import httpexceptions
-from pyramid.response import Response
-from sqlalchemy import desc, func, over
 from sqlalchemy.orm.exc import *
-from webhelpers.paginate import Page, PageURL
-from xonstat.models import *
+from webhelpers.paginate import Page
+from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, PlayerWeaponStat
+from xonstat.models import TeamGameStat, PlayerRank, GameType, Weapon
 from xonstat.util import page_url
 from xonstat.views.helpers import RecentGame, recent_games_q
-
 
 log = logging.getLogger(__name__)
 
@@ -85,7 +81,7 @@ def _game_info_data(request):
         raise httpexceptions.HTTPNotFound("Could not find that game!")
 
     except Exception as e:
-        raise inst
+        raise e
 
     return {'game':game,
             'server':server,

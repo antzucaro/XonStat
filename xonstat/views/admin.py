@@ -1,9 +1,9 @@
-from pyramid.response import Response
-from pyramid.httpexceptions import HTTPForbidden, HTTPFound
-from pyramid.security import remember, forget
+from pyramid.httpexceptions import HTTPFound
+from pyramid.security import remember
 from pyramid.session import check_csrf_token
 from pyramid_persona.views import verify_login
-from xonstat.models import *
+from xonstat.models import DBSession, Player
+
 
 def forbidden(request):
     '''A simple forbidden view. Does nothing more than set the status and then

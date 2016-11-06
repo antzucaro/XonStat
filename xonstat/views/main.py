@@ -1,16 +1,9 @@
 import logging
-import sqlalchemy as sa
-import sqlalchemy.sql.functions as func
-import sqlalchemy.sql.expression as expr
-from beaker.cache import cache_regions, cache_region
-from collections import namedtuple
 from datetime import datetime, timedelta
-from pyramid.response import Response
-from xonstat.models import *
-from xonstat.util import *
-from xonstat.views.helpers import RecentGame, recent_games_q
-from webhelpers.paginate import Page
 
+from beaker.cache import cache_region
+from xonstat.models import DBSession, PlayerRank, ActivePlayer, ActiveServer, ActiveMap
+from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
 
@@ -82,8 +75,8 @@ def get_summary_stats(scope="all"):
             )
 
     except Exception as e:
-        raise e
         stat_line = None
+        raise e
 
     return stat_line
 

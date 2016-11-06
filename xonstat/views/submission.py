@@ -1,18 +1,16 @@
 import datetime
 import logging
-import os
-import pyramid.httpexceptions
 import re
-import time
+
+import pyramid.httpexceptions
 import sqlalchemy.sql.expression as expr
-from calendar import timegm
-from pyramid.response import Response
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.elo import EloProcessor
-from xonstat.models import *
+from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, PlayerWeaponStat
+from xonstat.models import PlayerRank, PlayerCaptime
+from xonstat.models import TeamGameStat, PlayerGameAnticheat, Player, Hashkey, PlayerNick
 from xonstat.util import strip_colors, qfont_decode, verify_request, weapon_map
-
 
 log = logging.getLogger(__name__)
 

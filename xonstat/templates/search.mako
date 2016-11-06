@@ -110,7 +110,7 @@
             <tr>
               <td>${player.player_id}</th>
               <td class="no-stretch"><a href="${request.route_url("player_info", id=player.player_id)}" title="Go to this player's info page">${player.nick_html_colors()|n}</a></th>
-              <td><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${player.joined_pretty_date()}</span></th>
+              <td><span class="abstime" data-epoch="${player.epoch()}" title="${player.create_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${player.fuzzy_date()}</span></th>
               <td class="text-center">
                 <a href="${request.route_url("player_game_index", player_id=player.player_id, page=1)}" title="View recent games by this player">
                   <i class="fa fa-list"></i>
