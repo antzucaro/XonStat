@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import logging
 import re
@@ -958,7 +959,7 @@ def submit_stats(request):
         request.response.content_type = 'text/plain'
 
         return {
-                "now"        : timegm(datetime.datetime.utcnow().timetuple()),
+                "now"        : calendar.timegm(datetime.datetime.utcnow().timetuple()),
                 "server"     : server,
                 "game"       : game,
                 "gmap"       : gmap,

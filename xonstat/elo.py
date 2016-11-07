@@ -96,10 +96,12 @@ class EloProcessor:
 
         # used to determine if a pgstat record is elo-eligible
         def elo_eligible(pgs):
-            return pgs.player_id > 2 and pgs.alivetime > timedelta(seconds=0)
+            return pgs.player_id > 2 and pgs.alivetime > datetime.timedelta(seconds=0)
+
+        elostats = filter(elo_eligible, pgstats)
 
         # only process elos for elo-eligible players
-        for pgstat in filter(elo_eligible, pgstats):
+        for pgstat in elostats:
             self.wip[pgstat.player_id] = EloWIP(pgstat.player_id, pgstat)
 
         # determine duration from the maximum alivetime
