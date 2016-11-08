@@ -1,6 +1,7 @@
 import sys
 import logging
 import pyramid.httpexceptions
+import pyramid.url
 import re
 from colorsys import rgb_to_hls, hls_to_rgb
 from cgi import escape as html_escape
@@ -228,7 +229,7 @@ def limit_printable_characters(qstr, limit):
 
 
 def page_url(page):
-    return current_route_url(request, page=page, _query=request.GET)
+    return pyramid.url.current_route_url(request, page=page, _query=request.GET)
 
 
 def pretty_date(time=False):
