@@ -27,9 +27,9 @@ class ServerIndex(object):
         """Common parameter parsing."""
         self.request = request
         self.page = request.params.get("page", 1)
-        self.servers = self.raw()
+        self.servers = self.server_index()
 
-    def raw(self):
+    def server_index(self):
         """Returns the raw data shared by all renderers."""
         try:
             server_q = DBSession.query(Server).order_by(Server.server_id.desc())
@@ -78,9 +78,9 @@ class ServerTopMaps(ServerInfoBase):
         """Common parameter parsing."""
         super(ServerTopMaps, self).__init__(request, limit, last)
 
-        self.top_maps = self.raw()
+        self.top_maps = self.top_maps()
 
-    def raw(self):
+    def top_maps(self):
         """Returns the raw data shared by all renderers."""
         try:
             top_maps_q = DBSession.query(
@@ -142,9 +142,9 @@ class ServerTopScorers(ServerInfoBase):
     def __init__(self, request, limit=INDEX_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopScorers, self).__init__(request, limit, last)
-        self.top_scorers = self.raw()
+        self.top_scorers = self.top_scorers()
 
-    def raw(self):
+    def top_scorers(self):
         """Top scorers on this server by total score."""
         try:
             top_scorers_q = DBSession.query(
@@ -216,9 +216,9 @@ class ServerTopPlayers(ServerInfoBase):
     def __init__(self, request, limit=INDEX_COUNT, last=None):
         """Common parameter parsing."""
         super(ServerTopPlayers, self).__init__(request, limit, last)
-        self.top_players = self.raw()
+        self.top_players = self.top_players()
 
-    def raw(self):
+    def top_players(self):
         """Top players on this server by total playing time."""
         try:
             top_players_q = DBSession.query(
