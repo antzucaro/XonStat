@@ -279,7 +279,7 @@ def should_do_weapon_stats(game_type_cd):
         return True
 
 
-def should_do_elos(game_type_cd):
+def gametype_elo_eligible(game_type_cd):
     """True of the game type should process Elos. False otherwise."""
     elo_game_types = ('duel', 'dm', 'ca', 'ctf', 'tdm', 'ka', 'ft')
 
@@ -945,7 +945,7 @@ def submit_stats(request):
             except Exception as e:
                 raise e
 
-        if should_do_elos(game_type_cd):
+        if server.elo_ind and gametype_elo_eligible(game_type_cd):
             ep = EloProcessor(session, game, pgstats)
             ep.save(session)
 
