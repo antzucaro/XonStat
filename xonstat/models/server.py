@@ -12,10 +12,11 @@ class Server(FuzzyDateMixin, EpochMixin):
     A Xonotic server, identifiable by name and (when there's a conflict) hashkey.
     """
 
-    def __init__(self, name=None, hashkey=None, ip_addr=None):
+    def __init__(self, name=None, hashkey=None, ip_addr=None, elo_ind=None):
         self.name = name
         self.hashkey = hashkey
         self.ip_addr = ip_addr
+        self.elo_ind = elo_ind if elo_ind is not None else True
         self.create_dt = dt.utcnow()
 
     def __repr__(self):
