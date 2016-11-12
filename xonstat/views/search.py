@@ -26,14 +26,13 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None,
                     order_by(Player.player_id)
 
     # server-only searches
-    elif server_name and not nick and not map_name and not create_dt \
-        and len(gametypes) < 1:
+    elif server_name and not nick and not map_name and not create_dt and len(gametypes) < 1:
         result_type = "server"
         q = session.query(Server)
         if server_name:
-            q = q.filter(func.upper(Server.name).\
-                    like('%'+server_name.upper()+'%')).\
-                    order_by(Server.server_id)
+            q = q.filter(func.upper(Server.name).like('%'+server_name.upper()+'%'))\
+                .filter(Server.active_ind)\
+                .order_by(Server.server_id)
 
     # map-only searches
     elif map_name and not nick and not server_name and not create_dt \
@@ -50,6 +49,7 @@ def search_q(nick=None, server_name=None, map_name=None, create_dt=None,
         result_type = "game"
         q = session.query(Game, Server, Map).\
                 filter(Game.server_id == Server.server_id).\
+                filter(Server.active_ind).\
                 filter(Game.map_id == Map.map_id).\
                 order_by(Game.game_id.desc())
         if len(gametypes) > 0:
