@@ -32,7 +32,9 @@ class ServerIndex(object):
     def server_index(self):
         """Returns the raw data shared by all renderers."""
         try:
-            server_q = DBSession.query(Server).order_by(Server.server_id.desc())
+            server_q = DBSession.query(Server)\
+                .filter(Server.active_ind==True)\
+                .order_by(Server.server_id.desc())
             servers = Page(server_q, self.page, items_per_page=25, url=page_url)
 
         except Exception as e:
@@ -292,7 +294,11 @@ class ServerInfo(ServerInfoBase):
 
         # this view uses data from other views, so we'll save the data at that level
         try:
-            self.server = DBSession.query(Server).filter_by(server_id=self.server_id).one()
+            self.server = DBSession.query(Server)\
+                .filter_by(active_ind=True) \
+                .filter_by(server_id=self.server_id)\
+                .one()
+
             self.top_maps_v = ServerTopMaps(self.request, limit=LEADERBOARD_COUNT)
             self.top_scorers_v = ServerTopScorers(self.request, limit=LEADERBOARD_COUNT)
             self.top_players_v = ServerTopPlayers(self.request, limit=LEADERBOARD_COUNT)
