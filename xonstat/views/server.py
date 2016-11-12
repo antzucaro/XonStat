@@ -33,7 +33,7 @@ class ServerIndex(object):
         """Returns the raw data shared by all renderers."""
         try:
             server_q = DBSession.query(Server)\
-                .filter(Server.active_ind==True)\
+                .filter(Server.active_ind)\
                 .order_by(Server.server_id.desc())
             servers = Page(server_q, self.page, items_per_page=25, url=page_url)
 
@@ -295,8 +295,8 @@ class ServerInfo(ServerInfoBase):
         # this view uses data from other views, so we'll save the data at that level
         try:
             self.server = DBSession.query(Server)\
-                .filter_by(active_ind=True) \
-                .filter_by(server_id=self.server_id)\
+                .filter(Server.active_ind)\
+                .filter(Server.server_id == self.server_id)\
                 .one()
 
             self.top_maps_v = ServerTopMaps(self.request, limit=LEADERBOARD_COUNT)
