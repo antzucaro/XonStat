@@ -350,8 +350,55 @@ def update_fastest_cap(session, player_id, game_id, map_id, captime, mod):
         session.flush()
 
 
-def get_or_create_server(session, name, hashkey, ip_addr, revision, port,
-        impure_cvars):
+def update_server(server, name, hashkey, ip_addr, port, revision, impure_cvars):
+    """
+    Updates the server in the given DB session, if needed.
+
+    :param server: The found server instance.
+    :param name: The incoming server name.
+    :param hashkey: The incoming server hashkey.
+    :param ip_addr: The incoming server IP address.
+    :param port: The incoming server port.
+    :param revision: The incoming server revision.
+    :param impure_cvars: The incoming number of impure server cvars.
+    :return: bool
+    """
+    # ensure the two int attributes are actually ints
+    try:
+        port = int(port)
+    except:
+        port = None
+
+    try:
+        impure_cvars = int(impure_cvars)
+    except:
+        impure_cvars = 0
+
+    updated = False
+    if name and server.name != name:
+        server.name = name
+        updated = True
+    if hashkey and server.hashkey != hashkey:
+        server.hashkey = hashkey
+        updated = True
+    if ip_addr and server.ip_addr != ip_addr:
+        server.ip_addr = ip_addr
+        updated = True
+    if port and server.port != port:
+        server.port = port
+        updated = True
+    if revision and server.revision != revision:
+        server.revision = revision
+        updated = True
+    if impure_cvars and server.impure_cvars != impure_cvars:
+        server.impure_cvars = impure_cvars
+        server.pure_ind = True if impure_cvars == 0 else False
+        updated = True
+
+    return updated
+
+
+def get_or_create_server(session, name, hashkey, ip_addr, revision, port, impure_cvars):
     """
     Find a server by name or create one if not found. Parameters:
 
@@ -363,73 +410,34 @@ def get_or_create_server(session, name, hashkey, ip_addr, revision, port,
     port - the port number of the server
     impure_cvars - the number of impure cvar changes
     """
-    server = None
+    servers_q = DBSession.query(Server).filter(Server.active_ind)
 
-    try:
-        port = int(port)
-    except:
-        port = None
-
-    try: 
-        impure_cvars = int(impure_cvars)
-    except:
-        impure_cvars = 0
-
-    # finding by hashkey is preferred, but if not we will fall
-    # back to using name only, which can result in dupes
-    if hashkey is not None:
-        servers = session.query(Server).\
-            filter_by(hashkey=hashkey).\
-            order_by(expr.desc(Server.create_dt)).limit(1).all()
-
-        if len(servers) > 0:
-            server = servers[0]
-            log.debug("Found existing server {0} by hashkey ({1})".format(
-                server.server_id, server.hashkey))
+    if hashkey:
+        # if the hashkey is provided, we'll use that
+        servers_q = servers_q.filter((Server.name == name) or (Server.hashkey == hashkey))
     else:
-        servers = session.query(Server).\
-            filter_by(name=name).\
-            order_by(expr.desc(Server.create_dt)).limit(1).all()
+        # otherwise, it is just by name
+        servers_q = servers_q.filter(Server.name == name)
 
-        if len(servers) > 0:
-            server = servers[0]
-            log.debug("Found existing server {0} by name".format(server.server_id))
+    # order by the hashkey, which means any hashkey match will appear first if there are multiple
+    servers = servers_q.order_by(Server.hashkey, Server.create_dt).all()
 
-    # still haven't found a server by hashkey or name, so we need to create one
-    if server is None:
+    if len(servers) == 0:
         server = Server(name=name, hashkey=hashkey)
         session.add(server)
         session.flush()
-        log.debug("Created server {0} with hashkey {1}".format(
-            server.server_id, server.hashkey))
+        log.debug("Created server {} with hashkey {}.".format(server.server_id, server.hashkey))
+    else:
+        server = servers[0]
+        if len(servers) == 1:
+            log.info("Found existing server {}.".format(server.server_id))
 
-    # detect changed fields
-    if server.name != name:
-        server.name = name
-        session.add(server)
+        elif len(servers) > 1:
+            server_id_list = ", ".join(["{}".format(s.server_id) for s in servers])
+            log.warn("Multiple servers found ({})! Using the first one ({})."
+                     .format(server_id_list, server.server_id))
 
-    if server.hashkey != hashkey:
-        server.hashkey = hashkey
-        session.add(server)
-
-    if server.ip_addr != ip_addr:
-        server.ip_addr = ip_addr
-        session.add(server)
-
-    if server.port != port:
-        server.port = port
-        session.add(server)
-
-    if server.revision != revision:
-        server.revision = revision
-        session.add(server)
-
-    if server.impure_cvars != impure_cvars:
-        server.impure_cvars = impure_cvars
-        if impure_cvars > 0:
-            server.pure_ind = False
-        else:
-            server.pure_ind = True
+    if update_server(server, name, hashkey, ip_addr, port, revision, impure_cvars):
         session.add(server)
 
     return server
