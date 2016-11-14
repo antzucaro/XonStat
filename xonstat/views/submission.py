@@ -4,7 +4,6 @@ import logging
 import re
 
 import pyramid.httpexceptions
-import sqlalchemy.sql.expression as expr
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from xonstat.elo import EloProcessor
