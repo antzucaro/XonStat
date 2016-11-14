@@ -175,26 +175,46 @@ def do_precondition_checks(request, game_meta, raw_players):
     """Precondition checks for ALL gametypes.
        These do not require a database connection."""
     if not has_required_metadata(game_meta):
-        log.debug("ERROR: Required game meta missing")
-        raise pyramid.httpexceptions.HTTPUnprocessableEntity("Missing game meta")
+        msg = "Missing required game metadata"
+        log.debug(msg)
+        raise pyramid.httpexceptions.HTTPUnprocessableEntity(
+            body=msg,
+            content_type="text/plain"
+        )
 
     try:
         version = int(game_meta['V'])
     except:
-        log.debug("ERROR: Required game meta invalid")
-        raise pyramid.httpexceptions.HTTPUnprocessableEntity("Invalid game meta")
+        msg = "Invalid or incorrect game metadata provided"
+        log.debug(msg)
+        raise pyramid.httpexceptions.HTTPUnprocessableEntity(
+            body=msg,
+            content_type="text/plain"
+        )
 
     if not is_supported_gametype(game_meta['G'], version):
-        log.debug("ERROR: Unsupported gametype")
-        raise pyramid.httpexceptions.HTTPOk("OK")
+        msg = "Unsupported game type ({})".format(game_meta['G'])
+        log.debug(msg)
+        raise pyramid.httpexceptions.HTTPOk(
+            body=msg,
+            content_type="text/plain"
+        )
 
     if not has_minimum_real_players(request.registry.settings, raw_players):
-        log.debug("ERROR: Not enough real players")
-        raise pyramid.httpexceptions.HTTPOk("OK")
+        msg = "Not enough real players"
+        log.debug(msg)
+        raise pyramid.httpexceptions.HTTPOk(
+            body=msg,
+            content_type="text/plain"
+        )
 
     if is_blank_game(game_meta['G'], raw_players):
-        log.debug("ERROR: Blank game")
-        raise pyramid.httpexceptions.HTTPOk("OK")
+        msg = "Blank game"
+        log.debug(msg)
+        raise pyramid.httpexceptions.HTTPOk(
+            body=msg,
+            content_type="text/plain"
+        )
 
 
 def is_real_player(events):
