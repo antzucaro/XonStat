@@ -3,7 +3,7 @@
 <!-- HEADER NAVIGATION -->
 <div class="contain-to-grid">
 
-  <div class="row">
+  <div class="row text-center">
     <div class="small-12 columns">
 
       <nav class="top-bar" data-topbar="" data-options="is_hover: false">

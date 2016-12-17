@@ -89,6 +89,10 @@ table thead tr th, table thead tr td, table tr th, table tr td {
   height: 50px;
 }
 
+.top-bar, .top-bar-section {
+  display: inline-block;
+}
+
 .top-bar .name h1 a {
   color: rgb(200, 200, 200);
   font-size: 1.1rem;

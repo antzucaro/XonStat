@@ -123,7 +123,7 @@ select {
   margin-right: auto;
   margin-top: 0;
   margin-bottom: 0;
-  max-width: 72.5em; }
+  max-width: 62.5em; }
   .row:before, .row:after {
     content: " ";
     display: table; }
@@ -2034,7 +2034,7 @@ meta.foundation-mq-topbar {
       background: #333333; }
 
   .contain-to-grid .top-bar {
-    max-width: 72.5em;
+    max-width: 62.5em;
     margin: 0 auto;
     margin-bottom: 0; }
 
