@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import sqlalchemy.sql.expression as expr
 import sqlalchemy.sql.functions as func
-from pyramid import httpexceptions
+from pyramid.httpexceptions import HTTPNotFound
 from webhelpers.paginate import Page
 from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, Player, PlayerCaptime
 from xonstat.models.map import MapCapTime
@@ -13,40 +13,44 @@ from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
 
-def _map_index_data(request):
-    if request.params.has_key('page'):
-        current_page = request.params['page']
-    else:
-        current_page = 1
-
-    try:
-        map_q = DBSession.query(Map).\
-                order_by(Map.map_id.desc())
-
-        maps = Page(map_q, current_page, items_per_page=25, url=page_url)
-
-    except Exception as e:
-        maps = None
-
-    return {'maps':maps, }
+# Defaults
+INDEX_COUNT = 20
 
 
-def map_index(request):
-    """
-    Provides a list of all the current maps.
-    """
-    return _map_index_data(request)
+class MapIndex(object):
+    """Returns a list of maps."""
 
+    def __init__(self, request):
+        """Common parameter parsing."""
+        self.request = request
+        self.page = request.params.get("page", 1)
 
-def map_index_json(request):
-    """
-    Provides a JSON-serialized list of all the current maps.
-    """
-    view_data = _map_index_data(request)
+        # all views share this data, so we'll precalculate
+        self.maps = self.map_index()
 
-    maps = [m.to_dict() for m in view_data['maps']]
+    def map_index(self):
+        """Returns the raw data shared by all renderers."""
+        try:
+            map_q = DBSession.query(Map).order_by(Map.map_id.desc())
+            maps = Page(map_q, self.page, items_per_page=INDEX_COUNT, url=page_url)
 
-    return maps
+        except Exception as e:
+            log.debug(e)
+            raise HTTPNotFound
+
+        return maps
+
+    def html(self):
+        """For rendering this data using something HTML-based."""
+        return {
+            'maps': self.maps,
+        }
+
+    def json(self):
+        """For rendering this data using JSON."""
+        return {
+            'maps': [m.to_dict() for m in self.maps],
+        }
 
 
 def _map_info_data(request):

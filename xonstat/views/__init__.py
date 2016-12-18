@@ -13,9 +13,9 @@ from xonstat.views.game   import game_info, rank_index
 from xonstat.views.game   import game_info_json, rank_index_json
 from xonstat.views.game   import game_finder, game_finder_json
 
-from xonstat.views.map    import map_info, map_index
-from xonstat.views.map    import map_info_json, map_index_json
-from xonstat.views.map    import map_captimes, map_captimes_json
+from xonstat.views.map import MapIndex
+from xonstat.views.map import map_info, map_info_json
+from xonstat.views.map import map_captimes, map_captimes_json
 
 from xonstat.views.server import ServerIndex, ServerTopMaps, ServerTopScorers, ServerTopPlayers
 from xonstat.views.server import ServerInfo

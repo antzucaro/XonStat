@@ -165,11 +165,11 @@ def main(global_config, **settings):
                     accept="application/json")
 
     # MAP ROUTES
-    config.add_route("map_index",      "/maps")
-    config.add_view(map_index,      route_name="map_index",      renderer="map_index.mako")
-
-    config.add_route("map_index_json", "/maps.json")
-    config.add_view(map_index_json, route_name="map_index_json", renderer="jsonp")
+    config.add_route("map_index", "/maps")
+    config.add_view(view=MapIndex, route_name="map_index", attr="html",
+                    renderer="map_index.mako", accept="text/html")
+    config.add_view(view=MapIndex, route_name="map_index", attr="json", renderer="json",
+                    accept="application/json")
 
     config.add_route("map_info",      "/map/{id:\d+}")
     config.add_view(map_info,      route_name="map_info",      renderer="map_info.mako")
