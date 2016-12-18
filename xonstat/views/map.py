@@ -206,7 +206,7 @@ def map_captimes_data(request):
                 order_by(expr.asc(PlayerCaptime.fastest_cap))
 
     except Exception as e:
-        raise httpexceptions.HTTPNotFound
+        raise HTTPNotFound
 
     map_captimes = Page(mct_q, current_page, items_per_page=20, url=page_url)
 
