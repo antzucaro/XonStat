@@ -1,6 +1,5 @@
 <%inherit file="base.mako"/>
 <%namespace name="nav" file="nav.mako" />
-<%namespace file="navlinks.mako" import="navlinks" />
 
 <%block name="navigation">
   ${nav.nav('maps')}
@@ -10,8 +9,11 @@
   Map Index
 </%block>
 
-% if not maps:
-  <h2>Sorry, no maps yet. Get playing!</h2>
+% if not maps and last is not None:
+  <h2 class="text-center">Sorry, no more maps!</h2>
+
+% elif not maps:
+  <h2 class="text-center">Sorry, no maps yet. Get playing!</h2>
 
 % else:
   <div class="row">
@@ -53,8 +55,18 @@
       % endfor
       </table>
 
-      <!-- navigation links -->
-      ${navlinks("map_index", maps.page, maps.last_page)}
+      % if len(maps) == 20:
+        <div class="row">
+          <div class="small-12 columns">
+            <ul class="pagination">
+              <li>
+                <a  href="${request.route_url('map_index', _query=query)}" name="Next Page">Next <i class="fa fa-arrow-right"></i></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      % endif
+
     </div> <!-- /span4 -->
   </div> <!-- /row -->
 % endif

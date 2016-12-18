@@ -24,15 +24,21 @@ class MapIndex(object):
         """Common parameter parsing."""
         self.request = request
         self.page = request.params.get("page", 1)
+        self.last = request.params.get("last", None)
 
-        # all views share this data, so we'll precalculate
+        # all views share this data, so we'll pre-calculate
         self.maps = self.map_index()
 
     def map_index(self):
         """Returns the raw data shared by all renderers."""
         try:
-            map_q = DBSession.query(Map).order_by(Map.map_id.desc())
-            maps = Page(map_q, self.page, items_per_page=INDEX_COUNT, url=page_url)
+            map_q = DBSession.query(Map)
+
+            if self.last:
+                map_q = map_q.filter(Map.map_id < self.last)
+
+            map_q = map_q.order_by(Map.map_id.desc()).limit(INDEX_COUNT)
+            maps = map_q.all()
 
         except Exception as e:
             log.debug(e)
@@ -42,14 +48,21 @@ class MapIndex(object):
 
     def html(self):
         """For rendering this data using something HTML-based."""
+        # build the query string
+        query = {}
+        if len(self.maps) > 1:
+            query['last'] = self.maps[-1].map_id
+
         return {
             'maps': self.maps,
+            'query': query,
         }
 
     def json(self):
         """For rendering this data using JSON."""
         return {
             'maps': [m.to_dict() for m in self.maps],
+            'last': self.last,
         }
 
 
