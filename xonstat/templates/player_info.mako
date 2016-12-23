@@ -2,11 +2,8 @@
 <%namespace name="nav" file="nav.mako" />
 
 <%block name="navigation">
-  % if player.email_addr is not None:
-    ${nav.nav('players', True)}
-  % else:
+    ##### Disable the login button until a replacement is implemented.
     ${nav.nav('players', False)}
-  % endif
 </%block>
 
 <%block name="css">
@@ -48,8 +45,6 @@
       drawAccuracyChart("#accuracyChart", data);
     });
   </script>
-  <script src="https://login.persona.org/include.js" type="text/javascript"></script>
-  <script type="text/javascript">${request.persona_js}</script>
 </%block>
 
 <%block name="title">

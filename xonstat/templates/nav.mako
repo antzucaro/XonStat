@@ -33,9 +33,6 @@
                 <li><a href="${request.route_url('server_index')}" title="Server Index">Servers</a></li>
                 <li><a href="${request.route_url('map_index')}" title="Map Index">Maps</a></li>
                 <li><a href="${request.route_url('search')}" title="Search">Search</a></li>
-                % if login_logout:
-                  <li><a href="#" title="Log in with Mozilla Persona">${request.persona_button}</a></li>
-                % endif
               </ul>
             </li>
             <li><a href="https://gitlab.com/groups/xonotic" title="Contribute to Xonotic"><i class="fa fa-wrench"></i> Contribute</a></li>

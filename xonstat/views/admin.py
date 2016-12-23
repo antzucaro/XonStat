@@ -1,7 +1,6 @@
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import remember
 from pyramid.session import check_csrf_token
-from pyramid_persona.views import verify_login
 from xonstat.models import DBSession, Player
 
 
@@ -13,7 +12,8 @@ def forbidden(request):
 
 def login(request):
     # Verify the assertion and get the email of the user
-    persona_email = verify_login(request)
+    # Short-circuit this to prevent anyone from logging in right now.
+    persona_email = None
 
     # Check that the email exists in the players table
     player_email = DBSession.query(Player).\

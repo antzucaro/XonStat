@@ -19,7 +19,6 @@ requires = [
     'psycopg2',
     'pyramid_beaker',
     'pyramid_mako',
-    'pyramid_persona',
     'waitress',
     ]
 
