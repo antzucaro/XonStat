@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import sqlalchemy.sql.expression as expr
 import sqlalchemy.sql.functions as func
 from pyramid.httpexceptions import HTTPNotFound
+from sqlalchemy import func as fg
 from webhelpers.paginate import Page
 from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, Player, PlayerCaptime
 from xonstat.models.map import MapCapTime
@@ -15,6 +16,7 @@ log = logging.getLogger(__name__)
 
 # Defaults
 INDEX_COUNT = 20
+LEADERBOARD_LIFETIME = 30
 
 
 class MapIndex(object):
@@ -63,6 +65,92 @@ class MapIndex(object):
         return {
             'maps': [m.to_dict() for m in self.maps],
             'last': self.last,
+        }
+
+
+class MapInfoBase(object):
+    """Base class for all map-based views with a map_id parameter in them."""
+
+    def __init__(self, request, limit=None, last=None):
+        """Common parameter parsing."""
+        self.request = request
+        self.map_id = request.matchdict.get("id", None)
+
+        raw_lifetime = request.registry.settings.get('xonstat.leaderboard_lifetime',
+                                                     LEADERBOARD_LIFETIME)
+        self.lifetime = int(raw_lifetime)
+
+        self.limit = request.params.get("limit", limit)
+        self.last = request.params.get("last", last)
+        self.now = datetime.utcnow()
+
+
+class MapTopScorers(MapInfoBase):
+    """Returns the top scorers on a given map."""
+
+    def __init__(self, request, limit=INDEX_COUNT, last=None):
+        """Common parameter parsing."""
+        super(MapTopScorers, self).__init__(request, limit, last)
+        self.top_scorers = self.get_top_scorers()
+
+    def get_top_scorers(self):
+        """Top players by score. Shared by all renderers."""
+        cutoff = self.now - timedelta(days=self.lifetime)
+        cutoff = self.now - timedelta(days=120)
+
+        top_scorers_q = DBSession.query(
+            fg.row_number().over(order_by=expr.desc(func.sum(PlayerGameStat.score))).label("rank"),
+            Player.player_id, Player.nick, func.sum(PlayerGameStat.score).label("total_score"))\
+            .filter(Player.player_id == PlayerGameStat.player_id)\
+            .filter(Game.game_id == PlayerGameStat.game_id)\
+            .filter(Game.map_id == self.map_id)\
+            .filter(Player.player_id > 2)\
+            .filter(PlayerGameStat.create_dt > cutoff)\
+            .order_by(expr.desc(func.sum(PlayerGameStat.score)))\
+            .group_by(Player.nick)\
+            .group_by(Player.player_id)
+
+        if self.last:
+            top_scorers_q = top_scorers_q.offset(self.last)
+
+        if self.limit:
+            top_scorers_q = top_scorers_q.limit(self.limit)
+
+        top_scorers = top_scorers_q.all()
+
+        return top_scorers
+
+    def html(self):
+        """Returns an HTML-ready representation."""
+        TopScorer = namedtuple("TopScorer", ["rank", "player_id", "nick", "total_score"])
+
+        top_scorers = [TopScorer(ts.rank, ts.player_id, html_colors(ts.nick), ts.total_score)
+                       for ts in self.top_scorers]
+
+        # build the query string
+        query = {}
+        if len(top_scorers) > 1:
+            query['last'] = top_scorers[-1].rank
+
+        return {
+            "map_id": self.map_id,
+            "top_scorers": top_scorers,
+            "lifetime": self.lifetime,
+            "query": query,
+        }
+
+    def json(self):
+        """For rendering this data using JSON."""
+        top_scorers = [{
+            "rank": ts.rank,
+            "player_id": ts.player_id,
+            "nick": ts.nick,
+            "score": ts.total_score,
+        } for ts in self.top_scorers]
+
+        return {
+            "map_id": self.map_id,
+            "top_scorers": top_scorers,
         }
 
 
