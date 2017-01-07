@@ -2,17 +2,17 @@
 <%namespace name="nav" file="nav.mako" />
 
 <%block name="navigation">
-  ${nav.nav('servers')}
+  ${nav.nav('maps')}
 </%block>
 
 <%block name="title">
-  Server Active Players Index
+  Map Active Servers Index
 </%block>
 
-% if not top_players and start is not None:
-  <h2 class="text-center">Sorry, no more active players!</h2>
+% if not top_serves and last is not None:
+  <h2 class="text-center">Sorry, no more servers!</h2>
 
-% elif not top_players and start is None:
+% elif not top_servers and start is None:
   <h2 class="text-center">No active players found. Yikes, get playing!</h2>
 
 % else:
