@@ -149,6 +149,7 @@ def is_supported_gametype(gametype, version):
             'cts',
             'dm',
             'dom',
+            'duel',
             'ft', 'freezetag',
             'ka', 'keepaway',
             'kh',
