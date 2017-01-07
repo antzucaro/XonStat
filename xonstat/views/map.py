@@ -217,7 +217,75 @@ class MapTopPlayers(MapInfoBase):
 
         return {
             "map_id": self.map_id,
-            "top_scorers": top_players,
+            "top_active": top_players,
+        }
+
+
+class MapTopServers(MapInfoBase):
+    """Returns the top servers for a given map, by times played."""
+
+    def __init__(self, request, limit=INDEX_COUNT, last=None):
+        """Common parameter parsing."""
+        super(MapTopServers, self).__init__(request, limit, last)
+        self.top_servers = self.get_top_servers()
+
+    def get_top_servers(self):
+        """Top servers by times played. Shared by all renderers."""
+        cutoff = self.now - timedelta(days=self.lifetime)
+
+        top_servers_q = DBSession.query(
+            fg.row_number().over(order_by=expr.desc(func.count())).label("rank"),
+                Player.player_id, Player.nick, func.count().label("times_played"))\
+            .filter(Player.player_id == PlayerGameStat.player_id)\
+            .filter(Game.game_id == PlayerGameStat.game_id)\
+            .filter(Game.map_id == self.map_id)\
+            .filter(Player.player_id > 2) \
+            .filter(PlayerGameStat.create_dt > cutoff)\
+            .group_by(Player.player_id)\
+            .group_by(Player.nick)\
+            .order_by(expr.desc(func.count()))
+
+        if self.last:
+            top_servers_q = top_servers_q.offset(self.last)
+
+        if self.limit:
+            top_servers_q = top_servers_q.limit(self.limit)
+
+        top_servers = top_servers_q.all()
+
+        return top_servers
+
+    def html(self):
+        """Returns an HTML-ready representation."""
+        TopServer = namedtuple("TopServer", ["rank", "player_id", "nick", "times_played"])
+
+        top_servers = [TopServer(ts.rank, ts.player_id, html_colors(ts.nick), ts.alivetime)
+                       for ts in self.top_servers]
+
+        # build the query string
+        query = {}
+        if len(top_servers) > 1:
+            query['last'] = top_servers[-1].rank
+
+        return {
+            "map_id": self.map_id,
+            "top_servers": top_servers,
+            "lifetime": self.lifetime,
+            "query": query,
+        }
+
+    def json(self):
+        """For rendering this data using JSON."""
+        top_servers = [{
+            "rank": ts.rank,
+            "player_id": ts.player_id,
+            "nick": ts.nick,
+            "times_played": ts.times_played,
+        } for ts in self.top_servers]
+
+        return {
+            "map_id": self.map_id,
+            "top_servers": top_servers,
         }
 
 
