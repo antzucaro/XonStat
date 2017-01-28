@@ -52,6 +52,13 @@ class Submission(object):
         except:
             return None, None
 
+    def check_for_new_weapon_fired(self, sub_key):
+        """Checks if a given player key (subkey, actually) is a new weapon fired in the match."""
+        if sub_key.endswith("cnt-fired"):
+            weapon = sub_key.split("-")[1]
+            if weapon not in self.weapons:
+                self.weapons.add(weapon)
+
     def parse_player(self, key, pid):
         """Construct a player events listing from the submission."""
 
@@ -68,6 +75,9 @@ class Submission(object):
             elif key == 'e':
                 (sub_key, sub_value) = value.split(' ', 1)
                 player[sub_key] = sub_value
+
+                # keep track of the distinct weapons fired during the match
+                self.check_for_new_weapon_fired(sub_key)
             elif key == 'n':
                 player[key] = unicode(value, 'utf-8')
             elif key in player_keys:
