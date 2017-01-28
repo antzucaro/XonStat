@@ -1,4 +1,5 @@
 import calendar
+import collections
 import datetime
 import logging
 import re
@@ -13,6 +14,99 @@ from xonstat.models import TeamGameStat, PlayerGameAnticheat, Player, Hashkey, P
 from xonstat.util import strip_colors, qfont_decode, verify_request, weapon_map
 
 log = logging.getLogger(__name__)
+
+
+class Submission(object):
+    """Parses an incoming POST request for stats submissions."""
+
+    def __init__(self, body, headers):
+        # a copy of the HTTP headers
+        self.headers = headers
+
+        # a copy of the HTTP POST body
+        self.body = body
+
+        # game metadata
+        self.meta = {}
+
+        # raw player events
+        self.players = []
+
+        # raw team events
+        self.teams = []
+
+        # distinct weapons that we have seen fired
+        self.weapons = set()
+
+        # the parsing deque
+        self.q = collections.deque(self.body.split("\n"))
+
+        # all of the keys related to player records
+        self.player_keys = ['i', 'n', 't', 'e']
+
+    def next_item(self):
+        """Returns the next key:value pair off the queue."""
+        try:
+            items = self.q.popleft().strip().split(' ', 1)
+            if len(items) == 1:
+                return None, None
+            else:
+                return items
+        except Exception as e:
+            print(e)
+            return None, None
+
+    @staticmethod
+    def starts_with(s, letters):
+        for letter in letters:
+            if s.startswith(letter):
+                return True
+
+        return False
+
+    def parse_player(self, key, pid):
+        player = {key: pid}
+
+        # Consume all following 'i' 'n' 't'  'e' records
+        while len(self.q) > 0 and self.starts_with(self.q[0], self.player_keys):
+            (key, value) = self.next_item()
+            if key is None and value is None:
+                continue
+            elif key == 'e':
+                (sub_key, sub_value) = value.split(' ', 1)
+                player[sub_key] = sub_value
+            elif key == 'n':
+                player[key] = unicode(value, 'utf-8')
+            elif key in self.player_keys:
+                player[key] = value
+
+        self.players.append(player)
+
+    def parse_team(self, key, tid):
+        team = {key: tid}
+
+        # Consume all following 'e' records
+        while len(self.q) > 0 and self.q[0].startswith('e'):
+            (key, value) = self.next_item()
+            (sub_key, sub_value) = value.split(' ', 1)
+            team[sub_key] = sub_value
+
+        self.teams.append(team)
+
+    def parse(self):
+        """Parses the request body into instance variables."""
+        while len(self.q) > 0:
+            (key, value) = self.next_item()
+            if key is None and value is None:
+                continue
+            elif key == 'S':
+                self.meta[key] = unicode(value, 'utf-8')
+            elif key == 'P':
+                self.parse_player(key, value)
+            elif key == 'Q':
+                self.parse_team(key, value)
+            else:
+                self.meta[key] = value
 
 
 def parse_stats_submission(body):
