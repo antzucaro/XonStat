@@ -38,11 +38,8 @@ class Submission(object):
         # distinct weapons that we have seen fired
         self.weapons = set()
 
-        # the parsing deque
+        # the parsing deque (we use this to allow peeking)
         self.q = collections.deque(self.body.split("\n"))
-
-        # all of the keys related to player records
-        self.player_keys = ['i', 'n', 't', 'e']
 
     def next_item(self):
         """Returns the next key:value pair off the queue."""
@@ -52,23 +49,19 @@ class Submission(object):
                 return None, None
             else:
                 return items
-        except Exception as e:
-            print(e)
+        except:
             return None, None
 
-    @staticmethod
-    def starts_with(s, letters):
-        for letter in letters:
-            if s.startswith(letter):
-                return True
-
-        return False
-
     def parse_player(self, key, pid):
+        """Construct a player events listing from the submission."""
+
+        # all of the keys related to player records
+        player_keys = ['i', 'n', 't', 'e']
+
         player = {key: pid}
 
         # Consume all following 'i' 'n' 't'  'e' records
-        while len(self.q) > 0 and self.starts_with(self.q[0], self.player_keys):
+        while len(self.q) > 0:
             (key, value) = self.next_item()
             if key is None and value is None:
                 continue
@@ -77,17 +70,22 @@ class Submission(object):
                 player[sub_key] = sub_value
             elif key == 'n':
                 player[key] = unicode(value, 'utf-8')
-            elif key in self.player_keys:
+            elif key in player_keys:
                 player[key] = value
+            else:
+                # something we didn't expect - put it back on the deque
+                self.q.appendleft("{} {}".format(key, value))
+                break
 
         self.players.append(player)
 
     def parse_team(self, key, tid):
+        """Construct a team events listing from the submission."""
         team = {key: tid}
 
         # Consume all following 'e' records
         while len(self.q) > 0 and self.q[0].startswith('e'):
-            (key, value) = self.next_item()
+            (_, value) = self.next_item()
             (sub_key, sub_value) = value.split(' ', 1)
             team[sub_key] = sub_value
 
@@ -107,6 +105,8 @@ class Submission(object):
                 self.parse_team(key, value)
             else:
                 self.meta[key] = value
+
+        return self
 
 
 def parse_stats_submission(body):
