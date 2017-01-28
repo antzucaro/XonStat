@@ -38,6 +38,9 @@ class Submission(object):
         # distinct weapons that we have seen fired
         self.weapons = set()
 
+        # number of real players in the match
+        self.real_players = 0
+
         # the parsing deque (we use this to allow peeking)
         self.q = collections.deque(self.body.split("\n"))
 
@@ -46,6 +49,8 @@ class Submission(object):
         try:
             items = self.q.popleft().strip().split(' ', 1)
             if len(items) == 1:
+                # Some keys won't have values, like 'L' records where the server isn't actually
+                # participating in any ladders. These can be safely ignored.
                 return None, None
             else:
                 return items
@@ -86,6 +91,9 @@ class Submission(object):
                 # something we didn't expect - put it back on the deque
                 self.q.appendleft("{} {}".format(key, value))
                 break
+
+        if is_real_player(player) and played_in_game(player):
+            self.real_players += 1
 
         self.players.append(player)
 
