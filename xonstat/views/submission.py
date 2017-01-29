@@ -16,6 +16,27 @@ from xonstat.util import strip_colors, qfont_decode, verify_request, weapon_map
 log = logging.getLogger(__name__)
 
 
+def is_real_player(events):
+    """
+    Determines if a given set of events correspond with a non-bot
+    """
+    if not events['P'].startswith('bot'):
+        return True
+    else:
+        return False
+
+
+def played_in_game(events):
+    """
+    Determines if a given set of player events correspond with a player who
+    played in the game (matches 1 and scoreboardvalid 1)
+    """
+    if 'matches' in events and 'scoreboardvalid' in events:
+        return True
+    else:
+        return False
+
+
 class Submission(object):
     """Parses an incoming POST request for stats submissions."""
 
@@ -125,6 +146,30 @@ class Submission(object):
                 self.meta[key] = value
 
         return self
+
+
+def elo_submission_category(submission):
+    """Determines the Elo category purely by what is in the submission data."""
+    mod = submission.meta.get("O", "None")
+
+    vanilla_allowed_weapons = {"shotgun", "devastatorblaster", "mortar", "vortex", "electro",
+                               "arc", "hagar", "crylink", "machinegun"}
+    insta_allowed_weapons = {"vaporizer", "blaster"}
+    overkill_allowed_weapons = {"hmg", "vortex", "shotgun blaster", "machinegun", "rpc"}
+
+    if mod == "Xonotic":
+        if len(submission.weapons - vanilla_allowed_weapons) == 0:
+            return "vanilla"
+    elif mod == "InstaGib":
+        if len(submission.weapons - insta_allowed_weapons) == 0:
+            return "insta"
+    elif mod == "Overkill":
+        if len(submission.weapons - overkill_allowed_weapons) == 0:
+            return "overkill"
+    else:
+        return "general"
+
+    return "general"
 
 
 def parse_stats_submission(body):
@@ -328,27 +373,6 @@ def do_precondition_checks(request, game_meta, raw_players):
             body=msg,
             content_type="text/plain"
         )
-
-
-def is_real_player(events):
-    """
-    Determines if a given set of events correspond with a non-bot
-    """
-    if not events['P'].startswith('bot'):
-        return True
-    else:
-        return False
-
-
-def played_in_game(events):
-    """
-    Determines if a given set of player events correspond with a player who
-    played in the game (matches 1 and scoreboardvalid 1)
-    """
-    if 'matches' in events and 'scoreboardvalid' in events:
-        return True
-    else:
-        return False
 
 
 def num_real_players(player_events):
