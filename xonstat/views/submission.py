@@ -152,10 +152,10 @@ def elo_submission_category(submission):
     """Determines the Elo category purely by what is in the submission data."""
     mod = submission.meta.get("O", "None")
 
-    vanilla_allowed_weapons = {"shotgun", "devastatorblaster", "mortar", "vortex", "electro",
+    vanilla_allowed_weapons = {"shotgun", "devastator", "blaster", "mortar", "vortex", "electro",
                                "arc", "hagar", "crylink", "machinegun"}
     insta_allowed_weapons = {"vaporizer", "blaster"}
-    overkill_allowed_weapons = {"hmg", "vortex", "shotgun blaster", "machinegun", "rpc"}
+    overkill_allowed_weapons = {"hmg", "vortex", "shotgun", "blaster", "machinegun", "rpc"}
 
     if mod == "Xonotic":
         if len(submission.weapons - vanilla_allowed_weapons) == 0:
