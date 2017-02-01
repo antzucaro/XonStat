@@ -50,17 +50,20 @@ class Submission(object):
         # game metadata
         self.meta = {}
 
-        # raw player events
+        # humans and bots in the match (including spectators)
         self.players = []
+
+        # humans who played in the match
+        self.humans = []
+
+        # bots who played in the match
+        self.bots = []
 
         # raw team events
         self.teams = []
 
         # distinct weapons that we have seen fired
         self.weapons = set()
-
-        # number of real players in the match
-        self.real_players = 0
 
         # the parsing deque (we use this to allow peeking)
         self.q = collections.deque(self.body.split("\n"))
@@ -113,10 +116,14 @@ class Submission(object):
                 self.q.appendleft("{} {}".format(key, value))
                 break
 
-        if is_real_player(player) and played_in_game(player):
-            self.real_players += 1
-
-        self.players.append(player)
+        played = played_in_game(player)
+        human = is_real_player(player)
+        if played and human:
+            self.humans.append(player)
+        elif played and not human:
+            self.bots.append(player)
+        else:
+            self.players.append(player)
 
     def parse_team(self, key, tid):
         """Construct a team events listing from the submission."""
