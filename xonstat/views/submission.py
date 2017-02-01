@@ -65,6 +65,9 @@ class Submission(object):
         # distinct weapons that we have seen fired
         self.weapons = set()
 
+        # has a human player fired a shot?
+        self.human_fired_weapon = False
+
         # the parsing deque (we use this to allow peeking)
         self.q = collections.deque(self.body.split("\n"))
 
@@ -82,11 +85,10 @@ class Submission(object):
             return None, None
 
     def check_for_new_weapon_fired(self, sub_key):
-        """Checks if a given player key (subkey, actually) is a new weapon fired in the match."""
-        if sub_key.endswith("cnt-fired"):
-            weapon = sub_key.split("-")[1]
-            if weapon not in self.weapons:
-                self.weapons.add(weapon)
+        """Checks if a given weapon fired event is a new one for the match."""
+        weapon = sub_key.split("-")[1]
+        if weapon not in self.weapons:
+            self.weapons.add(weapon)
 
     def parse_player(self, key, pid):
         """Construct a player events listing from the submission."""
@@ -95,6 +97,8 @@ class Submission(object):
         player_keys = ['i', 'n', 't', 'e']
 
         player = {key: pid}
+
+        player_fired_weapon = False
 
         # Consume all following 'i' 'n' 't'  'e' records
         while len(self.q) > 0:
@@ -105,8 +109,9 @@ class Submission(object):
                 (sub_key, sub_value) = value.split(' ', 1)
                 player[sub_key] = sub_value
 
-                # keep track of the distinct weapons fired during the match
-                self.check_for_new_weapon_fired(sub_key)
+                if sub_key.endswith("cnt-fired"):
+                    player_fired_weapon = True
+                    self.check_for_new_weapon_fired(sub_key)
             elif key == 'n':
                 player[key] = unicode(value, 'utf-8')
             elif key in player_keys:
@@ -118,8 +123,12 @@ class Submission(object):
 
         played = played_in_game(player)
         human = is_real_player(player)
+
         if played and human:
             self.humans.append(player)
+
+            if player_fired_weapon:
+                self.human_fired_weapon = True
         elif played and not human:
             self.bots.append(player)
         else:
