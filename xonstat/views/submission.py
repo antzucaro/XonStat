@@ -47,11 +47,52 @@ class Submission(object):
         # a copy of the HTTP POST body
         self.body = body
 
-        # game metadata
-        self.meta = {}
+        # the submission code version (from the server)
+        self.version = None
 
-        # humans and bots in the match (including spectators)
+        # the revision string of the server
+        self.revision = None
+
+        # the game type played
+        self.game_type_cd = None
+
+        # the active game mod
+        self.mod = None
+
+        # the name of the map played
+        self.map_name = None
+
+        # unique identifier (string) for a match on a given server
+        self.match_id = None
+
+        # the name of the server
+        self.server_name = None
+
+        # the number of cvars that were changed to be different than default
+        self.impure_cvar_changes = None
+
+        # the port number the game server is listening on
+        self.port_number = None
+
+        # how long the game lasted
+        self.duration = None
+
+        # which ladder is being used, if any
+        self.ladder = None
+
+        # players involved in the match (humans, bots, and spectators)
         self.players = []
+
+        # raw team events
+        self.teams = []
+
+        # the parsing deque (we use this to allow peeking)
+        self.q = collections.deque(self.body.split("\n"))
+
+        ############################################################################################
+        # Below this point are fields useful in determining if the submission is valid or
+        # performance optimizations that save us from looping over the events over and over again.
+        ############################################################################################
 
         # humans who played in the match
         self.humans = []
@@ -59,17 +100,11 @@ class Submission(object):
         # bots who played in the match
         self.bots = []
 
-        # raw team events
-        self.teams = []
-
         # distinct weapons that we have seen fired
         self.weapons = set()
 
         # has a human player fired a shot?
         self.human_fired_weapon = False
-
-        # the parsing deque (we use this to allow peeking)
-        self.q = collections.deque(self.body.split("\n"))
 
     def next_item(self):
         """Returns the next key:value pair off the queue."""
@@ -152,14 +187,34 @@ class Submission(object):
             (key, value) = self.next_item()
             if key is None and value is None:
                 continue
+            elif key == 'V':
+                self.version = value
+            elif key == 'R':
+                self.revision = value
+            elif key == 'G':
+                self.game_type_cd = value
+            elif key == 'O':
+                self.mod = value
+            elif key == 'M':
+                self.map_name = value
+            elif key == 'I':
+                self.match_id = value
             elif key == 'S':
-                self.meta[key] = unicode(value, 'utf-8')
-            elif key == 'P':
-                self.parse_player(key, value)
+                self.server_name = unicode(value, 'utf-8')
+            elif key == 'C':
+                self.impure_cvar_changes = int(value)
+            elif key == 'U':
+                self.port_number = int(value)
+            elif key == 'D':
+                self.duration = datetime.timedelta(seconds=int(round(float(value))))
+            elif key == 'L':
+                self.ladder = value
             elif key == 'Q':
                 self.parse_team(key, value)
+            elif key == 'P':
+                self.parse_player(key, value)
             else:
-                self.meta[key] = value
+                raise Exception("Invalid submission")
 
         return self
 
