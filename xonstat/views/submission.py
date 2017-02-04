@@ -20,10 +20,7 @@ def is_real_player(events):
     """
     Determines if a given set of events correspond with a non-bot
     """
-    if not events['P'].startswith('bot'):
-        return True
-    else:
-        return False
+    return not events['P'].startswith('bot')
 
 
 def played_in_game(events):
@@ -31,10 +28,7 @@ def played_in_game(events):
     Determines if a given set of player events correspond with a player who
     played in the game (matches 1 and scoreboardvalid 1)
     """
-    if 'matches' in events and 'scoreboardvalid' in events:
-        return True
-    else:
-        return False
+    return 'matches' in events and 'scoreboardvalid' in events
 
 
 class Submission(object):
