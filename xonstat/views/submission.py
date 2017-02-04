@@ -109,6 +109,9 @@ class Submission(object):
         # does any human have a non-zero score?
         self.human_nonzero_score = False
 
+        # does any human have a fastest cap?
+        self.human_fastest = False
+
     def next_item(self):
         """Returns the next key:value pair off the queue."""
         try:
@@ -138,6 +141,7 @@ class Submission(object):
 
         player_fired_weapon = False
         player_nonzero_score = False
+        player_fastest = False
 
         # Consume all following 'i' 'n' 't'  'e' records
         while len(self.q) > 0:
@@ -153,6 +157,8 @@ class Submission(object):
                     self.check_for_new_weapon_fired(sub_key)
                 elif sub_key == 'scoreboard-score' and int(value) != 0:
                     player_nonzero_score = True
+                elif sub_key == 'scoreboard-fastest':
+                    player_fastest = True
             elif key == 'n':
                 player[key] = unicode(value, 'utf-8')
             elif key in player_keys:
@@ -173,6 +179,9 @@ class Submission(object):
 
             if player_nonzero_score:
                 self.human_nonzero_score = True
+
+            if player_fastest:
+                self.human_fastest = True
 
         elif played and not human:
             self.bots.append(player)
