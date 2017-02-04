@@ -106,6 +106,9 @@ class Submission(object):
         # has a human player fired a shot?
         self.human_fired_weapon = False
 
+        # does any human have a non-zero score?
+        self.human_nonzero_score = False
+
     def next_item(self):
         """Returns the next key:value pair off the queue."""
         try:
@@ -134,6 +137,7 @@ class Submission(object):
         player = {key: pid}
 
         player_fired_weapon = False
+        player_nonzero_score = False
 
         # Consume all following 'i' 'n' 't'  'e' records
         while len(self.q) > 0:
@@ -147,6 +151,8 @@ class Submission(object):
                 if sub_key.endswith("cnt-fired"):
                     player_fired_weapon = True
                     self.check_for_new_weapon_fired(sub_key)
+                elif sub_key == 'scoreboard-score' and int(value) != 0:
+                    player_nonzero_score = True
             elif key == 'n':
                 player[key] = unicode(value, 'utf-8')
             elif key in player_keys:
@@ -164,6 +170,10 @@ class Submission(object):
 
             if player_fired_weapon:
                 self.human_fired_weapon = True
+
+            if player_nonzero_score:
+                self.human_nonzero_score = True
+
         elif played and not human:
             self.bots.append(player)
         else:
