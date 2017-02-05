@@ -119,11 +119,9 @@ class Submission(object):
         except:
             return None, None
 
-    def check_for_new_weapon_fired(self, sub_key):
-        """Checks if a given weapon fired event is a new one for the match."""
-        weapon = sub_key.split("-")[1]
-        if weapon not in self.weapons:
-            self.weapons.add(weapon)
+    def add_weapon_fired(self, sub_key):
+        """Adds a weapon to the set of weapons fired during the match (a set)."""
+        self.weapons.add(sub_key.split("-")[1])
 
     def parse_player(self, key, pid):
         """Construct a player events listing from the submission."""
@@ -148,7 +146,7 @@ class Submission(object):
 
                 if sub_key.endswith("cnt-fired"):
                     player_fired_weapon = True
-                    self.check_for_new_weapon_fired(sub_key)
+                    self.add_weapon_fired(sub_key)
                 elif sub_key == 'scoreboard-score' and int(sub_value) != 0:
                     player_nonzero_score = True
                 elif sub_key == 'scoreboard-fastest':
