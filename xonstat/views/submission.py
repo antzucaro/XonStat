@@ -123,6 +123,21 @@ class Submission(object):
         """Adds a weapon to the set of weapons fired during the match (a set)."""
         self.weapons.add(sub_key.split("-")[1])
 
+    @staticmethod
+    def is_human_player(player):
+        """
+        Determines if a given set of events correspond with a non-bot
+        """
+        return not player['P'].startswith('bot')
+
+    @staticmethod
+    def played_in_game(player):
+        """
+        Determines if a given set of player events correspond with a player who
+        played in the game (matches 1 and scoreboardvalid 1)
+        """
+        return 'matches' in player and 'scoreboardvalid' in player
+
     def parse_player(self, key, pid):
         """Construct a player events listing from the submission."""
 
@@ -160,8 +175,8 @@ class Submission(object):
                 self.q.appendleft("{} {}".format(key, value))
                 break
 
-        played = played_in_game(player)
-        human = is_real_player(player)
+        played = self.played_in_game(player)
+        human = self.is_human_player(player)
 
         if played and human:
             self.humans.append(player)
