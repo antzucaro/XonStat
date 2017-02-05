@@ -192,8 +192,8 @@ class Submission(object):
 
         elif played and not human:
             self.bots.append(player)
-        else:
-            self.players.append(player)
+
+        self.players.append(player)
 
     def parse_team(self, key, tid):
         """Construct a team events listing from the submission."""
@@ -243,6 +243,12 @@ class Submission(object):
                 raise Exception("Invalid submission")
 
         return self
+
+    def __repr__(self):
+        """Debugging representation of a submission."""
+        return "game_type_cd: {}, mod: {}, players: {}, humans: {}, bots: {}, weapons: {}".format(
+            self.game_type_cd, self.mod, len(self.players), len(self.humans), len(self.bots),
+            self.weapons)
 
 
 def elo_submission_category(submission):
