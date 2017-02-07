@@ -253,7 +253,7 @@ class Submission(object):
 
 def elo_submission_category(submission):
     """Determines the Elo category purely by what is in the submission data."""
-    mod = submission.meta.get("O", "None")
+    mod = submission.mod
 
     vanilla_allowed_weapons = {"shotgun", "devastator", "blaster", "mortar", "vortex", "electro",
                                "arc", "hagar", "crylink", "machinegun"}
