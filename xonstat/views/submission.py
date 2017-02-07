@@ -16,21 +16,6 @@ from xonstat.util import strip_colors, qfont_decode, verify_request, weapon_map
 log = logging.getLogger(__name__)
 
 
-def is_real_player(events):
-    """
-    Determines if a given set of events correspond with a non-bot
-    """
-    return not events['P'].startswith('bot')
-
-
-def played_in_game(events):
-    """
-    Determines if a given set of player events correspond with a player who
-    played in the game (matches 1 and scoreboardvalid 1)
-    """
-    return 'matches' in events and 'scoreboardvalid' in events
-
-
 class Submission(object):
     """Parses an incoming POST request for stats submissions."""
 
@@ -275,79 +260,9 @@ def elo_submission_category(submission):
     return "general"
 
 
-def parse_stats_submission(body):
+def is_blank_game(submission):
     """
-    Parses the POST request body for a stats submission
-    """
-    # storage vars for the request body
-    game_meta = {}
-    events = {}
-    players = []
-    teams = []
-
-    # we're not in either stanza to start
-    in_P = in_Q = False
-
-    for line in body.split('\n'):
-        try:
-            (key, value) = line.strip().split(' ', 1)
-
-            # Server (S) and Nick (n) fields can have international characters.
-            if key in 'S' 'n':
-                value = unicode(value, 'utf-8')
-
-            if key not in 'P' 'Q' 'n' 'e' 't' 'i':
-                game_meta[key] = value
-
-            if key == 'Q' or key == 'P':
-                #log.debug('Found a {0}'.format(key))
-                #log.debug('in_Q: {0}'.format(in_Q))
-                #log.debug('in_P: {0}'.format(in_P))
-                #log.debug('events: {0}'.format(events))
-
-                # check where we were before and append events accordingly
-                if in_Q and len(events) > 0:
-                    #log.debug('creating a team (Q) entry')
-                    teams.append(events)
-                    events = {}
-                elif in_P and len(events) > 0:
-                    #log.debug('creating a player (P) entry')
-                    players.append(events)
-                    events = {}
-
-                if key == 'P':
-                    #log.debug('key == P')
-                    in_P = True
-                    in_Q = False
-                elif key == 'Q':
-                    #log.debug('key == Q')
-                    in_P = False
-                    in_Q = True
-
-                events[key] = value
-
-            if key == 'e':
-                (subkey, subvalue) = value.split(' ', 1)
-                events[subkey] = subvalue
-            if key == 'n':
-                events[key] = value
-            if key == 't':
-                events[key] = value
-        except:
-            # no key/value pair - move on to the next line
-            pass
-
-    # add the last entity we were working on
-    if in_P and len(events) > 0:
-        players.append(events)
-    elif in_Q and len(events) > 0:
-        teams.append(events)
-
-    return (game_meta, players, teams)
-
-
-def is_blank_game(gametype, players):
-    """Determine if this is a blank game or not. A blank game is either:
+    Determine if this is a blank game or not. A blank game is either:
 
     1) a match that ended in the warmup stage, where accuracy events are not
     present (for non-CTS games)
@@ -364,27 +279,12 @@ def is_blank_game(gametype, players):
 
     1) a match in which no player made a positive or negative score
     """
-    r = re.compile(r'acc-.*-cnt-fired')
-    flg_nonzero_score = False
-    flg_acc_events = False
-    flg_fastest_lap = False
-
-    for events in players:
-        if is_real_player(events) and played_in_game(events):
-            for (key,value) in events.items():
-                if key == 'scoreboard-score' and value != 0:
-                    flg_nonzero_score = True
-                if r.search(key):
-                    flg_acc_events = True
-                if key == 'scoreboard-fastest':
-                    flg_fastest_lap = True
-
-    if gametype == 'cts':
-        return not flg_fastest_lap
-    elif gametype == 'nb':
-        return not flg_nonzero_score
+    if submission.game_type_cd == 'cts':
+        return not submission.human_fastest
+    elif submission.game_type_cd == 'nb':
+        return not submission.human_nonzero_score
     else:
-        return not (flg_nonzero_score and flg_acc_events)
+        return not (submission.human_nonzero_score and submission.human_fired_weapon)
 
 
 def get_remote_addr(request):
