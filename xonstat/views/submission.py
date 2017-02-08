@@ -295,17 +295,8 @@ def has_required_metadata(submission):
             and submission.server_name is not None)
 
 
-def get_remote_addr(request):
-    """Get the Xonotic server's IP address"""
-    if 'X-Forwarded-For' in request.headers:
-        return request.headers['X-Forwarded-For']
-    else:
-        return request.remote_addr
-
-
-def is_supported_gametype(gametype, version):
-    """Whether a gametype is supported or not"""
-    is_supported = False
+def is_supported_gametype(submission):
+    """Determines if a submission is of a valid and supported game type."""
 
     # if the type can be supported, but with version constraints, uncomment
     # here and add the restriction for a specific version below
@@ -328,16 +319,21 @@ def is_supported_gametype(gametype, version):
             'tdm',
         )
 
-    if gametype in supported_game_types:
-        is_supported = True
-    else:
-        is_supported = False
+    is_supported = submission.game_type_cd in supported_game_types
 
     # some game types were buggy before revisions, thus this additional filter
-    if gametype == 'ca' and version <= 5:
+    if submission.game_type_cd == 'ca' and submission.version <= 5:
         is_supported = False
 
     return is_supported
+
+
+def get_remote_addr(request):
+    """Get the Xonotic server's IP address"""
+    if 'X-Forwarded-For' in request.headers:
+        return request.headers['X-Forwarded-For']
+    else:
+        return request.remote_addr
 
 
 def do_precondition_checks(request, game_meta, raw_players):
@@ -420,9 +416,6 @@ def has_minimum_real_players(settings, player_events):
         flg_has_min_real_players = False
 
     return flg_has_min_real_players
-
-
-
 
 
 def should_do_weapon_stats(game_type_cd):
