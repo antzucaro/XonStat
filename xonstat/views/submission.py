@@ -287,6 +287,14 @@ def is_blank_game(submission):
         return not (submission.human_nonzero_score and submission.human_fired_weapon)
 
 
+def has_required_metadata(submission):
+    """Determines if a submission has all the required metadata fields."""
+    return (submission.game_type_cd is not None
+            and submission.map_name is not None
+            and submission.match_id is not None
+            and submission.server_name is not None)
+
+
 def get_remote_addr(request):
     """Get the Xonotic server's IP address"""
     if 'X-Forwarded-For' in request.headers:
@@ -414,20 +422,7 @@ def has_minimum_real_players(settings, player_events):
     return flg_has_min_real_players
 
 
-def has_required_metadata(metadata):
-    """
-    Determines if a give set of metadata has enough data to create a game,
-    server, and map with.
-    """
-    flg_has_req_metadata = True
 
-    if 'G' not in metadata or\
-        'M' not in metadata or\
-        'I' not in metadata or\
-        'S' not in metadata:
-            flg_has_req_metadata = False
-
-    return flg_has_req_metadata
 
 
 def should_do_weapon_stats(game_type_cd):
