@@ -408,17 +408,12 @@ def num_real_players(player_events):
 
 def should_do_weapon_stats(game_type_cd):
     """True of the game type should record weapon stats. False otherwise."""
-    return game_type_cd not in 'CTS'
+    return game_type_cd not in {'cts'}
 
 
 def gametype_elo_eligible(game_type_cd):
     """True of the game type should process Elos. False otherwise."""
-    elo_game_types = ('duel', 'dm', 'ca', 'ctf', 'tdm', 'ka', 'ft')
-
-    if game_type_cd in elo_game_types:
-        return True
-    else:
-        return False
+    return game_type_cd in {'duel', 'dm', 'ca', 'ctf', 'tdm', 'ka', 'ft'}
 
 
 def register_new_nick(session, player, new_nick):
