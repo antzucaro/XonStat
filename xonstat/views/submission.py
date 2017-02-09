@@ -328,18 +328,22 @@ def is_supported_gametype(submission):
     return is_supported
 
 
-def get_remote_addr(request):
-    """Get the Xonotic server's IP address"""
-    if 'X-Forwarded-For' in request.headers:
-        return request.headers['X-Forwarded-For']
-    else:
-        return request.remote_addr
+def has_minimum_real_players(settings, submission):
+    """
+    Determines if the submission has enough human players to store in the database. The minimum
+    setting comes from the config file under the setting xonstat.minimum_real_players.
+    """
+    try:
+        minimum_required_players = int(settings.get("xonstat.minimum_required_players"))
+    except:
+        minimum_required_players = 2
+
+    return len(submission.human_players) >= minimum_required_players
 
 
-def do_precondition_checks(request, game_meta, raw_players):
-    """Precondition checks for ALL gametypes.
-       These do not require a database connection."""
-    if not has_required_metadata(game_meta):
+def do_precondition_checks(settings, submission):
+    """Precondition checks for ALL gametypes. These do not require a database connection."""
+    if not has_required_metadata(submission):
         msg = "Missing required game metadata"
         log.debug(msg)
         raise pyramid.httpexceptions.HTTPUnprocessableEntity(
@@ -347,9 +351,7 @@ def do_precondition_checks(request, game_meta, raw_players):
             content_type="text/plain"
         )
 
-    try:
-        version = int(game_meta['V'])
-    except:
+    if submission.version is None:
         msg = "Invalid or incorrect game metadata provided"
         log.debug(msg)
         raise pyramid.httpexceptions.HTTPUnprocessableEntity(
@@ -357,15 +359,15 @@ def do_precondition_checks(request, game_meta, raw_players):
             content_type="text/plain"
         )
 
-    if not is_supported_gametype(game_meta['G'], version):
-        msg = "Unsupported game type ({})".format(game_meta['G'])
+    if not is_supported_gametype(submission):
+        msg = "Unsupported game type ({})".format(submission.game_type_cd)
         log.debug(msg)
         raise pyramid.httpexceptions.HTTPOk(
             body=msg,
             content_type="text/plain"
         )
 
-    if not has_minimum_real_players(request.registry.settings, raw_players):
+    if not has_minimum_real_players(settings, submission):
         msg = "Not enough real players"
         log.debug(msg)
         raise pyramid.httpexceptions.HTTPOk(
@@ -373,13 +375,21 @@ def do_precondition_checks(request, game_meta, raw_players):
             content_type="text/plain"
         )
 
-    if is_blank_game(game_meta['G'], raw_players):
+    if is_blank_game(submission):
         msg = "Blank game"
         log.debug(msg)
         raise pyramid.httpexceptions.HTTPOk(
             body=msg,
             content_type="text/plain"
         )
+
+
+def get_remote_addr(request):
+    """Get the Xonotic server's IP address"""
+    if 'X-Forwarded-For' in request.headers:
+        return request.headers['X-Forwarded-For']
+    else:
+        return request.remote_addr
 
 
 def num_real_players(player_events):
@@ -394,28 +404,6 @@ def num_real_players(player_events):
             real_players += 1
 
     return real_players
-
-
-def has_minimum_real_players(settings, player_events):
-    """
-    Determines if the collection of player events has enough "real" players
-    to store in the database. The minimum setting comes from the config file
-    under the setting xonstat.minimum_real_players.
-    """
-    flg_has_min_real_players = True
-
-    try:
-        minimum_required_players = int(
-                settings['xonstat.minimum_required_players'])
-    except:
-        minimum_required_players = 2
-
-    real_players = num_real_players(player_events)
-
-    if real_players < minimum_required_players:
-        flg_has_min_real_players = False
-
-    return flg_has_min_real_players
 
 
 def should_do_weapon_stats(game_type_cd):
