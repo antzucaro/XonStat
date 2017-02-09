@@ -408,10 +408,7 @@ def num_real_players(player_events):
 
 def should_do_weapon_stats(game_type_cd):
     """True of the game type should record weapon stats. False otherwise."""
-    if game_type_cd in 'cts':
-        return False
-    else:
-        return True
+    return game_type_cd not in 'CTS'
 
 
 def gametype_elo_eligible(game_type_cd):
