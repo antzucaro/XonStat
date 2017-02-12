@@ -392,20 +392,6 @@ def get_remote_addr(request):
         return request.remote_addr
 
 
-def num_real_players(player_events):
-    """
-    Returns the number of real players (those who played
-    and are on the scoreboard).
-    """
-    real_players = 0
-
-    for events in player_events:
-        if is_real_player(events) and played_in_game(events):
-            real_players += 1
-
-    return real_players
-
-
 def should_do_weapon_stats(game_type_cd):
     """True of the game type should record weapon stats. False otherwise."""
     return game_type_cd not in {'cts'}
