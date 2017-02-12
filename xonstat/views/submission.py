@@ -742,7 +742,7 @@ def create_default_game_stat(session, game_type_cd):
     return pgstat
 
 
-def create_game_stat(session, game_meta, game, server, gmap, player, events):
+def create_game_stat(session, game, gmap, player, events):
     """Game stats handler for all game types"""
 
     game_type_cd = game.game_type_cd
@@ -888,7 +888,7 @@ def create_team_stat(session, game, events):
     return teamstat
 
 
-def create_weapon_stats(session, game_meta, game, player, pgstat, events):
+def create_weapon_stats(session, version, game, player, pgstat, events):
     """Weapon stats handler for all game types"""
     pwstats = []
 
@@ -896,7 +896,6 @@ def create_weapon_stats(session, game_meta, game, player, pgstat, events):
     # To counteract this we divide the data by 2 only for
     # POSTs coming from version 1.
     try:
-        version = int(game_meta['V'])
         if version == 1:
             is_doubled = True
             log.debug('NOTICE: found a version 1 request, halving the weapon stats...')
@@ -985,88 +984,69 @@ def submit_stats(request):
                 "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
-        (game_meta, raw_players, raw_teams) = parse_stats_submission(request.body)
-        revision = game_meta.get('R', 'unknown')
-        duration = game_meta.get('D', None)
+        submission = Submission(request.body, request.headers)
 
-        # only players present at the end of the match are eligible for stats
-        raw_players = filter(played_in_game, raw_players)
-
-        do_precondition_checks(request, game_meta, raw_players)
-
-        # the "duel" gametype is fake
-        if len(raw_players) == 2 \
-            and num_real_players(raw_players) == 2 \
-            and game_meta['G'] == 'dm':
-            game_meta['G'] = 'duel'
+        do_precondition_checks(request.registry.settings, submission)
 
         #----------------------------------------------------------------------
         # Actual setup (inserts/updates) below here
         #----------------------------------------------------------------------
         session = DBSession()
 
-        game_type_cd = game_meta['G']
-
         # All game types create Game, Server, Map, and Player records
         # the same way.
         server = get_or_create_server(
-                session      = session,
-                hashkey      = idfp,
-                name         = game_meta['S'],
-                revision     = revision,
-                ip_addr      = get_remote_addr(request),
-                port         = game_meta.get('U', None),
-                impure_cvars = game_meta.get('C', 0))
+            session=session,
+            hashkey=idfp,
+            name=submission.server_name,
+            revision=submission.revision,
+            ip_addr=get_remote_addr(request),
+            port=submission.port_number,
+            impure_cvars=submission.impure_cvar_changes
+        )
 
-        gmap = get_or_create_map(
-                session = session,
-                name    = game_meta['M'])
+        gmap = get_or_create_map(session, submission.map_name)
 
         game = create_game(
-                session      = session,
-                start_dt     = datetime.datetime.utcnow(),
-                server_id    = server.server_id,
-                game_type_cd = game_type_cd,
-                map_id       = gmap.map_id,
-                match_id     = game_meta['I'],
-                duration     = duration,
-                mod          = game_meta.get('O', None))
+            session=session,
+            start_dt=datetime.datetime.utcnow(),
+            server_id=server.server_id,
+            game_type_cd=submission.game_type_cd,
+            map_id=gmap.map_id,
+            match_id=submission.match_id,
+            duration=submission.duration,
+            mod=submission.mod
+        )
 
         # keep track of the players we've seen
         player_ids = []
         pgstats = []
         hashkeys = {}
-        for events in raw_players:
-            player = get_or_create_player(
-                session = session,
-                hashkey = events['P'],
-                nick    = events.get('n', None))
-
-            pgstat = create_game_stat(session, game_meta, game, server,
-                    gmap, player, events)
+        for events in submission.humans + submission.bots:
+            player = get_or_create_player(session, events['P'], events.get('n', None))
+            pgstat = create_game_stat(session, game, gmap, player, events)
             pgstats.append(pgstat)
 
             if player.player_id > 1:
-                anticheats = create_anticheats(session, pgstat, game, player, events)
+                create_anticheats(session, pgstat, game, player, events)
 
             if player.player_id > 2:
                 player_ids.append(player.player_id)
                 hashkeys[player.player_id] = events['P']
 
-            if should_do_weapon_stats(game_type_cd) and player.player_id > 1:
-                pwstats = create_weapon_stats(session, game_meta, game, player,
-                        pgstat, events)
+            if should_do_weapon_stats(submission.game_type_cd) and player.player_id > 1:
+                create_weapon_stats(session, submission.version, game, player, pgstat, events)
 
         # store them on games for easy access
         game.players = player_ids
 
-        for events in raw_teams:
+        for events in submission.teams:
             try:
-                teamstat = create_team_stat(session, game, events)
+                create_team_stat(session, game, events)
             except Exception as e:
                 raise e
 
-        if server.elo_ind and gametype_elo_eligible(game_type_cd):
+        if server.elo_ind and gametype_elo_eligible(submission.game_type_cd):
             ep = EloProcessor(session, game, pgstats)
             ep.save(session)
 
@@ -1074,20 +1054,20 @@ def submit_stats(request):
         log.debug('Success! Stats recorded.')
 
         # ranks are fetched after we've done the "real" processing
-        ranks = get_ranks(session, player_ids, game_type_cd)
+        ranks = get_ranks(session, player_ids, submission.game_type_cd)
 
         # plain text response
         request.response.content_type = 'text/plain'
 
         return {
-                "now"        : calendar.timegm(datetime.datetime.utcnow().timetuple()),
-                "server"     : server,
-                "game"       : game,
-                "gmap"       : gmap,
-                "player_ids" : player_ids,
-                "hashkeys"   : hashkeys,
-                "elos"       : ep.wip,
-                "ranks"      : ranks,
+                "now": calendar.timegm(datetime.datetime.utcnow().timetuple()),
+                "server": server,
+                "game": game,
+                "gmap": gmap,
+                "player_ids": player_ids,
+                "hashkeys": hashkeys,
+                "elos": ep.wip,
+                "ranks": ranks,
         }
 
     except Exception as e:
