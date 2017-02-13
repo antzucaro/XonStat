@@ -556,32 +556,27 @@ def get_or_create_server(session, name, hashkey, ip_addr, revision, port, impure
     return server
 
 
-def get_or_create_map(session=None, name=None):
+def get_or_create_map(session, name):
     """
     Find a map by name or create one if not found. Parameters:
 
     session - SQLAlchemy database session factory
     name - map name of the map to be found or created
     """
-    try:
-        # find one by the name, if it exists
-        gmap = session.query(Map).filter_by(name=name).one()
-        log.debug("Found map id {0}: {1}".format(gmap.map_id,
-            gmap.name))
-    except NoResultFound, e:
+    maps = session.query(Map).filter_by(name=name).order_by(Map.map_id).all()
+
+    if maps is None or len(maps) == 0:
         gmap = Map(name=name)
         session.add(gmap)
         session.flush()
-        log.debug("Created map id {0}: {1}".format(gmap.map_id,
-            gmap.name))
-    except MultipleResultsFound, e:
-        # multiple found, so use the first one but warn
-        log.debug(e)
-        gmaps = session.query(Map).filter_by(name=name).order_by(
-                Map.map_id).all()
-        gmap = gmaps[0]
-        log.debug("Found map id {0}: {1} but found \
-                multiple".format(gmap.map_id, gmap.name))
+        log.debug("Created map id {}: {}".format(gmap.map_id, gmap.name))
+    elif len(maps) == 1:
+        gmap = maps[0]
+        log.debug("Found map id {}: {}".format(gmap.map_id, gmap.name))
+    else:
+        gmap = maps[0]
+        map_id_list = ", ".join(["{}".format(m.map_id) for m in maps])
+        log.warn("Multiple maps found for {} ({})! Using the first one.".format(name, map_id_list))
 
     return gmap
 
