@@ -974,7 +974,7 @@ def create_player(session, events):
     pass
 
 
-def get_or_create_players(session, game, gmap, events_by_hashkey):
+def get_or_create_players(session, events_by_hashkey):
     hashkeys = set(events_by_hashkey.keys())
     players_by_hashkey = {}
 
@@ -1056,6 +1056,7 @@ def submit_stats(request):
 
         events_by_hashkey = {elem["P"]: elem for elem in submission.humans + submission.bots}
         get_or_create_players(session, game, gmap, events_by_hashkey)
+
         # keep track of the players we've seen
         player_ids = []
         pgstats = []
