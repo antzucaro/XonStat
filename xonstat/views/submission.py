@@ -966,6 +966,48 @@ def get_ranks(session, player_ids, game_type_cd):
     return ranks
 
 
+def update_player(session, player, events):
+    pass
+
+
+def create_player(session, events):
+    pass
+
+
+def get_or_create_players(session, game, gmap, events_by_hashkey):
+    hashkeys = set(events_by_hashkey.keys())
+    players_by_hashkey = {}
+
+    bot = session.query(Player).filter(Player.player_id == 1).one()
+    anon = session.query(Player).filter(Player.player_id == 2).one()
+
+    # fill in the bots and anonymous players
+    for hashkey in events_by_hashkey.keys():
+        if hashkey.startswith("bot#"):
+            players_by_hashkey[hashkey] = bot
+            hashkeys.remove(hashkey)
+        elif hashkey.startswith("player#"):
+            players_by_hashkey[hashkey] = anon
+            hashkeys.remove(hashkey)
+
+    # We are left with the "real" players and can now fetch them by their collective hashkeys.
+    # Those that are returned here are pre-existing players who need to be updated.
+    for p, hk in session.query(Player, Hashkey)\
+            .filter(Player.player_id == Hashkey.player_id)\
+            .filter(Hashkey.hashkey.in_(hashkeys))\
+            .all():
+                player = update_player(session, p, events_by_hashkey[hk.hashkey])
+                players_by_hashkey[hk.hashkey] = player
+                hashkeys.remove(hk.hashkey)
+
+    # The remainder are the players we haven't seen before, so we need to create them.
+    for hashkey in hashkeys:
+        player = create_player(session, events_by_hashkey[hashkey])
+        players_by_hashkey[hashkey] = player
+
+    return players_by_hashkey
+
+
 def submit_stats(request):
     """
     Entry handler for POST stats submissions.
@@ -1012,6 +1054,8 @@ def submit_stats(request):
             duration=submission.duration
         )
 
+        events_by_hashkey = {elem["P"]: elem for elem in submission.humans + submission.bots}
+        get_or_create_players(session, game, gmap, events_by_hashkey)
         # keep track of the players we've seen
         player_ids = []
         pgstats = []
