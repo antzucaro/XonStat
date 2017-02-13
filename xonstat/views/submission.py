@@ -1041,10 +1041,7 @@ def submit_stats(request):
         game.players = player_ids
 
         for events in submission.teams:
-            try:
-                create_team_stat(session, game, events)
-            except Exception as e:
-                raise e
+            create_team_stat(session, game, events)
 
         if server.elo_ind and gametype_elo_eligible(submission.game_type_cd):
             ep = EloProcessor(session, game, pgstats)
