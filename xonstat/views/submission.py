@@ -581,24 +581,25 @@ def get_or_create_map(session, name):
     return gmap
 
 
-def create_game(session, start_dt, game_type_cd, server_id, map_id,
-        match_id, duration, mod, winner=None):
+def create_game(session, game_type_cd, server_id, map_id, match_id, start_dt, duration, mod,
+                winner=None):
     """
     Creates a game. Parameters:
 
     session - SQLAlchemy database session factory
-    start_dt - when the game started (datetime object)
     game_type_cd - the game type of the game being played
+    mod - mods in use during the game
     server_id - server identifier of the server hosting the game
     map_id - map on which the game was played
-    winner - the team id of the team that won
+    match_id - a unique match ID given by the server
+    start_dt - when the game started (datetime object)
     duration - how long the game lasted
-    mod - mods in use during the game
+    winner - the team id of the team that won
     """
     seq = Sequence('games_game_id_seq')
     game_id = session.execute(seq)
-    game = Game(game_id=game_id, start_dt=start_dt, game_type_cd=game_type_cd,
-                server_id=server_id, map_id=map_id, winner=winner)
+    game = Game(game_id=game_id, start_dt=start_dt, game_type_cd=game_type_cd, server_id=server_id,
+                map_id=map_id, winner=winner)
     game.match_id = match_id
     game.mod = mod[:64]
 
@@ -607,27 +608,25 @@ def create_game(session, start_dt, game_type_cd, server_id, map_id,
     # resolved.
     game.create_dt = start_dt
 
-    try:
-        game.duration = datetime.timedelta(seconds=int(round(float(duration))))
-    except:
-        pass
+    game.duration = duration
 
     try:
-        session.query(Game).filter(Game.server_id==server_id).\
-                filter(Game.match_id==match_id).one()
+        session.query(Game).filter(Game.server_id == server_id)\
+            .filter(Game.match_id == match_id).one()
 
         log.debug("Error: game with same server and match_id found! Ignoring.")
 
-        # if a game under the same server and match_id found,
-        # this is a duplicate game and can be ignored
-        raise pyramid.httpexceptions.HTTPOk('OK')
-    except NoResultFound, e:
+        # if a game under the same server_id and match_id exists, this is a duplicate
+        msg = "Duplicate game (pre-existing match_id)"
+        log.debug(msg)
+        raise pyramid.httpexceptions.HTTPOk(body=msg, content_type="text/plain")
+
+    except NoResultFound:
         # server_id/match_id combination not found. game is ok to insert
         session.add(game)
         session.flush()
-        log.debug("Created game id {0} on server {1}, map {2} at \
-                {3}".format(game.game_id,
-                    server_id, map_id, start_dt))
+        log.debug("Created game id {} on server {}, map {} at {}"
+                  .format(game.game_id, server_id, map_id, start_dt))
 
     return game
 
@@ -1004,13 +1003,13 @@ def submit_stats(request):
 
         game = create_game(
             session=session,
-            start_dt=datetime.datetime.utcnow(),
-            server_id=server.server_id,
             game_type_cd=submission.game_type_cd,
+            mod=submission.mod,
+            server_id=server.server_id,
             map_id=gmap.map_id,
             match_id=submission.match_id,
-            duration=submission.duration,
-            mod=submission.mod
+            start_dt=datetime.datetime.utcnow(),
+            duration=submission.duration
         )
 
         # keep track of the players we've seen
