@@ -753,11 +753,6 @@ def create_game_stat(session, game, gmap, player, events):
     pgstat.rank          = int(events.get('rank', None))
     pgstat.scoreboardpos = int(events.get('scoreboardpos', pgstat.rank))
 
-    if pgstat.nick != player.nick \
-            and player.player_id > 2 \
-            and pgstat.nick != 'Anonymous Player':
-        register_new_nick(session, player, pgstat.nick)
-
     wins = False
 
     # gametype-specific stuff is handled here. if passed to us, we store it
@@ -967,11 +962,43 @@ def get_ranks(session, player_ids, game_type_cd):
 
 
 def update_player(session, player, events):
-    pass
+    """
+    Updates a player record using the latest information.
+    :param session: SQLAlchemy session
+    :param player: Player model representing what is in the database right now (before updates)
+    :param events: Dict of player events from the submission
+    :return: player
+    """
+    nick = events.get('n', 'Anonymous Player')[:128]
+    if nick != player.nick and not nick.startswith("Anonymous Player"):
+        register_new_nick(session, player, nick)
+
+    return player
 
 
 def create_player(session, events):
-    pass
+    """
+    Creates a new player from the list of events.
+    :param session: SQLAlchemy session
+    :param events: Dict of player events from the submission
+    :return: Player
+    """
+    player = Player()
+    session.add(player)
+    session.flush()
+
+    nick = events.get('n', None)
+    if nick:
+        player.nick = nick[:128]
+        player.stripped_nick = strip_colors(qfont_decode(player.nick))
+    else:
+        player.nick = "Anonymous Player #{0}".format(player.player_id)
+        player.stripped_nick = player.nick
+
+    hk = Hashkey(player_id=player.player_id, hashkey=events.get('P', None))
+    session.add(hk)
+
+    return player
 
 
 def get_or_create_players(session, events_by_hashkey):
@@ -996,6 +1023,9 @@ def get_or_create_players(session, events_by_hashkey):
             .filter(Player.player_id == Hashkey.player_id)\
             .filter(Hashkey.hashkey.in_(hashkeys))\
             .all():
+                log.debug("Found existing player {} with hashkey {}"
+                          .format(p.player_id, hk.hashkey))
+
                 player = update_player(session, p, events_by_hashkey[hk.hashkey])
                 players_by_hashkey[hk.hashkey] = player
                 hashkeys.remove(hk.hashkey)
@@ -1003,6 +1033,10 @@ def get_or_create_players(session, events_by_hashkey):
     # The remainder are the players we haven't seen before, so we need to create them.
     for hashkey in hashkeys:
         player = create_player(session, events_by_hashkey[hashkey])
+
+        log.debug("Created player {0} ({2}) with hashkey {1}"
+                  .format(player.player_id, hashkey, player.nick.encode('utf-8')))
+
         players_by_hashkey[hashkey] = player
 
     return players_by_hashkey

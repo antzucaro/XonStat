@@ -17,7 +17,7 @@ NUM_PLAYERS = None
 PLAYER_ID = None
 
 # we look for players who have activity within the past DELTA hours
-DELTA = 6
+DELTA = 50000
 
 VERBOSE = False
 
