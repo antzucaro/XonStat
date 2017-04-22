@@ -8,12 +8,15 @@ log = logging.getLogger(__name__)
 
 
 class EloParms:
-    def __init__(self, global_K = 15, initial = 100, floor = 100, logdistancefactor = math.log(10)/float(400), maxlogdistance = math.log(10)):
+    def __init__(self, global_K=15, initial=100, floor=100,
+                 logdistancefactor=math.log(10)/float(400), maxlogdistance=math.log(10),
+                 latencyfactor=0.2):
         self.global_K = global_K
         self.initial = initial
         self.floor = floor
         self.logdistancefactor = logdistancefactor
         self.maxlogdistance = maxlogdistance
+        self.latencyfactor = latencyfactor
 
 
 class KReduction:
@@ -39,6 +42,16 @@ class KReduction:
         elif mygames > self.games_min:
             k *= 1.0 - (1.0 - self.games_factor) * (mygames - self.games_min) / float(self.games_max - self.games_min)
         return k
+
+
+# parameters for K reduction
+# this may be touched even if the DB already exists
+KREDUCTION = KReduction(600, 120, 0.5, 0, 32, 0.2)
+
+# parameters for chess elo
+# only global_K may be touched even if the DB already exists
+# we start at K=200, and fall to K=40 over the first 20 games
+ELOPARMS = EloParms(global_K = 200)
 
 
 class EloWIP:
@@ -135,19 +148,14 @@ class EloProcessor:
                 self.wip[pid].elo = PlayerElo(pid, game.game_type_cd, ELOPARMS.initial)
 
             # determine k reduction
-            self.wip[pid].k = KREDUCTION.eval(self.wip[pid].elo.games, 
-                    self.wip[pid].alivetime, self.duration)
+            self.wip[pid].k = KREDUCTION.eval(self.wip[pid].elo.games, self.wip[pid].alivetime,
+                                              self.duration)
 
         # we don't process the players who have a zero K factor
-        self.wip = { e.player_id:e for e in self.wip.values() if e.k > 0.0}
+        self.wip = {e.player_id:e for e in self.wip.values() if e.k > 0.0}
 
         # now actually process elos
         self.process()
-
-        # DEBUG
-        # for w in self.wip.values():
-            # log.debug(w.player_id)
-            # log.debug(w)
 
     def scorefactor(self, si, sj):
         """Calculate the real scorefactor of the game. This is how players
@@ -167,6 +175,14 @@ class EloProcessor:
             # nothing to do here for draws
 
         return scorefactor_real
+
+    def pingfactor(self, pi, pj):
+        """ Calculate the ping differences between the two players, but only if both have them. """
+        if pi is None or pj is None or pi < 0 or pj < 0:
+            return None
+
+        else:
+            return float(pi)/(pi+pj)
 
     def process(self):
         """Perform the core Elo calculation, storing the values in the "wip"
@@ -214,20 +230,22 @@ class EloProcessor:
                 # log.debug("(New) adjustment j: {0}".format(adjustmentj))
 
                 if scorefactor_elo > 0.5:
-                # player i is expected to win
+                    # player i is expected to win
                     if scorefactor_real > 0.5:
-                    # he DID win, so he should never lose points.
+                        # he DID win, so he should never lose points.
                         adjustmenti = max(0, adjustmenti)
                     else:
-                    # he lost, but let's make it continuous (making him lose less points in the result)
+                        # he lost, but let's make it continuous
+                        # (making him lose less points in the result)
                         adjustmenti = (2 * scorefactor_real - 1) * scorefactor_elo
                 else:
-                # player j is expected to win
+                    # player j is expected to win
                     if scorefactor_real > 0.5:
-                    # he lost, but let's make it continuous (making him lose less points in the result)
+                        # he lost, but let's make it continuous
+                        # (making him lose less points in the result)
                         adjustmentj = (1 - 2 * scorefactor_real) * (1 - scorefactor_elo)
                     else:
-                    # he DID win, so he should never lose points.
+                        # he DID win, so he should never lose points.
                         adjustmentj = max(0, adjustmentj)
 
                 self.wip[pids[i]].adjustment += adjustmenti
@@ -243,9 +261,6 @@ class EloProcessor:
             w.elo.games += 1
             w.elo.update_dt = datetime.datetime.utcnow()
 
-            # log.debug("Setting Player {0}'s Elo delta to {1}. Elo is now {2}\
-                    # (was {3}).".format(pid, w.elo_delta, new_elo, old_elo))
-
     def save(self, session):
         """Put all changed PlayerElo and PlayerGameStat instances into the
         session to be updated or inserted upon commit."""
@@ -259,12 +274,3 @@ class EloProcessor:
             except:
                 log.debug("Unable to save Elo delta value for player_id {0}".format(w.player_id))
 
-
-# parameters for K reduction
-# this may be touched even if the DB already exists
-KREDUCTION = KReduction(600, 120, 0.5, 0, 32, 0.2)
-
-# parameters for chess elo
-# only global_K may be touched even if the DB already exists
-# we start at K=200, and fall to K=40 over the first 20 games
-ELOPARMS = EloParms(global_K = 200)
