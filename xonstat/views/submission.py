@@ -91,6 +91,8 @@ class Submission(object):
         # does any human have a fastest cap?
         self.human_fastest = False
 
+        self.parse()
+
     def next_item(self):
         """Returns the next key:value pair off the queue."""
         try:
