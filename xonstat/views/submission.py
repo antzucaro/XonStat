@@ -338,7 +338,7 @@ def has_minimum_real_players(settings, submission):
     except:
         minimum_required_players = 2
 
-    return len(submission.human_players) >= minimum_required_players
+    return len(submission.humans) >= minimum_required_players
 
 
 def do_precondition_checks(settings, submission):
@@ -1089,14 +1089,13 @@ def submit_stats(request):
         )
 
         events_by_hashkey = {elem["P"]: elem for elem in submission.humans + submission.bots}
-        get_or_create_players(session, game, gmap, events_by_hashkey)
+        players_by_hashkey = get_or_create_players(session, events_by_hashkey)
 
-        # keep track of the players we've seen
-        player_ids = []
         pgstats = []
-        hashkeys = {}
-        for events in submission.humans + submission.bots:
-            player = get_or_create_player(session, events['P'], events.get('n', None))
+        player_ids = []
+        hashkeys_by_player_id = {}
+        for hashkey, player in players_by_hashkey.items():
+            events = events_by_hashkey[hashkey]
             pgstat = create_game_stat(session, game, gmap, player, events)
             pgstats.append(pgstat)
 
@@ -1105,12 +1104,12 @@ def submit_stats(request):
 
             if player.player_id > 2:
                 player_ids.append(player.player_id)
-                hashkeys[player.player_id] = events['P']
+                hashkeys_by_player_id[player.player_id] = hashkey
 
             if should_do_weapon_stats(submission.game_type_cd) and player.player_id > 1:
                 create_weapon_stats(session, submission.version, game, player, pgstat, events)
 
-        # store them on games for easy access
+        # player_ids for human players get stored directly on games for fast indexing
         game.players = player_ids
 
         for events in submission.teams:
@@ -1135,7 +1134,7 @@ def submit_stats(request):
                 "game": game,
                 "gmap": gmap,
                 "player_ids": player_ids,
-                "hashkeys": hashkeys,
+                "hashkeys": hashkeys_by_player_id,
                 "elos": ep.wip,
                 "ranks": ranks,
         }
