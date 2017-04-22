@@ -6,7 +6,7 @@ import re
 
 import pyramid.httpexceptions
 from sqlalchemy import Sequence
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.orm.exc import NoResultFound
 from xonstat.elo import EloProcessor
 from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, PlayerWeaponStat
 from xonstat.models import PlayerRank, PlayerCaptime
@@ -1051,16 +1051,16 @@ def submit_stats(request):
         session = None
 
         log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
-                "----- END REQUEST BODY -----\n\n")
+                  "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
         submission = Submission(request.body, request.headers)
 
         do_precondition_checks(request.registry.settings, submission)
 
-        #----------------------------------------------------------------------
+        #######################################################################
         # Actual setup (inserts/updates) below here
-        #----------------------------------------------------------------------
+        #######################################################################
         session = DBSession()
 
         # All game types create Game, Server, Map, and Player records
@@ -1118,6 +1118,9 @@ def submit_stats(request):
         if server.elo_ind and gametype_elo_eligible(submission.game_type_cd):
             ep = EloProcessor(session, game, pgstats)
             ep.save(session)
+            elos = ep.wip
+        else:
+            elos = {}
 
         session.commit()
         log.debug('Success! Stats recorded.')
@@ -1135,7 +1138,7 @@ def submit_stats(request):
                 "gmap": gmap,
                 "player_ids": player_ids,
                 "hashkeys": hashkeys_by_player_id,
-                "elos": ep.wip,
+                "elos": elos,
                 "ranks": ranks,
         }
 
