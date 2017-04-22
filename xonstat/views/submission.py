@@ -1056,7 +1056,15 @@ def submit_stats(request):
                   "----- END REQUEST BODY -----\n\n")
 
         (idfp, status) = verify_request(request)
-        submission = Submission(request.body, request.headers)
+        try:
+            submission = Submission(request.body, request.headers)
+        except:
+            msg = "Invalid submission"
+            log.debug(msg)
+            raise pyramid.httpexceptions.HTTPUnprocessableEntity(
+                body=msg,
+                content_type="text/plain"
+            )
 
         do_precondition_checks(request.registry.settings, submission)
 
