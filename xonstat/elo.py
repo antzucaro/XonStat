@@ -10,13 +10,13 @@ log = logging.getLogger(__name__)
 class EloParms:
     def __init__(self, global_K=15, initial=100, floor=100,
                  logdistancefactor=math.log(10)/float(400), maxlogdistance=math.log(10),
-                 latencyfactor=0.2):
+                 latency_trend_factor=0.2):
         self.global_K = global_K
         self.initial = initial
         self.floor = floor
         self.logdistancefactor = logdistancefactor
         self.maxlogdistance = maxlogdistance
-        self.latencyfactor = latencyfactor
+        self.latency_trend_factor = latency_trend_factor
 
 
 class KReduction:
@@ -179,7 +179,8 @@ class EloProcessor:
     def pingfactor(self, pi, pj):
         """ Calculate the ping differences between the two players, but only if both have them. """
         if pi is None or pj is None or pi < 0 or pj < 0:
-            return None
+            # default to a draw
+            return 0.5
 
         else:
             return float(pi)/(pi+pj)
@@ -195,10 +196,12 @@ class EloProcessor:
         pids = self.wip.keys()
         for i in xrange(0, len(pids)):
             ei = self.wip[pids[i]].elo
+            pi = self.wip[pids[i]].pgstat.avg_latency
             for j in xrange(i+1, len(pids)):
                 ej = self.wip[pids[j]].elo
                 si = self.wip[pids[i]].score_per_second
                 sj = self.wip[pids[j]].score_per_second
+                pj = self.wip[pids[j]].pgstat.avg_latency
 
                 # normalize scores
                 ofs = min(0, si, sj)
@@ -215,19 +218,50 @@ class EloProcessor:
                     (float(ei.elo) - float(ej.elo)) * ep.logdistancefactor))
                 scorefactor_elo = 1 / (1 + math.exp(-elodiff))
 
+                # raw ping ratios
+                ping_ratio_i = self.pingfactor(pi, pj)
+                ping_ratio_j = self.pingfactor(pj, pi)
+
+                if ping_ratio_i > 0.5:
+                    if scorefactor_real > 0.5:
+                        log.debug("player i has the ping disadvantage and won")
+                        pingfactor_i = 1 + ping_ratio_i * ep.latency_trend_factor
+                        pingfactor_j = 1 + ping_ratio_j * ep.latency_trend_factor
+                    else:
+                        log.debug("player i has the ping disadvantage and lost")
+                        pingfactor_i = 1 - ping_ratio_i * ep.latency_trend_factor
+                        pingfactor_j = 1 - ping_ratio_j * ep.latency_trend_factor
+
+                elif ping_ratio_i < 0.5:
+                    if scorefactor_real > 0.5:
+                        log.debug("player j has the ping disadvantage and lost")
+                        pingfactor_i = 1 - ping_ratio_i * ep.latency_trend_factor
+                        pingfactor_j = 1 - ping_ratio_j * ep.latency_trend_factor
+                    else:
+                        log.debug("player j has the ping disadvantage and won")
+                        pingfactor_i = 1 + ping_ratio_i * ep.latency_trend_factor
+                        pingfactor_j = 1 + ping_ratio_j * ep.latency_trend_factor
+                else:
+                    log.debug("the pings are equal")
+                    pingfactor_i = pingfactor_j = 1
+
                 # initial adjustment values, which we may modify with additional rules
-                adjustmenti = scorefactor_real - scorefactor_elo
-                adjustmentj = scorefactor_elo - scorefactor_real
+                adjustmenti = (scorefactor_real - scorefactor_elo) * pingfactor_i
+                adjustmentj = (scorefactor_elo - scorefactor_real) * pingfactor_j
 
                 # DEBUG
-                # log.debug("(New) Player i: {0}".format(ei.player_id))
-                # log.debug("(New) Player i's K: {0}".format(self.wip[pids[i]].k))
-                # log.debug("(New) Player j: {0}".format(ej.player_id))
-                # log.debug("(New) Player j's K: {0}".format(self.wip[pids[j]].k))
-                # log.debug("(New) Scorefactor real: {0}".format(scorefactor_real))
-                # log.debug("(New) Scorefactor elo: {0}".format(scorefactor_elo))
-                # log.debug("(New) adjustment i: {0}".format(adjustmenti))
-                # log.debug("(New) adjustment j: {0}".format(adjustmentj))
+                log.debug("(New) Player i: {0}".format(ei.player_id))
+                log.debug("(New) Player i's K: {0}".format(self.wip[pids[i]].k))
+                log.debug("(New) Player i's pingfactor: {0}".format(pingfactor_i))
+                log.debug("(New) Player j: {0}".format(ej.player_id))
+                log.debug("(New) Player j's K: {0}".format(self.wip[pids[j]].k))
+                log.debug("(New) Player j's pingfactor: {0}".format(pingfactor_j))
+                log.debug("(New) Scorefactor real: {0}".format(scorefactor_real))
+                log.debug("(New) Scorefactor elo: {0}".format(scorefactor_elo))
+                log.debug("(New) adjustment i: {0}".format(scorefactor_real - scorefactor_elo))
+                log.debug("(New) adjustment j: {0}".format(scorefactor_elo - scorefactor_real))
+                log.debug("(New) adjustment i with ping: {0}".format(adjustmenti))
+                log.debug("(New) adjustment j with ping: {0}\n".format(adjustmentj))
 
                 if scorefactor_elo > 0.5:
                     # player i is expected to win
@@ -256,6 +290,9 @@ class EloProcessor:
             old_elo = float(w.elo.elo)
             new_elo = max(float(w.elo.elo) + w.adjustment * w.k * ep.global_K / float(len(pids) - 1), ep.floor)
             w.elo_delta = new_elo - old_elo
+
+            log.debug("{}'s Old Elo: {} New Elo: {} Delta {}"
+                      .format(pid, old_elo, new_elo, w.elo_delta))
 
             w.elo.elo = new_elo
             w.elo.games += 1
