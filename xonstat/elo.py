@@ -221,7 +221,7 @@ class EloProcessor:
                 # adjust the elo prediction according to ping
                 ping_ratio = self.pingfactor(pi, pj)
                 scorefactor_ping = ep.latency_trend_factor * (0.5 - ping_ratio)
-                scorefactor_elo_adjusted = max(0, min(1, scorefactor_elo + scorefactor_ping))
+                scorefactor_elo_adjusted = max(0.0, min(1.0, scorefactor_elo + scorefactor_ping))
 
                 # initial adjustment values, which we may modify with additional rules
                 adjustmenti = scorefactor_real - scorefactor_elo_adjusted
