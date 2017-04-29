@@ -1,6 +1,0 @@
-TODO:
-
-- "e matches" and "e joins" seem to be mutually exclusive. Add a check for either (instead of just joins" before adding a player_game_stats record).
-
-- map names are being recorded multiple times in the maps table. They should be found when being played subsequent times. 
-
