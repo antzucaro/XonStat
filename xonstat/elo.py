@@ -228,18 +228,18 @@ class EloProcessor:
                 adjustmentj = scorefactor_elo_adjusted - scorefactor_real
 
                 # DEBUG
-                log.debug("(New) Player i: {0}".format(ei.player_id))
-                log.debug("(New) Player i's K: {0}".format(self.wip[pids[i]].k))
-                log.debug("(New) Player j: {0}".format(ej.player_id))
-                log.debug("(New) Player j's K: {0}".format(self.wip[pids[j]].k))
-                log.debug("(New) Ping ratio: {0}".format(ping_ratio))
-                log.debug("(New) Scorefactor real: {0}".format(scorefactor_real))
-                log.debug("(New) Scorefactor elo: {0}".format(scorefactor_elo))
-                log.debug("(New) Scorefactor ping: {0}".format(scorefactor_ping))
-                log.debug("(New) adjustment i: {0}".format(scorefactor_real - scorefactor_elo))
-                log.debug("(New) adjustment j: {0}".format(scorefactor_elo - scorefactor_real))
-                log.debug("(New) adjustment i with ping: {0}".format(adjustmenti))
-                log.debug("(New) adjustment j with ping: {0}\n".format(adjustmentj))
+                # log.debug("(New) Player i: {0}".format(ei.player_id))
+                # log.debug("(New) Player i's K: {0}".format(self.wip[pids[i]].k))
+                # log.debug("(New) Player j: {0}".format(ej.player_id))
+                # log.debug("(New) Player j's K: {0}".format(self.wip[pids[j]].k))
+                # log.debug("(New) Ping ratio: {0}".format(ping_ratio))
+                # log.debug("(New) Scorefactor real: {0}".format(scorefactor_real))
+                # log.debug("(New) Scorefactor elo: {0}".format(scorefactor_elo))
+                # log.debug("(New) Scorefactor ping: {0}".format(scorefactor_ping))
+                # log.debug("(New) adjustment i: {0}".format(scorefactor_real - scorefactor_elo))
+                # log.debug("(New) adjustment j: {0}".format(scorefactor_elo - scorefactor_real))
+                # log.debug("(New) adjustment i with ping: {0}".format(adjustmenti))
+                # log.debug("(New) adjustment j with ping: {0}\n".format(adjustmentj))
 
                 if scorefactor_elo > 0.5:
                     # player i is expected to win
