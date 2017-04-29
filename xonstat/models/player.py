@@ -103,21 +103,23 @@ class PlayerElo(object):
     A player's skill for a particular game type, as determined by a modified Elo algorithm.
     """
 
-    def __init__(self, player_id=None, game_type_cd=None, elo=None):
+    def __init__(self, player_id=None, game_type_cd=None, elo=None, category="general"):
         self.player_id = player_id
         self.game_type_cd = game_type_cd
         self.elo = elo
         self.score = 0
         self.games = 0
+        self.category = category
 
     def __repr__(self):
-        return ("<PlayerElo(pid={0.player_id}, gametype={0.game_type_cd}, elo={0.elo}, "
-                "games={0.games})>".format(self))
+        return ("<PlayerElo(pid={0.player_id}, gametype={0.game_type_cd}, category={0.category}, "
+                "elo={0.elo}, games={0.games})>".format(self))
 
     def to_dict(self):
         return {
             'player_id': self.player_id,
             'game_type_cd': self.game_type_cd,
+            'category': self.category,
             'elo': self.elo,
             'games': self.games,
         }
