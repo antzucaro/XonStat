@@ -5,3 +5,7 @@
 *.pyc
 /xonstat/batch/badges/output/*.png
 /xonstat/batch/badges/output/*/*.png
+.idea
+*egg*
+tags
+sys
