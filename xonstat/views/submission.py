@@ -1048,10 +1048,10 @@ def submit_stats(request):
     """
     Entry handler for POST stats submissions.
     """
-    try:
-        # placeholder for the actual session
-        session = None
+    # placeholder for the actual session
+    session = None
 
+    try:
         log.debug("\n----- BEGIN REQUEST BODY -----\n" + request.body +
                   "----- END REQUEST BODY -----\n\n")
 
