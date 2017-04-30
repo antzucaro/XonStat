@@ -99,10 +99,13 @@ class EloProcessor:
     """EloProcessor is a container for holding all of the intermediary AND
     final values used to calculate Elo deltas for all players in a given
     game."""
-    def __init__(self, session, game, pgstats):
+    def __init__(self, session, game, pgstats, category):
 
         # game which we are processing
         self.game = game
+
+        # which type of Elo category we are processing
+        self.category = category
 
         # work-in-progress values, indexed by player
         self.wip = {}
@@ -138,14 +141,16 @@ class EloProcessor:
 
         # Fetch current Elo values for all players. For players that don't yet 
         # have an Elo record, we'll give them a default one.
-        for e in session.query(PlayerElo).\
-                filter(PlayerElo.player_id.in_(self.wip.keys())).\
-                filter(PlayerElo.game_type_cd==game.game_type_cd).all():
+        for e in session.query(PlayerElo)\
+                .filter(PlayerElo.player_id.in_(self.wip.keys()))\
+                .filter(PlayerElo.game_type_cd==game.game_type_cd)\
+                .filter(PlayerElo.category==self.category)\
+                .all():
                     self.wip[e.player_id].elo = e
 
         for pid in self.wip.keys():
             if self.wip[pid].elo is None:
-                self.wip[pid].elo = PlayerElo(pid, game.game_type_cd, ELOPARMS.initial)
+                self.wip[pid].elo = PlayerElo(pid, game.game_type_cd, ELOPARMS.initial, category)
 
             # determine k reduction
             self.wip[pid].k = KREDUCTION.eval(self.wip[pid].elo.games, self.wip[pid].alivetime,
