@@ -7,6 +7,8 @@ from xonstat.views.helpers import RecentGame, recent_games_q
 
 log = logging.getLogger(__name__)
 
+RANKED_GAME_TYPES = ['duel', 'ctf', 'dm', 'tdm']
+
 
 @cache_region('hourly_term')
 def get_summary_stats(scope="all"):
@@ -82,7 +84,7 @@ def get_summary_stats(scope="all"):
 
 
 @cache_region('hourly_term')
-def get_ranks(game_type_cd):
+def get_ranks(game_type_cd, category="general"):
     """
     Gets a set number of the top-ranked people for the specified game_type_cd.
 
@@ -96,10 +98,12 @@ def get_ranks(game_type_cd):
     if game_type_cd not in 'duel' 'dm' 'ctf' 'tdm':
         return None
 
-    ranks = DBSession.query(PlayerRank).\
-            filter(PlayerRank.game_type_cd==game_type_cd).\
-            order_by(PlayerRank.rank).\
-            limit(leaderboard_count).all()
+    ranks = DBSession.query(PlayerRank)\
+        .filter(PlayerRank.game_type_cd == game_type_cd) \
+        .filter(PlayerRank.category == category)\
+        .order_by(PlayerRank.rank)\
+        .limit(leaderboard_count)\
+        .all()
 
     return ranks
 
@@ -172,13 +176,7 @@ def _main_index_data(request):
     stat_line = get_summary_stats("all")
     day_stat_line = get_summary_stats("day")
 
-
-    # the three top ranks tables
-    ranks = []
-    for gtc in ['duel', 'ctf', 'dm', 'tdm']:
-        rank = get_ranks(gtc)
-        if len(rank) != 0:
-            ranks.append(rank)
+    ranks = [get_ranks(gt) for gt in RANKED_GAME_TYPES if get_ranks(gt)]
 
     right_now = datetime.utcnow()
     back_then = datetime.utcnow() - timedelta(days=leaderboard_lifetime)
