@@ -172,36 +172,30 @@ def _main_index_data(request):
     leaderboard_count = 10
     recent_games_count = 20
 
-    # summary statistics for the tagline
     stat_line = get_summary_stats("all")
     day_stat_line = get_summary_stats("day")
 
     ranks = [get_ranks(gt) for gt in RANKED_GAME_TYPES if get_ranks(gt)]
 
-    right_now = datetime.utcnow()
+    top_players = get_top_players_by_time(leaderboard_count)
+
+    top_servers = get_top_servers_by_games(leaderboard_count)
+
+    top_maps = get_top_maps_by_games(leaderboard_count)
+
     back_then = datetime.utcnow() - timedelta(days=leaderboard_lifetime)
-
-    # top players by playing time
-    top_players = get_top_players_by_time(10)
-
-    # top servers by number of games
-    top_servers = get_top_servers_by_games(10)
-
-    # top maps by total times played
-    top_maps = get_top_maps_by_games(10)
-
-    # recent games played in descending order
     rgs = recent_games_q(cutoff=back_then).limit(recent_games_count).all()
     recent_games = [RecentGame(row) for row in rgs]
 
-    return {'top_players':top_players,
-            'top_servers':top_servers,
-            'top_maps':top_maps,
-            'recent_games':recent_games,
-            'ranks':ranks,
-            'stat_line':stat_line,
-            'day_stat_line':day_stat_line,
-            }
+    return {
+        'top_players': top_players,
+        'top_servers': top_servers,
+        'top_maps': top_maps,
+        'recent_games': recent_games,
+        'ranks': ranks,
+        'stat_line': stat_line,
+        'day_stat_line': day_stat_line,
+    }
 
 
 def main_index(request):
