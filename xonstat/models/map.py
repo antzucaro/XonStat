@@ -24,6 +24,8 @@ class Map(FuzzyDateMixin, EpochMixin):
             'map_id': self.map_id,
             'name': self.name,
             'version': self.version,
+            'create_dt_fuzzy': self.fuzzy_date(),
+            'create_dt_epoch': self.epoch(),
         }
 
 
