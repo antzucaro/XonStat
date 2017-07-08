@@ -25,7 +25,6 @@ class MapIndex(object):
     def __init__(self, request):
         """Common parameter parsing."""
         self.request = request
-        self.page = request.params.get("page", 1)
         self.last = request.params.get("last", None)
 
         # all views share this data, so we'll pre-calculate
@@ -96,7 +95,6 @@ class MapTopScorers(MapInfoBase):
     def get_top_scorers(self):
         """Top players by score. Shared by all renderers."""
         cutoff = self.now - timedelta(days=self.lifetime)
-        cutoff = self.now - timedelta(days=120)
 
         top_scorers_q = DBSession.query(
             fg.row_number().over(order_by=expr.desc(func.sum(PlayerGameStat.score))).label("rank"),
@@ -151,6 +149,75 @@ class MapTopScorers(MapInfoBase):
         return {
             "map_id": self.map_id,
             "top_scorers": top_scorers,
+        }
+
+
+class MapTopPlayers(MapInfoBase):
+    """Returns the top players by time on a given map."""
+
+    def __init__(self, request, limit=INDEX_COUNT, last=None):
+        """Common parameter parsing."""
+        super(MapTopPlayers, self).__init__(request, limit, last)
+        self.top_players = self.get_top_players()
+
+    def get_top_players(self):
+        """Top players by score. Shared by all renderers."""
+        cutoff = self.now - timedelta(days=self.lifetime)
+
+        top_players_q = DBSession.query(
+            fg.row_number().over(order_by=expr.desc(func.sum(PlayerGameStat.alivetime))).label("rank"),
+            Player.player_id, Player.nick, func.sum(PlayerGameStat.alivetime).label("alivetime"))\
+            .filter(Player.player_id == PlayerGameStat.player_id)\
+            .filter(Game.game_id == PlayerGameStat.game_id)\
+            .filter(Game.map_id == self.map_id)\
+            .filter(Player.player_id > 2)\
+            .filter(PlayerGameStat.create_dt > cutoff)\
+            .order_by(expr.desc(func.sum(PlayerGameStat.alivetime)))\
+            .group_by(Player.nick)\
+            .group_by(Player.player_id)
+
+        if self.last:
+            top_players_q = top_players_q.offset(self.last)
+
+        if self.limit:
+            top_players_q = top_players_q.limit(self.limit)
+
+        top_players = top_players_q.all()
+
+        return top_players
+
+    def html(self):
+        """Returns the HTML-ready representation."""
+        TopPlayer = namedtuple("TopPlayer", ["rank", "player_id", "nick", "alivetime"])
+
+        top_players = [TopPlayer(tp.rank, tp.player_id, html_colors(tp.nick), tp.alivetime)
+                       for tp in self.top_players]
+
+        # build the query string
+        query = {}
+        if len(top_players) > 1:
+            query['last'] = top_players[-1].rank
+
+        return {
+            "map_id": self.map_id,
+            "top_players": top_players,
+            "lifetime": self.lifetime,
+            "last": query.get("last", None),
+            "query": query,
+        }
+
+    def json(self):
+        """For rendering this data using JSON."""
+        top_players = [{
+            "rank": ts.rank,
+            "player_id": ts.player_id,
+            "nick": ts.nick,
+            "time": ts.alivetime.total_seconds(),
+        } for ts in self.top_players]
+
+        return {
+            "map_id": self.map_id,
+            "top_players": top_players,
         }
 
 

@@ -167,6 +167,12 @@ def main(global_config, **settings):
     config.add_view(view=MapTopScorers, route_name="map_top_scorers", attr="json",
                     renderer="json", accept="application/json")
 
+    config.add_route("map_top_active", "/map/{id:\d+}/topactive")
+    config.add_view(view=MapTopPlayers, route_name="map_top_active", attr="html",
+                    renderer="map_top_active.mako", accept="text/html")
+    config.add_view(view=MapTopPlayers, route_name="map_top_active", attr="json",
+                    renderer="json", accept="application/json")
+
     config.add_route("map_info",      "/map/{id:\d+}")
     config.add_view(map_info,      route_name="map_info",      renderer="map_info.mako")
 
