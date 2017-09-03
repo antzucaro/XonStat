@@ -13,7 +13,7 @@ from xonstat.views.game   import game_info, rank_index
 from xonstat.views.game   import game_info_json, rank_index_json
 from xonstat.views.game   import game_finder, game_finder_json
 
-from xonstat.views.map import MapIndex, MapTopScorers, MapTopPlayers
+from xonstat.views.map import MapIndex, MapTopScorers, MapTopPlayers, MapTopServers
 from xonstat.views.map import map_info, map_info_json
 from xonstat.views.map import map_captimes, map_captimes_json
 
