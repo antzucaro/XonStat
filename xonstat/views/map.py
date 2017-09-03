@@ -96,27 +96,31 @@ class MapTopScorers(MapInfoBase):
         """Top players by score. Shared by all renderers."""
         cutoff = self.now - timedelta(days=self.lifetime)
 
-        top_scorers_q = DBSession.query(
-            fg.row_number().over(order_by=expr.desc(func.sum(PlayerGameStat.score))).label("rank"),
-            Player.player_id, Player.nick, func.sum(PlayerGameStat.score).label("total_score"))\
-            .filter(Player.player_id == PlayerGameStat.player_id)\
-            .filter(Game.game_id == PlayerGameStat.game_id)\
-            .filter(Game.map_id == self.map_id)\
-            .filter(Player.player_id > 2)\
-            .filter(PlayerGameStat.create_dt > cutoff)\
-            .order_by(expr.desc(func.sum(PlayerGameStat.score)))\
-            .group_by(Player.nick)\
-            .group_by(Player.player_id)
+        try:
+            top_scorers_q = DBSession.query(
+                fg.row_number().over(order_by=expr.desc(func.sum(PlayerGameStat.score))).label("rank"),
+                Player.player_id, Player.nick, func.sum(PlayerGameStat.score).label("total_score"))\
+                .filter(Player.player_id == PlayerGameStat.player_id)\
+                .filter(Game.game_id == PlayerGameStat.game_id)\
+                .filter(Game.map_id == self.map_id)\
+                .filter(Player.player_id > 2)\
+                .filter(PlayerGameStat.create_dt > cutoff)\
+                .order_by(expr.desc(func.sum(PlayerGameStat.score)))\
+                .group_by(Player.nick)\
+                .group_by(Player.player_id)
 
-        if self.last:
-            top_scorers_q = top_scorers_q.offset(self.last)
+            if self.last:
+                top_scorers_q = top_scorers_q.offset(self.last)
 
-        if self.limit:
-            top_scorers_q = top_scorers_q.limit(self.limit)
+            if self.limit:
+                top_scorers_q = top_scorers_q.limit(self.limit)
 
-        top_scorers = top_scorers_q.all()
+            top_scorers = top_scorers_q.all()
 
-        return top_scorers
+            return top_scorers
+        except Exception as e:
+            log.debug(e)
+            raise HTTPNotFound
 
     def html(self):
         """Returns an HTML-ready representation."""
@@ -164,27 +168,31 @@ class MapTopPlayers(MapInfoBase):
         """Top players by score. Shared by all renderers."""
         cutoff = self.now - timedelta(days=self.lifetime)
 
-        top_players_q = DBSession.query(
-            fg.row_number().over(order_by=expr.desc(func.sum(PlayerGameStat.alivetime))).label("rank"),
-            Player.player_id, Player.nick, func.sum(PlayerGameStat.alivetime).label("alivetime"))\
-            .filter(Player.player_id == PlayerGameStat.player_id)\
-            .filter(Game.game_id == PlayerGameStat.game_id)\
-            .filter(Game.map_id == self.map_id)\
-            .filter(Player.player_id > 2)\
-            .filter(PlayerGameStat.create_dt > cutoff)\
-            .order_by(expr.desc(func.sum(PlayerGameStat.alivetime)))\
-            .group_by(Player.nick)\
-            .group_by(Player.player_id)
+        try:
+            top_players_q = DBSession.query(
+                fg.row_number().over(order_by=expr.desc(func.sum(PlayerGameStat.alivetime))).label("rank"),
+                Player.player_id, Player.nick, func.sum(PlayerGameStat.alivetime).label("alivetime"))\
+                .filter(Player.player_id == PlayerGameStat.player_id)\
+                .filter(Game.game_id == PlayerGameStat.game_id)\
+                .filter(Game.map_id == self.map_id)\
+                .filter(Player.player_id > 2)\
+                .filter(PlayerGameStat.create_dt > cutoff)\
+                .order_by(expr.desc(func.sum(PlayerGameStat.alivetime)))\
+                .group_by(Player.nick)\
+                .group_by(Player.player_id)
 
-        if self.last:
-            top_players_q = top_players_q.offset(self.last)
+            if self.last:
+                top_players_q = top_players_q.offset(self.last)
 
-        if self.limit:
-            top_players_q = top_players_q.limit(self.limit)
+            if self.limit:
+                top_players_q = top_players_q.limit(self.limit)
 
-        top_players = top_players_q.all()
+            top_players = top_players_q.all()
 
-        return top_players
+            return top_players
+        except Exception as e:
+            log.debug(e)
+            raise HTTPNotFound
 
     def html(self):
         """Returns the HTML-ready representation."""
@@ -233,25 +241,29 @@ class MapTopServers(MapInfoBase):
         """Top servers by the number of times they have played the map. Shared by all renderers."""
         cutoff = self.now - timedelta(days=self.lifetime)
 
-        top_servers_q = DBSession.query(
-            fg.row_number().over(order_by=expr.desc(func.count(Game.game_id))).label("rank"),
-            Server.server_id, Server.name, func.count(Game.game_id).label("games"))\
-            .filter(Game.server_id == Server.server_id)\
-            .filter(Game.map_id == self.map_id)\
-            .filter(Game.create_dt > cutoff)\
-            .order_by(expr.desc(func.count(Game.game_id)))\
-            .group_by(Server.name)\
-            .group_by(Server.server_id)
+        try:
+            top_servers_q = DBSession.query(
+                fg.row_number().over(order_by=expr.desc(func.count(Game.game_id))).label("rank"),
+                Server.server_id, Server.name, func.count(Game.game_id).label("games"))\
+                .filter(Game.server_id == Server.server_id)\
+                .filter(Game.map_id == self.map_id)\
+                .filter(Game.create_dt > cutoff)\
+                .order_by(expr.desc(func.count(Game.game_id)))\
+                .group_by(Server.name)\
+                .group_by(Server.server_id)
 
-        if self.last:
-            top_servers_q = top_servers_q.offset(self.last)
+            if self.last:
+                top_servers_q = top_servers_q.offset(self.last)
 
-        if self.limit:
-            top_servers_q = top_servers_q.limit(self.limit)
+            if self.limit:
+                top_servers_q = top_servers_q.limit(self.limit)
 
-        top_servers = top_servers_q.all()
+            top_servers = top_servers_q.all()
 
-        return top_servers
+            return top_servers
+        except Exception as e:
+            log.debug(e)
+            raise HTTPNotFound
 
     def html(self):
         """Returns the HTML-ready representation."""
