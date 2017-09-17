@@ -1111,8 +1111,7 @@ def submit_stats(request):
             pgstats.append(pgstat)
 
             # player ranking opt-out
-            if 'r' in events and events['r'] != "0":
-                log.debug("excluding player {} from Elo calculations".format(events['i']))
+            if 'r' in events and events['r'] != '0':
                 elo_pgstats.append(pgstat)
 
             if player.player_id > 1:
