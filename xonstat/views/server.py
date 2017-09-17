@@ -4,7 +4,6 @@ import sqlalchemy.sql.expression as expr
 from collections import namedtuple
 from datetime import datetime, timedelta
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.registry import Registry
 from sqlalchemy import func as fg
 from webhelpers.paginate import Page
 from xonstat.models import DBSession, Player, Server, Map, Game, PlayerGameStat
@@ -15,11 +14,10 @@ log = logging.getLogger(__name__)
 
 
 # Defaults
-settings = Registry.settings
-LEADERBOARD_LIFETIME = int(settings.get("xonstat.servers.leaderboard_lifetime", 30))
-LEADERBOARD_COUNT = int(settings.get("xonstat.servers.leaderboard_count", 10))
-INDEX_COUNT = int(settings.get("xonstat.servers.index_count", 20))
-RECENT_GAMES_COUNT = int(settings.get("xonstat.servers.recent_games_count", 20))
+LEADERBOARD_LIFETIME = 30
+LEADERBOARD_COUNT = 10
+INDEX_COUNT = 20
+RECENT_GAMES_COUNT = 20
 
 
 class ServerIndex(object):
