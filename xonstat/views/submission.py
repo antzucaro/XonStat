@@ -129,7 +129,7 @@ class Submission(object):
         """Construct a player events listing from the submission."""
 
         # all of the keys related to player records
-        player_keys = ['i', 'n', 't', 'e']
+        player_keys = ['i', 'n', 't', 'r', 'e']
 
         player = {key: pid}
 
@@ -1102,12 +1102,18 @@ def submit_stats(request):
         players_by_hashkey = get_or_create_players(session, events_by_hashkey)
 
         pgstats = []
+        elo_pgstats = []
         player_ids = []
         hashkeys_by_player_id = {}
         for hashkey, player in players_by_hashkey.items():
             events = events_by_hashkey[hashkey]
             pgstat = create_game_stat(session, game, gmap, player, events)
             pgstats.append(pgstat)
+
+            # player ranking opt-out
+            if 'r' in events and events['r'] != "0":
+                log.debug("excluding player {} from Elo calculations".format(events['i']))
+                elo_pgstats.append(pgstat)
 
             if player.player_id > 1:
                 create_anticheats(session, pgstat, game, player, events)
@@ -1126,7 +1132,7 @@ def submit_stats(request):
             create_team_stat(session, game, events)
 
         if server.elo_ind and gametype_elo_eligible(submission.game_type_cd):
-            ep = EloProcessor(session, game, pgstats)
+            ep = EloProcessor(session, game, elo_pgstats)
             ep.save(session)
             elos = ep.wip
         else:
