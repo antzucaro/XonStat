@@ -149,7 +149,7 @@ class Submission(object):
                 if sub_key.endswith("cnt-fired"):
                     player_fired_weapon = True
                     self.add_weapon_fired(sub_key)
-                elif sub_key == 'scoreboard-score' and int(sub_value) != 0:
+                elif sub_key == 'scoreboard-score' and int(round(float(sub_value))) != 0:
                     player_nonzero_score = True
                 elif sub_key == 'scoreboard-fastest':
                     player_fastest = True
