@@ -1044,6 +1044,25 @@ def get_or_create_players(session, events_by_hashkey):
     return players_by_hashkey
 
 
+def create_frag_matrix(pgstat, events):
+    """
+    Construct a PlayerFragMatrix object from the events of a given player.
+
+    :param pgstat: The PlayerGameStat object of the player whose frag matrix we want to create.
+    :param events: The raw player events of the above player.
+    :return: PlayerFragMatrix
+    """
+    player_index = events.get("i", None)
+
+    # "kills-4" -> 4
+    victim_index = lambda x: int(x.split("-")[1])
+
+    # TODO: prune these events to only those corresponding to players who played in the game
+    matrix = {victim_index(k): int(v) for (k, v) in events if k.startswith("kills-")}
+
+    return None
+
+
 def submit_stats(request):
     """
     Entry handler for POST stats submissions.
