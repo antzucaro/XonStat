@@ -9,7 +9,7 @@ from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import NoResultFound
 from xonstat.elo import EloProcessor
 from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, PlayerWeaponStat
-from xonstat.models import PlayerRank, PlayerCaptime
+from xonstat.models import PlayerRank, PlayerCaptime, PlayerGameFragMatrix
 from xonstat.models import TeamGameStat, PlayerGameAnticheat, Player, Hashkey, PlayerNick
 from xonstat.util import strip_colors, qfont_decode, verify_request, weapon_map
 
@@ -78,6 +78,9 @@ class Submission(object):
 
         # bots who played in the match
         self.bots = []
+
+        # player indexes for those who played
+        self.player_indexes = set()
 
         # distinct weapons that we have seen fired
         self.weapons = set()
@@ -164,6 +167,9 @@ class Submission(object):
 
         played = self.played_in_game(player)
         human = self.is_human_player(player)
+
+        if played:
+            self.player_indexes.add(int(player["i"]))
 
         if played and human:
             self.humans.append(player)
@@ -1044,23 +1050,30 @@ def get_or_create_players(session, events_by_hashkey):
     return players_by_hashkey
 
 
-def create_frag_matrix(pgstat, events):
+def create_frag_matrix(session, player_indexes, pgstat, events):
     """
     Construct a PlayerFragMatrix object from the events of a given player.
 
+    :param session: The DBSession we're adding objects to.
+    :param player_indexes: The set of player indexes of those that actually played in the game.
     :param pgstat: The PlayerGameStat object of the player whose frag matrix we want to create.
     :param events: The raw player events of the above player.
     :return: PlayerFragMatrix
     """
-    player_index = events.get("i", None)
+    player_index = int(events.get("i", None))
 
     # "kills-4" -> 4
     victim_index = lambda x: int(x.split("-")[1])
 
-    # TODO: prune these events to only those corresponding to players who played in the game
-    matrix = {victim_index(k): int(v) for (k, v) in events if k.startswith("kills-")}
+    matrix = {victim_index(k): int(v) for (k, v) in events.items()
+              if k.startswith("kills-") and victim_index(k) in player_indexes}
 
-    return None
+    pfm = PlayerGameFragMatrix(pgstat.game_id, pgstat.player_game_stat_id, pgstat.player_id,
+                               player_index, matrix)
+
+    session.add(pfm)
+
+    return pfm
 
 
 def submit_stats(request):
@@ -1126,8 +1139,11 @@ def submit_stats(request):
         hashkeys_by_player_id = {}
         for hashkey, player in players_by_hashkey.items():
             events = events_by_hashkey[hashkey]
+
             pgstat = create_game_stat(session, game, gmap, player, events)
             pgstats.append(pgstat)
+
+            frag_matrix = create_frag_matrix(session, submission.player_indexes, pgstat, events)
 
             # player ranking opt-out
             if 'r' in events and events['r'] != '0':
