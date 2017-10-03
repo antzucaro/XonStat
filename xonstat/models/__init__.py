@@ -58,6 +58,7 @@ def initialize_db(engine=None):
     active_servers_table = metadata.tables['active_servers_mv']
     active_maps_table = metadata.tables['active_maps_mv']
     player_medals_table = metadata.tables['player_medals']
+    player_game_frag_matrix_table = metadata.tables['player_game_frag_matrix']
 
     # Map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -83,3 +84,4 @@ def initialize_db(engine=None):
     mapper(ActiveServer, active_servers_table)
     mapper(ActiveMap, active_maps_table)
     mapper(PlayerMedal, player_medals_table)
+    mapper(PlayerGameFragMatrix, player_game_frag_matrix_table)

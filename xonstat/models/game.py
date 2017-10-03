@@ -192,3 +192,16 @@ class Weapon(object):
             'name': self.descr,
             'active': self.active_ind,
         }
+
+
+class PlayerGameFragMatrix(object):
+    """
+    Frags made by an individual player in a single game.
+    """
+
+    def __init__(self, game_id, player_game_stat_id):
+        self.game_id = game_id
+        self.player_game_stat_id = player_game_stat_id
+
+    def __repr__(self):
+        return "<PlayerGameFragMatrix({0.game_id}, {0.player_game_stat_id})>".format(self)
