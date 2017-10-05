@@ -2,6 +2,7 @@
 <%namespace name="nav" file="nav.mako" />
 <%namespace file="scoreboard.mako" import="scoreboard" />
 <%namespace file="accuracy.mako" import="accuracy" />
+<%namespace file="frag_matrix.mako" import="frag_matrix" />
 
 <%block name="navigation">
   ${nav.nav('games')}
@@ -149,4 +150,14 @@
         </div>
       </div>
   % endif
+
+  % if show_frag_matrix:
+    <div class="row">
+      <div class="small-12 columns">
+        <h3>Frag Matrix</h3>
+        ${frag_matrix(pgstats, matrix_by_pgstat_id)}
+      </div>
+    </div>
+  % endif
+
 % endif
