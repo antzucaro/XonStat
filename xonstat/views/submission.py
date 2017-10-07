@@ -1068,12 +1068,14 @@ def create_frag_matrix(session, player_indexes, pgstat, events):
     matrix = {victim_index(k): int(v) for (k, v) in events.items()
               if k.startswith("kills-") and victim_index(k) in player_indexes}
 
-    pfm = PlayerGameFragMatrix(pgstat.game_id, pgstat.player_game_stat_id, pgstat.player_id,
-                               player_index, matrix)
+    if len(matrix) > 0:
+        pfm = PlayerGameFragMatrix(pgstat.game_id, pgstat.player_game_stat_id, pgstat.player_id,
+                                   player_index, matrix)
 
-    session.add(pfm)
-
-    return pfm
+        session.add(pfm)
+        return pfm
+    else:
+        return None
 
 
 def submit_stats(request):
