@@ -5,7 +5,7 @@ from pyramid import httpexceptions
 from sqlalchemy.orm.exc import *
 from webhelpers.paginate import Page
 from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, PlayerWeaponStat
-from xonstat.models import TeamGameStat, PlayerRank, GameType, Weapon
+from xonstat.models import PlayerGameFragMatrix, TeamGameStat, PlayerRank, GameType, Weapon
 from xonstat.util import page_url
 from xonstat.views.helpers import RecentGame, recent_games_q
 
@@ -19,17 +19,18 @@ def _game_info_data(request):
     show_elo = bool(request.params.get("show_elo", False))
 
     try:
-        (game, server, map, gametype) = DBSession.query(Game, Server, Map, GameType).\
-                filter(Game.game_id == game_id).\
-                filter(Game.server_id == Server.server_id).\
-                filter(Game.map_id == Map.map_id).\
-                filter(Game.game_type_cd == GameType.game_type_cd).one()
+        (game, server, map, gametype) = DBSession.query(Game, Server, Map, GameType)\
+            .filter(Game.game_id == game_id)\
+            .filter(Game.server_id == Server.server_id)\
+            .filter(Game.map_id == Map.map_id)\
+            .filter(Game.game_type_cd == GameType.game_type_cd)\
+            .one()
 
-        pgstats = DBSession.query(PlayerGameStat).\
-                filter(PlayerGameStat.game_id == game_id).\
-                order_by(PlayerGameStat.scoreboardpos).\
-                order_by(PlayerGameStat.score).\
-                all()
+        pgstats = DBSession.query(PlayerGameStat)\
+            .filter(PlayerGameStat.game_id == game_id)\
+            .order_by(PlayerGameStat.scoreboardpos)\
+            .order_by(PlayerGameStat.score)\
+            .all()
 
         # Really old games don't have latency sent, so we have to check. If at
         # least one player has a latency value, we'll show the ping column.
@@ -39,13 +40,12 @@ def _game_info_data(request):
                 show_latency = True
                 break
 
-        q = DBSession.query(TeamGameStat).\
-                filter(TeamGameStat.game_id == game_id)
+        q = DBSession.query(TeamGameStat).filter(TeamGameStat.game_id == game_id)
+
         if game.game_type_cd == 'ctf':
             q = q.order_by(TeamGameStat.caps.desc())
         elif game.game_type_cd == 'ca':
             q = q.order_by(TeamGameStat.rounds.desc())
-        # dom -> ticks, rc -> laps, nb -> goals, as -> objectives
 
         q = q.order_by(TeamGameStat.score.desc())
 
@@ -65,11 +65,11 @@ def _game_info_data(request):
             captimes = sorted(captimes, key=lambda x:x.fastest)
 
         pwstats = {}
-        for (pwstat, weapon) in DBSession.query(PlayerWeaponStat, Weapon).\
-                filter(PlayerWeaponStat.game_id == game_id).\
-                filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd).\
-                order_by(PlayerWeaponStat.actual.desc()).\
-                all():
+        for (pwstat, weapon) in DBSession.query(PlayerWeaponStat, Weapon)\
+                .filter(PlayerWeaponStat.game_id == game_id)\
+                .filter(PlayerWeaponStat.weapon_cd == Weapon.weapon_cd)\
+                .order_by(PlayerWeaponStat.actual.desc())\
+                .all():
                     if pwstat.player_game_stat_id not in pwstats:
                         pwstats[pwstat.player_game_stat_id] = []
 
@@ -77,24 +77,37 @@ def _game_info_data(request):
                         weapon.weapon_cd, pwstat.actual, pwstat.max,
                         pwstat.hit, pwstat.fired, pwstat.frags))
 
+        frag_matrix = DBSession.query(PlayerGameFragMatrix)\
+            .filter(PlayerGameFragMatrix.game_id == game_id)\
+            .all()
+
+        matrix_by_pgstat_id = {e.player_game_stat_id: e for e in frag_matrix}
+        if len(matrix_by_pgstat_id):
+            show_frag_matrix = True
+        else:
+            show_frag_matrix = False
+
     except NoResultFound as e:
         raise httpexceptions.HTTPNotFound("Could not find that game!")
 
     except Exception as e:
         raise e
 
-    return {'game':game,
-            'server':server,
-            'map':map,
-            'gametype':gametype,
-            'pgstats':pgstats,
-            'tgstats':tgstats,
-            'pwstats':pwstats,
-            'captimes':captimes,
-            'show_elo':show_elo,
-            'show_latency':show_latency,
-            'stats_by_team':stats_by_team,
-            }
+    return {
+        'game': game,
+        'server': server,
+        'map': map,
+        'gametype': gametype,
+        'pgstats': pgstats,
+        'tgstats': tgstats,
+        'pwstats': pwstats,
+        'captimes': captimes,
+        'show_elo': show_elo,
+        'show_latency': show_latency,
+        'stats_by_team': stats_by_team,
+        'show_frag_matrix': show_frag_matrix,
+        'matrix_by_pgstat_id': matrix_by_pgstat_id,
+    }
 
 
 def game_info(request):

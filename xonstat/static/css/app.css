@@ -310,3 +310,16 @@ ul.accordion {
 .tabs-content {
   margin-bottom: 0;
 }
+
+/* Tables with vertical headers */
+.rotated {
+  font-size: 10px;
+  font-weight: normal;
+  overflow: hidden;
+  white-space: nowrap;
+  writing-mode: vertical-lr;
+}
+
+td.bg {
+  background-color: #001021;
+}
