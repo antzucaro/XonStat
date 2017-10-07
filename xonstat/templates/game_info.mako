@@ -2,6 +2,7 @@
 <%namespace name="nav" file="nav.mako" />
 <%namespace file="scoreboard.mako" import="scoreboard" />
 <%namespace file="accuracy.mako" import="accuracy" />
+<%namespace file="frag_matrix.mako" import="frag_matrix" />
 
 <%block name="navigation">
   ${nav.nav('games')}
@@ -131,9 +132,19 @@
     </div>
   % endif
 
+  % if show_frag_matrix:
+    <div class="row">
+      <div class="small-12 columns">
+        <h3>Frag Matrix</h3>
+        ${frag_matrix(pgstats, matrix_by_pgstat_id)}
+      </div>
+    </div>
+  % endif
+
   % if len(pgstats) > 0 and len(pwstats) > 0:
     <div class="row">
       <div class="small-12 medium-9 columns">
+          <h3>Player Accuracies</h3>
           <ul class="accordion" data-accordion>
             % for pgstat in pgstats:
               % if pgstat.player_game_stat_id in pwstats:
@@ -149,4 +160,5 @@
         </div>
       </div>
   % endif
+
 % endif
