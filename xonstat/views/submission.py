@@ -612,7 +612,7 @@ def create_game(session, game_type_cd, server_id, map_id, match_id, start_dt, du
     game.mod = mod[:64]
 
     # There is some drift between start_dt (provided by app) and create_dt
-    # (default in the database), so we'll make them the same until this is 
+    # (default in the database), so we'll make them the same until this is
     # resolved.
     game.create_dt = start_dt
 
@@ -1148,7 +1148,10 @@ def submit_stats(request):
             frag_matrix = create_frag_matrix(session, submission.player_indexes, pgstat, events)
 
             # player ranking opt-out
-            if 'r' in events and events['r'] != '0':
+            if 'r' in events and events['r'] == '0':
+                log.debug("Excluding player {} from ranking calculations (opt-out)"
+                          .format(pgstat.player_id))
+            else:
                 elo_pgstats.append(pgstat)
 
             if player.player_id > 1:
