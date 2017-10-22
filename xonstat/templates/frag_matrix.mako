@@ -23,7 +23,12 @@
       else:
         victim_index = "-1"
     %>
+
+    % if pgfm:
     <td>${pgfm.matrix.get(victim_index, 0)}</td>
+    % else:
+    <td>0</td>
+    % endif
     % endfor
   </tr>
   % endfor
