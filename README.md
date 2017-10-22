@@ -3,9 +3,18 @@ This is **XonStat**, the application in front of [xonstatdb][xonstatdb].
 
 ----
 
-To start, first run the following from the root directory to set up dependencies:
+To start, create a virtualenv and install dependencies:
 
-    python setup.py develop
+    virtualenv env
+    source env/bin/activate
+
+From within the directory you've cloned the repo, install the dependencies:
+
+    pip install -r requirements.txt
+
+Next, install the application itself:
+
+    pip install -e .
 
 Next you'll want to set up [xonstatdb][xonstatdb]. This is maintained as a separate project here:
 

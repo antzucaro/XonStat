@@ -4,7 +4,7 @@ requires = [
     'pyramid',
     'SQLAlchemy',
     'transaction',
-    'repoze.tm2>=1.0b1', # default_commit_veto
+    'repoze.tm2>=1.0b1',
     'zope.sqlalchemy',
     'WebError',
     'sqlahelper',
@@ -33,6 +33,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=requires
+    install_requires=requires,
+    entry_points={
+        'paste.app_factory': [
+            'main = xonstat:main',
+        ],
+    },
 )
-
