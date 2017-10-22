@@ -2,7 +2,6 @@
 
 <div id="footer">
   <div class="row" >
-
     <div class="small-12 medium-3 columns">
       <h4>Home</h4>
       <ul>
@@ -42,6 +41,13 @@
     </div>
 
   </div>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <p><small>XonStat is an open source (GPLv2) project created by <a href="https://gitlab.com/Antibody">Antibody</a>. Fork it or log issues <a href="https://gitlab.com/xonotic/xonstat" title="Go to the project page">on GitLab!</a></small></p>
+    </div>
+  </div>
+
 </div>
 
 </%def>
