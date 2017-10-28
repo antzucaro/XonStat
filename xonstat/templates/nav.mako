@@ -32,6 +32,7 @@
                 <li><a href="${request.route_url('game_index')}" title="Game Index">Games</a></li>
                 <li><a href="${request.route_url('server_index')}" title="Server Index">Servers</a></li>
                 <li><a href="${request.route_url('map_index')}" title="Map Index">Maps</a></li>
+                <li><a href="${request.route_url('player_versus')}" title="Compare Players">Versus</a></li>
                 <li><a href="${request.route_url('search')}" title="Search">Search</a></li>
               </ul>
             </li>
