@@ -6,6 +6,10 @@
   ${nav.nav('players')}
 </%block>
 
+<%block name="title">
+  Player Comparison
+</%block>
+
 % if p1 is not None and p2 is not None:
 <div class="row">
   <div class="small-5 columns text-right">
