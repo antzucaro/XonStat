@@ -4,7 +4,7 @@
 
 <table>
   <thead>
-    <th></th>
+    <th class="text-center"><i class="fa fa-question-circle" title="The rows are the fraggers, the columns are the victims"></i></th>
     % for pgstat in pgstats:
       <th><span class="rotated">${pgstat.nick_html_colors()|n}</span></th>
     % endfor
