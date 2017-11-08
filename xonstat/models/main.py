@@ -2,6 +2,7 @@
 Models related to the main index page.
 """
 
+import datetime
 from xonstat.util import html_colors
 
 
@@ -43,6 +44,21 @@ class ActiveServer(object):
         self.server_id = server_id
         self.server_name = server_name
         self.play_time = play_time
+
+    def play_time_str(self):
+        hour = 3600
+        day = hour * 24
+
+        if not self.play_time:
+            return "0m"
+
+        total_seconds = self.play_time.total_seconds()
+        if total_seconds >= day:
+            return "{}d".format(round(float(total_seconds) / day, 1))
+        elif day > total_seconds >= hour:
+            return "{}h".format(round(float(total_seconds) / hour, 1))
+        else:
+            return "{}m".format(round(float(total_seconds) / 60, 1))
 
     def __repr__(self):
         return "<ActiveServer({0.sort_order}, {0.server_id})>".format(self)

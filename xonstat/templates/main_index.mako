@@ -103,7 +103,7 @@
         <tr>
           <th class="small-2">#</th>
           <th class="small-7">Server</th>
-          <th class="small-3">Games</th>
+          <th class="small-3">Play Time</th>
         </tr>
       </thead>
       <tbody>
@@ -111,7 +111,7 @@
         <tr>
           <td>${ts.sort_order}</td>
           <td class="no-stretch"><a href="${request.route_url('server_info', id=ts.server_id)}" title="Go to the server info page for ${ts.server_name}">${ts.server_name}</a></td>
-          <td>${ts.games}</td>
+          <td>${ts.play_time_str()}</td>
         </tr>
       % endfor
       </tbody>
