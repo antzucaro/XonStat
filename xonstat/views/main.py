@@ -123,9 +123,9 @@ def get_top_players_by_time(limit=None, start=None):
 
 
 @cache_region('hourly_term')
-def get_top_servers_by_games(limit=None, start=None):
+def get_top_servers_by_play_time(limit=None, start=None):
     """
-    The top servers by the number of games played during a date range.
+    The top servers by the cumulative amount of time played on them during a given interval.
     """
     q = DBSession.query(ActiveServer)
 
@@ -187,7 +187,7 @@ def _main_index_data(request):
     top_players = get_top_players_by_time(10)
 
     # top servers by number of games
-    top_servers = get_top_servers_by_games(10)
+    top_servers = get_top_servers_by_play_time(10)
 
     # top maps by total times played
     top_maps = get_top_maps_by_games(10)
@@ -246,7 +246,7 @@ def top_servers_index(request):
     except:
         start = None
 
-    top_servers = get_top_servers_by_games(20, start)
+    top_servers = get_top_servers_by_play_time(20, start)
 
     # building a query string
     query = {}
