@@ -103,7 +103,7 @@
         <tr>
           <th class="small-2">#</th>
           <th class="small-7">Server</th>
-          <th class="small-3">Play Time</th>
+          <th class="small-3">Time</th>
         </tr>
       </thead>
       <tbody>
