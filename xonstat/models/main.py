@@ -38,11 +38,11 @@ class ActiveServer(object):
     A record in the "Most Active Servers" list.
     """
 
-    def __init__(self, sort_order=None, server_id=None, server_name=None, games=None):
+    def __init__(self, sort_order=None, server_id=None, server_name=None, play_time=None):
         self.sort_order = sort_order
         self.server_id = server_id
         self.server_name = server_name
-        self.games = games
+        self.play_time = play_time
 
     def __repr__(self):
         return "<ActiveServer({0.sort_order}, {0.server_id})>".format(self)
