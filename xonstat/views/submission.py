@@ -405,6 +405,13 @@ def should_do_weapon_stats(game_type_cd):
     return game_type_cd not in {'cts'}
 
 
+def should_do_frag_matrix(game_type_cd):
+    """True if the game type should record frag matrix values. False otherwise."""
+    return game_type_cd in {
+        'as', 'ca', 'ctf', 'dm', 'dom', 'ft', 'freezetag', 'ka', 'kh', 'rune', 'tdm',
+    }
+
+
 def gametype_elo_eligible(game_type_cd):
     """True of the game type should process Elos. False otherwise."""
     return game_type_cd in {'duel', 'dm', 'ca', 'ctf', 'tdm', 'ka', 'ft'}
@@ -1145,7 +1152,8 @@ def submit_stats(request):
             pgstat = create_game_stat(session, game, gmap, player, events)
             pgstats.append(pgstat)
 
-            frag_matrix = create_frag_matrix(session, submission.player_indexes, pgstat, events)
+            if should_do_frag_matrix(submission.game_type_cd):
+                create_frag_matrix(session, submission.player_indexes, pgstat, events)
 
             # player ranking opt-out
             if 'r' in events and events['r'] == '0':
