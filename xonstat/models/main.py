@@ -45,20 +45,35 @@ class ActiveServer(object):
         self.server_name = server_name
         self.play_time = play_time
 
-    def play_time_str(self):
-        hour = 3600
-        day = hour * 24
-
+    def play_time_str(self, max_segments=3):
         if not self.play_time:
             return "0m"
 
-        total_seconds = self.play_time.total_seconds()
-        if total_seconds >= day:
-            return "{}d".format(round(float(total_seconds) / day, 1))
-        elif day > total_seconds >= hour:
-            return "{}h".format(round(float(total_seconds) / hour, 1))
-        else:
-            return "{}m".format(round(float(total_seconds) / 60, 1))
+        days, seconds = divmod(self.play_time.total_seconds(), 60*60*24)
+        hours, seconds = divmod(seconds, 60*60)
+        mins, seconds = divmod(seconds, 60)
+
+        parts = []
+        if days > 0 and len(parts) < max_segments:
+            parts.append("{}d".format(int(days)))
+
+        if hours > 0 and len(parts) < max_segments:
+            if len(parts) > 0:
+                prefix = ", "
+            else:
+                prefix = ""
+
+            parts.append("{}{}h".format(prefix, int(hours)))
+
+        if mins > 0 and len(parts) < max_segments:
+            if len(parts) > 0:
+                prefix = ", "
+            else:
+                prefix = ""
+
+            parts.append("{}{}m".format(prefix, int(mins)))
+
+        return "".join(parts)
 
     def __repr__(self):
         return "<ActiveServer({0.sort_order}, {0.server_id})>".format(self)
