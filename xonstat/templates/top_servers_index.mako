@@ -24,7 +24,7 @@
           <tr>
             <th class="small-2">#</th>
             <th class="small-7">Server</th>
-            <th class="small-3">Time</th>
+            <th class="small-3" title="Total accumulated player time on the server">Time</th>
           </tr>
         </thead>
         <tbody>
