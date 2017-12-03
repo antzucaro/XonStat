@@ -65,6 +65,15 @@ type Game struct {
 	CreateDt time.Time `db:"create_dt"`
 }
 
+type PlayerGameStat struct {
+	PlayerGameStatID int    `db:"player_game_stat_id"`
+	PlayerID         int    `db:"player_id"`
+	GameID           int    `db:"game_id"`
+	Nick             string `db:"stripped_nick"`
+	AliveTime        int    `db:"alivetime"`
+	Score            int    `db:"score"`
+}
+
 type GameProcessor struct {
 	config *Config
 	db     *sqlx.DB
@@ -98,6 +107,21 @@ func (gp *GameProcessor) GamesInRange() []Game {
 	return games
 }
 
+func (gp *GameProcessor) PlayerGameStats(gameID int) []PlayerGameStat {
+	pgstats := []PlayerGameStat{}
+
+	sql := `select player_game_stat_id, player_id, game_id, stripped_nick, 
+	EXTRACT(EPOCH from alivetime) alivetime, score from player_game_stats 
+	where game_id = $1 and player_id > 2 order by player_game_stat_id`
+
+	err := gp.db.Select(&pgstats, sql, gameID)
+	if err != nil {
+		log.Fatalf("Unable to select player_game_stats for game %d: %s.\n", gameID, err)
+	}
+
+	return pgstats
+}
+
 func main() {
 	path := flag.String("config", "xs_glicko.json", "configuration file path")
 	start := flag.Int("start", DefaultStartGameID, "starting game_id")
@@ -123,6 +147,8 @@ func main() {
 	}
 
 	processor := NewGameProcessor(config)
-	games := processor.GamesInRange()
-	fmt.Println(games)
+	for _, game := range processor.GamesInRange() {
+		pgstats := processor.PlayerGameStats(game.GameID)
+		fmt.Println(pgstats)
+	}
 }
