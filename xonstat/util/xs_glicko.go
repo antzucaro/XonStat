@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 const DefaultStartGameID = 0
@@ -53,6 +56,29 @@ func loadConfig(path string) (*Config, error) {
 	return config, nil
 }
 
+type GameProcessor struct {
+	config *Config
+	db     *sqlx.DB
+}
+
+func NewGameProcessor(config Config) *GameProcessor {
+	processor := new(GameProcessor)
+
+	db, err := sqlx.Connect("postgres", config.ConnStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	processor.db = db
+
+	return processor
+}
+
+func (gp *GameProcessor) GameIDsInRange() []int {
+	gameIDs := make([]int, 0)
+	// fetch game_ids using gp.db
+	return gameIDs
+}
+
 func main() {
 	path := flag.String("config", "xs_glicko.json", "configuration file path")
 	start := flag.Int("start", DefaultStartGameID, "starting game_id")
@@ -77,5 +103,6 @@ func main() {
 		config.RankingWindowDays = *days
 	}
 
-	fmt.Printf("%+v\n", config)
+	processor := NewGameProcessor(*config)
+	fmt.Printf("%+v\n", processor)
 }
