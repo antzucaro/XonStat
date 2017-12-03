@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -56,13 +57,23 @@ func loadConfig(path string) (*Config, error) {
 	return config, nil
 }
 
+type Game struct {
+	GameID   int       `db:"game_id"`
+	GameType string    `db:"game_type_cd"`
+	ServerID int       `db:"server_id"`
+	Duration int       `db:"duration"`
+	CreateDt time.Time `db:"create_dt"`
+}
+
 type GameProcessor struct {
 	config *Config
 	db     *sqlx.DB
 }
 
-func NewGameProcessor(config Config) *GameProcessor {
+func NewGameProcessor(config *Config) *GameProcessor {
 	processor := new(GameProcessor)
+
+	processor.config = config
 
 	db, err := sqlx.Connect("postgres", config.ConnStr)
 	if err != nil {
@@ -73,10 +84,18 @@ func NewGameProcessor(config Config) *GameProcessor {
 	return processor
 }
 
-func (gp *GameProcessor) GameIDsInRange() []int {
-	gameIDs := make([]int, 0)
-	// fetch game_ids using gp.db
-	return gameIDs
+func (gp *GameProcessor) GamesInRange() []Game {
+	games := []Game{}
+
+	sql := `select game_id, game_type_cd, server_id, EXTRACT(EPOCH FROM duration) duration, 
+	create_dt from games where game_id between $1 and $2 order by game_id`
+
+	err := gp.db.Select(&games, sql, gp.config.StartGameID, gp.config.EndGameID)
+	if err != nil {
+		log.Fatalf("Unable to select games: %s.\n", err)
+	}
+
+	return games
 }
 
 func main() {
@@ -103,6 +122,7 @@ func main() {
 		config.RankingWindowDays = *days
 	}
 
-	processor := NewGameProcessor(*config)
-	fmt.Printf("%+v\n", processor)
+	processor := NewGameProcessor(config)
+	games := processor.GamesInRange()
+	fmt.Println(games)
 }
