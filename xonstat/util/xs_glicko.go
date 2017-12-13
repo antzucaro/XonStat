@@ -74,6 +74,35 @@ type PlayerGameStat struct {
 	Score            int    `db:"score"`
 }
 
+type KReducer struct {
+	// Time in seconds required for full points
+	FullTime int
+
+	// The minimum time a player must play in the game
+	MinTime int
+
+	// The minimum ratio of time played in the game
+	MinRatio float64
+}
+
+func (kr *KReducer) Evaluate(pgstat PlayerGameStat, game Game) float64 {
+	k := 1.0
+
+	if pgstat.AliveTime < kr.FullTime {
+		k = float64(pgstat.AliveTime) / float64(kr.FullTime)
+	}
+
+	if pgstat.AliveTime < kr.MinTime || game.Duration < kr.MinTime {
+		k = 0
+	}
+
+	if (float64(pgstat.AliveTime) / float64(game.Duration)) < kr.MinRatio {
+		k = 0
+	}
+
+	return k
+}
+
 type GameProcessor struct {
 	config *Config
 	db     *sqlx.DB
