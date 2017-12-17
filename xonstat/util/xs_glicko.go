@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	glicko "github.com/Kashomon/goglicko"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"time"
-
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 )
 
 const DefaultStartGameID = 0
@@ -75,13 +75,13 @@ type PlayerGameStat struct {
 }
 
 type KReducer struct {
-	// Time in seconds required for full points
+	// time in seconds required for full points
 	FullTime int
 
-	// The minimum time a player must play in the game
+	// the minimum time a player must play in the game
 	MinTime int
 
-	// The minimum ratio of time played in the game
+	// the minimum ratio of time played in the game
 	MinRatio float64
 }
 
@@ -104,8 +104,9 @@ func (kr *KReducer) Evaluate(pgstat PlayerGameStat, game Game) float64 {
 }
 
 type GameProcessor struct {
-	config *Config
-	db     *sqlx.DB
+	config        *Config
+	db            *sqlx.DB
+	playerRatings map[string]glicko.Rating
 }
 
 func NewGameProcessor(config *Config) *GameProcessor {
@@ -117,7 +118,9 @@ func NewGameProcessor(config *Config) *GameProcessor {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	processor.db = db
+	processor.playerRatings = make(map[string]glicko.Rating)
 
 	return processor
 }
@@ -151,6 +154,16 @@ func (gp *GameProcessor) PlayerGameStats(gameID int) []PlayerGameStat {
 	return pgstats
 }
 
+func (gp *GameProcessor) ProcessGame(game Game, pgstats []PlayerGameStat, reducer KReducer) error {
+	fmt.Println(pgstats)
+	for i := 0; i < len(pgstats)-1; i++ {
+		for j := i + 1; j < len(pgstats); j++ {
+			fmt.Printf("Comparing %s and %s.\n", pgstats[i].Nick, pgstats[j].Nick)
+		}
+	}
+	return nil
+}
+
 func main() {
 	path := flag.String("config", "xs_glicko.json", "configuration file path")
 	start := flag.Int("start", DefaultStartGameID, "starting game_id")
@@ -175,9 +188,12 @@ func main() {
 		config.RankingWindowDays = *days
 	}
 
+	// reduction parameters
+	reducer := KReducer{FullTime: 600, MinTime: 120, MinRatio: 0.5}
+
 	processor := NewGameProcessor(config)
 	for _, game := range processor.GamesInRange() {
 		pgstats := processor.PlayerGameStats(game.GameID)
-		fmt.Println(pgstats)
+		processor.ProcessGame(game, pgstats, reducer)
 	}
 }
