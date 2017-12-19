@@ -7,6 +7,20 @@ from calendar import timegm
 from xonstat.models.mixins import FuzzyDateMixin, EpochMixin, NickColorsMixin
 from xonstat.util import strip_colors, pretty_date, qfont_decode
 
+# Glicko Constants
+
+# the default initial rating value
+MU = 1500
+
+# the default ratings deviation value
+PHI = 350
+
+# the default volatility value
+SIGMA = 0.06
+
+# the ratio to convert from/to glicko2
+GLICKO2_SCALE = 173.7178
+
 
 class Player(EpochMixin, NickColorsMixin, FuzzyDateMixin):
     """
@@ -207,3 +221,38 @@ class PlayerMedal(object):
 
     def __repr__(self):
         return "<PlayerMedal(pid={0.player_id}, place={0.place}, alt={0.alt})>".format(self)
+
+
+class PlayerGlicko(object):
+    """
+    A player's skill for a particular game type, as determined by the Glicko2 algorithm.
+    """
+    def __init__(self, player_id, game_type_cd, category="general", mu=MU, phi=PHI, sigma=SIGMA):
+        self.player_id = player_id
+        self.game_type_cd = game_type_cd
+        self.category = category
+        self.mu = mu
+        self.phi = phi
+        self.sigma = sigma
+
+    def to_glicko2(self):
+        """ Convert a rating to the Glicko2 scale. """
+        return PlayerGlicko(
+            player_id=self.player_id,
+            game_type_cd=self.game_type_cd,
+            category=self.category,
+            mu=(self.mu - MU) / GLICKO2_SCALE,
+            phi=self.phi / GLICKO2_SCALE,
+            sigma=self.sigma
+        )
+
+    def from_glicko2(self):
+        """ Convert a rating to the original Glicko scale. """
+        return PlayerGlicko(
+            player_id=self.player_id,
+            game_type_cd=self.game_type_cd,
+            category=self.category,
+            mu=self.mu * GLICKO2_SCALE + MU,
+            phi=self.phi * GLICKO2_SCALE,
+            sigma=self.sigma
+        )

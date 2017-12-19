@@ -2,49 +2,16 @@ import logging
 import math
 import sys
 
+from xonstat.models import PlayerGlicko
+
 log = logging.getLogger(__name__)
 
 # DEBUG
 # log.addHandler(logging.StreamHandler())
 # log.setLevel(logging.DEBUG)
 
-# the default initial rating value
-MU = 1500
-
-# the default ratings deviation value
-PHI = 350
-
-# the default volatility value
-SIGMA = 0.06
-
 # the default system volatility constant
 TAU = 0.3
-
-# the ratio to convert from/to glicko2
-GLICKO2_SCALE = 173.7178
-
-
-class PlayerGlicko(object):
-    def __init__(self, mu=MU, phi=PHI, sigma=SIGMA):
-        self.mu = mu
-        self.phi = phi
-        self.sigma = sigma
-
-    def to_glicko2(self):
-        """ Convert a rating to the Glicko2 scale. """
-        return PlayerGlicko(
-            mu=(self.mu - MU) / GLICKO2_SCALE,
-            phi=self.phi / GLICKO2_SCALE,
-            sigma=self.sigma
-        )
-
-    def from_glicko2(self):
-        """ Convert a rating to the original Glicko scale. """
-        return PlayerGlicko(
-            mu=self.mu * GLICKO2_SCALE + MU,
-            phi=self.phi * GLICKO2_SCALE,
-            sigma=self.sigma
-        )
 
 
 def calc_g(phi):
@@ -148,7 +115,8 @@ def rate(player, opponents, results):
 
     mu_bar = p_g2.mu + phi_bar**2 * sum_terms
 
-    new_rating = PlayerGlicko(mu_bar, phi_bar, sigma_bar).from_glicko2()
+    new_rating = PlayerGlicko(player.player_id, player.game_type_cd, player.category, mu_bar,
+                              phi_bar, sigma_bar).from_glicko2()
 
     # DEBUG
     # log.debug("v={}".format(v))
@@ -163,10 +131,11 @@ def rate(player, opponents, results):
 
 
 def main():
-    pA = PlayerGlicko(mu=1500, phi=200)
-    pB = PlayerGlicko(mu=1400, phi=30)
-    pC = PlayerGlicko(mu=1550, phi=100)
-    pD = PlayerGlicko(mu=1700, phi=300)
+    # the example in the actual Glicko2 paper, for verification purposes
+    pA = PlayerGlicko(1, "duel", mu=1500, phi=200)
+    pB = PlayerGlicko(2, "duel", mu=1400, phi=30)
+    pC = PlayerGlicko(3, "duel", mu=1550, phi=100)
+    pD = PlayerGlicko(4, "duel", mu=1700, phi=300)
 
     opponents = [pB, pC, pD]
     results = [1, 0, 0]
@@ -175,4 +144,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+     sys.exit(main())
