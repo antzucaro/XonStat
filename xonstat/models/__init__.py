@@ -59,6 +59,8 @@ def initialize_db(engine=None):
     active_maps_table = metadata.tables['active_maps_mv']
     player_medals_table = metadata.tables['player_medals']
     player_game_frag_matrix_table = metadata.tables['player_game_frag_matrix']
+    player_glickos_base_table = metadata.tables['player_glickos_base']
+    player_glickos_current_table = metadata.tables['player_glickos_current']
 
     # Map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)
@@ -85,3 +87,5 @@ def initialize_db(engine=None):
     mapper(ActiveMap, active_maps_table)
     mapper(PlayerMedal, player_medals_table)
     mapper(PlayerGameFragMatrix, player_game_frag_matrix_table)
+    mapper(PlayerGlicko, player_glickos_current_table)
+    mapper(PlayerGlickoBase, player_glickos_base_table)

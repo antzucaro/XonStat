@@ -256,3 +256,11 @@ class PlayerGlicko(object):
             phi=self.phi * GLICKO2_SCALE,
             sigma=self.sigma
         )
+
+
+class PlayerGlickoBase(PlayerGlicko):
+    """
+    A clone of the above PlayerGlicko class, but created separately in order to avoid
+    dealing with primary and non-primary SQLAlchemy mappers.
+    """
+    pass
