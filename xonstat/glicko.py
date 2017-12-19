@@ -18,8 +18,7 @@ PHI = 350
 SIGMA = 0.06
 
 # the default system volatility constant
-#TAU = 0.3
-TAU = 0.5
+TAU = 0.3
 
 # the ratio to convert from/to glicko2
 GLICKO2_SCALE = 173.7178
@@ -112,7 +111,8 @@ def calc_sigma_bar(sigma, delta, phi, v, tau=TAU):
 
         B, fb = C, fc
 
-        log.debug("A={}, B={}, C={}, fA={}, fB={}, fC={}".format(A, B, C, fa, fb, fc))
+        # DEBUG
+        # log.debug("A={}, B={}, C={}, fA={}, fB={}, fC={}".format(A, B, C, fa, fb, fc))
 
     return math.e ** (A / 2)
 
