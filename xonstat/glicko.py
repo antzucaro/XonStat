@@ -130,6 +130,42 @@ def rate(player, opponents, results):
     return new_rating
 
 
+class KReduction:
+    """
+    Scale the points gained or lost for players based on time played in the given game.
+    """
+    def __init__(self, full_time=600, min_time=120, min_ratio=0.5):
+        # full time is the time played to count the player in a game
+        self.full_time = full_time
+
+        # min time is the time played to count the player at all in a game
+        self.min_time = min_time
+
+        # min_ratio is the ratio of the game's time to be played to be counted fully (provided
+        # they went past `full_time` and `min_time` above.
+        self.min_ratio = min_ratio
+
+    def eval(self, my_time, match_time):
+        # kick out players who didn't play enough of the match
+        if my_time < self.min_time:
+            return 0.0
+
+        if my_time < self.min_ratio * match_time:
+            return 0.0
+
+        # scale based on time played versus what is defined as `full_time`
+        if my_time < self.full_time:
+            k = my_time / float(self.full_time)
+        else:
+            k = 1.0
+
+        return k
+
+
+# Parameters for reduction of points
+KREDUCTION = KReduction()
+
+
 def main():
     # the example in the actual Glicko2 paper, for verification purposes
     pA = PlayerGlicko(1, "duel", mu=1500, phi=200)
