@@ -177,7 +177,10 @@ class GlickoWIP(object):
         self.pg = pg
 
         # the list of k factors for each game in the ranking period
-        self.ks = []
+        self.k_factors = []
+
+        # the list of ping factors for each game in the ranking period
+        self.ping_factors = []
 
         # the list of opponents (PlayerGlicko or PlayerGlickoBase) in the ranking period
         self.opponents = []
@@ -188,44 +191,18 @@ class GlickoWIP(object):
 
 class GlickoProcessor(object):
     """
-    Processes the given list games using the Glicko2 algorithm.
+    Processes an arbitrary list games using the Glicko2 algorithm.
     """
     def __init__(self, session):
         """
         Create a GlickoProcessor instance.
 
         :param session: the SQLAlchemy session to use for fetching/saving records.
-        :param game_ids: the list of game_ids that need to be processed.
         """
         self.session = session
         self.wips = {}
 
-    def scorefactor(self, si, sj, game_type_cd):
-        """
-        Calculate the real scorefactor of the game. This is how players
-        actually performed, which is compared to their expected performance.
-
-        :param si: the score per second of player I
-        :param sj: the score per second of player J
-        :param game_type_cd: the game type of the game in question
-        :return: float
-        """
-        scorefactor_real = si / float(si + sj)
-
-        # duels are done traditionally - a win nets
-        # full points, not the score factor
-        if game_type_cd == 'duel':
-            # player i won
-            if scorefactor_real > 0.5:
-                scorefactor_real = 1.0
-            # player j won
-            elif scorefactor_real < 0.5:
-                scorefactor_real = 0.0
-            # nothing to do here for draws
-
-        return scorefactor_real
-
-    def pingfactor(self, pi, pj):
+    def _pingratio(self, pi, pj):
         """
         Calculate the ping differences between the two players, but only if both have them.
 
@@ -240,29 +217,123 @@ class GlickoProcessor(object):
         else:
             return float(pi)/(pi+pj)
 
-    def load(self, game_id):
-        """
-        Load all of the needed information from the database.
-        """
+    def _load_game(self, game_id):
         try:
             game = self.session.query(Game).filter(Game.game_id==game_id).one()
-        except:
+            return game
+        except Exception as e:
             log.error("Game ID {} not found.".format(game_id))
-            return
+            log.error(e)
+            raise e
 
+    def _load_pgstats(self, game):
+        """
+        Retrieve the game stats from the database for the game in question.
+
+        :param game: the game record whose player stats will be retrieved
+        :return: list of PlayerGameStat
+        """
         try:
             pgstats_raw = self.session.query(PlayerGameStat)\
-                .filter(PlayerGameStat.game_id==game_id)\
+                .filter(PlayerGameStat.game_id==game.game_id)\
                 .filter(PlayerGameStat.player_id > 2)\
                 .all()
 
+        except Exception as e:
+            log.error("Error fetching player_game_stat records for game {}".format(game.game_id))
+            log.error(e)
+            raise e
+
+        pgstats = []
+        for pgstat in pgstats_raw:
             # ensure warmup isn't included in the pgstat records
-            for pgstat in pgstats_raw:
-                if pgstat.alivetime > game.duration:
-                    pgstat.alivetime = game.duration
+            if pgstat.alivetime > game.duration:
+                pgstat.alivetime = game.duration
+
+            # ensure players played enough of the match to be included
+            k = KREDUCTION.eval(pgstat.alivetime.seconds, game.duration.seconds)
+            if k <= 0.0:
+                continue
+            else:
+                pgstats.append(pgstat)
+
+        return pgstats
+
+    def _load_glicko_wip(self, player_id, game_type_cd, category):
+        """
+        Retrieve a PlayerGlicko record from the database.
+
+        :param player_id: the player ID to fetch
+        :param game_type_cd: the game type code
+        :param category: the category of glicko to retrieve
+        :return: PlayerGlicko
+        """
+        if (player_id, game_type_cd, category) in self.wips:
+            return self.wips[(player_id, game_type_cd, category)]
+
+        try:
+            pg = self.session.query(PlayerGlicko)\
+                     .filter(PlayerGlicko.player_id==player_id)\
+                     .filter(PlayerGlicko.game_type_cd==game_type_cd)\
+                     .filter(PlayerGlicko.category==category)\
+                     .one()
+
         except:
-            log.error("Error fetching player_game_stat records for game {}".format(self.game_id))
-            return
+            pg = PlayerGlicko(player_id, game_type_cd, category)
+
+        # cache this in the wips dict
+        wip = GlickoWIP(pg)
+        self.wips[(player_id, game_type_cd, category)] = wip
+
+        return wip
+
+    def load(self, game_id):
+        """
+        Load all of the needed information from the database. Compute results for each player pair.
+        """
+        game = self._load_game(game_id)
+        pgstats = self._load_pgstats(game)
+        game_type_cd = game.game_type_cd
+        category = game.category
+
+        # calculate results:
+        #   wipi/j => work in progress record for player i/j
+        #   ki/j   => k reduction value for player i/j
+        #   si/j   => score per second for player i/j
+        #   pi/j   => ping ratio for player i/j
+        for i in xrange(0, len(pgstats)):
+            wipi = self._load_glicko_wip(pgstats[i].player_id, game_type_cd, category)
+            ki = KREDUCTION.eval(pgstats[i].alivetime.seconds, game.duration.seconds)
+            si = pgstats[i].score/float(game.duration.seconds)
+
+            for j in xrange(i+1, len(pgstats)):
+                # ping factor is opponent-specific
+                pi = self._pingratio(pgstats[i].avg_latency, pgstats[j].avg_latency)
+                pj = 1.0 - pi
+
+                wipj = self._load_glicko_wip(pgstats[j].player_id, game_type_cd, category)
+                kj = KREDUCTION.eval(pgstats[j].alivetime.seconds, game.duration.seconds)
+                sj = pgstats[j].score/float(game.duration.seconds)
+
+                # normalize scores
+                ofs = min(0.0, si, sj)
+                si -= ofs
+                sj -= ofs
+                if si + sj == 0:
+                    si, sj = 1, 1 # a draw
+
+                scorefactor_i = si / float(si + sj)
+                scorefactor_j = 1.0 - si
+
+                wipi.k_factors.append(ki)
+                wipi.ping_factors.append(pi)
+                wipi.opponents.append(wipj.pg)
+                wipi.results.append(scorefactor_i)
+
+                wipj.k_factors.append(kj)
+                wipj.ping_factors.append(pj)
+                wipj.opponents.append(wipi.pg)
+                wipj.results.append(scorefactor_j)
 
     def process(self):
         """
