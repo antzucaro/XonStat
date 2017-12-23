@@ -2,7 +2,7 @@ import logging
 import math
 import sys
 
-from xonstat.models import PlayerGlicko
+from xonstat.models import PlayerGlicko, Game, PlayerGameStat
 
 log = logging.getLogger(__name__)
 
@@ -164,6 +164,119 @@ class KReduction:
 
 # Parameters for reduction of points
 KREDUCTION = KReduction()
+
+
+class GlickoWIP(object):
+    """ A work-in-progress Glicko value. """
+    def __init__(self, pg):
+        """
+        Initialize a GlickoWIP instance.
+        :param pg: the player's PlayerGlicko record.
+        """
+        # the player's current (or base) PlayerGlicko record
+        self.pg = pg
+
+        # the list of k factors for each game in the ranking period
+        self.ks = []
+
+        # the list of opponents (PlayerGlicko or PlayerGlickoBase) in the ranking period
+        self.opponents = []
+
+        # the list of results for those games in the ranking period
+        self.results = []
+
+
+class GlickoProcessor(object):
+    """
+    Processes the given list games using the Glicko2 algorithm.
+    """
+    def __init__(self, session):
+        """
+        Create a GlickoProcessor instance.
+
+        :param session: the SQLAlchemy session to use for fetching/saving records.
+        :param game_ids: the list of game_ids that need to be processed.
+        """
+        self.session = session
+        self.wips = {}
+
+    def scorefactor(self, si, sj, game_type_cd):
+        """
+        Calculate the real scorefactor of the game. This is how players
+        actually performed, which is compared to their expected performance.
+
+        :param si: the score per second of player I
+        :param sj: the score per second of player J
+        :param game_type_cd: the game type of the game in question
+        :return: float
+        """
+        scorefactor_real = si / float(si + sj)
+
+        # duels are done traditionally - a win nets
+        # full points, not the score factor
+        if game_type_cd == 'duel':
+            # player i won
+            if scorefactor_real > 0.5:
+                scorefactor_real = 1.0
+            # player j won
+            elif scorefactor_real < 0.5:
+                scorefactor_real = 0.0
+            # nothing to do here for draws
+
+        return scorefactor_real
+
+    def pingfactor(self, pi, pj):
+        """
+        Calculate the ping differences between the two players, but only if both have them.
+
+        :param pi: the latency of player I
+        :param pj: the latency of player J
+        :return: float
+        """
+        if pi is None or pj is None or pi < 0 or pj < 0:
+            # default to a draw
+            return 0.5
+
+        else:
+            return float(pi)/(pi+pj)
+
+    def load(self, game_id):
+        """
+        Load all of the needed information from the database.
+        """
+        try:
+            game = self.session.query(Game).filter(Game.game_id==game_id).one()
+        except:
+            log.error("Game ID {} not found.".format(game_id))
+            return
+
+        try:
+            pgstats_raw = self.session.query(PlayerGameStat)\
+                .filter(PlayerGameStat.game_id==game_id)\
+                .filter(PlayerGameStat.player_id > 2)\
+                .all()
+
+            # ensure warmup isn't included in the pgstat records
+            for pgstat in pgstats_raw:
+                if pgstat.alivetime > game.duration:
+                    pgstat.alivetime = game.duration
+        except:
+            log.error("Error fetching player_game_stat records for game {}".format(self.game_id))
+            return
+
+    def process(self):
+        """
+        Calculate the Glicko2 ratings, deviations, and volatility updates for the records loaded.
+        :return: bool
+        """
+        pass
+
+    def save(self, session):
+        """
+        Put all changed PlayerElo and PlayerGameStat instances into the
+        session to be updated or inserted upon commit.
+        """
+        pass
 
 
 def main():
