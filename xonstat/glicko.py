@@ -367,7 +367,10 @@ class GlickoProcessor(object):
         Put all changed PlayerElo and PlayerGameStat instances into the
         session to be updated or inserted upon commit.
         """
-        pass
+        for wip in self.wips.values():
+            session.add(wip.pg)
+
+        session.commit()
 
 
 def main():
