@@ -13,6 +13,9 @@ log = logging.getLogger(__name__)
 # the default system volatility constant
 TAU = 0.3
 
+# how much ping influences results
+LATENCY_TREND_FACTOR = 0.2
+
 
 def calc_g(phi):
     return 1 / math.sqrt(1 + (3 * phi ** 2) / (math.pi ** 2))
@@ -340,9 +343,24 @@ class GlickoProcessor(object):
     def process(self):
         """
         Calculate the Glicko2 ratings, deviations, and volatility updates for the records loaded.
-        :return: bool
         """
-        pass
+        for wip in self.wips.values():
+            new_pg = rate(wip.pg, wip.opponents, wip.results)
+
+            log.debug("New rating for player {} before factors: mu={} phi={} sigma={}"
+                      .format(pg.player_id, new_pg.mu, new_pg.phi, new_pg.sigma))
+
+            avg_k_factor = sum(wip.k_factors)/len(wip.k_factors)
+            avg_ping_factor = LATENCY_TREND_FACTOR * sum(wip.ping_factors)/len(wip.ping_factors)
+
+            points_delta = (new_pg.mu - wip.pg.mu) * avg_k_factor * avg_ping_factor
+
+            wip.pg.mu += points_delta
+            wip.pg.phi = new_pg.phi
+            wip.pg.sigma = new_pg.sigma
+
+            log.debug("New rating for player {} after factors: mu={} phi={} sigma={}"
+                      .format(wip.pg.player_id, wip.pg.mu, wip.pg.phi, wip.pg.sigma))
 
     def save(self, session):
         """
