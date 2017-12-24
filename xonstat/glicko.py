@@ -92,6 +92,9 @@ def rate(player, opponents, results):
     Calculate the ratings improvement for a given player, provided their opponents and
     corresponding results versus them.
     """
+    if len(opponents) == 0 or len(results) == 0:
+        return player
+
     p_g2 = player.to_glicko2()
 
     gs = []
@@ -242,11 +245,20 @@ class GlickoProcessor(object):
                 .filter(PlayerGameStat.player_id > 2)\
                 .all()
 
+            return pgstats_raw
+
         except Exception as e:
             log.error("Error fetching player_game_stat records for game {}".format(game.game_id))
             log.error(e)
             raise e
 
+    def _filter_pgstats(self, game, pgstats_raw):
+        """
+        Filter the raw game stats so that all of them are Glicko-eligible.
+
+        :param pgstats_raw: the list of raw PlayerGameStat
+        :return: list of PlayerGameStat
+        """
         pgstats = []
         for pgstat in pgstats_raw:
             # ensure warmup isn't included in the pgstat records
@@ -257,6 +269,8 @@ class GlickoProcessor(object):
             k = KREDUCTION.eval(pgstat.alivetime.total_seconds(), game.duration.total_seconds())
             if k <= 0.0:
                 continue
+            elif pgstat.player_id <= 2:
+                continue
             else:
                 pgstats.append(pgstat)
 
@@ -264,7 +278,7 @@ class GlickoProcessor(object):
 
     def _load_glicko_wip(self, player_id, game_type_cd, category):
         """
-        Retrieve a PlayerGlicko record from the database.
+        Retrieve a PlayerGlicko record from the database or local cache.
 
         :param player_id: the player ID to fetch
         :param game_type_cd: the game type code
@@ -290,12 +304,18 @@ class GlickoProcessor(object):
 
         return wip
 
-    def load(self, game_id):
+    def load(self, game_id, game=None, pgstats=None):
         """
         Load all of the needed information from the database. Compute results for each player pair.
         """
-        game = self._load_game(game_id)
-        pgstats = self._load_pgstats(game)
+        if game is None:
+            game = self._load_game(game_id)
+
+        if pgstats is None:
+            pgstats = self._load_pgstats(game)
+
+        pgstats = self._filter_pgstats(game, pgstats)
+
         game_type_cd = game.game_type_cd
         category = game.category
 
@@ -348,7 +368,7 @@ class GlickoProcessor(object):
             new_pg = rate(wip.pg, wip.opponents, wip.results)
 
             log.debug("New rating for player {} before factors: mu={} phi={} sigma={}"
-                      .format(pg.player_id, new_pg.mu, new_pg.phi, new_pg.sigma))
+                      .format(new_pg.player_id, new_pg.mu, new_pg.phi, new_pg.sigma))
 
             avg_k_factor = sum(wip.k_factors)/len(wip.k_factors)
             avg_ping_factor = LATENCY_TREND_FACTOR * sum(wip.ping_factors)/len(wip.ping_factors)
@@ -362,15 +382,15 @@ class GlickoProcessor(object):
             log.debug("New rating for player {} after factors: mu={} phi={} sigma={}"
                       .format(wip.pg.player_id, wip.pg.mu, wip.pg.phi, wip.pg.sigma))
 
-    def save(self, session):
+    def save(self):
         """
         Put all changed PlayerElo and PlayerGameStat instances into the
         session to be updated or inserted upon commit.
         """
         for wip in self.wips.values():
-            session.add(wip.pg)
+            self.session.add(wip.pg)
 
-        session.commit()
+        self.session.commit()
 
 
 def main():

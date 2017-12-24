@@ -8,6 +8,7 @@ import pyramid.httpexceptions
 from sqlalchemy import Sequence
 from sqlalchemy.orm.exc import NoResultFound
 from xonstat.elo import EloProcessor
+from xonstat.glicko import GlickoProcessor
 from xonstat.models import DBSession, Server, Map, Game, PlayerGameStat, PlayerWeaponStat
 from xonstat.models import PlayerRank, PlayerCaptime, PlayerGameFragMatrix
 from xonstat.models import TeamGameStat, PlayerGameAnticheat, Player, Hashkey, PlayerNick
@@ -244,8 +245,8 @@ class Submission(object):
             self.weapons)
 
 
-def elo_submission_category(submission):
-    """Determines the Elo category purely by what is in the submission data."""
+def game_category(submission):
+    """Determines the game's category purely by what is in the submission data."""
     mod = submission.mod
 
     vanilla_allowed_weapons = {"shotgun", "devastator", "blaster", "mortar", "vortex", "electro",
@@ -405,8 +406,8 @@ def should_do_weapon_stats(game_type_cd):
     return game_type_cd not in {'cts'}
 
 
-def gametype_elo_eligible(game_type_cd):
-    """True of the game type should process Elos. False otherwise."""
+def gametype_rating_eligible(game_type_cd):
+    """True of the game type should process ratings (Elo/Glicko). False otherwise."""
     return game_type_cd in {'duel', 'dm', 'ca', 'ctf', 'tdm', 'ka', 'ft'}
 
 
@@ -590,7 +591,7 @@ def get_or_create_map(session, name):
 
 
 def create_game(session, game_type_cd, server_id, map_id, match_id, start_dt, duration, mod,
-                winner=None):
+                winner=None, category=None):
     """
     Creates a game. Parameters:
 
@@ -603,6 +604,7 @@ def create_game(session, game_type_cd, server_id, map_id, match_id, start_dt, du
     start_dt - when the game started (datetime object)
     duration - how long the game lasted
     winner - the team id of the team that won
+    category - the category of the game
     """
     seq = Sequence('games_game_id_seq')
     game_id = session.execute(seq)
@@ -617,6 +619,8 @@ def create_game(session, game_type_cd, server_id, map_id, match_id, start_dt, du
     game.create_dt = start_dt
 
     game.duration = duration
+
+    game.category = category
 
     try:
         session.query(Game).filter(Game.server_id == server_id)\
@@ -1129,14 +1133,15 @@ def submit_stats(request):
             map_id=gmap.map_id,
             match_id=submission.match_id,
             start_dt=datetime.datetime.utcnow(),
-            duration=submission.duration
+            duration=submission.duration,
+            category=game_category(submission)
         )
 
         events_by_hashkey = {elem["P"]: elem for elem in submission.humans + submission.bots}
         players_by_hashkey = get_or_create_players(session, events_by_hashkey)
 
         pgstats = []
-        elo_pgstats = []
+        rating_pgstats = []
         player_ids = []
         hashkeys_by_player_id = {}
         for hashkey, player in players_by_hashkey.items():
@@ -1147,12 +1152,12 @@ def submit_stats(request):
 
             frag_matrix = create_frag_matrix(session, submission.player_indexes, pgstat, events)
 
-            # player ranking opt-out
+            # player rating opt-out
             if 'r' in events and events['r'] == '0':
-                log.debug("Excluding player {} from ranking calculations (opt-out)"
+                log.debug("Excluding player {} from rating calculations (opt-out)"
                           .format(pgstat.player_id))
-            else:
-                elo_pgstats.append(pgstat)
+            elif pgstat.player_id > 2:
+                rating_pgstats.append(pgstat)
 
             if player.player_id > 1:
                 create_anticheats(session, pgstat, game, player, events)
@@ -1170,10 +1175,18 @@ def submit_stats(request):
         for events in submission.teams:
             create_team_stat(session, game, events)
 
-        if server.elo_ind and gametype_elo_eligible(submission.game_type_cd):
-            ep = EloProcessor(session, game, elo_pgstats)
+        rating_eligible = gametype_rating_eligible(submission.game_type_cd)
+        if rating_eligible and server.elo_ind and len(rating_pgstats) > 1:
+            # calculate Elo ratings
+            ep = EloProcessor(session, game, rating_pgstats)
             ep.save(session)
             elos = ep.wip
+
+            # calculate Glicko ratings
+            gp = GlickoProcessor(session)
+            gp.load(game.game_id, game, rating_pgstats)
+            gp.process()
+            gp.save()
         else:
             elos = {}
 
