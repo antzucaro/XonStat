@@ -251,7 +251,7 @@ class GlickoProcessor(object):
                 pgstat.alivetime = game.duration
 
             # ensure players played enough of the match to be included
-            k = KREDUCTION.eval(pgstat.alivetime.seconds, game.duration.seconds)
+            k = KREDUCTION.eval(pgstat.alivetime.total_seconds(), game.duration.total_seconds())
             if k <= 0.0:
                 continue
             else:
@@ -303,8 +303,9 @@ class GlickoProcessor(object):
         #   pi/j   => ping ratio for player i/j
         for i in xrange(0, len(pgstats)):
             wipi = self._load_glicko_wip(pgstats[i].player_id, game_type_cd, category)
-            ki = KREDUCTION.eval(pgstats[i].alivetime.seconds, game.duration.seconds)
-            si = pgstats[i].score/float(game.duration.seconds)
+            ki = KREDUCTION.eval(pgstats[i].alivetime.total_seconds(),
+                                 game.duration.total_seconds())
+            si = pgstats[i].score/float(game.duration.total_seconds())
 
             for j in xrange(i+1, len(pgstats)):
                 # ping factor is opponent-specific
@@ -312,7 +313,8 @@ class GlickoProcessor(object):
                 pj = 1.0 - pi
 
                 wipj = self._load_glicko_wip(pgstats[j].player_id, game_type_cd, category)
-                kj = KREDUCTION.eval(pgstats[j].alivetime.seconds, game.duration.seconds)
+                kj = KREDUCTION.eval(pgstats[j].alivetime.total_seconds(),
+                                     game.duration.total_seconds())
                 sj = pgstats[j].score/float(game.duration.seconds)
 
                 # normalize scores
