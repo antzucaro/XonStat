@@ -254,7 +254,7 @@ def game_category(submission):
     insta_allowed_weapons = {"vaporizer", "blaster"}
     overkill_allowed_weapons = {"hmg", "vortex", "shotgun", "blaster", "machinegun", "rpc"}
 
-    if mod == "Xonotic":
+    if mod == "Xonotic" or mod == "XPM":
         if len(submission.weapons - vanilla_allowed_weapons) == 0:
             return "vanilla"
     elif mod == "InstaGib":
