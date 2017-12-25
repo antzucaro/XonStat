@@ -1156,7 +1156,7 @@ def submit_stats(request):
             if 'r' in events and events['r'] == '0':
                 log.debug("Excluding player {} from rating calculations (opt-out)"
                           .format(pgstat.player_id))
-            elif pgstat.player_id > 2:
+            else:
                 rating_pgstats.append(pgstat)
 
             if player.player_id > 1:

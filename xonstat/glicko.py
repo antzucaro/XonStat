@@ -278,6 +278,10 @@ class GlickoProcessor(object):
             else:
                 pgstats.append(pgstat)
 
+        # the whole algorithm needs more than one player. if we don't have that, we're done!
+        if len(pgstats) < 2:
+            pgstats = []
+
         return pgstats
 
     def _load_glicko_wip(self, player_id, game_type_cd, category):
@@ -371,9 +375,6 @@ class GlickoProcessor(object):
         for wip in self.wips.values():
             new_pg = rate(wip.pg, wip.opponents, wip.results)
 
-            log.debug("New rating for player {} before factors: mu={} phi={} sigma={}"
-                      .format(new_pg.player_id, new_pg.mu, new_pg.phi, new_pg.sigma))
-
             avg_k_factor = sum(wip.k_factors)/len(wip.k_factors)
             avg_ping_factor = LATENCY_TREND_FACTOR * sum(wip.ping_factors)/len(wip.ping_factors)
 
@@ -383,8 +384,9 @@ class GlickoProcessor(object):
             wip.pg.phi = new_pg.phi
             wip.pg.sigma = new_pg.sigma
 
-            log.debug("New rating for player {} after factors: mu={} phi={} sigma={}"
-                      .format(wip.pg.player_id, wip.pg.mu, wip.pg.phi, wip.pg.sigma))
+            log.debug("New rating for player {}: mu={} ({}) phi={} sigma={} avg k={} avg ping={}"
+                      .format(wip.pg.player_id, wip.pg.mu, points_delta, wip.pg.phi, wip.pg.sigma,
+                              avg_k_factor, avg_ping_factor))
 
     def save(self):
         """
