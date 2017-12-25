@@ -10,10 +10,10 @@ from xonstat.util import strip_colors, pretty_date, qfont_decode
 # Glicko Constants
 
 # the default initial rating value
-MU = 1500
+MU = 1500.0
 
 # the default ratings deviation value
-PHI = 350
+PHI = 350.0
 
 # the default volatility value
 SIGMA = 0.06
@@ -231,7 +231,7 @@ class PlayerGlicko(object):
         self.player_id = player_id
         self.game_type_cd = game_type_cd
         self.category = category
-        self.mu = mu
+        self.mu = float(mu)
         self.phi = phi
         self.sigma = sigma
 
@@ -241,8 +241,8 @@ class PlayerGlicko(object):
             player_id=self.player_id,
             game_type_cd=self.game_type_cd,
             category=self.category,
-            mu=(self.mu - MU) / GLICKO2_SCALE,
-            phi=self.phi / GLICKO2_SCALE,
+            mu=(float(self.mu) - MU)/GLICKO2_SCALE,
+            phi=self.phi/GLICKO2_SCALE,
             sigma=self.sigma
         )
 
@@ -256,6 +256,10 @@ class PlayerGlicko(object):
             phi=self.phi * GLICKO2_SCALE,
             sigma=self.sigma
         )
+
+    def __repr__(self):
+        return ("<PlayerGlicko({0.player_id}, {0.game_type_cd}, {0.category}, "
+                "{0.mu}, {0.phi}, {0.sigma})>".format(self))
 
 
 class PlayerGlickoBase(PlayerGlicko):

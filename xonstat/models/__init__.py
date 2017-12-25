@@ -2,7 +2,7 @@
 Model initialization and mapping.
 """
 
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 
@@ -61,6 +61,12 @@ def initialize_db(engine=None):
     player_game_frag_matrix_table = metadata.tables['player_game_frag_matrix']
     player_glickos_base_table = metadata.tables['player_glickos_base']
     player_glickos_current_table = metadata.tables['player_glickos_current']
+
+    # explicit floats instead of decimals in certain tables
+    for table in [player_glickos_base_table, player_glickos_current_table]:
+        for column in table.columns.values():
+            if isinstance(column.type, Numeric):
+                column.type.asdecimal = False
 
     # Map the tables and the objects together
     mapper(PlayerAchievement, achievements_table)

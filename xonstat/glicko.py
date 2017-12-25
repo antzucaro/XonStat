@@ -136,7 +136,7 @@ def rate(player, opponents, results):
     return new_rating
 
 
-class KReduction:
+class KReduction(object):
     """
     Scale the points gained or lost for players based on time played in the given game.
     """
@@ -193,6 +193,10 @@ class GlickoWIP(object):
 
         # the list of results for those games in the ranking period
         self.results = []
+
+    def __repr__(self):
+        return ("<GlickoWIP({0.pg}, k={0.k_factors}, ping={0.ping_factors}, "
+                "opponents={0.opponents}, results={0.results})>".format(self))
 
 
 class GlickoProcessor(object):
