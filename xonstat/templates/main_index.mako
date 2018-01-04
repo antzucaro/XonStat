@@ -19,56 +19,6 @@
   </div>
 </%block>
 
-##### RANKS #####
-% if len(ranks) < 4:
-  <div class="row">
-    <div class="small-12 large-12 columns">
-      <p class="text-center"><i class="icon-white icon-info-sign"> </i> You don't seem to have any ranks yet.</p>
-    </div>
-  </div>
-
-% else:
-  <div class="row">
-    % for rs in ranks[:4]:
-      % if len(rs) > 0:
-        <div class="small-12 large-3 columns">
-          % if rs[0].game_type_cd == 'duel':
-            <h5>Duel Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
-          % elif rs[0].game_type_cd == 'ctf':
-            <h5>CTF Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
-          % elif rs[0].game_type_cd == 'dm':
-            <h5>DM Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
-          % elif rs[0].game_type_cd == 'tdm':
-            <h5>TDM Ranks <a href="${request.route_url('rank_index', game_type_cd=rs[0].game_type_cd)}" title="See more ${rs[0].game_type_cd} rankings"><i class="fa fa-plus-circle"></i></a></h5>
-          % endif
-
-          <table class="table-hover table-condensed">
-            <thead>
-              <tr>
-                <th class="small-2">#</th>
-                <th class="small-7">Nick</th>
-                <th class="small-3">Elo</th>
-              </tr>
-            </thead>
-            <tbody>
-            <% i = 1 %>
-            % for r in rs:
-            <tr>
-              <td>${i}</td>
-              <td class="no-stretch"><a href="${request.route_url('player_info', id=r.player_id)}" title="Go to the player info page for this player">${r.nick_html_colors()|n}</a></td>
-              <td>${int(round(r.elo))}</td>
-            </tr>
-            <% i = i+1 %>
-            % endfor
-            </tbody>
-          </table>
-    </div>
-  % endif
-
-  % endfor
-</div>
-% endif
-
 
 ##### ACTIVE PLAYERS #####
 <div class="row">
