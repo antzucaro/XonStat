@@ -158,29 +158,7 @@
               <small><br /></small>
             % endif
 
-            % if g.game_type_cd in ranks:
-              % if g.game_type_cd == 'overall':
-                Best Rank: 
-                <small>
-                  <a href="${request.route_url('rank_index', game_type_cd=ranks[g.game_type_cd].game_type_cd, _query={'page':(ranks[g.game_type_cd].rank-1)/20+1})}" title="Player rank page for this player">
-                    ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}
-                  </a>
-                  (${ranks[g.game_type_cd].game_type_cd}, percentile: ${round(ranks[g.game_type_cd].percentile,2)}) 
-                  <br />
-                </small>
-              % else:
-                Rank: 
-                <small>
-                  <a href="${request.route_url('rank_index', game_type_cd=g.game_type_cd, _query={'page':(ranks[g.game_type_cd].rank-1)/20+1})}" title="Player rank page for this player">
-                    ${ranks[g.game_type_cd].rank} of ${ranks[g.game_type_cd].max_rank}
-                  </a>
-                  (percentile: ${round(ranks[g.game_type_cd].percentile,2)})
-                  <br />
-                </small>
-              % endif
-            % else:
-              <small><br /></small>
-            % endif
+            <small><br /></small>
 
             % if g.game_type_cd == 'ctf':
               % if overall_stats[g.game_type_cd].cap_ratio is not None:
