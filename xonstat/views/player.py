@@ -527,7 +527,7 @@ def player_info_data(request):
         overall_stats  = get_overall_stats(player_id)
         fav_maps       = get_fav_maps(player_id)
         elos           = get_elos(player_id)
-        ranks          = get_ranks(player_id)
+        ranks          = []
         medals         = get_player_medals(player_id)
         recent_games   = get_recent_games(player_id)
         cake_day       = is_cake_day(player.create_dt)
@@ -823,7 +823,7 @@ def player_hashkey_info_data(request):
             'overall_stats':overall_stats,
             'fav_maps':fav_maps,
             'elos':elos,
-            'ranks':ranks,
+            'ranks':[],
             'most_recent_game':most_recent_game,
             }
 
