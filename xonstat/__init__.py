@@ -44,6 +44,10 @@ def main(global_config, **settings):
     config.add_route("main_index", "/")
     config.add_view(main_index, route_name="main_index", renderer="main_index.mako")
 
+    config.add_route("summary_stats_json", "/summary")
+    config.add_view(view=summary_stats_json, route_name="summary_stats_json", renderer="json",
+                    accept="application/json")
+
     # MAIN SUBMISSION ROUTE
     config.add_route("submit_stats", "stats/submit")
     config.add_view(submit_stats, route_name="submit_stats", renderer="submit_stats.mako")
