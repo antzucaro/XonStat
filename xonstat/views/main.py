@@ -18,9 +18,6 @@ def summary_stats_data(scope="all"):
     :param scope: The scope to fetch from the table. May be "all" or "day".
     :return: list[tuple]
     """
-    if scope not in ["all", "day"]:
-        scope = "all"
-
     sql = text("SELECT num_players, game_type_cd, num_games, create_dt refresh_dt "
                "FROM summary_stats_mv "
                "WHERE scope = :scope "
@@ -37,15 +34,28 @@ def summary_stats_data(scope="all"):
 
 
 def summary_stats_json(request):
-    ss = summary_stats_data(request.params.get("scope", "all"))
-    return [
-        {
-            "players": r.num_players,
-            "game_type_cd": r.game_type_cd,
-            "games": r.num_games,
-            "refresh_dt": r.refresh_dt.isoformat(),
-        }
-        for r in ss]
+    scope = request.params.get("scope", "all")
+    if scope not in ["all", "day"]:
+        scope = "all"
+
+    ss = summary_stats_data(scope)
+
+    # default values
+    players = 0
+    last_refreshed = "unknown"
+    games = []
+
+    if len(ss) > 0:
+        players = ss[0].num_players
+        last_refreshed = ss[0].refresh_dt.isoformat()
+        games = [{"game_type_cd": r.game_type_cd, "num_games": r.num_games} for r in ss]
+
+    return {
+        "players": players,
+        "scope": scope,
+        "last_refreshed": last_refreshed,
+        "games": games,
+    }
 
 
 @cache_region('hourly_term')
