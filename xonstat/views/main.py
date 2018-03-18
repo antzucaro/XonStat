@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 
 from beaker.cache import cache_region
+from sqlalchemy import text
 from xonstat.models import DBSession, PlayerRank, ActivePlayer, ActiveServer, ActiveMap
 from xonstat.views.helpers import RecentGame, recent_games_q
 
@@ -9,29 +10,61 @@ log = logging.getLogger(__name__)
 
 
 @cache_region('hourly_term')
-def get_summary_stats(scope="all"):
+def summary_stats_data(scope="all"):
     """
-    Gets the following aggregate statistics according to the provided scope:
+    Gets the summary stats (number of active players, the game type, and the number of games)
+    for a given scope.
 
-        - the number of active players
-        - the number of games per game type
-
-    Scope can be "all" or "day".
-
-    The fetched information is summarized into a string which is passed
-    directly to the template.
+    :param scope: The scope to fetch from the table. May be "all" or "day".
+    :return: list[tuple]
     """
+    sql = text("SELECT num_players, game_type_cd, num_games, create_dt refresh_dt "
+               "FROM summary_stats_mv "
+               "WHERE scope = :scope "
+               "ORDER BY sort_order ")
+
+    try:
+        ss = DBSession.query("num_players", "game_type_cd", "num_games", "refresh_dt").\
+                from_statement(sql).params(scope=scope).all()
+
+        return ss
+    except Exception as e:
+        log.error(e)
+        return []
+
+
+def summary_stats_json(request):
+    scope = request.params.get("scope", "all")
     if scope not in ["all", "day"]:
         scope = "all"
 
+    ss = summary_stats_data(scope)
+
+    # default values
+    players = 0
+    last_refreshed = "unknown"
+    games = []
+
+    if len(ss) > 0:
+        players = ss[0].num_players
+        last_refreshed = ss[0].refresh_dt.isoformat()
+        games = [{"game_type_cd": r.game_type_cd, "num_games": r.num_games} for r in ss]
+
+    return {
+        "players": players,
+        "scope": scope,
+        "last_refreshed": last_refreshed,
+        "games": games,
+    }
+
+
+@cache_region('hourly_term')
+def summary_stats_string(scope="all"):
+    """
+    Assembles the summary stats data into a readable line for direct inclusion in templates.
+    """
     try:
-        ss = DBSession.query("num_players", "game_type_cd", "num_games").\
-                from_statement(
-                        "SELECT num_players, game_type_cd, num_games "
-                        "FROM summary_stats_mv "
-                        "WHERE scope = :scope "
-                        "ORDER BY sort_order "
-                ).params(scope=scope).all()
+        ss = summary_stats_data(scope)
 
         i = 1
         total_games = 0
@@ -169,8 +202,8 @@ def _main_index_data(request):
     recent_games_count = 20
 
     # summary statistics for the tagline
-    stat_line = get_summary_stats("all")
-    day_stat_line = get_summary_stats("day")
+    stat_line = summary_stats_string("all")
+    day_stat_line = summary_stats_string("day")
 
 
     # the three top ranks tables
