@@ -346,6 +346,10 @@ def has_minimum_real_players(settings, submission):
     except:
         minimum_required_players = 2
 
+    # Make an exception for CTS since it can be done by individuals and there is no Elo anyway
+    if submission.game_type_cd == "cts":
+        minimum_required_players = 1
+
     return len(submission.humans) >= minimum_required_players
 
 
