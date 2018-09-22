@@ -738,15 +738,9 @@ def create_default_game_stat(session, game_type_cd):
         pgstat.captures = pgstat.drops = pgstat.pushes = pgstat.destroys = 0
         pgstat.carrier_frags = 0
 
-    if game_type_cd == 'lms':
-        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.lives = 0
-
     if game_type_cd == 'nb':
         pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.captures = 0
         pgstat.drops = 0
-
-    if game_type_cd == 'rc':
-        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.laps = 0
 
     return pgstat
 
@@ -857,7 +851,7 @@ def create_default_team_stat(session, game_type_cd):
     # all team game modes have a score, so we'll zero that out always
     teamstat.score = 0
 
-    if game_type_cd in 'ca' 'ft' 'lms' 'ka':
+    if game_type_cd in 'ca' 'ft' 'ka':
         teamstat.rounds = 0
 
     if game_type_cd == 'ctf':
