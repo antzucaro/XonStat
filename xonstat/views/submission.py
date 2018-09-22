@@ -714,10 +714,6 @@ def create_default_game_stat(session, game_type_cd):
     if game_type_cd in 'ca' 'dm' 'duel' 'rune' 'tdm':
         pgstat.kills = pgstat.deaths = pgstat.suicides = 0
 
-    if game_type_cd == 'cq':
-        pgstat.kills = pgstat.deaths = pgstat.suicides = pgstat.captures = 0
-        pgstat.drops = 0
-
     if game_type_cd == 'ctf':
         pgstat.kills = pgstat.captures = pgstat.pickups = pgstat.drops = 0
         pgstat.returns = pgstat.carrier_frags = 0
