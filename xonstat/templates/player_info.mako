@@ -138,7 +138,9 @@
         ##### RIGHT PANE #####
         <div class="small-12 medium-6 columns">
           <p>
-            Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
+            % if g.win_pct is not None:
+                Win Percentage: <small>${round(g.win_pct,2)}% (${g.wins} wins, ${g.losses} losses) <br /></small>
+            % endif
 
             % if g.game_type_cd in overall_stats:
               % if overall_stats[g.game_type_cd].k_d_ratio is not None:

@@ -104,15 +104,20 @@ def get_games_played(player_id):
     for row in raw_games_played:
         games = row.wins + row.losses
         overall_games += games
-        overall_wins += row.wins
-        overall_losses += row.losses
-        win_pct = float(row.wins)/games * 100
+
+        # DM and CTS don't really have "winners"
+        if row.game_type_cd in ["dm", "cts"]:
+            win_pct = None
+        else:
+            overall_wins += row.wins
+            overall_losses += row.losses
+            win_pct = float(row.wins)/games * 100
 
         games_played.append(GamesPlayed(row.game_type_cd, games, row.wins,
             row.losses, win_pct))
 
     try:
-        overall_win_pct = float(overall_wins)/overall_games * 100
+        overall_win_pct = float(overall_wins)/(overall_wins + overall_losses) * 100
     except:
         overall_win_pct = 0.0
 
@@ -508,7 +513,7 @@ def get_player_medals(player_id):
                 .all()
 
         return medals
-    
+
     except Exception as e:
         log.debug(e)
         return []
@@ -1075,7 +1080,7 @@ def player_weaponstats_data_json(request):
             limit = 50
 
 
-    # the game_ids of the most recently played ones 
+    # the game_ids of the most recently played ones
     # of the given game type is used for a subquery
     games_list = DBSession.query(Game.game_id).\
             filter(Game.players.contains([player_id]))
@@ -1103,7 +1108,7 @@ def player_weaponstats_data_json(request):
         sum_avgs[ws.weapon_cd] = sum_avgs.get(ws.weapon_cd, 0) + float(ws.hit)/float(ws.fired)
 
     # Creating zero-valued weapon stat entries for games where a weapon was not
-    # used in that game, but was used in another game for the set. This makes 
+    # used in that game, but was used in another game for the set. This makes
     # the charts look smoother
     for game_id in games_to_weapons.keys():
         for weapon_cd in set(weapons_used.keys()) - set(games_to_weapons[game_id]):
@@ -1153,19 +1158,19 @@ def player_versus_data(request):
         # note that wins and losses are from p1's perspective
         win_loss_sql = """select win_loss, count(1)
             from (
-              select case 
-                when pgsp1.score >= pgsp2.score then 'win' 
-                else 'loss' 
+              select case
+                when pgsp1.score >= pgsp2.score then 'win'
+                else 'loss'
               end win_loss
-              from games g join player_game_stats pgsp1 
+              from games g join player_game_stats pgsp1
                 on g.game_id = pgsp1.game_id and pgsp1.player_id = :p1
-              join player_game_stats pgsp2 
+              join player_game_stats pgsp2
                 on g.game_id = pgsp2.game_id and pgsp2.player_id = :p2
               where g.players @> ARRAY[:p1,:p2]
               and g.game_type_cd = 'duel'
-              and pgsp1.create_dt between g.create_dt - interval '1 hour' 
+              and pgsp1.create_dt between g.create_dt - interval '1 hour'
                 and g.create_dt + interval '1 hour'
-              and pgsp2.create_dt between g.create_dt - interval '1 hour' 
+              and pgsp2.create_dt between g.create_dt - interval '1 hour'
                 and g.create_dt + interval '1 hour'
             ) wl
             group by win_loss
@@ -1182,7 +1187,7 @@ def player_versus_data(request):
                 p2_wins = row.count
 
         # grab the 20 most recent games between the two
-        rgs_raw = recent_games_q(player_id=p1_id, player_id_2=p2_id, 
+        rgs_raw = recent_games_q(player_id=p1_id, player_id_2=p2_id,
                 game_type_cd="duel").limit(20).all()
 
         rgs = [RecentGame(row) for row in rgs_raw]
