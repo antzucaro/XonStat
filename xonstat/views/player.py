@@ -105,8 +105,8 @@ def get_games_played(player_id):
         games = row.wins + row.losses
         overall_games += games
 
-        # DM and CTS don't really have "winners"
-        if row.game_type_cd in ["dm", "cts"]:
+        # DM, CTS, and KA don't really have "winners"
+        if row.game_type_cd in ["dm", "cts", "ka"]:
             win_pct = None
         else:
             overall_wins += row.wins
