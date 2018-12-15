@@ -121,7 +121,34 @@ def game_info_json(request):
     """
     List the game stats (scoreboard) for a particular game. Paginated. JSON.
     """
-    return [{'status':'not implemented'}]
+    data = _game_info_data(request)
+
+    # convert pwstats into a more JSON-friendly format
+    pwstats = {}
+    for pgstat_id, pwstat_list in data["pwstats"].items():
+        l = []
+        for pwstat in pwstat_list:
+            l.append({
+                "player_game_stat_id": pgstat_id,
+                "weapon_cd": pwstat[1],
+                "actual": pwstat[2],
+                "max": pwstat[3],
+                "hit": pwstat[4],
+                "fired": pwstat[5],
+                "frags": pwstat[6],
+            })
+
+        pwstats[int(pgstat_id)] = l
+
+    return {
+        "game": data["game"].to_dict(),
+        "server": data["server"].to_dict(),
+        "map": data["map"].to_dict(),
+        'pgstats': [pgstat.to_dict() for pgstat in data["pgstats"]],
+        'pwstats': pwstats,
+        'tgstats': [tgstat.to_dict() for tgstat in data["tgstats"]],
+        # 'captimes': [captime.to_dict() for captime in data["captimes"]],
+    }
 
 
 def _rank_index_data(request):
@@ -216,7 +243,7 @@ def game_finder_data(request):
 
     try:
         recent_games = [RecentGame(row) for row in rgs_q.limit(20).all()]
-        
+
         if len(recent_games) > 0:
             query['start_game_id'] = recent_games[-1].game_id + 1
 
