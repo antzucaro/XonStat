@@ -45,14 +45,40 @@ class PlayerGameStat(object):
         return "<PlayerGameStat({0.player_id}, {0.game_id}, {0.create_dt})>".format(self)
 
     def to_dict(self):
+
+        if self.fastest:
+            fastest = round(float(self.fastest.seconds) + (self.fastest.microseconds/1000000.0), 2)
+        else:
+            fastest = None
+
         return {
+            'player_game_stat_id': self.player_game_stat_id,
             'player_id': self.player_id,
             'game_id': self.game_id,
-            'create_dt': self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
-            'alivetime': self.alivetime,
-            'rank': self.rank,
+            'nick': self.nick,
+            'stripped_nick': self.stripped_nick,
+            'team': self.team,
+            'alivetime': self.alivetime.total_seconds(),
+            'kills': self.kills,
+            'deaths': self.deaths,
+            'suicides': self.suicides,
             'score': self.score,
-            'team': self.team
+            'time': self.time.total_seconds() if self.time else None,
+            'captures': self.captures,
+            'pickups': self.pickups,
+            'drops': self.drops,
+            'returns': self.returns,
+            'collects': self.collects,
+            'destroys': self.destroys,
+            'pushes': self.pushes,
+            'carrier_frags': self.carrier_frags,
+            'fastest': fastest,
+            'scoreboardpos': self.scoreboardpos,
+            'laps': self.laps,
+            'revivals': self.revivals,
+            'lives': self.lives,
+            'rank': self.rank,
+            'create_dt': self.create_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
         }
 
     def nick_stripped(self):
