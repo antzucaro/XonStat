@@ -37,7 +37,7 @@
               </ul>
             </li>
             <li><a href="https://gitlab.com/groups/xonotic" title="Contribute to Xonotic"><i class="fa fa-wrench"></i> Contribute</a></li>
-            <li><a href="https://gitlab.com/xonotic/xonotic/wikis/Halogenes_Newbie_Corner" title="Read the beginner's guide"><i class="fa fa-forward"></i> Guide</a></li>
+            <li><a href="https://xonotic.org/guide" title="Read the beginner's guide"><i class="fa fa-forward"></i> Guide</a></li>
           </ul>
         </section>
       </nav>
