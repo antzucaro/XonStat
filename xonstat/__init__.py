@@ -10,7 +10,8 @@ from xonstat.security import *
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
+    """
+    This function returns a Pyramid WSGI application.
     """
     # setup the database engine
     engine = engine_from_config(settings, 'sqlalchemy.', pool_size=5)
@@ -79,17 +80,19 @@ def main(global_config, **settings):
                     renderer="player_hashkey_info_text.mako")
 
     config.add_route("player_hashkey_info_json", "/player/me.json")
-    config.add_view(player_hashkey_info_json, route_name="player_hashkey_info_json", renderer="jsonp")
+    config.add_view(player_hashkey_info_json, route_name="player_hashkey_info_json",
+                    renderer="jsonp")
 
     config.add_route("player_elo_info_text", "/player/{hashkey}/elo.txt")
-    config.add_view(player_elo_info_text, route_name="player_elo_info_text", renderer="player_elo_info_text.mako")
+    config.add_view(player_elo_info_text, route_name="player_elo_info_text",
+                    renderer="player_elo_info_text.mako")
 
     # FIXME - needs an additional method to convert to JSON
     config.add_route("player_elo_info_json", "/player/{hashkey}/elo.json")
     config.add_view(player_elo_info_json, route_name="player_elo_info_json", renderer="jsonp")
 
-    config.add_route("player_accuracy",      "/player/{id:\d+}/accuracy")
-    config.add_view(player_accuracy_json, route_name="player_accuracy",      renderer="jsonp")
+    config.add_route("player_accuracy", "/player/{id:\d+}/accuracy")
+    config.add_view(player_accuracy_json, route_name="player_accuracy", renderer="jsonp")
 
     config.add_route("player_index", "/players")
     config.add_view(player_index, route_name="player_index", accept="text/html",
