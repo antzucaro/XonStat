@@ -141,7 +141,10 @@ def main(global_config, **settings):
     config.add_view(game_info_json, route_name="game_info_json", renderer="jsonp")
 
     config.add_route("game_index", "/games")
-    config.add_view(game_finder, route_name="game_index", renderer="game_finder.mako")
+    config.add_view(game_finder, route_name="game_index", accept="text/html",
+                    renderer="game_finder.mako")
+    config.add_view(game_finder_json, route_name="game_index", accept="application/json",
+                    renderer="json")
 
     config.add_route("game_index_json", "/games.json")
     config.add_view(game_finder_json, route_name="game_index_json", renderer="jsonp")
