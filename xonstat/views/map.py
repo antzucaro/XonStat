@@ -336,8 +336,8 @@ def _map_info_data(request):
                 group_by(Player.nick).\
                 group_by(Player.player_id).all()[0:leaderboard_count]
 
-        top_scorers = [(player_id, html_colors(nick), score) \
-                for (player_id, nick, score) in top_scorers]
+        top_scorers = [(player_id, html_colors(nick), score, nick)
+                       for (player_id, nick, score) in top_scorers]
 
         # top players by playing time
         top_players = DBSession.query(Player.player_id, Player.nick,
@@ -352,8 +352,8 @@ def _map_info_data(request):
                 group_by(Player.nick).\
                 group_by(Player.player_id).all()[0:leaderboard_count]
 
-        top_players = [(player_id, html_colors(nick), score) \
-                for (player_id, nick, score) in top_players]
+        top_players = [(player_id, html_colors(nick), score, nick)
+                       for (player_id, nick, score) in top_players]
 
         # top servers using/playing this map
         top_servers = DBSession.query(Server.server_id, Server.name,
@@ -416,7 +416,45 @@ def map_info_json(request):
     """
     List the information stored about a given map. JSON.
     """
-    return [{'status':'not implemented'}]
+    data = _map_info_data(request)
+
+    # convert the top scorers to a dict
+    def top_scorers_dict(tp):
+        return {
+            "player_id": tp[0],
+            "nick": tp[3],
+            "score": tp[2],
+        }
+
+    top_scorers = [top_scorers_dict(ts) for ts in data["top_scorers"]]
+
+    # convert the top players to a dict
+    def top_players_dict(tp):
+        return {
+            "player_id": tp[0],
+            "nick": tp[3],
+            "alivetime": tp[2].total_seconds(),
+        }
+
+    top_players = [top_players_dict(tp) for tp in data["top_players"]]
+
+    def top_servers_dict(ts):
+        return {
+            "server_id": ts[0],
+            "server_name": ts[1],
+            "games": ts[2],
+        }
+
+    top_servers = [top_servers_dict(ts) for ts in data["top_servers"]]
+
+    return {
+        'map': data["gmap"].to_dict(),
+        'recent_games': [rg.to_dict() for rg in data["recent_games"]],
+        'top_scorers': top_scorers,
+        'top_players': top_players,
+        'top_servers':top_servers,
+        # 'captimes':captimes,
+    }
 
 
 def map_captimes_data(request):

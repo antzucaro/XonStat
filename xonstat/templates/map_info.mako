@@ -36,7 +36,7 @@
         </thead>
         <tbody>
           <% i = 1 %>
-          % for (score_player_id, score_nick, score_value) in top_scorers:
+          % for (score_player_id, score_nick, score_value, _) in top_scorers:
             <tr>
               <td>${i}</td>
               % if score_player_id != '-':
@@ -64,7 +64,7 @@
         </thead>
         <tbody>
         <% i = 1 %>
-        % for (player_id, nick, alivetime) in top_players:
+        % for (player_id, nick, alivetime, _) in top_players:
           <tr>
             <td>${i}</td>
             % if player_id != '-':
