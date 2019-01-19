@@ -401,10 +401,10 @@ def map_info(request):
     recent_games_count = 20
 
     for i in range(leaderboard_count-len(mapinfo_data['top_scorers'])):
-        mapinfo_data['top_scorers'].append(('-', '-', '-'))
+        mapinfo_data['top_scorers'].append(('-', '-', '-', '-'))
 
     for i in range(leaderboard_count-len(mapinfo_data['top_players'])):
-        mapinfo_data['top_players'].append(('-', '-', '-'))
+        mapinfo_data['top_players'].append(('-', '-', '-', '-'))
 
     for i in range(leaderboard_count-len(mapinfo_data['top_servers'])):
         mapinfo_data['top_servers'].append(('-', '-', '-'))
