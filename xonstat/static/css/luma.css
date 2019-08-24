@@ -200,12 +200,12 @@
 	content: "\e626";
 }
 
-.sprite-nex:before, .sprite-vortex:before{
+.sprite-nex:before, .sprite-vortex:before, .sprite-oknex:before {
   color: #00e6ff;
 	content: "\e627";
 }
 
-.sprite-nex-circle:before, .sprite-vortex-circle:before{
+.sprite-nex-circle:before, .sprite-vortex-circle:before, .sprite-oknex-circle:before{
   color: #00e6ff;
 	content: "\e628";
 }
@@ -256,12 +256,12 @@
 	content: "\e632";
 }
 
-.sprite-shotgun:before {
+.sprite-shotgun:before, .sprite-okshotgun:before {
   color: #1f77b4;
 	content: "\e633";
 }
 
-.sprite-shotgun-circle:before {
+.sprite-shotgun-circle:before, .sprite-okshotgun:before {
   color: #1f77b4;
 	content: "\e634";
 }
@@ -280,12 +280,12 @@
 	content: "\e637";
 }
 
-.sprite-uzi:before, .sprite-machinegun:before{
+.sprite-uzi:before, .sprite-machinegun:before, .sprite-okhmg:before, .sprite-okmachinegun:before {
   color: #b9e659;
 	content: "\e638";
 }
 
-.sprite-uzi-circle:before, .sprite-machinegun-circle:before{
+.sprite-uzi-circle:before, .sprite-machinegun-circle:before, .sprite-okhmg-circle:before, .sprite-okmachinegun-circle:before{
   color: #b9e659;
 	content: "\e639";
 }
