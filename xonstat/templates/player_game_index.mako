@@ -52,7 +52,7 @@
               % else:
                 <a href="${request.route_url("player_game_index", player_id=player.player_id, _query={'type':game.game_type_cd})}" alt="${game.game_type_cd}" title="" data-toggle="none">
               % endif
-              <span class="sprite sprite-${game.game_type_cd}"></span><br />
+              <span class="sprite sprite-gametype_${game.game_type_cd}"></span><br />
               ${game.game_type_cd} <br />
               </a>
             </li>
@@ -81,7 +81,7 @@
         % for rg in games.items:
         <tr>
           <td class="text-center"><a class="button tiny" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
-          <td class="text-center"><span class="sprite sprite-${rg.game_type_cd}"></span></td>
+          <td class="text-center"><span class="sprite sprite-gametype_${rg.game_type_cd}"></span></td>
           <td class="show-for-medium-up no-stretch"><a href="${request.route_url("server_info", id=rg.server_id)}" name="Server info page for ${rg.server_name}">${rg.server_name}</a></td>
           <td class="no-stretch"><a href="${request.route_url("map_info", id=rg.map_id)}" name="Map info page for ${rg.map_name}">${rg.map_name}</a></td>
           <td class="show-for-medium-up">
