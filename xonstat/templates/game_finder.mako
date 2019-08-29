@@ -22,7 +22,7 @@ Game Index
           "
         >
           <a href="${url}" alt="${gt}" title="Show only ${gt} games">
-            <span class="sprite sprite-gametype_${gt}"></span><br />
+            <span class="sprite sprite-${gt}"></span><br />
             ${gt} <br />
           </a>
         </li>
@@ -51,7 +51,7 @@ Game Index
       % for rg in recent_games:
         <tr>
           <td class="text-center"><a class="button tiny" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
-          <td class="text-center"><i class="sprite sprite-gametype_${rg.game_type_cd}" title="${rg.game_type_descr}"></i></td>
+          <td class="text-center"><i class="sprite sprite-${rg.game_type_cd}" title="${rg.game_type_descr}"></i></td>
           <td class="show-for-medium-up no-stretch"><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
           <td class="show-for-medium-up"><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the map detail page for this map">${rg.map_name}</a></td>
           <td class="show-for-large-up"><span class="abstime" data-epoch="${rg.epoch}" title="${rg.start_dt.strftime('%a, %d %b %Y %H:%M:%S UTC')}">${rg.fuzzy_date}</span></td>

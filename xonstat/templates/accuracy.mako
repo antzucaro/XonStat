@@ -44,7 +44,7 @@
     <tr>
       ## Note: the name of the image must match up with the weapon_cd 
       ## entry of that weapon, else this won't work
-      <td class="small-2 medium-1 text-center"><span class="sprite sprite-weapon${weapon_stat[1]}"></span></td>
+      <td class="small-2 medium-1 text-center"><span class="sprite sprite-${weapon_stat[1]}"></span></td>
       <td class="show-for-medium-up">${weapon_stat[0]}</td>
       <td class="show-for-medium-up">${weapon_stat[6]}</td>
       <td>${weapon_stat[4]}/${weapon_stat[5]} (${hit_pct}%)</td>

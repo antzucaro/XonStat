@@ -80,7 +80,7 @@
           % endif
         ">
           <a id="tab-${g.game_type_cd}" href="#tab-${g.game_type_cd}" title="${overall_stats[g.game_type_cd].game_type_descr}">
-            <span class="sprite sprite-gametype_${g.game_type_cd}"></span><br />
+            <span class="sprite sprite-${g.game_type_cd}"></span><br />
             ${g.game_type_cd} <br />
             <small>(${g.games})</small>
           </a>
@@ -222,7 +222,7 @@
         % for rg in recent_games:
           <tr>
             <td class="text-center"><a class="tiny button" href="${request.route_url('game_info', id=rg.game_id)}" title="View detailed information about this game">view</a></td>
-            <td class="text-center"><span class="sprite sprite-gametype_${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
+            <td class="text-center"><span class="sprite sprite-${rg.game_type_cd}" alt="${rg.game_type_cd}" title="${rg.game_type_descr}"></span></td>
             <td class="show-for-medium-up no-stretch"><a href="${request.route_url('server_info', id=rg.server_id)}" title="Go to the detail page for this server">${rg.server_name}</a></td>
             <td class="no-stretch"><a href="${request.route_url('map_info', id=rg.map_id)}" title="Go to the detail page for this map">${rg.map_name}</a></td>
             <td class="show-for-medium-up">
