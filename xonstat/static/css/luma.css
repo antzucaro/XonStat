@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'Luma';
-  src:  url('fonts/Luma.eot?ljhc0l');
-  src:  url('fonts/Luma.eot?ljhc0l#iefix') format('embedded-opentype'),
-    url('fonts/Luma.ttf?ljhc0l') format('truetype'),
-    url('fonts/Luma.woff?ljhc0l') format('woff'),
-    url('fonts/Luma.svg?ljhc0l#Luma') format('svg');
+  src:  url('fonts/Luma.eot?wfmcs0');
+  src:  url('fonts/Luma.eot?wfmcs0#iefix') format('embedded-opentype'),
+    url('fonts/Luma.ttf?wfmcs0') format('truetype'),
+    url('fonts/Luma.woff?wfmcs0') format('woff'),
+    url('fonts/Luma.svg?wfmcs0#Luma') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -25,586 +25,167 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.sprite-ammo_bullets:before {
+.sprite-arc:before {
+  color: #7c9ceb;
   content: "\e900";
 }
-.sprite-ammo_cells:before {
+.sprite-as:before {
   content: "\e901";
 }
-.sprite-ammo_fuel:before {
+.sprite-ca:before {
   content: "\e902";
 }
-.sprite-ammo_plasma:before {
+.sprite-crylink:before {
+  color: #ea6ff9;
   content: "\e903";
 }
-.sprite-ammo_rockets:before {
+.sprite-ctf:before {
   content: "\e904";
 }
-.sprite-ammo_shells:before {
+.sprite-cts:before {
   content: "\e905";
 }
-.sprite-ammo_supercells:before {
+.sprite-dm:before {
   content: "\e906";
 }
-.sprite-armor:before {
+.sprite-dom:before {
   content: "\e907";
 }
-.sprite-as_defend:before {
+.sprite-duel:before {
   content: "\e908";
 }
-.sprite-as_destroy:before {
+.sprite-electro:before {
+  color: #6899f2;
   content: "\e909";
 }
-.sprite-buff_ammo:before {
+.sprite-fireball:before {
+  color: #f0855f;
   content: "\e90a";
 }
-.sprite-buff_bash:before {
+.sprite-flak:before {
+  color: #e9be57;
   content: "\e90b";
 }
-.sprite-buff_blessed:before {
+.sprite-ft:before {
   content: "\e90c";
 }
-.sprite-buff_disability:before {
+.sprite-grenadelauncher:before, .sprite-mortar:before {
+  color: #fd7865;
   content: "\e90d";
 }
-.sprite-buff_flight:before {
+.sprite-hagar:before {
+  color: #e39160;
   content: "\e90e";
 }
-.sprite-buff_inferno:before {
+.sprite-hlac:before {
+  color: #e5965b;
   content: "\e90f";
 }
-.sprite-buff_invisible:before {
+.sprite-okhmg .path1:before {
+  color: #fd7865;
   content: "\e910";
+  opacity: 0.75;
 }
-.sprite-buff_jump:before {
+.sprite-okhmg .path2:before {
+  color: #fd7865;
   content: "\e911";
+  margin-left: -1em;
 }
-.sprite-buff_luck:before {
+.sprite-hook:before {
+  color: #81f13d;
   content: "\e912";
 }
-.sprite-buff_magnet:before {
+.sprite-inf:before {
   content: "\e913";
 }
-.sprite-buff_medic:before {
+.sprite-inv:before {
   content: "\e914";
 }
-.sprite-buff_resistance:before {
+.sprite-jb:before {
   content: "\e915";
 }
-.sprite-buff_speed:before {
+.sprite-ka:before {
   content: "\e916";
 }
-.sprite-buff_swapper:before {
+.sprite-kh:before {
   content: "\e917";
 }
-.sprite-buff_vampire:before {
+.sprite-laser:before, .sprite-blaster:before {
+  color: #f7717b;
   content: "\e918";
 }
-.sprite-buff_vengeance:before {
+.sprite-lms:before {
   content: "\e919";
 }
-.sprite-dom_icon_blue-highlighted:before {
+.sprite-minelayer:before {
+  color: #fd7865;
   content: "\e91a";
 }
-.sprite-dom_icon_pink-highlighted:before {
+.sprite-minstanex:before, .sprite-vaporizer:before {
+  color: #978ed2;
   content: "\e91b";
 }
-.sprite-dom_icon_red-highlighted:before {
+.sprite-nb:before {
   content: "\e91c";
 }
-.sprite-dom_icon_yellow-highlighted:before {
+.sprite-nex:before, .sprite-vortex:before, .sprite-oknex:before {
+  color: #75c3d5;
   content: "\e91d";
 }
-.sprite-flag_blue_carrying:before {
+.sprite-ons:before {
   content: "\e91e";
 }
-.sprite-flag_blue_lost:before {
+.sprite-overall:before {
   content: "\e91f";
 }
-.sprite-flag_blue_shielded:before {
+.sprite-porto:before {
+  color: #6899f2;
   content: "\e920";
 }
-.sprite-flag_blue_taken:before {
+.sprite-rc:before {
   content: "\e921";
 }
-.sprite-flag_neutral_carrying:before {
+.sprite-rifle:before {
+  color: #e39160;
   content: "\e922";
 }
-.sprite-flag_neutral_lost:before {
+.sprite-rocketlauncher:before, .sprite-devastator:before {
+  color: #e9be57;
   content: "\e923";
 }
-.sprite-flag_neutral_shielded:before {
+.sprite-okrpc .path1:before {
+  color: #e9be57;
   content: "\e924";
+  opacity: 0.75;
 }
-.sprite-flag_neutral_taken:before {
+.sprite-okrpc .path2:before {
+  color: #e9be57;
   content: "\e925";
+  margin-left: -1em;
 }
-.sprite-flag_pink_carrying:before {
+.sprite-seeker:before {
+  color: #f7717b;
   content: "\e926";
 }
-.sprite-flag_pink_lost:before {
+.sprite-shockwave:before {
+  color: #77b38a;
   content: "\e927";
 }
-.sprite-flag_pink_shielded:before {
+.sprite-shotgun:before, .sprite-okshotgun:before {
+  color: #849ba8;
   content: "\e928";
 }
-.sprite-flag_pink_taken:before {
+.sprite-tdm:before {
   content: "\e929";
 }
-.sprite-flag_red_carrying:before {
+.sprite-tuba:before {
+  color: #e9be57;
   content: "\e92a";
 }
-.sprite-flag_red_lost:before {
+.sprite-uzi:before, .sprite-machinegun:before, .sprite-okmachinegun:before {
+  color: #81f13d;
   content: "\e92b";
 }
-.sprite-flag_red_shielded:before {
+.sprite-vip:before {
   content: "\e92c";
-}
-.sprite-flag_red_taken:before {
-  content: "\e92d";
-}
-.sprite-flag_yellow_carrying:before {
-  content: "\e92e";
-}
-.sprite-flag_yellow_lost:before {
-  content: "\e92f";
-}
-.sprite-flag_yellow_shielded:before {
-  content: "\e930";
-}
-.sprite-flag_yellow_taken:before {
-  content: "\e931";
-}
-.sprite-fuelregen:before {
-  content: "\e932";
-}
-.sprite-gametype_as:before {
-  content: "\e933";
-}
-.sprite-gametype_ca:before {
-  content: "\e934";
-}
-.sprite-gametype_ctf:before {
-  content: "\e935";
-}
-.sprite-gametype_cts:before {
-  content: "\e936";
-}
-.sprite-gametype_dm:before {
-  content: "\e937";
-}
-.sprite-gametype_dom:before {
-  content: "\e938";
-}
-.sprite-gametype_duel:before {
-  content: "\e939";
-}
-.sprite-gametype_ft:before {
-  content: "\e93a";
-}
-.sprite-gametype_inf:before {
-  content: "\e93b";
-}
-.sprite-gametype_inv:before {
-  content: "\e93c";
-}
-.sprite-gametype_jb:before {
-  content: "\e93d";
-}
-.sprite-gametype_ka:before {
-  content: "\e93e";
-}
-.sprite-gametype_kh:before {
-  content: "\e93f";
-}
-.sprite-gametype_lms:before {
-  content: "\e940";
-}
-.sprite-gametype_nb:before {
-  content: "\e941";
-}
-.sprite-gametype_ons:before {
-  content: "\e942";
-}
-.sprite-gametype_rc:before {
-  content: "\e943";
-}
-.sprite-gametype_tdm:before {
-  content: "\e944";
-}
-.sprite-gametype_vip:before {
-  content: "\e945";
-}
-.sprite-health:before {
-  content: "\e946";
-}
-.sprite-item_large_armor:before {
-  content: "\e947";
-}
-.sprite-item_mega_health:before {
-  content: "\e948";
-}
-.sprite-jetpack:before {
-  content: "\e949";
-}
-.sprite-keepawayball_carrying:before {
-  content: "\e94a";
-}
-.sprite-key_atck2_inv:before {
-  content: "\e94b";
-}
-.sprite-key_atck_inv:before {
-  content: "\e94c";
-}
-.sprite-key_backward_inv:before {
-  content: "\e94d";
-}
-.sprite-key_crouch_inv:before {
-  content: "\e94e";
-}
-.sprite-key_forward_inv:before {
-  content: "\e94f";
-}
-.sprite-key_jump_inv:before {
-  content: "\e950";
-}
-.sprite-key_left_inv:before {
-  content: "\e951";
-}
-.sprite-key_right_inv:before {
-  content: "\e952";
-}
-.sprite-kh_blue_carrying:before {
-  content: "\e953";
-}
-.sprite-kh_blue_taken:before {
-  content: "\e954";
-}
-.sprite-kh_dropped:before {
-  content: "\e955";
-}
-.sprite-kh_pink_carrying:before {
-  content: "\e956";
-}
-.sprite-kh_pink_taken:before {
-  content: "\e957";
-}
-.sprite-kh_red_carrying:before {
-  content: "\e958";
-}
-.sprite-kh_red_taken:before {
-  content: "\e959";
-}
-.sprite-kh_yellow_carrying:before {
-  content: "\e95a";
-}
-.sprite-kh_yellow_taken:before {
-  content: "\e95b";
-}
-.sprite-nade_entrap:before {
-  content: "\e95c";
-}
-.sprite-nade_heal:before {
-  content: "\e95d";
-}
-.sprite-nade_ice:before {
-  content: "\e95e";
-}
-.sprite-nade_monster:before {
-  content: "\e95f";
-}
-.sprite-nade_napalm:before {
-  content: "\e960";
-}
-.sprite-nade_normal:before {
-  content: "\e961";
-}
-.sprite-nade_spawn:before {
-  content: "\e962";
-}
-.sprite-nade_translocate:before {
-  content: "\e963";
-}
-.sprite-nade_veil:before {
-  content: "\e964";
-}
-.sprite-nexball_carrying:before {
-  content: "\e965";
-}
-.sprite-notify_balldropped:before {
-  content: "\e966";
-}
-.sprite-notify_ballpickedup:before {
-  content: "\e967";
-}
-.sprite-notify_blue_captured:before {
-  content: "\e968";
-}
-.sprite-notify_blue_carrying:before {
-  content: "\e969";
-}
-.sprite-notify_blue_lost:before {
-  content: "\e96a";
-}
-.sprite-notify_blue_returned:before {
-  content: "\e96b";
-}
-.sprite-notify_blue_shielded:before {
-  content: "\e96c";
-}
-.sprite-notify_blue_taken:before {
-  content: "\e96d";
-}
-.sprite-notify_camping:before {
-  content: "\e96e";
-}
-.sprite-notify_death:before {
-  content: "\e96f";
-}
-.sprite-notify_fall:before {
-  content: "\e970";
-}
-.sprite-notify_lava:before {
-  content: "\e971";
-}
-.sprite-notify_melee_shotgun:before {
-  content: "\e972";
-}
-.sprite-notify_neutral_captured:before {
-  content: "\e973";
-}
-.sprite-notify_neutral_carrying:before {
-  content: "\e974";
-}
-.sprite-notify_neutral_lost:before {
-  content: "\e975";
-}
-.sprite-notify_neutral_shielded:before {
-  content: "\e976";
-}
-.sprite-notify_neutral_taken:before {
-  content: "\e977";
-}
-.sprite-notify_outofammo:before {
-  content: "\e978";
-}
-.sprite-notify_pink_captured:before {
-  content: "\e979";
-}
-.sprite-notify_pink_carrying:before {
-  content: "\e97a";
-}
-.sprite-notify_pink_lost:before {
-  content: "\e97b";
-}
-.sprite-notify_pink_returned:before {
-  content: "\e97c";
-}
-.sprite-notify_pink_shielded:before {
-  content: "\e97d";
-}
-.sprite-notify_pink_taken:before {
-  content: "\e97e";
-}
-.sprite-notify_red_captured:before {
-  content: "\e97f";
-}
-.sprite-notify_red_carrying:before {
-  content: "\e980";
-}
-.sprite-notify_red_lost:before {
-  content: "\e981";
-}
-.sprite-notify_red_returned:before {
-  content: "\e982";
-}
-.sprite-notify_red_shielded:before {
-  content: "\e983";
-}
-.sprite-notify_red_taken:before {
-  content: "\e984";
-}
-.sprite-notify_selfkill:before {
-  content: "\e985";
-}
-.sprite-notify_shootingstar:before {
-  content: "\e986";
-}
-.sprite-notify_slime:before {
-  content: "\e987";
-}
-.sprite-notify_teamkill_blue:before {
-  content: "\e988";
-}
-.sprite-notify_teamkill_neutral:before {
-  content: "\e989";
-}
-.sprite-notify_teamkill_pink:before {
-  content: "\e98a";
-}
-.sprite-notify_teamkill_red:before {
-  content: "\e98b";
-}
-.sprite-notify_teamkill_yellow:before {
-  content: "\e98c";
-}
-.sprite-notify_telefrag:before {
-  content: "\e98d";
-}
-.sprite-notify_void:before {
-  content: "\e98e";
-}
-.sprite-notify_water:before {
-  content: "\e98f";
-}
-.sprite-notify_yellow_captured:before {
-  content: "\e990";
-}
-.sprite-notify_yellow_carrying:before {
-  content: "\e991";
-}
-.sprite-notify_yellow_lost:before {
-  content: "\e992";
-}
-.sprite-notify_yellow_returned:before {
-  content: "\e993";
-}
-.sprite-notify_yellow_shielded:before {
-  content: "\e994";
-}
-.sprite-notify_yellow_taken:before {
-  content: "\e995";
-}
-.sprite-ok_weapon_rail:before {
-  content: "\e996";
-}
-.sprite-ok_weapon_shotgun:before {
-  content: "\e997";
-}
-.sprite-ok_weapon_smg:before {
-  content: "\e998";
-}
-.sprite-overall:before {
-  content: "\e999";
-  color: #fff;
-}
-.sprite-player_blue:before {
-  content: "\e99a";
-}
-.sprite-player_neutral:before {
-  content: "\e99b";
-}
-.sprite-player_pink:before {
-  content: "\e99c";
-}
-.sprite-player_red:before {
-  content: "\e99d";
-}
-.sprite-player_yellow:before {
-  content: "\e99e";
-}
-.sprite-race_newfail:before {
-  content: "\e99f";
-}
-.sprite-race_newrankgreen:before {
-  content: "\e9a0";
-}
-.sprite-race_newrankyellow:before {
-  content: "\e9a1";
-}
-.sprite-race_newrecordserver:before {
-  content: "\e9a2";
-}
-.sprite-race_newtime:before {
-  content: "\e9a3";
-}
-.sprite-shield:before {
-  content: "\e9a4";
-}
-.sprite-strength:before {
-  content: "\e9a5";
-}
-.sprite-superweapons:before {
-  content: "\e9a6";
-}
-.sprite-vehicle_icon_ammo1:before {
-  content: "\e9a7";
-}
-.sprite-vehicle_icon_ammo2:before {
-  content: "\e9a8";
-}
-.sprite-vehicle_icon_health:before {
-  content: "\e9a9";
-}
-.sprite-vehicle_icon_shield:before {
-  content: "\e9aa";
-}
-.sprite-weaponarc:before {
-  content: "\e9ab";
-}
-.sprite-weaponcrylink:before {
-  content: "\e9ac";
-}
-.sprite-weaponelectro:before {
-  content: "\e9ad";
-}
-.sprite-weaponfireball:before {
-  content: "\e9ae";
-}
-.sprite-weaponflak:before {
-  content: "\e9af";
-}
-.sprite-weapongrenadelauncher:before {
-  content: "\e9b0";
-}
-.sprite-weaponhagar:before {
-  content: "\e9b1";
-}
-.sprite-weaponhlac:before {
-  content: "\e9b2";
-}
-.sprite-weaponhmg:before {
-  content: "\e9b3";
-}
-.sprite-weaponhook:before {
-  content: "\e9b4";
-}
-.sprite-weaponlaser:before {
-  content: "\e9b5";
-}
-.sprite-weaponminelayer:before {
-  content: "\e9b6";
-}
-.sprite-weaponminstanex:before {
-  content: "\e9b7";
-}
-.sprite-weaponnex:before {
-  content: "\e9b8";
-}
-.sprite-weaponporto:before {
-  content: "\e9b9";
-}
-.sprite-weaponrifle:before {
-  content: "\e9ba";
-}
-.sprite-weaponrocketlauncher:before {
-  content: "\e9bb";
-}
-.sprite-weaponrpc:before {
-  content: "\e9bc";
-}
-.sprite-weaponseeker:before {
-  content: "\e9bd";
-}
-.sprite-weaponshockwave:before {
-  content: "\e9be";
-}
-.sprite-weaponshotgun:before {
-  content: "\e9bf";
-}
-.sprite-weapontuba:before {
-  content: "\e9c0";
-}
-.sprite-weaponuzi:before {
-  content: "\e9c1";
 }
