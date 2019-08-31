@@ -1,296 +1,191 @@
 @font-face {
-	font-family: 'Luma';
-	src:url('fonts/Luma.eot?hm7zuv');
-	src:url('fonts/Luma.eot?#iefixhm7zuv') format('embedded-opentype'),
-		url('fonts/Luma.woff?hm7zuv') format('woff'),
-		url('fonts/Luma.ttf?hm7zuv') format('truetype'),
-		url('fonts/Luma.svg?hm7zuv#Luma') format('svg');
-	font-weight: normal;
-	font-style: normal;
+  font-family: 'Luma';
+  src:  url('fonts/Luma.eot?wfmcs0');
+  src:  url('fonts/Luma.eot?wfmcs0#iefix') format('embedded-opentype'),
+    url('fonts/Luma.ttf?wfmcs0') format('truetype'),
+    url('fonts/Luma.woff?wfmcs0') format('woff'),
+    url('fonts/Luma.svg?wfmcs0#Luma') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
 
 [class^="sprite-"], [class*=" sprite-"] {
-	font-family: 'Luma';
-	speak: none;
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'Luma' !important;
+  speak: none;
   font-size: 2rem;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
 
-	/* Better Font Rendering =========== */
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.sprite-overall:before {
-	content: "\e600";
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .sprite-arc:before {
-  color: #b8e9ff;
-	content: "\e601";
+  color: #7c9ceb;
+  content: "\e900";
 }
-
-.sprite-arc-circle:before {
-  color: #b8e9ff;
-	content: "\e602";
-}
-
 .sprite-as:before {
-	content: "\e603";
+  content: "\e901";
 }
-
 .sprite-ca:before {
-	content: "\e604";
+  content: "\e902";
 }
-
-.sprite-campingrifle:before {
-	content: "\e605";
-}
-
-.sprite-campingrifle-circle:before {
-	content: "\e606";
-}
-
 .sprite-crylink:before {
-	content: "\e607";
+  color: #ea6ff9;
+  content: "\e903";
 }
-
-.sprite-crylink-circle:before {
-	content: "\e608";
-}
-
 .sprite-ctf:before {
-	content: "\e609";
+  content: "\e904";
 }
-
 .sprite-cts:before {
-	content: "\e60a";
+  content: "\e905";
 }
-
 .sprite-dm:before {
-	content: "\e60b";
+  content: "\e906";
 }
-
 .sprite-dom:before {
-	content: "\e60c";
+  content: "\e907";
 }
-
 .sprite-duel:before {
-	content: "\e60d";
+  content: "\e908";
 }
-
 .sprite-electro:before {
-  color: #597fff;
-	content: "\e60e";
+  color: #6899f2;
+  content: "\e909";
 }
-
-.sprite-electro-circle:before {
-  color: #597fff;
-	content: "\e60f";
-}
-
 .sprite-fireball:before {
-  color: #33ff33;
-	content: "\e610";
+  color: #f0855f;
+  content: "\e90a";
 }
-
-.sprite-fireball-circle:before {
-  color: #33ff33;
-	content: "\e611";
+.sprite-flak:before {
+  color: #e9be57;
+  content: "\e90b";
 }
-
 .sprite-ft:before {
-	content: "\e612";
+  content: "\e90c";
 }
-
-.sprite-gl:before, .sprite-mortar:before{
-  color: #ff2600;
-	content: "\e613";
+.sprite-grenadelauncher:before, .sprite-mortar:before {
+  color: #fd7865;
+  content: "\e90d";
 }
-
-.sprite-gl-circle:before, .sprite-mortar-circle:before{
-  color: #ff2600;
-	content: "\e614";
-}
-
 .sprite-hagar:before {
-  color: #d98059;
-	content: "\e615";
+  color: #e39160;
+  content: "\e90e";
 }
-
-.sprite-hagar-circle:before {
-  color: #d98059;
-	content: "\e616";
-}
-
 .sprite-hlac:before {
-  color: #ffa533;
-	content: "\e617";
+  color: #e5965b;
+  content: "\e90f";
 }
-
-.sprite-hlac-circle:before {
-  color: #ffa533;
-	content: "\e618";
+.sprite-okhmg .path1:before {
+  color: #fd7865;
+  content: "\e910";
+  opacity: 0.75;
 }
-
-.sprite-hookgun:before {
-  color: #a5ffd8;
-	content: "\e619";
+.sprite-okhmg .path2:before {
+  color: #fd7865;
+  content: "\e911";
+  margin-left: -1em;
 }
-
-.sprite-hookgun-circle:before {
-  color: #a5ffd8;
-	content: "\e61a";
+.sprite-hook:before {
+  color: #81f13d;
+  content: "\e912";
 }
-
 .sprite-inf:before {
-	content: "\e61b";
+  content: "\e913";
 }
-
+.sprite-inv:before {
+  content: "\e914";
+}
 .sprite-jb:before {
-	content: "\e61c";
+  content: "\e915";
 }
-
 .sprite-ka:before {
-	content: "\e61d";
+  content: "\e916";
 }
-
 .sprite-kh:before {
-	content: "\e61e";
+  content: "\e917";
 }
-
 .sprite-laser:before, .sprite-blaster:before {
-  color: #ff5933;
-	content: "\e61f";
+  color: #f7717b;
+  content: "\e918";
 }
-
-.sprite-laser-circle:before, .sprite-blaster-circle:before{
-  color: #ff5933;
-	content: "\e620";
-}
-
 .sprite-lms:before {
-	content: "\e621";
+  content: "\e919";
 }
-
 .sprite-minelayer:before {
-  color: #bfbf00;
-	content: "\e622";
+  color: #fd7865;
+  content: "\e91a";
 }
-
-.sprite-minelayer-circle:before {
-  color: #bfbf00;
-	content: "\e623";
+.sprite-minstanex:before, .sprite-vaporizer:before {
+  color: #978ed2;
+  content: "\e91b";
 }
-
-.sprite-minstanex:before, .sprite-vaporizer:before{
-  color: #d62728;
-	content: "\e624";
-}
-
-.sprite-minstanex-circle:before, .sprite-vaporizer-circle:before{
-  color: #d62728;
-	content: "\e625";
-}
-
 .sprite-nb:before {
-	content: "\e626";
+  content: "\e91c";
 }
-
 .sprite-nex:before, .sprite-vortex:before, .sprite-oknex:before {
-  color: #00e6ff;
-	content: "\e627";
+  color: #75c3d5;
+  content: "\e91d";
 }
-
-.sprite-nex-circle:before, .sprite-vortex-circle:before, .sprite-oknex-circle:before{
-  color: #00e6ff;
-	content: "\e628";
-}
-
 .sprite-ons:before {
-	content: "\e629";
+  content: "\e91e";
 }
-
+.sprite-overall:before {
+  content: "\e91f";
+}
 .sprite-porto:before {
-  color: #7fff7f;
-	content: "\e62a";
+  color: #6899f2;
+  content: "\e920";
 }
-
-.sprite-porto-circle:before {
-  color: #7fff7f;
-	content: "\e62b";
-}
-
 .sprite-rc:before {
-	content: "\e62c";
+  content: "\e921";
 }
-
-.sprite-rl:before, .sprite-devastator:before{
-  color: #ffbf33;
-	content: "\e62d";
+.sprite-rifle:before {
+  color: #e39160;
+  content: "\e922";
 }
-
-.sprite-rl-circle:before, .sprite-devastator-circle:before{
-  color: #ffbf33;
-	content: "\e62e";
+.sprite-rocketlauncher:before, .sprite-devastator:before {
+  color: #e9be57;
+  content: "\e923";
 }
-
+.sprite-okrpc .path1:before {
+  color: #e9be57;
+  content: "\e924";
+  opacity: 0.75;
+}
+.sprite-okrpc .path2:before {
+  color: #e9be57;
+  content: "\e925";
+  margin-left: -1em;
+}
 .sprite-seeker:before {
-  color: #ff5959;
-	content: "\e62f";
+  color: #f7717b;
+  content: "\e926";
 }
-
-.sprite-seeker-circle:before {
-  color: #ff5959;
-	content: "\e630";
-}
-
 .sprite-shockwave:before {
-	content: "\e631";
+  color: #77b38a;
+  content: "\e927";
 }
-
-.sprite-shockwave-circle:before {
-	content: "\e632";
-}
-
 .sprite-shotgun:before, .sprite-okshotgun:before {
-  color: #1f77b4;
-	content: "\e633";
+  color: #849ba8;
+  content: "\e928";
 }
-
-.sprite-shotgun-circle:before, .sprite-okshotgun:before {
-  color: #1f77b4;
-	content: "\e634";
-}
-
 .sprite-tdm:before {
-	content: "\e635";
+  content: "\e929";
 }
-
 .sprite-tuba:before {
-  color: #d87f3f;
-	content: "\e636";
+  color: #e9be57;
+  content: "\e92a";
 }
-
-.sprite-tuba-circle:before {
-  color: #d87f3f;
-	content: "\e637";
+.sprite-uzi:before, .sprite-machinegun:before, .sprite-okmachinegun:before {
+  color: #81f13d;
+  content: "\e92b";
 }
-
-.sprite-uzi:before, .sprite-machinegun:before, .sprite-okhmg:before, .sprite-okmachinegun:before {
-  color: #b9e659;
-	content: "\e638";
-}
-
-.sprite-uzi-circle:before, .sprite-machinegun-circle:before, .sprite-okhmg-circle:before, .sprite-okmachinegun-circle:before{
-  color: #b9e659;
-	content: "\e639";
-}
-
 .sprite-vip:before {
-	content: "\e63a";
+  content: "\e92c";
 }
-
