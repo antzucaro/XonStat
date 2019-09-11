@@ -81,15 +81,9 @@
   color: #e5965b;
   content: "\e90f";
 }
-.sprite-okhmg .path1:before {
-  color: #fd7865;
-  content: "\e910";
-  opacity: 0.75;
-}
-.sprite-okhmg .path2:before {
+.sprite-okhmg:before {
   color: #fd7865;
   content: "\e911";
-  margin-left: -1em;
 }
 .sprite-hook:before {
   color: #81f13d;
@@ -128,7 +122,7 @@
 .sprite-nb:before {
   content: "\e91c";
 }
-.sprite-nex:before, .sprite-vortex:before, .sprite-oknex:before {
+.sprite-nex:before, .sprite-vortex:before {
   color: #75c3d5;
   content: "\e91d";
 }
@@ -153,15 +147,9 @@
   color: #e9be57;
   content: "\e923";
 }
-.sprite-okrpc .path1:before {
-  color: #e9be57;
-  content: "\e924";
-  opacity: 0.75;
-}
-.sprite-okrpc .path2:before {
+.sprite-okrpc:before {
   color: #e9be57;
   content: "\e925";
-  margin-left: -1em;
 }
 .sprite-seeker:before {
   color: #f7717b;
@@ -171,7 +159,7 @@
   color: #77b38a;
   content: "\e927";
 }
-.sprite-shotgun:before, .sprite-okshotgun:before {
+.sprite-shotgun:before {
   color: #849ba8;
   content: "\e928";
 }
@@ -182,10 +170,22 @@
   color: #e9be57;
   content: "\e92a";
 }
-.sprite-uzi:before, .sprite-machinegun:before, .sprite-okmachinegun:before {
+.sprite-uzi:before, .sprite-machinegun:before {
   color: #81f13d;
-  content: "\e92b";
+  content: "\e933";
 }
 .sprite-vip:before {
   content: "\e92c";
+}
+.sprite-oknex:before {
+  color: #75c3d5;
+  content: "\e92f";
+}
+.sprite-okshotgun:before {
+  color: #849ba8;
+  content: "\e931";
+}
+.sprite-okmachinegun:before {
+  color: #81f13d;
+  content: "\e933";
 }
