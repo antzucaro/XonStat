@@ -172,7 +172,7 @@
 }
 .sprite-uzi:before, .sprite-machinegun:before {
   color: #81f13d;
-  content: "\e933";
+  content: "\e92b";
 }
 .sprite-vip:before {
   content: "\e92c";
