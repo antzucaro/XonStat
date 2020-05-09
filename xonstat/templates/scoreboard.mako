@@ -47,7 +47,7 @@
 <thead>
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-4">Nick</th>
     <th>Kills</th>
@@ -84,7 +84,7 @@
 <thead>
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-2">Nick</th>
     <th>Kills</th>
@@ -103,7 +103,7 @@
 <thead>
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-2">Nick</th>
     <th>Fastest Time</th>
@@ -136,7 +136,7 @@
 <thead class="dom ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-2">Nick</th>
     <th>Kills</th>
@@ -155,7 +155,7 @@
 <thead class="freezetag ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-2">Nick</th>
     <th>Kills</th>
@@ -173,7 +173,7 @@
 <thead>
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-2">Nick</th>
     <th>Kills</th>
@@ -214,7 +214,7 @@
 <thead class="nb ${pgstat.team_html_color()}">
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-2">Nick</th>
     <th>Goals</th>
@@ -231,7 +231,7 @@
 <thead>
   <tr>
     % if show_latency:
-      <th class="show-for-medium-up small-1">Ping</th>
+      <th class="show-for-medium-up medium-1">Ping</th>
     % endif
     <th class="small-2">Nick</th>
     <th>Laps</th>
