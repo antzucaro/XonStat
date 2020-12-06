@@ -7,7 +7,6 @@ requires = [
     'repoze.tm2>=1.0b1',
     'zope.sqlalchemy',
     'WebError',
-    'sqlahelper',
     'webhelpers',
     'psycopg2',
     'pyramid_beaker',
