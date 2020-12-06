@@ -15,7 +15,6 @@ def main(global_config, **settings):
     """
     # setup the database engine
     engine = engine_from_config(settings, 'sqlalchemy.', pool_size=5)
-    sqlahelper.add_engine(engine)
 
     # initialize database structures
     initialize_db(engine)

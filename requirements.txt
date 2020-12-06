@@ -3,7 +3,6 @@ pyramid
 pyramid_beaker
 pyramid_mako
 repoze.tm2
-sqlahelper
 SQLAlchemy
 transaction
 waitress
