@@ -111,11 +111,14 @@ def recent_games_q(server_id=None, map_id=None, player_id=None,
     # specified player_id. Otherwise it will just look for a game
     # *having* that player_id, but returning the #1 player's pgstat row
     if player_id is not None:
+        print("in the player_id block")
         if force_player_id:
+            print("forced player")
             recent_games_q = recent_games_q.\
                 filter(PlayerGameStat.player_id==player_id).\
                 filter(Game.players.contains([player_id]))
         else:
+            print("in the alias block")
             recent_games_q = recent_games_q.\
                 filter(PlayerGameStat.scoreboardpos==1).\
                 filter(Game.game_id==pgstat_alias.game_id).\

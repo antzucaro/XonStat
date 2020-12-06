@@ -8,6 +8,7 @@ import pyramid.httpexceptions
 import sqlalchemy as sa
 import sqlalchemy.sql.expression as expr
 import sqlalchemy.sql.functions as func
+from sqlalchemy import text
 from webhelpers.paginate import Page
 from xonstat.models import DBSession, Server, Map, Game, PlayerWeaponStat, Player, Hashkey
 from xonstat.models import PlayerElo, PlayerCaptime, PlayerMedal, GameType
@@ -73,7 +74,7 @@ def get_games_played(player_id):
         'losses', 'win_pct'])
 
     raw_games_played = DBSession.query('game_type_cd', 'wins', 'losses').\
-            from_statement(
+            from_statement(text(
                 "SELECT game_type_cd, "
                        "SUM(win) wins, "
                        "SUM(loss) losses "
@@ -95,7 +96,7 @@ def get_games_played(player_id):
                         "AND pgs.player_id = :player_id "
                         "AND g.players @> ARRAY[:player_id]) win_loss "
                 "GROUP  BY game_type_cd "
-            ).params(player_id=player_id).all()
+            )).params(player_id=player_id).all()
 
     games_played = []
     overall_games = 0
@@ -162,7 +163,7 @@ def get_overall_stats(player_id):
     raw_stats = DBSession.query('game_type_cd', 'game_type_descr',
             'total_kills', 'total_deaths', 'last_played', 'total_playing_time',
             'total_pickups', 'total_captures', 'total_carrier_frags').\
-            from_statement(
+            from_statement(text(
                 "SELECT g.game_type_cd, "
                        "gt.descr game_type_descr, "
                        "Sum(pgs.kills)         total_kills, "
@@ -192,7 +193,7 @@ def get_overall_stats(player_id):
                        "Sum(pgs.carrier_frags) total_carrier_frags "
                 "FROM   player_game_stats pgs "
                 "WHERE  pgs.player_id = :player_id "
-            ).params(player_id=player_id).all()
+            )).params(player_id=player_id).all()
 
     # to be indexed by game_type_cd
     overall_stats = {}
@@ -282,7 +283,7 @@ def get_fav_maps(player_id, game_type_cd=None):
 
     raw_favs = DBSession.query('game_type_cd', 'map_name',
             'map_id', 'times_played').\
-            from_statement(
+            from_statement(text(
                 "SELECT game_type_cd, "
                        "name map_name, "
                        "map_id, "
@@ -307,7 +308,7 @@ def get_fav_maps(player_id, game_type_cd=None):
                                   "m.name) most_played "
                 "WHERE  rank = 1 "
                 "ORDER BY  times_played desc "
-            ).params(player_id=player_id).all()
+            )).params(player_id=player_id).all()
 
     fav_maps = {}
     overall_fav = None
@@ -350,7 +351,7 @@ def get_ranks(player_id):
     Rank = namedtuple('Rank', ['rank', 'max_rank', 'percentile', 'game_type_cd'])
 
     raw_ranks = DBSession.query("game_type_cd", "rank", "max_rank").\
-            from_statement(
+            from_statement(text(
                 "select pr.game_type_cd, pr.rank, overall.max_rank "
                 "from player_ranks pr,  "
                    "(select game_type_cd, max(rank) max_rank "
@@ -359,7 +360,7 @@ def get_ranks(player_id):
                 "where pr.game_type_cd = overall.game_type_cd  "
                 "and max_rank > 1 "
                 "and player_id = :player_id "
-                "order by rank").\
+                "order by rank")).\
             params(player_id=player_id).all()
 
     ranks = {}
@@ -538,6 +539,7 @@ def player_info_data(request):
         cake_day       = is_cake_day(player.create_dt)
 
     except Exception as e:
+        log.error(e)
         raise pyramid.httpexceptions.HTTPNotFound
 
         ## do not raise application exceptions here (only for debugging)
@@ -1156,7 +1158,7 @@ def player_versus_data(request):
             p2 = players[0]
 
         # note that wins and losses are from p1's perspective
-        win_loss_sql = """select win_loss, count(1)
+        win_loss_sql = text("""select win_loss, count(1)
             from (
               select case
                 when pgsp1.score >= pgsp2.score then 'win'
@@ -1174,7 +1176,7 @@ def player_versus_data(request):
                 and g.create_dt + interval '1 hour'
             ) wl
             group by win_loss
-            """
+            """)
 
         wins_losses = DBSession.query("win_loss", "count").\
                 from_statement(win_loss_sql).\
